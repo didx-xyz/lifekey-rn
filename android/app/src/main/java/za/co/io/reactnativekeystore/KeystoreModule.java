@@ -8,6 +8,7 @@ import java.security.KeyPairGenerator;
 import java.security.KeyStore;
 import java.security.KeyStoreException;
 import java.security.NoSuchAlgorithmException;
+import java.security.GeneralSecurityException;
 import java.security.KeyPair;
 import java.security.PrivateKey;
 import java.security.PublicKey;
@@ -28,6 +29,7 @@ import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
 import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.WritableMap;
+import com.facebook.react.bridge.Arguments;
 
 
 public class KeystoreModule extends ReactContextBaseJavaModule {
@@ -58,15 +60,18 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
   private final static byte HMACSHA512 = 31;
   private final static byte RC4 = 32;
 
+  // Constants
   private final static String LOGTAG = "RNKEYSTORE";
-
-  private KeyStore keyStore = null;
-  private AssetManager assetManager = null;
   private final static String keyStoreAlias = "rnkeystore";
   private final static String keyStoreType = "AndroidKeyStore";
 
+  // Instance properties
+  private KeyStore keyStore = null;
+  private KeyGenerator keyGenerator = null; // For symmetric
+  private KeyPairGenerator keyPairGenerator = null;
+  private AssetManager assetManager = null;
+
   // private KeyPairGenerator keyPairGenerator;  // For asymmetric
-  private KeyGenerator keyGenerator;          // For symmetric
 
   private Context context;
 
@@ -101,53 +106,65 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     }
   }
 
+  /**
+   * @param type The byte type of an algorithm
+   * @param keyAlias The alias of the keypair
+   * @param password The password used to creat they keypair
+   * @param certificateFilename The filename/path of the X509 certificate the key is signed with
+   * @param promise com.facebook.react.bridge.Promise;
+   * @return void
+   * @throws IOException
+   */
   @ReactMethod
   public void newKeyPair(int type, String keyAlias, String password, String certificateFilename, Promise promise) throws IOException {
-
-    // Log
 
     // Declare
     KeyPair keyPair = null;
     PrivateKey privateKey = null;
     PublicKey publicKey = null;
     char[] passwordCharacters = null;
-    Certificate[] certChain = null;
-    KeyPairGenerator keyPairGenerator = null;
-    KeyStore keyStore = null;
+    Certificate x509Cert = null;
+    // KeyPairGenerator keyPairGenerator = null;
     FileOutputStream fos = null;
-    InputStream  is = null;
-    BufferedReader br;
 
-    // Do
+
     try {
       Log.d(LOGTAG, "newKeyPair " + getKeyNameFromType(type) + " " + keyAlias + " " + password);
+      this.loadKeyStore(keyAlias, password);
 
-      Log.d(LOGTAG, "init keystore");
-      keyStore = KeyStore.getInstance(keyStoreType);
-      Log.d(LOGTAG, "init keypairgenerator");
-      keyPairGenerator = KeyPairGenerator.getInstance(getKeyNameFromType(type));
+      this.keyPairGenerator = KeyPairGenerator.getInstance(getKeyNameFromType(type));
+
       // Create a keypair
-      Log.d(LOGTAG, "generate keypair");
       keyPair = keyPairGenerator.genKeyPair();
-      Log.d(LOGTAG, "extract priv");
       privateKey = keyPair.getPrivate();
-      Log.d(LOGTAG, "extract public");
+      String privateKeyHex = KeystoreModule.bytesToHex(privateKey.getEncoded());
       publicKey = keyPair.getPublic();
+      String publicKeyHex = KeystoreModule.bytesToHex(publicKey.getEncoded());
 
+      WritableMap map = Arguments.createMap();
+      map.putString("privateKey", privateKeyHex);
+      map.putString("publicKey", publicKeyHex);
+      Log.d(LOGTAG, publicKeyHex);
+      Log.d(LOGTAG, privateKeyHex);
       // Convert password to char array
-      Log.d(LOGTAG, "convert pass to char");
       passwordCharacters = password.toCharArray();
 
-      // Load certificate
-      Log.d(LOGTAG, "load certificate chain");
-      certChain = loadCertificateChain(certificateFilename);
 
-      Log.d(LOGTAG, "Set entries");
-      keyStore.setKeyEntry("private" + keyAlias, privateKey, passwordCharacters, certChain);
-      keyStore.setKeyEntry("public" + keyAlias, publicKey, passwordCharacters, certChain);
-      fos = new FileOutputStream(keyStoreAlias);
-      keyStore.store(fos, passwordCharacters);
-      promise.resolve("Worked");
+      // Load certificate
+      x509Cert = this.loadCertificate(certificateFilename);
+      Certificate[] certChain = new Certificate[1];
+      certChain[0] = x509Cert;
+
+      // Set entries
+      this.keyStore.setKeyEntry("public" + keyAlias, publicKey, passwordCharacters, certChain);
+      this.keyStore.setKeyEntry("private" + keyAlias, privateKey, passwordCharacters, certChain);
+
+      // Write to file
+      fos = new FileOutputStream(this.absolutePath(this.keyStoreAlias));
+      this.keyStore.store(fos, passwordCharacters);
+
+      // return the keys in hex through promise
+      promise.resolve(map);
     } catch(Exception e) {
       promise.reject(Integer.toString(E_NO_SUCH_ALGORITHM), e.toString());
     } finally {
@@ -157,61 +174,81 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     }
   }
 
-  @ReactMethod
-  public void create(String keyStoreName, String keyStorePassword, Promise promise) {
+  /**
+   * @param name The name of the keystore
+   * @return The absolute path of the keystore file
+   */
+  private String absolutePath(String name) {
+    return this.context.getFilesDir() + "/" + name;
+  }
+
+  private static String bytesToHex(byte[] bytes) {
+    final char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
+    char[] hexChars = new char[bytes.length * 2];
+    int v;
+    for ( int j = 0; j < bytes.length; j++ ) {
+        v = bytes[j] & 0xFF;
+        hexChars[j * 2] = hexArray[v >>> 4];
+        hexChars[j * 2 + 1] = hexArray[v & 0x0F];
+    }
+    return new String(hexChars);
+}
+
+/**
+ * Create a new keystore in the application directory
+ * @param name The name of the keystore
+ * @param password The password to lock/unlock the keystore
+ * @return True on success
+ */
+  private void createKeyStore(String name, String password) throws IOException, GeneralSecurityException {
+
+    Log.d(LOGTAG, "Creating keystore "+name+", "+password);
+    FileOutputStream fos = new FileOutputStream(this.context.getFilesDir() + "/" + name);
+    char[] passwordCharacters = password.toCharArray();
+    this.keyStore.load(null, passwordCharacters);
+    this.keyStore.store(fos, passwordCharacters);
+
+
+    Log.d(LOGTAG, "Closing " + this.context.getFilesDir() + "/" + name);
+    if(fos != null) {
+      fos.close();
+    }
+
+
+  }
+  /**
+   * Load a keystore by name, specifiying password and create a new keystore if it does not exist
+   * @param name The name of they keystore
+   * @param password The password to the keystore
+   */
+  private void loadKeyStore(String name, String password) throws IOException, GeneralSecurityException {
+    char[] passwordCharacters = password.toCharArray();
     FileInputStream fis = null;
     try {
-      try {
-        fis = new FileInputStream(keyStoreName);
-        this.keyStore.load(fis, keyStorePassword.toCharArray());
-      } finally {
-        if(fis != null) {
-          fis.close();
-        }
+      // Load exisitng
+      this.keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
+      fis = new FileInputStream(this.context.getFilesDir() + "/" + name);
+      this.keyStore.load(fis, passwordCharacters);
+      Log.d(LOGTAG, "Key store " + name + " loaded");
+    } catch (FileNotFoundException e) {
+      // Create new
+      Log.d(LOGTAG, "Key store does not exist, creating...");
+      this.createKeyStore(name, password);
+      Log.d(LOGTAG, "Key store created");
+    } finally {
+      if( fis != null) {
+        Log.d(LOGTAG, "Closing file");
+        fis.close();
       }
-      // Log.d(LOGTAG, "Created new keystore: " + keyStoreName);
-      promise.resolve(new Object());
-    } catch (Exception e) {
-      // Log.e(LOGTAG, e.toString());
-      promise.reject(Integer.toString(E_IO_EXCEPTION), e.toString());
     }
-  }
-
-  private boolean load(String keyStoreName, String keyStorePassword) throws IOException {
-    char[] passwordCharacters = keyStorePassword.toCharArray();
-    FileInputStream fis = null;
-      try {
-        fis = new FileInputStream(keyStoreName);
-        this.keyStore.load(fis, passwordCharacters);
-      } catch (Exception e) {
-        Log.d(LOGTAG, e.toString());
-        return false;
-      } finally {
-        if( fis != null) {
-          fis.close(); // IOException MOVE AROUND
-        }
-        return true;
-      }
 
   }
 
-  private Certificate[] loadCertificateChain(String certificateFilename) throws IOException, CertificateException {
+  private Certificate loadCertificate(String certificateFilename) throws IOException, CertificateException {
     assetManager = context.getAssets();
-
-    Log.d(LOGTAG, "init fis");
-    FileInputStream fis = new FileInputStream(assetManager.open(certificateFilename));
-    Log.d(LOGTAG, "init bis");
-    BufferedInputStream bis = new BufferedInputStream(fis);
-    Log.d(LOGTAG, "init cf");
-    CertificateFactory cf = CertificateFactory.getInstance("x.509");
-
-    while (bis.available() > 0) {
-      Certificate cert = cf.generateCertificate(bis);
-      Log.d(LOGTAG, cert.toString());
-    }
-    return new Certificate[3];
+    BufferedInputStream bis = new BufferedInputStream(assetManager.open(certificateFilename));
+    CertificateFactory cf = CertificateFactory.getInstance("X.509");
+    return cf.generateCertificate(bis);
   }
 
-  private void unlock(String keyStoreName) {
-  }
 }

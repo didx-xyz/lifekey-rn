@@ -27,8 +27,10 @@ export default class Debug extends Scene {
   }
 
   _newKeyPair() {
-    NativeModules.Keystore.newKeyPair(13, "test123", "pass123", "cacert.pem").then((x) => {
-      console.log('RNKEYSTORE', x, 'then')
+    NativeModules.Keystore.newKeyPair(13, "test1234", "pass123", "rsa-example.pem").then((x) => {
+      console.log('RNKEYSTORE')
+      console.log(x)
+
     })
     .catch((e) => {
       console.log('RNKEYSTORE', e, 'e')
