@@ -19,12 +19,13 @@ import {
 } from 'react-native'
 import * as NB from 'native-base'
 import Camera from 'react-native-camera'
+import AndroidBackButton from 'react-native-android-back-button'
+import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 const t = require('tcomb-form-native')
 const Form = t.form.Form
-import AndroidBackButton from 'react-native-android-back-button'
 
 
-export default class ScanQRCode extends Scene {
+export default class SelfieCam extends Scene {
 
   constructor(props) {
     super(props)
@@ -38,22 +39,14 @@ export default class ScanQRCode extends Scene {
     return true
   }
 
-  goToDisplayForm(formData) {
-    this.setState({ qrCaptured: false })
-    this.navigator.push({ ...Routes.displayForm, formData: formData })
-  }
-
-  onBarCodeRead(data) {
-    if (!this.state.qrCaptured) {
-      this.setState({
-        qrCaptured: true
-      })
-      Alert.alert(
-        'DATA',
-        JSON.stringify(data),
-        [{ text: 'Dismiss', onPress: () => this.setState({ qrCaptured: false }) }]
-      )
-    }
+  takePicture() {
+    this.camera.capture()
+    .then((result) => {
+      alert("Image saved to " + result.path)
+    })
+    .catch((error) => {
+      alert(error)
+    })
   }
 
   render() {
@@ -62,16 +55,15 @@ export default class ScanQRCode extends Scene {
         <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
         <Camera
           ref={(cam) => { this.camera = cam }}
+          captureTarget={ Camera.constants.CaptureTarget.temp }
           style={styles.preview}
           aspect={Camera.constants.Aspect.fill}
           orientation={Camera.constants.Orientation.portrait}
           onBarCodeRead={(data) => this.onBarCodeRead(data)}
-          type={Camera.constants.Type.rear}
+          type={Camera.constants.Type.front}
           // barCodeTypes={['aztec', 'qr']}
         >
-          <View style={{ flex: 1, alignItems: 'center', borderColor: 'green', borderWidth: 1, margin: 30, width: Dimensions.get('window').width - 30 }}>
-            <Text style={{ color: 'white' }}>Place QR code in this box</Text>
-          </View>
+            <Text style={styles.capture} onPress={() => this.takePicture()}><Icon size={32} name="camera"/></Text>
         </Camera>
       </View>
     )
@@ -91,7 +83,7 @@ const styles = StyleSheet.create({
   },
   capture: {
     flex: 0,
-    backgroundColor: '#fff',
+    backgroundColor: '#f3f3f3',
     borderRadius: 5,
     color: '#000',
     padding: 10,

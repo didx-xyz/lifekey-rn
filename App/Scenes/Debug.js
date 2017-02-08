@@ -7,23 +7,30 @@
 
 import React from 'react'
 import Scene from '../Scene'
-
+import Routes from '../Routes'
 import {
   Text,
-  ScrollView
+  ScrollView,
+  StyleSheet,
+  View
 } from 'react-native'
 
 import {
   Container,
   Content,
 } from 'native-base'
-import { Button, Input } from 'nachos-ui'
+import { Button, Input, H1 } from 'nachos-ui'
 import { NativeModules } from 'react-native'
 
 export default class Debug extends Scene {
 
   componentDidMount() {
-    this._newKeyPair()
+    // this._newKeyPair()
+    // alert(NativeModules.Keystore.ANDROID_CA_STORE)
+  }
+
+  _test() {
+    NativeModules.Keystore.init()
   }
 
   _newKeyPair() {
@@ -41,9 +48,21 @@ export default class Debug extends Scene {
     return (
       <Container>
         <Content>
-          <Button onPress={() => this._newKeyPair()}/>
+          <View style={{ alignItems: 'center' }}>
+            <H1>Lifekey Tech Demo</H1>
+          </View>
+          <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.keyPairGenerator)}>RSA Keypair Generator</Button>
+          <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.scanQrCode)}>QR Code Scanner</Button>
+          <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.selfieCam)}>Self-facing Camera</Button>
+          <Button style={[styles.btn]} onPress={() => alert("todo")}>JSON Form Generator</Button>
         </Content>
       </Container>
     )
+  }
+}
+
+const styles = {
+  btn: {
+    margin: 5
   }
 }
