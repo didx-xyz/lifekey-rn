@@ -27,9 +27,9 @@ export default class KeypairGenerator extends Scene {
     this.state = {
 
     }
-    this.keystoreFilename = "asdasdas"
-    this.keystorePassword = "test123"
-    this.keystoreType = "AndroidKeyStore"
+    // this.keystoreFilename = "asdasdas"
+    // this.testing123 = "test123"
+    // this.keystoreType = "AndroidKeyStore"
   }
   _generate() {
     // NativeModules.Keystore.create("name", "pass")
@@ -47,7 +47,7 @@ export default class KeypairGenerator extends Scene {
   }
 
   _create() {
-    NativeModules.Keystore.create("keystoreName", "keystorePassword")
+    NativeModules.Keystore.create("testing123", "testing123")
     .then((x) => {
       alert(x)
     })
@@ -57,7 +57,7 @@ export default class KeypairGenerator extends Scene {
   }
 
   _load() {
-    NativeModules.Keystore.load("keystoreName", "keystorePassword")
+    NativeModules.Keystore.load("testing123", "testing123")
     .then((x) => {
       alert(x)
     })
@@ -66,15 +66,66 @@ export default class KeypairGenerator extends Scene {
     })
   }
 
+  _addKeyPair() {
+    NativeModules.Keystore.addKeyPair(13, "SOME-KEY", "testing123", "rsa-example.pem")
+    .then((keypair) => {
+      alert(JSON.stringify(keypair))
+    })
+    .catch((error) => {
+      alert(error)
+    })
+  }
+
+  _containsAlias() {
+   NativeModules.Keystore.containsAlias("SOME-KEY")
+    .then((result) => {
+      alert(result)
+    })
+    .catch((error) => alert(error))
+  }
+
+  _aliases() {
+    NativeModules.Keystore.aliases()
+    .then((list) => alert(list))
+    .catch((error) => alert(error))
+  }
+
+  _deleteEntry() {
+    NativeModules.Keystore.deleteEntry("alias")
+    .then((result) => alert(result))
+    .catch((error) => alert(error))
+  }
+
+  _getCertificate() {
+    NativeModules.Keystore.getCertificate("alias")
+    .then((result) => alert(result))
+    .catch((error) => alert(error))
+  }
+
+  _size() {
+    NativeModules.Keystore.size()
+    .then((size) => alert(size))
+    .catch(error => alert(error))
+  }
+
+  _deleteStore() {
+    NativeModules.Keystore.deleteStore("testing123")
+    .then((x) => alert(x))
+    .catch((e) => alert(e))
+  }
 
   render() {
     return (
       <Container>
         <Content>
-          <Button onPress={() => this._generate()}> Generate </Button>
-          <Button onPress={() => this._create()}> Create </Button>
-          <Button onPress={() => this._list()}> List </Button>
-          <Button onPress={() => this._load()}> Load </Button>
+          <Button onPress={() => this._create()}> Create store</Button>
+          <Button onPress={() => this._list()}> List stores</Button>
+          <Button onPress={() => this._load()}> Load store</Button>
+          <Button onPress={() => this._addKeyPair()}> Create and Store RSA keys </Button>
+          <Button onPress={() => this._containsAlias()}> Contains alias </Button>
+          <Button onPress={() => this._aliases()}>Aliases </Button>
+          <Button onPress={() => this._size()}>Size </Button>
+          <Button onPress={() => this._deleteStore()}>Delete store </Button>
 
         </Content>
       </Container>

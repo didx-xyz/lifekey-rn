@@ -4,21 +4,12 @@ import java.security.cert.CertificateFactory;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 
-import java.security.KeyPairGenerator;
-import java.security.KeyStore;
-import java.security.KeyStoreException;
-import java.security.NoSuchAlgorithmException;
-import java.security.GeneralSecurityException;
-import java.security.KeyPair;
-import java.security.PrivateKey;
-import java.security.PublicKey;
+import java.security.*;
 
 import javax.crypto.KeyGenerator;
 import java.util.List;
 import java.io.*;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 import android.util.Log;
 import android.content.Context;
@@ -77,13 +68,14 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
 
   // Instance properties
   private KeyStore keyStore = null;
-  private KeyGenerator keyGenerator = null; // For symmetric
+  // private KeyGenerator keyGenerator = null; // For symmetric
   private AssetManager assetManager = null;
   private String keyStoreType = null;
 
   private String provider = null;
   private String alias = null;
-
+  private static int RANDOM_SEED_SIZE = 32;
+  private static int KEY_SIZE = 256;
   // private KeyPairGenerator keyPairGenerator;  // For asymmetric
 
   private Context context;
@@ -114,32 +106,22 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     return constants;
   }
 
-  /**
-   * Initialise the keystore
-   * @param The alias of the keystore
-   * @param The provider name as string
-   */
-  private void init() throws KeyStoreException {
-    this.keyStoreType = KeyStore.getDefaultType();
-    this.keyStore = KeyStore.getInstance(this.keyStoreType);
+  public String getName() {
+    return "Keystore";
   }
 
-  /**
-   * @category DONE
-   */
-  private File initCertsFolder() throws IOException {
-    // init abstract folder
-    File certsDirectory = new File(this.context.getFilesDir().getPath() + "/certs");
-    // create if not exists
-    if(!certsDirectory.exists()) {
-      if(!certsDirectory.mkdir()) {
-        throw new IOException("Could not create directory " + certsDirectory.getPath());
-        //success
+  @ReactMethod
+  public void getAlias(Promise promise) {
+    try {
+      if(this.keyStore == null || this.alias == null) {
+        throw new KeyStoreException("Keystore must first be loaded");
       }
+      promise.resolve(this.alias);
+    } catch(KeyStoreException e) {
+      promise.reject(e);
     }
-    return certsDirectory;
-
   }
+
   /**
    * List all files/folders in the given store path. Store
    * path is relative to app path
@@ -150,7 +132,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void listStores(Promise promise) {
     try {
-      File keyStoreFolder = this.initCertsFolder();
+      File keyStoreFolder = this.getStoresFolder();
       File[] listOfFiles = keyStoreFolder.listFiles();
       WritableNativeArray names = new WritableNativeArray();
       for(int i = 0; i < listOfFiles.length; i++) {
@@ -165,12 +147,82 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
   }
 
   @ReactMethod
+  public void deleteStore(String name, Promise promise) {
+    try {
+      File store = new File(this.absolutePath(name));
+      store.delete();
+      promise.resolve(null);
+    } catch(SecurityException e) {
+      promise.reject(e);
+    } catch(IOException e) {
+      promise.reject(e);
+    }
+  }
+
+  @ReactMethod
   public void aliases(Promise promise) {
     try {
+      if(this.keyStore == null) {
+        throw new KeyStoreException("Keystore must first be loaded");
+      }
+      WritableNativeArray map = new WritableNativeArray();
       java.util.Enumeration<String> aliases = this.keyStore.aliases();
       while (aliases.hasMoreElements()) {
-        Log.d(LOGTAG, (String) aliases.nextElement());
+        map.pushString(aliases.nextElement());
       }
+      promise.resolve(map);
+    } catch(KeyStoreException e) {
+      promise.reject(e);
+    }
+  }
+
+  @ReactMethod
+  public void containsAlias(String alias, Promise promise) {
+    try {
+      if(this.keyStore == null) {
+        throw new KeyStoreException("Keystore must first be loaded");
+      }
+      boolean found = this.keyStore.containsAlias(alias);
+      promise.resolve(found);
+    } catch(KeyStoreException e) {
+      promise.reject(e);
+    }
+  }
+
+  @ReactMethod
+  public void deleteEntry(String alias, Promise promise) {
+    try {
+      if(this.keyStore == null) {
+        throw new KeyStoreException("Keystore must first be loaded");
+      }
+      this.keyStore.deleteEntry(alias);
+      promise.resolve(null);
+    } catch(KeyStoreException e) {
+      promise.reject(e);
+    }
+  }
+
+  @ReactMethod
+  public void getCertificate(String alias, Promise promise) {
+    try {
+      if(this.keyStore == null) {
+        throw new KeyStoreException("Keystore must first be loaded");
+      }
+      Certificate certificate = this.keyStore.getCertificate(alias);
+      promise.resolve(certificate.toString());
+    } catch(KeyStoreException e) {
+      promise.reject(e);
+    }
+  }
+
+  @ReactMethod
+  public void size(Promise promise) {
+    try {
+      if(this.keyStore == null) {
+        throw new KeyStoreException("Keystore must first be loaded");
+      }
+      int size = this.keyStore.size();
+      promise.resolve(size);
     } catch(KeyStoreException e) {
       promise.reject(e);
     }
@@ -182,13 +234,8 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * @param password
    */
   @ReactMethod
-  public void load(String filename, String password, Promise promise) throws IOException {
-    // File tmp = new File(this.context.getFilesDir() + "/" + filename);
-    // if(tmp.exists()) {
-    //   Log.d(LOGTAG, "Exists");
-    // } else {
-    //   Log.d(LOGTAG, "Does not exist");
-    // }
+  public void load(String name, String password, Promise promise) {
+
     char[] passwordCharacters = password.toCharArray();
     FileInputStream fis = null;
 
@@ -196,8 +243,9 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       if(this.keyStore == null) {
         this.init();
       }
-      fis = new FileInputStream(this.context.getFilesDir() + "/certs/" + filename);
+      fis = new FileInputStream(this.absolutePath(name));
       this.keyStore.load(fis, passwordCharacters);
+      this.alias = name;
       promise.resolve(null);
     } catch(NoSuchAlgorithmException e) {
       promise.reject(Byte.toString(E_NO_SUCH_ALGORITHM));
@@ -209,9 +257,15 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       promise.reject(e);
     } catch (CertificateException e) {
       promise.reject(e);
+    } catch(IOException e) {
+      promise.reject(e);
     } finally {
       if( fis != null) {
-        fis.close();
+        try {
+          fis.close();
+        } catch(IOException e) {
+          promise.reject(e);
+        }
       }
     }
   }
@@ -225,15 +279,23 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
  */
   @ReactMethod
   public void create(String name, String password, Promise promise) throws IOException {
+    String filePath = this.absolutePath(name);
+    File keyStoreAbstract = new File(filePath);
+    if(keyStoreAbstract.exists()) {
+      promise.reject(new IOException("Keystore with name " + name + " already exists"));
+      return;
+    }
+
     FileOutputStream fos = null;
     char[] passwordCharacters = password.toCharArray();
     try {
       if(this.keyStore == null) {
         this.init();
       }
-      fos = new FileOutputStream(this.initCertsFolder().getPath() + "/" + name);
+      fos = new FileOutputStream(filePath);
       this.keyStore.load(null, passwordCharacters);
       this.keyStore.store(fos, passwordCharacters);
+      this.alias = name;
       promise.resolve(null);
     } catch(NullPointerException e) {
       promise.reject("The keystore must first be initialised");
@@ -245,19 +307,16 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       promise.reject(e);
     } finally {
       if(fos != null) {
-        fos.close();
+        try {
+          fos.close();
+        } catch(IOException e) {
+          promise.reject(e);
+        }
       }
     }
   }
 
-  @ReactMethod
-  public void size(Promise promise) throws KeyStoreException {
-    promise.resolve(this.keyStore.size());
-  }
 
-  public String getName() {
-    return "Keystore";
-  }
 
   @ReactMethod
   public void sign() {
@@ -269,6 +328,12 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     // Verify with keys
   }
 
+  private SecureRandom newSecureRandom() {
+    SecureRandom random = new SecureRandom();
+    byte[] seed = random.generateSeed(RANDOM_SEED_SIZE);
+    random.setSeed(seed);
+    return random;
+  }
 
   /**
    * @param type The byte type of an algorithm
@@ -279,59 +344,63 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * @return void
    * @throws IOException
    */
-  // @ReactMethod
-  // public void newKeyPair(int type, String keyAlias, String password, String certificateFilename, Promise promise) throws IOException {
+  @ReactMethod
+  public void addKeyPair(int type, String keyAlias, String password, String certificateFilename, Promise promise) throws IOException {
+    if(this.keyStore == null) {
+      promise.reject(new KeyStoreException("Keystore must first be loaded"));
+      return;
+    }
+    FileOutputStream fos = null;
 
-  //   // Declare
-  //   // KeyPair keyPair = null;
-  //   // PrivateKey privateKey = null;
-  //   // PublicKey publicKey = null;
-  //   // char[] passwordCharacters = null;
-  //   // Certificate x509Cert = null;
-  //   FileOutputStream fos = null;
+    try {
+      Log.d(LOGTAG, "newKeyPair " + getKeyNameFromType(type) + " " + keyAlias + " " + password);
+      // this.load(keyAlias, password);
 
-  //   try {
-  //     Log.d(LOGTAG, "newKeyPair " + getKeyNameFromType(type) + " " + keyAlias + " " + password);
-  //     // this.load(keyAlias, password);
+      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(getKeyNameFromType(type));
+      keyPairGenerator.initialize(KEY_SIZE, this.newSecureRandom());
+      // Create a keypair
+      KeyPair keyPair = keyPairGenerator.genKeyPair();
+      PrivateKey privateKey = keyPair.getPrivate();
+      String privateKeyHex = KeystoreModule.bytesToHex(privateKey.getEncoded());
+      PublicKey publicKey = keyPair.getPublic();
+      String publicKeyHex = KeystoreModule.bytesToHex(publicKey.getEncoded());
 
-  //     KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(getKeyNameFromType(type));
+      WritableMap map = Arguments.createMap();
+      map.putString("privateKey", privateKeyHex);
+      map.putString("publicKey", publicKeyHex);
+      Log.d(LOGTAG, "Private\n"+privateKeyHex);
+      Log.d(LOGTAG, "Public\n"+publicKeyHex);
 
-  //     // Create a keypair
-  //     KeyPair keyPair = keyPairGenerator.genKeyPair();
-  //     PrivateKey privateKey = keyPair.getPrivate();
-  //     String privateKeyHex = KeystoreModule.bytesToHex(privateKey.getEncoded());
-  //     PublicKey publicKey = keyPair.getPublic();
-  //     String publicKeyHex = KeystoreModule.bytesToHex(publicKey.getEncoded());
-  //     WritableMap map = Arguments.createMap();
-  //     map.putString("privateKey", privateKeyHex);
-  //     map.putString("publicKey", publicKeyHex);
+      // Convert password to char array
+      char[] passwordCharacters = password.toCharArray();
 
-  //     // Convert password to char array
-  //     char[] passwordCharacters = password.toCharArray();
+      // Load certificate
+      Certificate x509Cert = this.loadCertificate(certificateFilename);
+      Certificate[] certChain = new Certificate[1];
+      certChain[0] = x509Cert;
 
-  //     // Load certificate
-  //     Certificate x509Cert = this.loadCertificate(certificateFilename);
-  //     Certificate[] certChain = new Certificate[1];
-  //     certChain[0] = x509Cert;
+      // Set entries
+      this.keyStore.setKeyEntry("public" + keyAlias, publicKey, passwordCharacters, certChain);
+      this.keyStore.setKeyEntry("private" + keyAlias, privateKey, passwordCharacters, certChain);
 
-  //     // Set entries
-  //     this.keyStore.setKeyEntry("public" + keyAlias, publicKey, passwordCharacters, certChain);
-  //     this.keyStore.setKeyEntry("private" + keyAlias, privateKey, passwordCharacters, certChain);
+      // Write to file
+      fos = new FileOutputStream(this.absolutePath(this.alias));
+      this.keyStore.store(fos, passwordCharacters);
 
-  //     // Write to file
-  //     fos = new FileOutputStream(this.absolutePath(this.keyStoreAlias));
-  //     this.keyStore.store(fos, passwordCharacters);
-
-  //     // return the keys in hex through promise
-  //     promise.resolve(map);
-  //   } catch(Exception e) {
-  //     promise.reject(e.toString());
-  //   } finally {
-  //     if(fos != null) {
-  //       fos.close();
-  //     }
-  //   }
-  // }
+      // return the keys in hex through promise
+      promise.resolve(map);
+    } catch(Exception e) {
+      promise.reject(e.toString());
+    } finally {
+      try {
+        if(fos != null) {
+          fos.close();
+        }
+      } catch(IOException e) {
+        promise.reject(e);
+      }
+    }
+  }
 
   /**
    * @param type The byte type of an algorithm
@@ -359,8 +428,9 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * @param name The name of the keystore
    * @return The absolute path of the keystore file
    */
-  private String absolutePath(String name) {
-    return this.context.getFilesDir() + "/" + name;
+  private String absolutePath(String name) throws IOException {
+    Log.d(LOGTAG, this.getStoresFolder().getPath() + "/" + name);
+    return this.getStoresFolder().getPath() + "/" + name;
   }
 
   private static String bytesToHex(byte[] bytes) {
@@ -375,40 +445,38 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     return new String(hexChars);
 }
 
-
-  /**
-   * Load a keystore by name, specifiying password and create a new keystore if it does not exist
-   * @param name The name of they keystore
-   * @param password The password to the keystore
-   */
-  // private void load(String name, String password) throws IOException, GeneralSecurityException {
-  //   char[] passwordCharacters = password.toCharArray();
-  //   FileInputStream fis = null;
-  //   try {
-  //     // Load exisitng
-  //     this.keyStore = KeyStore.getInstance(KeyStore.getDefaultType());
-  //     fis = new FileInputStream(this.context.getFilesDir() + "/" + name);
-  //     this.keyStore.load(fis, passwordCharacters);
-  //     Log.d(LOGTAG, "Key store " + name + " loaded");
-  //   } catch (FileNotFoundException e) {
-  //     // Create new
-  //     Log.d(LOGTAG, "Key store does not exist, creating...");
-  //     this.create(name, password);
-  //     Log.d(LOGTAG, "Key store created");
-  //   } finally {
-  //     if( fis != null) {
-  //       Log.d(LOGTAG, "Closing file");
-  //       fis.close();
-  //     }
-  //   }
-
-  // }
-
   private Certificate loadCertificate(String certificateFilename) throws IOException, CertificateException {
     assetManager = context.getAssets();
     BufferedInputStream bis = new BufferedInputStream(assetManager.open(certificateFilename));
     CertificateFactory cf = CertificateFactory.getInstance("X.509");
     return cf.generateCertificate(bis);
+  }
+
+    /**
+   * Initialise the keystore
+   * @param The alias of the keystore
+   * @param The provider name as string
+   */
+  private void init() throws KeyStoreException, IOException {
+    this.keyStoreType = KeyStore.getDefaultType();
+    this.keyStore = KeyStore.getInstance(this.keyStoreType);
+  }
+
+  /**
+   * @category DONE
+   */
+  private File getStoresFolder() throws IOException {
+    // init abstract folder
+    File storesDirectory = new File(this.context.getFilesDir().getPath() + "/stores");
+    // create if not exists
+    if(!storesDirectory.exists()) {
+      if(!storesDirectory.mkdir()) {
+        throw new IOException("Could not create directory " + storesDirectory.getPath());
+        //success
+      }
+    }
+    return storesDirectory;
+
   }
 
 }

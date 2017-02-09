@@ -29,9 +29,6 @@ export default class Debug extends Scene {
     // alert(NativeModules.Keystore.ANDROID_CA_STORE)
   }
 
-  _test() {
-    NativeModules.Keystore.init()
-  }
 
   _newKeyPair() {
     NativeModules.Keystore.newKeyPair(13, "test1234", "pass123", "rsa-example.pem").then((x) => {
