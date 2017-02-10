@@ -67,9 +67,10 @@ export default class KeypairGenerator extends Scene {
   }
 
   _addKeyPair() {
-    NativeModules.Keystore.addKeyPair(13, "SOME-KEY", "testing123", "rsa-example.pem")
+    NativeModules.Keystore.addKeyPair("RSA", "SOME-KEY", "testing123", "rsa-example.pem")
     .then((keypair) => {
       alert(JSON.stringify(keypair))
+      console.log(JSON.stringify(keypair))
     })
     .catch((error) => {
       alert(error)
@@ -114,6 +115,64 @@ export default class KeypairGenerator extends Scene {
     .catch((e) => alert(e))
   }
 
+  _sign() {
+    NativeModules.Keystore.sign("Some data to sign here", "privateSOME-KEY", "testing123", "SHA256withRSA")
+    .then(x => {
+      alert(x)
+      console.log(x)
+    })
+    .catch(e => alert(e))
+  }
+
+  _getFormat() {
+    NativeModules.Keystore.getKeyAsPem("privateSOME-KEY", "testing123")
+    .then(x => {
+      console.log(x)
+      const fd = new FormData()
+      fd.append("plaintext", "hex sha256 hash")
+      fd.append("signature", "the sig hex")
+      fd.append("public_key", "pem encoded")
+      let details = {}
+      return fetch("http://172.16.20.118:8000/rsa-verify", { method: 'POST', body: JSON.stringify(details) })
+    })
+    .then(x => {
+      alert(JSON.stringify(x))
+      console.log(JSON.stringify(x))
+    })
+    .catch(x => alert(x))
+  }
+
+  _parityCheck() {
+
+    var mydigest
+    var mysignature
+
+    const data = "Some data to sign here"
+    NativeModules.Keystore.load(
+      "testing123", "testing123"
+    ).then(_ => {
+      return NativeModules.Keystore.digest(data, "SHA256")
+    }).then((digest) => {
+      mydigest = digest
+      return NativeModules.Keystore.sign(digest, "privateSOME-KEY", "testing123", "SHA256withRSA")
+    }).then((signature) => {
+      mysignature = signature
+      return NativeModules.Keystore.getKeyAsPem("publicSOME-KEY", "testing123")
+    }).then(pemKey => {
+      console.log(data, mysignature, pemKey)
+      return fetch("http://172.16.20.118:8000/rsa-verify2", {
+        method: 'POST',
+        headers: new Headers({"Content-Type": "application/json"}),
+        body: JSON.stringify({
+          plaintext: data,
+          signature: mysignature,
+          public_key: pemKey
+        })
+      })
+    }).then(r => {
+      console.log(JSON.stringify(r))
+    }).catch(console.log)
+  }
   render() {
     return (
       <Container>
@@ -126,6 +185,9 @@ export default class KeypairGenerator extends Scene {
           <Button onPress={() => this._aliases()}>Aliases </Button>
           <Button onPress={() => this._size()}>Size </Button>
           <Button onPress={() => this._deleteStore()}>Delete store </Button>
+          <Button onPress={() => this._sign()}>Sign </Button>
+          <Button onPress={() => this._parityCheck()}>Parity check </Button>
+
 
         </Content>
       </Container>

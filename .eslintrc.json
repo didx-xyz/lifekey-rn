@@ -21,7 +21,8 @@
         "console": false,
         "Promise": false,
         "fetch": false,
-        "FormData": false
+        "FormData": false,
+        "Header": false
     },
     "rules": {
         "strict": "error",

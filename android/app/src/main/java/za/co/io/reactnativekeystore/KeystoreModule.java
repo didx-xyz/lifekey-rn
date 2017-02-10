@@ -1,17 +1,19 @@
 package za.co.io.reactnativekeystore;
 
+import java.security.*;
 import java.security.cert.CertificateFactory;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 
-import java.security.*;
-
 import javax.crypto.KeyGenerator;
 import java.util.List;
 import java.io.*;
+import java.nio.charset.Charset;
 import java.util.*;
+import java.nio.charset.StandardCharsets;
 
 import android.util.Log;
+import android.util.Base64;
 import android.content.Context;
 import android.content.res.AssetManager;
 
@@ -33,35 +35,68 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
   private final static byte E_KEYSTORE = 82;
   private final static byte E_IO_EXCEPTION = 83;
 
-  // Asymmetric keys
-  private final static byte DH = 10;
-  private final static byte DSA = 11;
-  private final static byte EC = 12;
-  private final static byte RSA = 13;
+  // Asymmetric key types
+  private final static String KEYPAIR_DH = "DH";
+  private final static String KEYPAIR_DSA ="DSA";
+  private final static String KEYPAIR_EC = "EC";
+  private final static String KEYPAIR_RSA = "RSA";
 
-  // Symmetric keys
-  private final static byte AES = 20;
-  private final static byte AESWRAP = 21;
-  private final static byte ARC4 = 22;
-  private final static byte BLOWFISH = 23;
-  private final static byte DES = 24;
-  private final static byte DESEDE = 25;
-  private final static byte DESEDEWRAP = 26;
-  private final static byte HMACMD5 = 27;
-  private final static byte HMACSHA1 = 28;
-  private final static byte HMACSHA256 = 29;
-  private final static byte HMACSHA384 = 30;
-  private final static byte HMACSHA512 = 31;
-  private final static byte RC4 = 32;
+  // Symmetric key types
+  private final static String KEY_AES = "AES";
+  private final static String KEY_AESWRAP = "AESWRAP";
+  private final static String KEY_ARC4 = "ARC4";
+  private final static String KEY_BLOWFISH = "Blowfish";
+  private final static String KEY_DES = "DES";
+  private final static String DESEDE = "DESede";
+  private final static String DESEDEWRAP = "DESedeWRAP";
+  private final static String HMACMD5 = "HmacMD5";
+  private final static String HMACSHA1 = "HmacSHA1";
+  private final static String HMACSHA256 = "HmacSHA224";
+  private final static String HMACSHA384 = "HmacSHA256";
+  private final static String HMACSHA512 = "HmacSHA512";
+  private final static String RC4 = "RC4";
+
+  // Signature algorithms
+  private final static String SIG_DSA = "DSA";
+  private final static String SIG_DSA_WITH_SHA1 = "DSAwithSHA1";
+  private final static String SIG_DSS = "DSS";
+  private final static String SIG_ECDSA = "ECDSA";
+  private final static String SIG_ECDSA_WITH_SHA1 = "ECDSAwithSHA1";
+  private final static String SIG_MD2_WITH_RSA = "MD2withRSA";
+  private final static String SIG_MD4_WITH_RSA = "MD4withRSA";
+  private final static String SIG_MD5_WITH_RSA = "MD5withRSA";
+  private final static String SIG_MD5_WITH_RSA_ISO9796_2 = "MD5withRSA/ISO9796-2";
+  private final static String SIG_NONE_WITH_DSA = "NONEwithDSA";
+  private final static String SIG_NONE_WITH_ECDSA = "NONEwithECDSA";
+  private final static String SIG_NONE_WITH_RSA = "NONEwithRSA";
+  private final static String SIG_RSASSA_PSS = "RSASSA-PSS";
+  private final static String SIG_SHA1_WITH_DSA = "SHA1withDSA";
+  private final static String SIG_SHA1_WITH_ECDSA = "SHA1withECDSA";
+  private final static String SIG_SHA1_WITH_RSA = "SHA1withRSA";
+  private final static String SIG_SHA1_WITH_RSA_ISO9796_2 = "SHA1withRSA/ISO9796-2";
+  private final static String SIG_SHA256_WITH_ECDSA = "SHA256withECDSA";
+  private final static String SIG_SHA256_WITH_RSA = "SHA256withRSA";
+  private final static String SIG_SHA384_WITH_ECDSA = "SHA384withECDSA";
+  private final static String SIG_SHA384_WITH_RSA = "SHA384withRSA";
+  private final static String SIG_SHA512_WITH_ECDSA = "SHA512withECDSA";
+  private final static String SIG_SHA512_WITH_RSA = "SHA512withRSA";
+
+  // Digest algorithms
+  private final static String DIGEST_MD5 = "MD5";
+  private final static String DIGEST_SHA_1 = "SHA-1";
+  private final static String DIGEST_SHA_224 = "SHA-224";
+  private final static String DIGEST_SHA_256 = "SHA-256";
+  private final static String DIGEST_SHA_384 = "SHA-384";
+  private final static String DIGEST_SHA_512 = "SHA-512";
 
   // Keystore types
-  private final static String ANDROID_CA_STORE = "AndroidCAStore";
-  private final static String ANDROID_KEY_STORE = "AndroidKeyStore";
-  private final static String BCPKCS12 = "BCPKCS12";
-  private final static String BKS = "BKS";
-  private final static String BOUNCY_CASTLE = "BouncyCastle";
-  private final static String PKCS12 = "PKCS12";
-  private final static String PKCS12_DEF = "PKCS12_DEF";
+  private final static String STORE_ANDROID_CA_STORE = "AndroidCAStore";
+  private final static String STORE_ANDROID_KEY_STORE = "AndroidKeyStore";
+  private final static String STORE_BCPKCS12 = "BCPKCS12";
+  private final static String STORE_BKS = "BKS";
+  private final static String STORE_BOUNCY_CASTLE = "BouncyCastle";
+  private final static String STORE_PKCS12 = "PKCS12";
+  private final static String STORE_PKCS12_DEF = "PKCS12_DEF";
 
   // Constants
   private final static String LOGTAG = "RNKEYSTORE";
@@ -74,8 +109,8 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
 
   private String provider = null;
   private String alias = null;
-  private static int RANDOM_SEED_SIZE = 32;
-  private static int KEY_SIZE = 256;
+  private static int RANDOM_SEED_SIZE = 64;
+  private static int KEY_SIZE = 1024;
   // private KeyPairGenerator keyPairGenerator;  // For asymmetric
 
   private Context context;
@@ -86,23 +121,31 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     this.keyStoreType = KeyStore.getDefaultType(); // default
   }
 
+  @ReactMethod
+  public void getKeyAsPem(String keyAlias, String keyPassword, Promise promise) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException {
+    Key key = (Key)this.keyStore.getKey(keyAlias, keyPassword.toCharArray());
+    String pemFormatted = "-----BEGIN PUBLIC KEY-----\n" + Base64.encodeToString(key.getEncoded(), Base64.NO_PADDING) + "-----END PUBLIC KEY-----\n";
+    Log.d(LOGTAG, pemFormatted);
+    promise.resolve(pemFormatted);
+  }
+
   @Override
   public Map<String, Object> getConstants() {
     final Map<String, Object> constants = new HashMap<>();
     // Keystore types
-    constants.put("ANDROID_CA_STORE", ANDROID_CA_STORE);
-    constants.put("ANDROID_KEY_STORE", ANDROID_KEY_STORE);
-    constants.put("BCPKCS12", BCPKCS12);
-    constants.put("BKS", BKS);
-    constants.put("BOUNCY_CASTLE", BOUNCY_CASTLE);
-    constants.put("PKCS12", PKCS12);
-    constants.put("PKCS12_DEF", PKCS12_DEF);
+    constants.put("STORE_ANDROID_CA_STORE", STORE_ANDROID_CA_STORE);
+    constants.put("STORE_ANDROID_KEY_STORE", STORE_ANDROID_KEY_STORE);
+    constants.put("STORE_BCPKCS12", STORE_BCPKCS12);
+    constants.put("STORE_BKS", STORE_BKS);
+    constants.put("STORE_BOUNCY_CASTLE", STORE_BOUNCY_CASTLE);
+    constants.put("STORE_PKCS12", STORE_PKCS12);
+    constants.put("STORE_PKCS12_DEF", STORE_PKCS12_DEF);
 
     // Asymmetric keys
-    constants.put("DH", DH);
-    constants.put("DSA", DSA);
-    constants.put("EC", EC);
-    constants.put("RSA", RSA);
+    constants.put("KEYPAIR_DH", KEYPAIR_DH);
+    constants.put("KEYPAIR_DSA", KEYPAIR_DSA);
+    constants.put("KEYPAIR_EC", KEYPAIR_EC);
+    constants.put("KEYPAIR_RSA", KEYPAIR_RSA);
     return constants;
   }
 
@@ -316,16 +359,72 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     }
   }
 
-
-
   @ReactMethod
-  public void sign() {
-    // Sign with keys
+  public void digest(String dataString, String algorithm, Promise promise) {
+    try {
+      byte[] data = dataString.getBytes(StandardCharsets.UTF_8);
+      MessageDigest md = MessageDigest.getInstance(algorithm);
+      byte[] hash = md.digest(data);
+      String hex = this.bytesToHex(hash);
+      promise.resolve(hex);
+    } catch(NoSuchAlgorithmException e) {
+      promise.reject(e);
+    }
   }
 
   @ReactMethod
-  public void verify() {
+  public void sign(String dataString, String privateKeyAlias, String privateKeyPassword, String algorithm, Promise promise) {
+    if(this.keyStore == null) {
+      promise.reject(new KeyStoreException("Keystore must first be loaded"));
+      return;
+    }
+    // Sign with keys
+    try {
+      PrivateKey privateKey = (PrivateKey)this.keyStore.getKey(privateKeyAlias, privateKeyPassword.toCharArray());
+      Signature sig = Signature.getInstance(algorithm);
+      sig.initSign(privateKey, this.newSecureRandom());
+      byte[] data = dataString.getBytes(StandardCharsets.UTF_8);
+      sig.update(data);
+      byte[] signature = sig.sign();
+      promise.resolve(this.bytesToHex(signature));
+    } catch(NoSuchAlgorithmException e) {
+      promise.reject(e);
+    } catch(KeyStoreException e) {
+      promise.reject(e);
+    } catch(InvalidKeyException e) {
+      promise.reject(e);
+    } catch(SignatureException e) {
+      promise.reject(e);
+    } catch(UnrecoverableKeyException e) {
+      promise.reject(e);
+    }
+
+  }
+
+  @ReactMethod
+  public void verify(String signature, String publicKeyAlias, String publicKeyPassword, String algorithm, Promise promise) {
+    if(this.keyStore == null) {
+      promise.reject(new KeyStoreException("Keystore must first be loaded"));
+      return;
+    }
     // Verify with keys
+    try {
+      PublicKey publicKey = (PublicKey)this.keyStore.getKey(publicKeyAlias, publicKeyPassword.toCharArray());
+      Signature sig = Signature.getInstance(algorithm);
+      sig.initVerify(publicKey);
+      boolean result = sig.verify(this.hexToBytes(signature));
+      promise.resolve(result);
+    } catch(InvalidKeyException e) {
+      promise.reject(e);
+    } catch(KeyStoreException e) {
+      promise.reject(e);
+    } catch(NoSuchAlgorithmException e) {
+      promise.reject(e);
+    } catch(SignatureException e) {
+      promise.reject(e);
+    } catch(UnrecoverableKeyException e) {
+      promise.reject(e);
+    }
   }
 
   private SecureRandom newSecureRandom() {
@@ -345,7 +444,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * @throws IOException
    */
   @ReactMethod
-  public void addKeyPair(int type, String keyAlias, String password, String certificateFilename, Promise promise) throws IOException {
+  public void addKeyPair(String type, String keyAlias, String password, String certificateFilename, Promise promise) throws IOException {
     if(this.keyStore == null) {
       promise.reject(new KeyStoreException("Keystore must first be loaded"));
       return;
@@ -353,10 +452,9 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     FileOutputStream fos = null;
 
     try {
-      Log.d(LOGTAG, "newKeyPair " + getKeyNameFromType(type) + " " + keyAlias + " " + password);
-      // this.load(keyAlias, password);
+      Log.d(LOGTAG, "newKeyPair " + type + " " + keyAlias + " " + password);
 
-      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(getKeyNameFromType(type));
+      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(type);
       keyPairGenerator.initialize(KEY_SIZE, this.newSecureRandom());
       // Create a keypair
       KeyPair keyPair = keyPairGenerator.genKeyPair();
@@ -403,28 +501,6 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
   }
 
   /**
-   * @param type The byte type of an algorithm
-   * @return name The name of the algorithm in Android as a String
-   */
-  private String getKeyNameFromType(int type) throws NoSuchAlgorithmException {
-    switch(type) {
-      // Symmetric
-      case DH: return "DH";
-      case DSA: return "DSA";
-      case EC: return "EC";
-      case RSA: return "RSA";
-      // Asymmetric
-      case AES: return "AES";
-      case AESWRAP: return "AESWRAP";
-      case ARC4: return "ARC4";
-      case BLOWFISH: return "Blowfish";
-      // TODO add the rest
-
-      default: throw new NoSuchAlgorithmException();
-    }
-  }
-
-  /**
    * @param name The name of the keystore
    * @return The absolute path of the keystore file
    */
@@ -434,6 +510,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
   }
 
   private static String bytesToHex(byte[] bytes) {
+    // http://stackoverflow.com/questions/9655181/how-to-convert-a-byte-array-to-a-hex-string-in-java/9855338#9855338
     final char[] hexArray = {'0','1','2','3','4','5','6','7','8','9','a','b','c','d','e','f'};
     char[] hexChars = new char[bytes.length * 2];
     int v;
@@ -443,7 +520,18 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
         hexChars[j * 2 + 1] = hexArray[v & 0x0F];
     }
     return new String(hexChars);
-}
+  }
+
+  private static byte[] hexToBytes(String s) {
+      // http://stackoverflow.com/questions/140131/convert-a-string-representation-of-a-hex-dump-to-a-byte-array-using-java/140861#140861
+      int len = s.length();
+      byte[] data = new byte[len / 2];
+      for (int i = 0; i < len; i += 2) {
+          data[i / 2] = (byte) ((Character.digit(s.charAt(i), 16) << 4)
+                              + Character.digit(s.charAt(i+1), 16));
+      }
+      return data;
+  }
 
   private Certificate loadCertificate(String certificateFilename) throws IOException, CertificateException {
     assetManager = context.getAssets();
