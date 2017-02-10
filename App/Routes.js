@@ -13,14 +13,15 @@ import Register from './Scenes/Register'
 import Debug from './Scenes/Debug'
 import SelfieCam from './Scenes/SelfieCam'
 import KeypairGenerator from './Scenes/KeypairGenerator'
+import FormGenerator from './Scenes/FormGenerator'
 
 export default {
   login: { title: 'Login', scene: Login },
   main: { title: 'Main', scene: Main },
   scanQrCode: { title: 'Scan QR Code', scene: ScanQRCode },
   selfieCam: { title: 'Self-facing Camera', scene: SelfieCam },
-  displayForm: { title: 'Display Form', scene: DisplayForm },
   keyPairGenerator: { title: 'Keypair Generator', scene: KeypairGenerator },
   register: { title: 'Register', scene: Register },
-  debug: { title: 'Debug', scene: Debug }
+  debug: { title: 'Debug', scene: Debug },
+  formGenerator: { title: 'form generator', scene: FormGenerator }
 }

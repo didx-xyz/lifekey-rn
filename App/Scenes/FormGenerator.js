@@ -8,15 +8,11 @@ import * as NB from 'native-base'
 const t = require('tcomb-form-native')
 const Form = t.form.Formrequire
 
-export default class DisplayForm extends Scene {
+export default class FormGenerator extends Scene {
 
   constructor(props) {
     super(props)
-    this.state = {
-      formData: props.route.formData,
-      parsable: null,
-      loaded: true
-    }
+    this.state = {}
   }
 
   componentWillMount() {
@@ -27,7 +23,7 @@ export default class DisplayForm extends Scene {
     if (this.state.loaded) {
       return (
         <View>
-          <Text>{ JSON.stringify(this.state.formData) }</Text>
+          <Text>Hello</Text>
         </View>
       )
     } else {

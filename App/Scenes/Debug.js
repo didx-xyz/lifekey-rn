@@ -51,7 +51,7 @@ export default class Debug extends Scene {
           <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.keyPairGenerator)}>RSA Keypair Generator</Button>
           <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.scanQrCode)}>QR Code Scanner</Button>
           <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.selfieCam)}>Self-facing Camera</Button>
-          <Button style={[styles.btn]} onPress={() => alert("todo")}>JSON Form Generator</Button>
+          <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.formGenerator)}>JSON Form Generator</Button>
         </Content>
       </Container>
     )
