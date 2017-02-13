@@ -69,8 +69,7 @@ export default class KeypairGenerator extends Scene {
   _addKeyPair() {
     NativeModules.Keystore.addKeyPair("RSA", "SOME-KEY", 2048, "testing123", "rsa-example.pem")
     .then((keypair) => {
-      alert(JSON.stringify(keypair))
-      console.log(JSON.stringify(keypair))
+      console.log("done")
     })
     .catch((error) => {
       alert(error)

@@ -2,6 +2,7 @@ package za.co.io.reactnativekeystore;
 
 import java.security.*;
 import java.security.cert.CertificateFactory;
+import java.security.spec.RSAKeyGenParameterSpec;
 import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 
@@ -467,7 +468,9 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       byte[] data = dataString.getBytes(StandardCharsets.UTF_8);
       sig.update(data);
       byte[] signature = sig.sign();
-      promise.resolve(this.bytesToHex(signature));
+      String asHex = this.bytesToHex(signature);
+      KeystoreModule.log("SIG: "+asHex);
+      promise.resolve(asHex);
     } catch(NoSuchAlgorithmException e) {
       promise.reject(e);
     } catch(KeyStoreException e) {
@@ -479,7 +482,6 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     } catch(UnrecoverableKeyException e) {
       promise.reject(e);
     }
-
   }
 
   /**
@@ -551,11 +553,6 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       Enumeration<String> aliases = this.keyStore.aliases();
       while(aliases.hasMoreElements()) {
         String alias = aliases.nextElement();
-        // KeystoreModule.log("CUR: " + alias + " PARAM: " + "private"+keyAlias + " PARAM: " + "public"+keyAlias);
-        KeystoreModule.log(Boolean.toString(alias == "private"+keyAlias));
-        KeystoreModule.log(Boolean.toString(alias == "public"+keyAlias));
-        KeystoreModule.log(Boolean.toString(alias.equals("private"+keyAlias)));
-        KeystoreModule.log(Boolean.toString(alias.equals("public"+keyAlias)));
 
         if(alias.equals(keyAlias) || alias.equals("private"+keyAlias) || alias.equals("public"+keyAlias)) {
           promise.reject(new KeyStoreException("A key with that alias already exists"));
@@ -565,42 +562,35 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
 
       KeystoreModule.log( "newKeyPair " + type + " " + keyAlias + " " + password);
 
-      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, "AndroidKeyStore");
+      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
 
       // init
-      keyPairGenerator.initialize(
-        new KeyGenParameterSpec.Builder(
-          keyAlias,
-          KeyProperties.PURPOSE_SIGN)
-          .setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)
-          .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_OAEP)
-          .build()
-      );
-
-
+      keyPairGenerator.initialize(2048);
 
       // Create a keypair
       KeyPair keyPair = keyPairGenerator.generateKeyPair();
       PrivateKey privateKey = keyPair.getPrivate();
-
-      String privateKeyHex = KeystoreModule.bytesToHex(privateKey.getEncoded());
+      // String privateKeyHex = Base64.encodeToString(privateKey.getEncoded(), Base64.NO_PADDING);
       PublicKey publicKey = keyPair.getPublic();
-      String publicKeyHex = KeystoreModule.bytesToHex(publicKey.getEncoded());
+      // String publicKeyHex = Base64.encodeToString(publicKey.getEncoded(), Base64.NO_PADDING);
 
       WritableMap map = Arguments.createMap();
-      map.putString("privateKey", privateKeyHex);
-      map.putString("publicKey", publicKeyHex);
-      Log.d(LOGTAG, "Private\n" + privateKeyHex);
-      Log.d(LOGTAG, "Public\n" + publicKeyHex);
+      // map.putString("privateKey", privateKeyHex);
+      // map.putString("publicKey", publicKeyHex);
+      // Log.d(LOGTAG, "Private\n" + privateKeyHex);
+      // Log.d(LOGTAG, "Public\n" + publicKeyHex);
 
       // Convert password to char array
       char[] passwordCharacters = password.toCharArray();
+      Log.d(LOGTAG, publicKey.toString());
+      Log.d(LOGTAG, privateKey.toString());
 
       // Load certificate
       Certificate x509Cert = this.loadCertificate(certificateFilename);
       Certificate[] certChain = new Certificate[1];
       certChain[0] = x509Cert;
 
+      Log.d(LOGTAG, keyAlias + " " + publicKey.toString() + " " + passwordCharacters.toString()  + " " + certChain.toString());
       // Set entries
       this.keyStore.setKeyEntry("public" + keyAlias, publicKey, passwordCharacters, certChain);
       this.keyStore.setKeyEntry("private" + keyAlias, privateKey, passwordCharacters, certChain);
@@ -608,15 +598,18 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       // Write to file
       fos = new FileOutputStream(this.absolutePath(this.alias));
       this.keyStore.store(fos, passwordCharacters);
-
-      KEY_SIZE = keySize;
+      // KEY_SIZE = keySize;
       // return the keys in hex through promise
-      promise.resolve(map);
-    } catch(NoSuchProviderException e) {
-      promise.reject(e);
-    } catch(InvalidAlgorithmParameterException e) {
-      promise.reject(e);
-    } catch(IOException e) {
+      // promise.resolve(map);
+      promise.resolve(null);
+    }
+    // catch(NoSuchProviderException e) {
+    //   promise.reject(e);
+    // }
+    // catch(InvalidAlgorithmParameterException e) {
+    //   promise.reject(e);
+    // }
+    catch(IOException e) {
       promise.reject(e.toString());
     } catch(NoSuchAlgorithmException e) {
       promise.reject(e);
