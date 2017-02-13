@@ -468,9 +468,9 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       byte[] data = dataString.getBytes(StandardCharsets.UTF_8);
       sig.update(data);
       byte[] signature = sig.sign();
-      String asHex = this.bytesToHex(signature);
-      KeystoreModule.log("SIG: "+asHex);
-      promise.resolve(asHex);
+      String sigB64 = Base64.encodeToString(signature, Base64.DEFAULT);
+      KeystoreModule.log("SIG: "+sigB64);
+      promise.resolve(sigB64);
     } catch(NoSuchAlgorithmException e) {
       promise.reject(e);
     } catch(KeyStoreException e) {
@@ -525,7 +525,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       return;
     }
     Key key = (Key)this.keyStore.getKey(keyAlias, keyPassword.toCharArray());
-    String pemFormatted = "-----BEGIN PUBLIC KEY-----\n" + Base64.encodeToString(key.getEncoded(), Base64.NO_PADDING) + "-----END PUBLIC KEY-----\n";
+    String pemFormatted = "-----BEGIN PUBLIC KEY-----\n" + Base64.encodeToString(key.getEncoded(), Base64.DEFAULT) + "-----END PUBLIC KEY-----\n";
     Log.d(LOGTAG, pemFormatted);
     promise.resolve(pemFormatted);
   }
@@ -562,35 +562,34 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
 
       KeystoreModule.log( "newKeyPair " + type + " " + keyAlias + " " + password);
 
-      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+      // KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
+      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(type);
 
       // init
-      keyPairGenerator.initialize(2048);
+      keyPairGenerator.initialize(2048, this.newSecureRandom());
 
       // Create a keypair
       KeyPair keyPair = keyPairGenerator.generateKeyPair();
       PrivateKey privateKey = keyPair.getPrivate();
-      // String privateKeyHex = Base64.encodeToString(privateKey.getEncoded(), Base64.NO_PADDING);
+      String privateKeyB64 = Base64.encodeToString(privateKey.getEncoded(), Base64.DEFAULT);
       PublicKey publicKey = keyPair.getPublic();
-      // String publicKeyHex = Base64.encodeToString(publicKey.getEncoded(), Base64.NO_PADDING);
+      String publicKeyB64 = Base64.encodeToString(publicKey.getEncoded(), Base64.DEFAULT);
 
       WritableMap map = Arguments.createMap();
-      // map.putString("privateKey", privateKeyHex);
-      // map.putString("publicKey", publicKeyHex);
-      // Log.d(LOGTAG, "Private\n" + privateKeyHex);
-      // Log.d(LOGTAG, "Public\n" + publicKeyHex);
+      map.putString("privateKey", privateKeyB64);
+      map.putString("publicKey", publicKeyB64);
+      Log.d(LOGTAG, "Private\n" + privateKeyB64);
+      Log.d(LOGTAG, "Public\n" + publicKeyB64);
 
       // Convert password to char array
       char[] passwordCharacters = password.toCharArray();
-      Log.d(LOGTAG, publicKey.toString());
-      Log.d(LOGTAG, privateKey.toString());
 
       // Load certificate
       Certificate x509Cert = this.loadCertificate(certificateFilename);
       Certificate[] certChain = new Certificate[1];
       certChain[0] = x509Cert;
 
-      Log.d(LOGTAG, keyAlias + " " + publicKey.toString() + " " + passwordCharacters.toString()  + " " + certChain.toString());
+      // Log.d(LOGTAG, keyAlias + " " + publicKey.toString() + " " + passwordCharacters.toString()  + " " + certChain.toString());
       // Set entries
       this.keyStore.setKeyEntry("public" + keyAlias, publicKey, passwordCharacters, certChain);
       this.keyStore.setKeyEntry("private" + keyAlias, privateKey, passwordCharacters, certChain);
@@ -598,10 +597,8 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       // Write to file
       fos = new FileOutputStream(this.absolutePath(this.alias));
       this.keyStore.store(fos, passwordCharacters);
-      // KEY_SIZE = keySize;
-      // return the keys in hex through promise
-      // promise.resolve(map);
-      promise.resolve(null);
+
+      promise.resolve(map);
     }
     // catch(NoSuchProviderException e) {
     //   promise.reject(e);
@@ -734,7 +731,6 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     if(!storesDirectory.exists()) {
       if(!storesDirectory.mkdir()) {
         throw new IOException("Could not create directory " + storesDirectory.getPath());
-        //success
       }
     }
     return storesDirectory;

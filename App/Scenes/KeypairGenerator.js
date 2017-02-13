@@ -70,6 +70,7 @@ export default class KeypairGenerator extends Scene {
     NativeModules.Keystore.addKeyPair("RSA", "SOME-KEY", 2048, "testing123", "rsa-example.pem")
     .then((keypair) => {
       console.log("done")
+      alert(keypair)
     })
     .catch((error) => {
       alert(error)
@@ -115,7 +116,7 @@ export default class KeypairGenerator extends Scene {
   }
 
   _sign() {
-    NativeModules.Keystore.sign("Some data to sign oijoijojoijoijoijoijhere", "privateSOME-KEY", "testing123", "SHA256withRSA")
+    NativeModules.Keystore.sign("Some data to sign", "privateSOME-KEY", "testing123", "SHA256withRSA")
     .then(x => {
       alert(x)
       console.log(x)
@@ -149,11 +150,13 @@ export default class KeypairGenerator extends Scene {
     const data = "Some data to sign here"
     NativeModules.Keystore.load(
       "testing123", "testing123"
-    ).then(_ => {
-      return NativeModules.Keystore.digest(data, "SHA256")
-    }).then((digest) => {
-      mydigest = digest
-      return NativeModules.Keystore.sign(digest, "privateSOME-KEY", "testing123", "SHA256withRSA")
+    )
+    // .then(_ => {
+    //   return NativeModules.Keystore.digest(data, "SHA256")
+    // })
+    .then((digest) => {
+      // mydigest = digest
+      return NativeModules.Keystore.sign(data, "privateSOME-KEY", "testing123", "SHA256withRSA")
     }).then((signature) => {
       mysignature = signature
       return NativeModules.Keystore.getKeyAsPem("publicSOME-KEY", "testing123")
