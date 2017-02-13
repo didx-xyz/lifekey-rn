@@ -8,7 +8,6 @@
 import Login from './Scenes/Login'
 import Main from './Scenes/Main'
 import ScanQRCode from './Scenes/ScanQRCode'
-import DisplayForm from './Scenes/DisplayForm'
 import Register from './Scenes/Register'
 import Debug from './Scenes/Debug'
 import SelfieCam from './Scenes/SelfieCam'

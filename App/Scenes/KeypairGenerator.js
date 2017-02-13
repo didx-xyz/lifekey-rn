@@ -67,7 +67,7 @@ export default class KeypairGenerator extends Scene {
   }
 
   _addKeyPair() {
-    NativeModules.Keystore.addKeyPair("RSA", "SOME-KEY", "testing123", "rsa-example.pem")
+    NativeModules.Keystore.addKeyPair("RSA", "SOME-KEY", 2048, "testing123", "rsa-example.pem")
     .then((keypair) => {
       alert(JSON.stringify(keypair))
       console.log(JSON.stringify(keypair))
@@ -86,7 +86,7 @@ export default class KeypairGenerator extends Scene {
   }
 
   _aliases() {
-    NativeModules.Keystore.aliases()
+    NativeModules.Keystore.keyAliases()
     .then((list) => alert(list))
     .catch((error) => alert(error))
   }
@@ -116,7 +116,7 @@ export default class KeypairGenerator extends Scene {
   }
 
   _sign() {
-    NativeModules.Keystore.sign("Some data to sign here", "privateSOME-KEY", "testing123", "SHA256withRSA")
+    NativeModules.Keystore.sign("Some data to sign oijoijojoijoijoijoijhere", "privateSOME-KEY", "testing123", "SHA256withRSA")
     .then(x => {
       alert(x)
       console.log(x)
@@ -173,6 +173,31 @@ export default class KeypairGenerator extends Scene {
       console.log(JSON.stringify(r))
     }).catch(console.log)
   }
+
+  _testSign() {
+    NativeModules.Keystore.digest("Signthis", "SHA-256")
+    .then((hash) => {
+      console.log(hash)
+      return NativeModules.Keystore.sign("Some data", "privateSOME-KEY", "testing123", "SHA256withRSA")
+    })
+    .then((sig) => {
+      console.log(sig)
+      alert(sig)
+    })
+    .catch(e => alert(e))
+  }
+
+  _getPrivatePem() {
+    NativeModules.Keystore.getKeyAsPem("privateSOME-KEY", "testing123")
+    .then((z) => {
+      console.log(z);
+      alert(z);
+    })
+    .catch((z) => {
+      alert(z);
+    })
+  }
+
   render() {
     return (
       <Container>
@@ -187,6 +212,7 @@ export default class KeypairGenerator extends Scene {
           <Button onPress={() => this._deleteStore()}>Delete store </Button>
           <Button onPress={() => this._sign()}>Sign </Button>
           <Button onPress={() => this._parityCheck()}>Parity check </Button>
+          <Button onPress={() => this._getPrivatePem()}>PRIV PEM</Button>
 
 
         </Content>

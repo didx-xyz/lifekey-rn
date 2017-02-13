@@ -6,7 +6,6 @@ import java.security.cert.Certificate;
 import java.security.cert.CertificateException;
 
 import javax.crypto.KeyGenerator;
-import java.util.List;
 import java.io.*;
 import java.nio.charset.Charset;
 import java.util.*;
@@ -16,6 +15,7 @@ import android.util.Log;
 import android.util.Base64;
 import android.content.Context;
 import android.content.res.AssetManager;
+import android.security.keystore.*;
 
 import com.facebook.react.bridge.NativeModule;
 import com.facebook.react.bridge.ReactApplicationContext;
@@ -103,8 +103,9 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
 
   // Constants
   private final static String LOGTAG = "RNKEYSTORE";
+  private final static boolean DEBUG = true;
   private static int RANDOM_SEED_SIZE = 64;
-  private static int KEY_SIZE = 1024;
+  private static int KEY_SIZE = 2048;
 
   // Instance properties
   private KeyStore keyStore = null;
@@ -157,7 +158,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     constants.put("KEY_HMACSHA512", KEY_HMACSHA512);
 
     constants.put("SIG_DSA", SIG_DSA);
-    constants.put("SIG_DSA_WITH_SHA_1", SIG_DSA_WITH_SHA_1);
+    constants.put("SIG_DSA_WITH_SHA1", SIG_DSA_WITH_SHA1);
     constants.put("SIG_DSS", SIG_DSS);
     constants.put("SIG_ECDSA", SIG_ECDSA);
     constants.put("SIG_ECDSA_WITH_SHA1", SIG_ECDSA_WITH_SHA1);
@@ -168,7 +169,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     constants.put("SIG_NONE_WITH_DSA", SIG_NONE_WITH_DSA);
     constants.put("SIG_NONE_WITH_RSA", SIG_NONE_WITH_RSA);
     constants.put("SIG_NONE_WITH_ECDSA", SIG_NONE_WITH_ECDSA);
-    constants.put("SIG_RSASSA-PSS", SIG_RSASSA-PSS);
+    constants.put("SIG_RSASSA_PSS", SIG_RSASSA_PSS);
     constants.put("SIG_SHA1_WITH_DSA", SIG_SHA1_WITH_DSA);
     constants.put("SIG_SHA1_WITH_ECDSA", SIG_SHA1_WITH_ECDSA);
     constants.put("SIG_SHA1_WITH_RSA", SIG_SHA1_WITH_RSA);
@@ -207,7 +208,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       }
       promise.resolve(this.alias);
     } catch(KeyStoreException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_KEYSTORE),e);
     }
   }
 
@@ -220,7 +221,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void listStores(Promise promise) {
     try {
-      File keyStoreFolder = KeystoreModule.getStoresFolder();
+      File keyStoreFolder = this.getStoresFolder();
       File[] listOfFiles = keyStoreFolder.listFiles();
       WritableNativeArray names = new WritableNativeArray();
       for(int i = 0; i < listOfFiles.length; i++) {
@@ -261,7 +262,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
         throw new KeyStoreException("Keystore must first be loaded");
       }
       WritableNativeArray map = new WritableNativeArray();
-      java.util.Enumeration<String> aliases = this.keyStore.aliases();
+      Enumeration<String> aliases = this.keyStore.aliases();
       while (aliases.hasMoreElements()) {
         map.pushString(aliases.nextElement());
       }
@@ -388,12 +389,16 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
  */
   @ReactMethod
   public void create(String name, String password, Promise promise) throws IOException {
+
     String filePath = this.absolutePath(name);
     File keyStoreAbstract = new File(filePath);
     if(keyStoreAbstract.exists()) {
       promise.reject(new IOException("Keystore with name " + name + " already exists"));
       return;
     }
+
+    // WritableMap returnMap = new Arguments.createMap();
+
 
     FileOutputStream fos = null;
     char[] passwordCharacters = password.toCharArray();
@@ -408,6 +413,8 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       promise.resolve(null);
     } catch(NullPointerException e) {
       promise.reject("The keystore must first be initialised");
+    } catch(IOException e) {
+      promise.reject(Byte.toString(E_IO_EXCEPTION), e);
     } catch(NoSuchAlgorithmException e) {
       promise.reject(e);
     } catch(KeyStoreException e) {
@@ -511,6 +518,10 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    */
   @ReactMethod
   public void getKeyAsPem(String keyAlias, String keyPassword, Promise promise) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException {
+    if(this.keyStore == null) {
+      promise.reject(new KeyStoreException("Keystore must first be loaded"));
+      return;
+    }
     Key key = (Key)this.keyStore.getKey(keyAlias, keyPassword.toCharArray());
     String pemFormatted = "-----BEGIN PUBLIC KEY-----\n" + Base64.encodeToString(key.getEncoded(), Base64.NO_PADDING) + "-----END PUBLIC KEY-----\n";
     Log.d(LOGTAG, pemFormatted);
@@ -528,21 +539,50 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * @throws IOException
    */
   @ReactMethod
-  public void addKeyPair(String type, String keyAlias, String password, String certificateFilename, Promise promise) throws IOException {
+  public void addKeyPair(String type, String keyAlias, int keySize, String password, String certificateFilename, Promise promise) {
     if(this.keyStore == null) {
       promise.reject(new KeyStoreException("Keystore must first be loaded"));
       return;
     }
+
     FileOutputStream fos = null;
-
     try {
-      Log.d(LOGTAG, "newKeyPair " + type + " " + keyAlias + " " + password);
+      // Check if already exists
+      Enumeration<String> aliases = this.keyStore.aliases();
+      while(aliases.hasMoreElements()) {
+        String alias = aliases.nextElement();
+        // KeystoreModule.log("CUR: " + alias + " PARAM: " + "private"+keyAlias + " PARAM: " + "public"+keyAlias);
+        KeystoreModule.log(Boolean.toString(alias == "private"+keyAlias));
+        KeystoreModule.log(Boolean.toString(alias == "public"+keyAlias));
+        KeystoreModule.log(Boolean.toString(alias.equals("private"+keyAlias)));
+        KeystoreModule.log(Boolean.toString(alias.equals("public"+keyAlias)));
 
-      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(type);
-      keyPairGenerator.initialize(KEY_SIZE, this.newSecureRandom());
+        if(alias.equals(keyAlias) || alias.equals("private"+keyAlias) || alias.equals("public"+keyAlias)) {
+          promise.reject(new KeyStoreException("A key with that alias already exists"));
+          return;
+        }
+      }
+
+      KeystoreModule.log( "newKeyPair " + type + " " + keyAlias + " " + password);
+
+      KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(KeyProperties.KEY_ALGORITHM_RSA, "AndroidKeyStore");
+
+      // init
+      keyPairGenerator.initialize(
+        new KeyGenParameterSpec.Builder(
+          keyAlias,
+          KeyProperties.PURPOSE_SIGN)
+          .setDigests(KeyProperties.DIGEST_SHA256, KeyProperties.DIGEST_SHA512)
+          .setEncryptionPaddings(KeyProperties.ENCRYPTION_PADDING_RSA_OAEP)
+          .build()
+      );
+
+
+
       // Create a keypair
-      KeyPair keyPair = keyPairGenerator.genKeyPair();
+      KeyPair keyPair = keyPairGenerator.generateKeyPair();
       PrivateKey privateKey = keyPair.getPrivate();
+
       String privateKeyHex = KeystoreModule.bytesToHex(privateKey.getEncoded());
       PublicKey publicKey = keyPair.getPublic();
       String publicKeyHex = KeystoreModule.bytesToHex(publicKey.getEncoded());
@@ -550,8 +590,8 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       WritableMap map = Arguments.createMap();
       map.putString("privateKey", privateKeyHex);
       map.putString("publicKey", publicKeyHex);
-      Log.d(LOGTAG, "Private\n"+privateKeyHex);
-      Log.d(LOGTAG, "Public\n"+publicKeyHex);
+      Log.d(LOGTAG, "Private\n" + privateKeyHex);
+      Log.d(LOGTAG, "Public\n" + publicKeyHex);
 
       // Convert password to char array
       char[] passwordCharacters = password.toCharArray();
@@ -569,10 +609,21 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       fos = new FileOutputStream(this.absolutePath(this.alias));
       this.keyStore.store(fos, passwordCharacters);
 
+      KEY_SIZE = keySize;
       // return the keys in hex through promise
       promise.resolve(map);
-    } catch(Exception e) {
+    } catch(NoSuchProviderException e) {
+      promise.reject(e);
+    } catch(InvalidAlgorithmParameterException e) {
+      promise.reject(e);
+    } catch(IOException e) {
       promise.reject(e.toString());
+    } catch(NoSuchAlgorithmException e) {
+      promise.reject(e);
+    } catch (CertificateException e) {
+      promise.reject(e);
+    } catch(KeyStoreException e) {
+      promise.reject(e);
     } finally {
       try {
         if(fos != null) {
@@ -581,6 +632,26 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       } catch(IOException e) {
         promise.reject(e);
       }
+    }
+  }
+
+  @ReactMethod
+  public void getKeyAsHex(String keyAlias, Promise promise) {
+    try {
+      if(this.keyStore == null) {
+        promise.reject(new KeyStoreException("Keystore must first be loaded"));
+        return;
+      }
+      Enumeration<String> aliases = this.keyStore.aliases();
+      while(aliases.hasMoreElements()) {
+        String currentKeyAlias = aliases.nextElement();
+        if(keyAlias == currentKeyAlias) {
+          promise.resolve(true);
+        }
+      }
+      promise.resolve(false);
+    } catch(KeyStoreException e) {
+      promise.reject(Byte.toString(E_KEYSTORE),e);
     }
   }
 
@@ -603,8 +674,8 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * @return The absolute path of the keystore file
    */
   private String absolutePath(String name) throws IOException {
-    Log.d(LOGTAG, KeystoreModule.getStoresFolder().getPath() + "/" + name);
-    return KeystoreModule.getStoresFolder().getPath() + "/" + name;
+    Log.d(LOGTAG, this.getStoresFolder().getPath() + "/" + name);
+    return this.getStoresFolder().getPath() + "/" + name;
   }
 
   /**
@@ -663,7 +734,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * Returns a file object representing the stores folder
    * @return File - The folder containing the stores
    */
-  private static File getStoresFolder() throws IOException {
+  private File getStoresFolder() throws IOException {
     // init abstract folder
     File storesDirectory = new File(this.context.getFilesDir().getPath() + "/stores");
     // create if not exists
@@ -676,4 +747,9 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     return storesDirectory;
   }
 
+  private static void log(String message) {
+    if(DEBUG == true) {
+      Log.d(LOGTAG, message);
+    }
+  }
 }
