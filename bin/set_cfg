@@ -1,0 +1,13 @@
+#!/usr/bin/env sh
+
+if [ $GIT_BRANCH = "" ]; then
+  GIT_BRANCH=`git rev-parse --abbrev-ref HEAD`
+fi
+
+if [ $GIT_BRANCH = "unstable" ]; then
+  cp -R cfg/strings_dev.xml android/app/src/main/res/values/strings.xml
+  cp -R cfg/dev.json cfg/runtime.json
+else
+  cp -R cfg/strings_prod.xml android/app/src/main/res/values/strings.xml
+  cp -R cfg/prod.json cfg/runtime.json
+fi
