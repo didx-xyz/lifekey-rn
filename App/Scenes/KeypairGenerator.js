@@ -18,7 +18,6 @@ import {
 } from 'native-base'
 import { Button } from 'nachos-ui'
 import Crypto from '../Crypto'
-import { NativeModules } from 'react-native'
 export default class KeypairGenerator extends Scene {
 
 
@@ -31,8 +30,14 @@ export default class KeypairGenerator extends Scene {
 
   componentDidMount() {
     Crypto.getKeyStoreList()
-    .then(result => this.setState({ stores: result }))
-    .catch(error => alert(error))
+    .then(result => {
+      alert(result)
+      this.setState({ stores: result })
+    })
+    .catch(error => {
+      alert(error)
+    })
+    this.forceUpdate()
   }
 
   _create() {
@@ -44,7 +49,7 @@ export default class KeypairGenerator extends Scene {
       <Container>
         <Content>
           <Button onPress={() => this._create()}> Create New KeyStore</Button>
-
+            <Text>Stores: {this.state.stores.map(x => x + ",")}</Text>
         </Content>
       </Container>
     )

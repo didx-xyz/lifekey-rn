@@ -196,7 +196,7 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   }
 
   public String getName() {
-    return "Keystore";
+    return "Crypto";
   }
 
   /**
@@ -228,6 +228,7 @@ public class CryptoModule extends ReactContextBaseJavaModule {
       WritableNativeArray names = new WritableNativeArray();
       for(int i = 0; i < listOfFiles.length; i++) {
         names.pushString(listOfFiles[i].getName());
+        Log.d(LOGTAG, listOfFiles[i].getName());
       }
       promise.resolve(names);
     } catch(IOException e) {
