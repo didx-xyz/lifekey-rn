@@ -1,4 +1,4 @@
-package za.co.io.reactnativekeystore;
+package za.co.io.reactnativecrypto;
 
 import java.security.*;
 import java.security.cert.CertificateFactory;
@@ -28,15 +28,18 @@ import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
 import com.facebook.react.bridge.Arguments;
 
-public class KeystoreModule extends ReactContextBaseJavaModule {
+public class CryptoModule extends ReactContextBaseJavaModule {
 
   // Errors
   private final static byte E_NO_SUCH_ALGORITHM = 81;
   private final static byte E_KEYSTORE = 82;
-  private final static byte E_IO_EXCEPTION = 83;
-  private final static byte E_FILE_NOT_FOIND = 84;
+  private final static byte E_CERTIFICATE = 83;
+  private final static byte E_UNRECOVERABLE_KEY = 84;
+  private final static byte E_SIGNATURE = 85;
+  private final static byte E_INVALID_KEY = 86;
+  private final static byte E_IO = 91;
+  private final static byte E_FILE_NOT_FOUND = 92;
 
-  private final static byte E_CERTIFICATE_EXCEPTION = 91;
 
   // Asymmetric key types
   private final static String KEYPAIR_DH = "DH";
@@ -106,7 +109,6 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
   private final static String LOGTAG = "RNKEYSTORE";
   private final static boolean DEBUG = true;
   private static int RANDOM_SEED_SIZE = 64;
-  private static int KEY_SIZE = 2048;
 
   // Instance properties
   private KeyStore keyStore = null;
@@ -114,7 +116,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
   private String alias = null;
   private Context context = null;
 
-  public KeystoreModule(ReactApplicationContext reactContext) {
+  public CryptoModule(ReactApplicationContext reactContext) {
     super(reactContext);
     this.context = reactContext;
     this.keyStoreType = KeyStore.getDefaultType(); // default
@@ -126,7 +128,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     // Errors
     constants.put("E_NO_SUCH_ALGORITHM", E_NO_SUCH_ALGORITHM);
     constants.put("E_KEYSTORE", E_KEYSTORE);
-    constants.put("E_IO_EXCEPTION", E_IO_EXCEPTION);
+    constants.put("E_IO", E_IO);
 
     // Keystore types
     constants.put("STORE_ANDROID_CA_STORE", STORE_ANDROID_CA_STORE);
@@ -190,7 +192,6 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
     constants.put("DIGEST_SHA_384", DIGEST_SHA_384);
     constants.put("DIGEST_SHA_512", DIGEST_SHA_512);
 
-
     return constants;
   }
 
@@ -202,14 +203,14 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * Get the alias of the currently loaded keystore
    */
   @ReactMethod
-  public void getAlias(Promise promise) {
+  public void getCurrentKeyStoreAlias(Promise promise) {
     try {
       if(this.keyStore == null || this.alias == null) {
         throw new KeyStoreException("Keystore must first be loaded");
       }
       promise.resolve(this.alias);
     } catch(KeyStoreException e) {
-      promise.reject(Byte.toString(E_KEYSTORE),e);
+      promise.reject(Byte.toString(E_KEYSTORE), e);
     }
   }
 
@@ -220,19 +221,17 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * @param WritableNativeArray the files/folders in the directory
    */
   @ReactMethod
-  public void listStores(Promise promise) {
+  public void getKeyStoreList(Promise promise) {
     try {
       File keyStoreFolder = this.getStoresFolder();
       File[] listOfFiles = keyStoreFolder.listFiles();
       WritableNativeArray names = new WritableNativeArray();
       for(int i = 0; i < listOfFiles.length; i++) {
         names.pushString(listOfFiles[i].getName());
-
-        Log.d(LOGTAG, listOfFiles[i].getName());
       }
       promise.resolve(names);
     } catch(IOException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_IO), e);
     }
   }
 
@@ -241,15 +240,15 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * @param The name of the store to delete
    */
   @ReactMethod
-  public void deleteStore(String name, Promise promise) {
+  public void deleteKeyStore(String name, Promise promise) {
     try {
       File store = new File(this.absolutePath(name));
       store.delete();
       promise.resolve(null);
-    } catch(SecurityException e) {
+    } catch(SecurityException e) { // fixme
       promise.reject(e);
     } catch(IOException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_IO), e);
     }
   }
 
@@ -257,7 +256,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * Get all the key aliases from the currently loaded keystore
    */
   @ReactMethod
-  public void keyAliases(Promise promise) {
+  public void getKeyAliases(Promise promise) {
     try {
       if(this.keyStore == null) {
         throw new KeyStoreException("Keystore must first be loaded");
@@ -269,7 +268,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       }
       promise.resolve(map);
     } catch(KeyStoreException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_KEYSTORE), e);
     }
   }
 
@@ -286,7 +285,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       boolean found = this.keyStore.containsAlias(keyAlias);
       promise.resolve(found);
     } catch(KeyStoreException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_KEYSTORE), e);
     }
   }
 
@@ -303,7 +302,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       this.keyStore.deleteEntry(keyAlias);
       promise.resolve(null);
     } catch(KeyStoreException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_KEYSTORE), e);
     }
   }
 
@@ -313,7 +312,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * @return The certificate
    */
   @ReactMethod
-  public void getCertificate(String certificateAlias, Promise promise) {
+  public void getKeyStoreCertificate(String certificateAlias, Promise promise) {
     try {
       if(this.keyStore == null) {
         throw new KeyStoreException("Keystore must first be loaded");
@@ -321,7 +320,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       Certificate certificate = this.keyStore.getCertificate(certificateAlias);
       promise.resolve(certificate.toString());
     } catch(KeyStoreException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_KEYSTORE), e);
     }
   }
 
@@ -330,7 +329,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * @return The number of keys
    */
   @ReactMethod
-  public void size(Promise promise) {
+  public void keyStoreSize(Promise promise) {
     try {
       if(this.keyStore == null) {
         throw new KeyStoreException("Keystore must first be loaded");
@@ -338,7 +337,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       int size = this.keyStore.size();
       promise.resolve(size);
     } catch(KeyStoreException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_KEYSTORE), e);
     }
   }
 
@@ -348,7 +347,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * @param password
    */
   @ReactMethod
-  public void load(String name, String password, Promise promise) {
+  public void loadKeyStore(String name, String password, Promise promise) {
 
     char[] passwordCharacters = password.toCharArray();
     FileInputStream fis = null;
@@ -362,21 +361,21 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       this.alias = name;
       promise.resolve(null);
     } catch(NoSuchAlgorithmException e) {
-      promise.reject(Byte.toString(E_NO_SUCH_ALGORITHM));
+      promise.reject(Byte.toString(E_NO_SUCH_ALGORITHM), e);
     } catch (FileNotFoundException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_FILE_NOT_FOUND), e);
     } catch (KeyStoreException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_KEYSTORE), e);
     } catch (CertificateException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_CERTIFICATE), e);
     } catch(IOException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_IO), e);
     } finally {
       if( fis != null) {
         try {
           fis.close();
         } catch(IOException e) {
-          promise.reject(e);
+          promise.reject(Byte.toString(E_IO), e);
         }
       }
     }
@@ -389,7 +388,7 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
  * @return True on success
  */
   @ReactMethod
-  public void create(String name, String password, Promise promise) throws IOException {
+  public void createKeyStore(String name, String password, Promise promise) throws IOException {
 
     String filePath = this.absolutePath(name);
     File keyStoreAbstract = new File(filePath);
@@ -411,23 +410,21 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       this.keyStore.load(null, passwordCharacters);
       this.keyStore.store(fos, passwordCharacters);
       this.alias = name;
-      promise.resolve(null);
-    } catch(NullPointerException e) {
-      promise.reject("The keystore must first be initialised");
+      promise.resolve(true);
     } catch(IOException e) {
-      promise.reject(Byte.toString(E_IO_EXCEPTION), e);
+      promise.reject(Byte.toString(E_IO), e);
     } catch(NoSuchAlgorithmException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_NO_SUCH_ALGORITHM), e);
     } catch(KeyStoreException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_KEYSTORE), e);
     } catch(CertificateException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_CERTIFICATE), e);
     } finally {
       if(fos != null) {
         try {
           fos.close();
         } catch(IOException e) {
-          promise.reject(e);
+          promise.reject(Byte.toString(E_KEYSTORE), e);
         }
       }
     }
@@ -444,10 +441,10 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       byte[] data = dataString.getBytes(StandardCharsets.UTF_8);
       MessageDigest md = MessageDigest.getInstance(algorithm);
       byte[] hash = md.digest(data);
-      String hex = this.bytesToHex(hash);
+      String hex = Base64.encodeToString(hash, Base64.DEFAULT);
       promise.resolve(hex);
     } catch(NoSuchAlgorithmException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_NO_SUCH_ALGORITHM), e);
     }
   }
 
@@ -456,12 +453,11 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    */
   @ReactMethod
   public void sign(String dataString, String privateKeyAlias, String privateKeyPassword, String algorithm, Promise promise) {
-    if(this.keyStore == null) {
-      promise.reject(new KeyStoreException("Keystore must first be loaded"));
-      return;
-    }
     // Sign with keys
     try {
+      if(this.keyStore == null) {
+        throw new KeyStoreException("Keystore must first be loaded");
+      }
       PrivateKey privateKey = (PrivateKey)this.keyStore.getKey(privateKeyAlias, privateKeyPassword.toCharArray());
       Signature sig = Signature.getInstance(algorithm);
       sig.initSign(privateKey, this.newSecureRandom());
@@ -469,18 +465,17 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       sig.update(data);
       byte[] signature = sig.sign();
       String sigB64 = Base64.encodeToString(signature, Base64.DEFAULT);
-      KeystoreModule.log("SIG: "+sigB64);
       promise.resolve(sigB64);
     } catch(NoSuchAlgorithmException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_NO_SUCH_ALGORITHM), e);
     } catch(KeyStoreException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_KEYSTORE), e);
     } catch(InvalidKeyException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_INVALID_KEY), e);
     } catch(SignatureException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_SIGNATURE), e);
     } catch(UnrecoverableKeyException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_UNRECOVERABLE_KEY), e);
     }
   }
 
@@ -501,15 +496,15 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       boolean result = sig.verify(this.hexToBytes(signature));
       promise.resolve(result);
     } catch(InvalidKeyException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_INVALID_KEY), e);
     } catch(KeyStoreException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_KEYSTORE), e);
     } catch(NoSuchAlgorithmException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_NO_SUCH_ALGORITHM), e);
     } catch(SignatureException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_SIGNATURE), e);
     } catch(UnrecoverableKeyException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_UNRECOVERABLE_KEY), e);
     }
   }
 
@@ -519,15 +514,40 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * @param keyPassword The password for the key
    */
   @ReactMethod
-  public void getKeyAsPem(String keyAlias, String keyPassword, Promise promise) throws KeyStoreException, NoSuchAlgorithmException, UnrecoverableKeyException {
-    if(this.keyStore == null) {
-      promise.reject(new KeyStoreException("Keystore must first be loaded"));
-      return;
+  public void getKeyAsPem(String keyAlias, String keyPassword, Promise promise) throws NoSuchAlgorithmException, UnrecoverableKeyException {
+    try {
+      if(this.keyStore == null) {
+        throw new KeyStoreException("Keystore must first be loaded");
+      }
+      Key key = (Key)this.keyStore.getKey(keyAlias, keyPassword.toCharArray());
+
+      // We need to know if key is priv or public for correct pem format
+      String pemFormatted = "-----BEGIN KEY-----\n" + Base64.encodeToString(key.getEncoded(), Base64.DEFAULT) + "-----END KEY-----\n";
+      promise.resolve(pemFormatted);
+    } catch(KeyStoreException e) {
+      promise.reject(Byte.toString(E_KEYSTORE), e);
+    } catch(NoSuchAlgorithmException e) {
+      promise.reject(Byte.toString(E_NO_SUCH_ALGORITHM), e);
+    } catch(UnrecoverableKeyException e) {
+      promise.reject(Byte.toString(E_UNRECOVERABLE_KEY), e);
     }
-    Key key = (Key)this.keyStore.getKey(keyAlias, keyPassword.toCharArray());
-    String pemFormatted = "-----BEGIN PUBLIC KEY-----\n" + Base64.encodeToString(key.getEncoded(), Base64.DEFAULT) + "-----END PUBLIC KEY-----\n";
-    Log.d(LOGTAG, pemFormatted);
-    promise.resolve(pemFormatted);
+  }
+
+  @ReactMethod
+  public void getKeyAsHex(String keyAlias, String keyPassword, Promise promise) {
+    try {
+      if(this.keyStore == null) {
+        throw new KeyStoreException("Keystore must first be loaded");
+      }
+      Key key = (Key)this.keyStore.getKey(keyAlias, keyPassword.toCharArray());
+      promise.resolve(CryptoModule.bytesToHex(key.getEncoded()));
+    } catch(KeyStoreException e) {
+      promise.reject(Byte.toString(E_KEYSTORE), e);
+    } catch(NoSuchAlgorithmException e) {
+      promise.reject(Byte.toString(E_NO_SUCH_ALGORITHM), e);
+    } catch(UnrecoverableKeyException e) {
+      promise.reject(Byte.toString(E_UNRECOVERABLE_KEY), e);
+    }
   }
 
   /**
@@ -542,31 +562,24 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    */
   @ReactMethod
   public void addKeyPair(String type, String keyAlias, int keySize, String password, String certificateFilename, Promise promise) {
-    if(this.keyStore == null) {
-      promise.reject(new KeyStoreException("Keystore must first be loaded"));
-      return;
-    }
 
     FileOutputStream fos = null;
     try {
+      if(this.keyStore == null) {
+        throw new KeyStoreException("Keystore must first be loaded");
+      }
       // Check if already exists
       Enumeration<String> aliases = this.keyStore.aliases();
       while(aliases.hasMoreElements()) {
         String alias = aliases.nextElement();
 
         if(alias.equals(keyAlias) || alias.equals("private"+keyAlias) || alias.equals("public"+keyAlias)) {
-          promise.reject(new KeyStoreException("A key with that alias already exists"));
-          return;
+          throw new KeyStoreException("A key with that alias already exists");
         }
       }
 
-      KeystoreModule.log( "newKeyPair " + type + " " + keyAlias + " " + password);
-
-      // KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance("RSA");
       KeyPairGenerator keyPairGenerator = KeyPairGenerator.getInstance(type);
-
-      // init
-      keyPairGenerator.initialize(2048, this.newSecureRandom());
+      keyPairGenerator.initialize(keySize, this.newSecureRandom());
 
       // Create a keypair
       KeyPair keyPair = keyPairGenerator.generateKeyPair();
@@ -578,8 +591,6 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       WritableMap map = Arguments.createMap();
       map.putString("privateKey", privateKeyB64);
       map.putString("publicKey", publicKeyB64);
-      Log.d(LOGTAG, "Private\n" + privateKeyB64);
-      Log.d(LOGTAG, "Public\n" + publicKeyB64);
 
       // Convert password to char array
       char[] passwordCharacters = password.toCharArray();
@@ -589,7 +600,6 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       Certificate[] certChain = new Certificate[1];
       certChain[0] = x509Cert;
 
-      // Log.d(LOGTAG, keyAlias + " " + publicKey.toString() + " " + passwordCharacters.toString()  + " " + certChain.toString());
       // Set entries
       this.keyStore.setKeyEntry("public" + keyAlias, publicKey, passwordCharacters, certChain);
       this.keyStore.setKeyEntry("private" + keyAlias, privateKey, passwordCharacters, certChain);
@@ -600,50 +610,26 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
 
       promise.resolve(map);
     }
-    // catch(NoSuchProviderException e) {
-    //   promise.reject(e);
-    // }
-    // catch(InvalidAlgorithmParameterException e) {
-    //   promise.reject(e);
-    // }
+
     catch(IOException e) {
-      promise.reject(e.toString());
+      promise.reject(Byte.toString(E_IO), e);
     } catch(NoSuchAlgorithmException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_NO_SUCH_ALGORITHM), e);
     } catch (CertificateException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_CERTIFICATE), e);
     } catch(KeyStoreException e) {
-      promise.reject(e);
+      promise.reject(Byte.toString(E_KEYSTORE), e);
     } finally {
       try {
         if(fos != null) {
           fos.close();
         }
       } catch(IOException e) {
-        promise.reject(e);
+        promise.reject(Byte.toString(E_IO), e);
       }
     }
   }
 
-  @ReactMethod
-  public void getKeyAsHex(String keyAlias, Promise promise) {
-    try {
-      if(this.keyStore == null) {
-        promise.reject(new KeyStoreException("Keystore must first be loaded"));
-        return;
-      }
-      Enumeration<String> aliases = this.keyStore.aliases();
-      while(aliases.hasMoreElements()) {
-        String currentKeyAlias = aliases.nextElement();
-        if(keyAlias == currentKeyAlias) {
-          promise.resolve(true);
-        }
-      }
-      promise.resolve(false);
-    } catch(KeyStoreException e) {
-      promise.reject(Byte.toString(E_KEYSTORE),e);
-    }
-  }
 
   // Private Methods
 
@@ -664,7 +650,6 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
    * @return The absolute path of the keystore file
    */
   private String absolutePath(String name) throws IOException {
-    Log.d(LOGTAG, this.getStoresFolder().getPath() + "/" + name);
     return this.getStoresFolder().getPath() + "/" + name;
   }
 
@@ -734,11 +719,5 @@ public class KeystoreModule extends ReactContextBaseJavaModule {
       }
     }
     return storesDirectory;
-  }
-
-  private static void log(String message) {
-    if(DEBUG == true) {
-      Log.d(LOGTAG, message);
-    }
   }
 }

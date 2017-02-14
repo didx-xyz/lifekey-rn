@@ -1,4 +1,4 @@
-package za.co.io.reactnativekeystore;
+package za.co.io.reactnativecrypto;
 
 import com.facebook.react.ReactPackage;
 import com.facebook.react.bridge.JavaScriptModule;
@@ -10,7 +10,7 @@ import java.util.Collections;
 import java.util.List;
 
 
-public class KeystorePackage implements ReactPackage {
+public class CryptoPackage implements ReactPackage {
 
   @Override
   public List<Class<? extends JavaScriptModule>> createJSModules() {
@@ -26,7 +26,7 @@ public class KeystorePackage implements ReactPackage {
   public List<NativeModule> createNativeModules(ReactApplicationContext reactContext) {
     List<NativeModule> modules = new ArrayList<>();
 
-    modules.add(new KeystoreModule(reactContext));
+    modules.add(new CryptoModule(reactContext));
 
     return modules;
   }
