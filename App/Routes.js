@@ -13,7 +13,8 @@ import Debug from './Scenes/Debug'
 import SelfieCam from './Scenes/SelfieCam'
 import KeypairGenerator from './Scenes/KeypairGenerator'
 import FormGenerator from './Scenes/FormGenerator'
-
+import ApiTest from './Scenes/ApiTest'
+import Animation from './Scenes/Animation'
 export default {
   login: { title: 'Login', scene: Login },
   main: { title: 'Main', scene: Main },
@@ -22,5 +23,7 @@ export default {
   keyPairGenerator: { title: 'Keypair Generator', scene: KeypairGenerator },
   register: { title: 'Register', scene: Register },
   debug: { title: 'Debug', scene: Debug },
-  formGenerator: { title: 'form generator', scene: FormGenerator }
+  formGenerator: { title: 'form generator', scene: FormGenerator },
+  apiTest: { title: 'API Test', scene: ApiTest },
+  animation: { title: 'Animation', scene: Animation }
 }

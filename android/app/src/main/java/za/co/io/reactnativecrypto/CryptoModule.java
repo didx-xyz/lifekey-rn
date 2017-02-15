@@ -442,8 +442,8 @@ public class CryptoModule extends ReactContextBaseJavaModule {
       byte[] data = dataString.getBytes(StandardCharsets.UTF_8);
       MessageDigest md = MessageDigest.getInstance(algorithm);
       byte[] hash = md.digest(data);
-      String hex = Base64.encodeToString(hash, Base64.DEFAULT);
-      promise.resolve(hex);
+      String b64 = Base64.encodeToString(hash, Base64.NO_WRAP);
+      promise.resolve(b64);
     } catch(NoSuchAlgorithmException e) {
       promise.reject(Byte.toString(E_NO_SUCH_ALGORITHM), e);
     }
@@ -465,7 +465,7 @@ public class CryptoModule extends ReactContextBaseJavaModule {
       byte[] data = dataString.getBytes(StandardCharsets.UTF_8);
       sig.update(data);
       byte[] signature = sig.sign();
-      String sigB64 = Base64.encodeToString(signature, Base64.DEFAULT);
+      String sigB64 = Base64.encodeToString(signature, Base64.NO_WRAP);
       promise.resolve(sigB64);
     } catch(NoSuchAlgorithmException e) {
       promise.reject(Byte.toString(E_NO_SUCH_ALGORITHM), e);
@@ -521,9 +521,11 @@ public class CryptoModule extends ReactContextBaseJavaModule {
         throw new KeyStoreException("Keystore must first be loaded");
       }
       Key key = (Key)this.keyStore.getKey(keyAlias, keyPassword.toCharArray());
-
+      if(key == null) {
+        throw new KeyStoreException("Key with alias " + keyAlias + " does not exist");
+      }
       // We need to know if key is priv or public for correct pem format
-      String pemFormatted = "-----BEGIN KEY-----\n" + Base64.encodeToString(key.getEncoded(), Base64.DEFAULT) + "-----END KEY-----\n";
+      String pemFormatted = "-----BEGIN PUBLIC KEY-----\n" + Base64.encodeToString(key.getEncoded(), Base64.DEFAULT) + "-----END PUBLIC KEY-----";
       promise.resolve(pemFormatted);
     } catch(KeyStoreException e) {
       promise.reject(Byte.toString(E_KEYSTORE), e);
