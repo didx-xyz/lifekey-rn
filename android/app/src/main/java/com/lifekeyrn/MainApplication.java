@@ -12,6 +12,8 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
+import com.aakashns.reactnativedialogs.ReactNativeDialogsPackage;
+
 import za.co.io.reactnativecrypto.CryptoPackage;
 
 import java.util.Arrays;
@@ -32,7 +34,8 @@ public class MainApplication extends Application implements ReactApplication {
             new RCTCameraPackage(),
             new VectorIconsPackage(),
             new GoogleAnalyticsBridgePackage(),
-            new CryptoPackage()
+            new CryptoPackage(),
+            new ReactNativeDialogsPackage()
       );
     }
   };

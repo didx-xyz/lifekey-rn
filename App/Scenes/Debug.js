@@ -21,6 +21,7 @@ import {
 } from 'native-base'
 import { Button, Input, H1 } from 'nachos-ui'
 import { NativeModules } from 'react-native'
+import AndroidBackButton from 'react-native-android-back-button'
 
 export default class Debug extends Scene {
 
@@ -29,7 +30,10 @@ export default class Debug extends Scene {
     // alert(NativeModules.Keystore.ANDROID_CA_STORE)
   }
 
-
+  _hardwareBackHandler() {
+    this.navigator.pop()
+    return true
+  }
   _newKeyPair() {
     NativeModules.Keystore.newKeyPair(13, "test1234", "pass123", "rsa-example.pem").then((x) => {
       console.log('RNKEYSTORE')
@@ -45,14 +49,15 @@ export default class Debug extends Scene {
     return (
       <Container>
         <Content>
+          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
           <View style={{ alignItems: 'center' }}>
             <H1>Lifekey Tech Demo</H1>
           </View>
-          <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.keyPairGenerator)}>RSA Keypair Generator</Button>
+          <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugKeyStore)}>Keystore Manager</Button>
           <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.scanQrCode)}>QR Code Scanner</Button>
           <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.selfieCam)}>Self-facing Camera</Button>
           <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.formGenerator)}>JSON Form Generator</Button>
-          <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.apiTest)}>API Test</Button>
+          <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.apiTest)}>Register a consent user</Button>
           <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.animation)}>Animation</Button>
         </Content>
       </Container>

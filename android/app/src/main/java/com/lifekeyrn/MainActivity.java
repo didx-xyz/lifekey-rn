@@ -1,6 +1,7 @@
 package com.lifekeyrn;
 
 import com.facebook.react.ReactActivity;
+// import com.aakashns.reactnativedialogs.ReactNativeDialogsPackage;
 import android.util.Log;
 
 public class MainActivity extends ReactActivity {
@@ -13,4 +14,5 @@ public class MainActivity extends ReactActivity {
     protected String getMainComponentName() {
         return "Lifekeyrn";
     }
+
 }

@@ -1,0 +1,42 @@
+{
+  "project_info": {
+    "project_number": "953467338291",
+    "firebase_url": "https://vivid-case-125013.firebaseio.com",
+    "project_id": "vivid-case-125013",
+    "storage_bucket": "vivid-case-125013.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:953467338291:android:328401e974e287f8",
+        "android_client_info": {
+          "package_name": "com.lifekeyrn"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "953467338291-k21hn0pcoe6h3mbmbkkr1455jrotfur1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyC1NODYX5KNfaV95e27LdJ5eCzmMDO3gnc"
+        }
+      ],
+      "services": {
+        "analytics_service": {
+          "status": 1
+        },
+        "appinvite_service": {
+          "status": 1,
+          "other_platform_oauth_client": []
+        },
+        "ads_service": {
+          "status": 2
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

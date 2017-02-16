@@ -23,8 +23,8 @@ export default class Blank extends Scene {
   render() {
     return (
       <Container>
-      <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
         <Content>
+          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
           <Text>Hello World</Text>
         </Content>
       </Container>

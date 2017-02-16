@@ -351,13 +351,11 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   public void loadKeyStore(String name, String password, Promise promise) {
 
     char[] passwordCharacters = password.toCharArray();
-    FileInputStream fis = null;
 
-    try {
+    try (FileInputStream fis = new FileInputStream(this.absolutePath(name))) {
       if(this.keyStore == null) {
         this.init();
       }
-      fis = new FileInputStream(this.absolutePath(name));
       this.keyStore.load(fis, passwordCharacters);
       this.alias = name;
       promise.resolve(null);
@@ -371,14 +369,6 @@ public class CryptoModule extends ReactContextBaseJavaModule {
       promise.reject(Byte.toString(E_CERTIFICATE), e);
     } catch(IOException e) {
       promise.reject(Byte.toString(E_IO), e);
-    } finally {
-      if( fis != null) {
-        try {
-          fis.close();
-        } catch(IOException e) {
-          promise.reject(Byte.toString(E_IO), e);
-        }
-      }
     }
   }
 

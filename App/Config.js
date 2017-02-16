@@ -28,7 +28,7 @@ export default {
   appName: APP_NAME,
 
   // First scene to show
-  initialRoute: Routes.debug,
+  initialRoute: Routes.debugKeyStore,
 
   // Predefined error messages
   errorMessage: {

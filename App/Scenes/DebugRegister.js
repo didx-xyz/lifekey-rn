@@ -11,16 +11,17 @@ import Crypto from '../Crypto'
 
 import {
   Text,
+  View,
   NativeModules
 } from 'react-native'
+import { Button, Input, H1 } from 'nachos-ui'
 
 import {
   Container,
-  Content,
-  Button
+  Content
 } from 'native-base'
 
-export default class ApiTest extends Scene {
+export default class DebugRegister extends Scene {
 
   _createKeyStore() {
     Crypto.loadKeyStore("testing123", "testing123")
@@ -70,11 +71,21 @@ export default class ApiTest extends Scene {
   render() {
     return (
       <Container>
+
         <Content>
-          <Button onPress={ () => this._register()}>Register</Button>
-          <Button onPress={ () => this._createKeyStore()}>Create Key</Button>
+          <View style={{ alignItems: 'center' }}>
+            <H1>Register on Consent</H1>
+          </View>
+            <Button style={[styles.btn]} onPress={ () => this._register()}>Register</Button>
+            <Button style={[styles.btn]} onPress={ () => this._createKeyStore()}>Create Key</Button>
         </Content>
       </Container>
     )
+  }
+}
+
+const styles = {
+  btn: {
+    margin: 5
   }
 }
