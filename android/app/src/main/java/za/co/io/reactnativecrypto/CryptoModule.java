@@ -115,6 +115,7 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   private String keyStoreType = null;
   private String alias = null;
   private Context context = null;
+  private FileOutputStream loadedStoreFOS = null;
 
   public CryptoModule(ReactApplicationContext reactContext) {
     super(reactContext);
@@ -301,7 +302,8 @@ public class CryptoModule extends ReactContextBaseJavaModule {
         throw new KeyStoreException("Keystore must first be loaded");
       }
       this.keyStore.deleteEntry(keyAlias);
-      promise.resolve(null);
+      // this.keyStore.store();
+      promise.resolve(keyAlias);
     } catch(KeyStoreException e) {
       promise.reject(Byte.toString(E_KEYSTORE), e);
     }
@@ -356,9 +358,10 @@ public class CryptoModule extends ReactContextBaseJavaModule {
       if(this.keyStore == null) {
         this.init();
       }
+      // this.loadedStoreFOS
       this.keyStore.load(fis, passwordCharacters);
       this.alias = name;
-      promise.resolve(null);
+      promise.resolve(name);
     } catch(NoSuchAlgorithmException e) {
       promise.reject(Byte.toString(E_NO_SUCH_ALGORITHM), e);
     } catch (FileNotFoundException e) {
@@ -387,8 +390,6 @@ public class CryptoModule extends ReactContextBaseJavaModule {
       promise.reject(new IOException("Keystore with name " + name + " already exists"));
       return;
     }
-
-    // WritableMap returnMap = new Arguments.createMap();
 
 
     FileOutputStream fos = null;
@@ -622,7 +623,6 @@ public class CryptoModule extends ReactContextBaseJavaModule {
       }
     }
   }
-
 
   // Private Methods
 

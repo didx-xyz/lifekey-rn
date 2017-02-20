@@ -17,7 +17,7 @@ import {
   Container,
   Content,
 } from 'native-base'
-import { Button, H1 } from 'nachos-ui'
+import { Button, H1, H2 } from 'nachos-ui'
 import Crypto from '../Crypto'
 import AndroidBackButton from 'react-native-android-back-button'
 import DialogAndroid from 'react-native-dialogs';
@@ -29,7 +29,8 @@ export default class DebugKeyStore extends Scene {
     super(props)
     this.state = {
       stores: [],
-      loadedStore: null
+      loadedStore: null,
+      loadedStoreKeys: []
     }
   }
 
@@ -44,8 +45,50 @@ export default class DebugKeyStore extends Scene {
     })
   }
 
-  _newKey(text) {
-    alert(text)
+  _hardwareBackHandler() {
+    this.navigator.pop()
+    return true
+  }
+
+  newKey(text) {
+    if (!this.state.loadedStore) {
+      alert("A keystore must first be loaded")
+      return
+    }
+    const dialog = new DialogAndroid()
+    dialog.set({
+      title: "Create key",
+      content: "Please enter an alias for the keypair",
+      input: {
+        type: 1,
+        callback: (alias) => {
+          const passDialog = new DialogAndroid()
+          passDialog.set({
+            title: "Set password",
+            content: "Please enter a password for the key",
+            input: {
+              type: 1,
+              callback: (password) => {
+                Crypto.addKeyPair(
+                  Crypto.KEYPAIR_RSA,
+                  alias,
+                  2048,
+                  password,
+                  "rsa-example.pem"
+                )
+                .then(() => {
+                  alert("Key created")
+                  this._refreshKeys()
+                })
+                .catch(error => alert(error))
+              }
+            }
+          })
+          passDialog.show()
+        }
+      }
+    })
+    dialog.show()
   }
 
   _refreshKeystores() {
@@ -56,15 +99,65 @@ export default class DebugKeyStore extends Scene {
     .catch( error => alert(error))
   }
 
-  newKeystore() {
-    var name, password
-    this._askForInput("Keystore Name", "Enter a name", "Submit", (text) => {
-      name = text
-      this._askForInput("Keystore Password", "Enter password", "Submit", text => {
-        password = text
-        this._createKeystore(name, password)
+  _refreshKeys() {
+    if (this.state.loadedStore) {
+      Crypto.getKeyAliases()
+      .then(aliases => {
+        console.log(aliases)
+        this.setState({
+          loadedStoreKeys: aliases
+        })
       })
-    })
+      .catch(error => {
+        alert("Could not refresh keys")
+      })
+    }
+
+  }
+
+  newKeystore() {
+   var aliasDialog = new DialogAndroid()
+   var passDialog = new DialogAndroid()
+
+   aliasDialog.set({
+     title: "Alias",
+     content: "Enter an alias for the keystore",
+     input: {
+      type: 1,
+      callback: (alias) => {
+
+        passDialog.set({
+          title: "Password",
+          content: "Please enter a password for the keystore",
+          input: {
+            type: 1,
+            callback: password => {
+              Crypto.createKeyStore(alias, password)
+              .then(() => {
+                alert("Created")
+                this._refreshKeystores()
+              })
+              .catch(error => {
+                alert(error)
+              })
+            }
+          }
+        })
+        passDialog.show()
+      }
+     }
+   })
+   aliasDialog.show()
+
+
+    // var name, password
+    // this._askForInput("Keystore Name", "Enter a name", "Submit", (text) => {
+    //   name = text
+    //   this._askForInput("Keystore Password", "Enter password", "Submit", text => {
+    //     password = text
+    //     this._createKeystore(name, password)
+    //   })
+    // })
   }
 
   deleteKeystore() {
@@ -73,35 +166,26 @@ export default class DebugKeyStore extends Scene {
       items: this.state.stores,
       title: "Delete keystore",
       "positiveText": "Delete",
-      itemsCallbackMultiChoice: (ids, names) => this._deleteKeystore(ids, names)
+      itemsCallbackMultiChoice: (ids, names) => {
+        if(ids.length <= 0) {
+          // Nothing was selected
+          alert("Nothing was selected")
+          return
+        }
+        names.forEach(name => {
+          Crypto.deleteKeyStore(name)
+          .catch(error => alert(error))
+        })
+        alert("Deleted: " + JSON.stringify(names))
+        if (names.find(x => x === this.state.loadedStore)) {
+          this.setState({
+            loadedStore: null
+          })
+        }
+        this._refreshKeystores()
+      }
     })
     dialog.show()
-  }
-
-  _deleteKeystore(ids, names) {
-
-    if(ids.length <= 0) {
-      // Nothing was selected
-      alert("Nothing was selected")
-      return
-    }
-    names.forEach(name => {
-      // console.log(`ID ${id} NAME: ${names[id]}`)
-      Crypto.deleteKeyStore(name)
-      .catch(error => alert(error))
-    })
-    alert("Deleted: " + JSON.stringify(names))
-    this._refreshKeystores()
-
-  }
-
-  _createKeystore(name, password) {
-    Crypto.createKeyStore(name, password)
-    .then( () => {
-      alert(name + " created")
-      this._refreshKeystores()
-    })
-    .catch( error => alert(error))
   }
 
   _askForInput(title, message, positiveText, onPositive) {
@@ -119,6 +203,74 @@ export default class DebugKeyStore extends Scene {
     dialog.show()
   }
 
+  loadKeystore() {
+    const dialog = new DialogAndroid()
+    dialog.set({
+      items: this.state.stores,
+      title: "Load keystore",
+      "positiveText": "Load",
+      itemsCallbackSingleChoice: (id, name) => {
+        const dialog2 = new DialogAndroid()
+        dialog2.set({
+          title: "Enter pasword",
+          content: "Please enter the keystore password",
+          input: {
+            type: 1,
+            callback: (password) => {
+              Crypto.loadKeyStore(name, password)
+              .then(() => {
+                this.setState({
+                  loadedStore: name
+                })
+                alert(name + " loaded")
+                this._refreshKeys()
+              })
+              .catch(error => {
+                alert(error)
+              })
+            }
+          },
+          positiveText: "Okay",
+          negativeText: "Cancel"
+        })
+        dialog2.show()
+      }
+    })
+    dialog.show()
+  }
+
+  deleteKeys() {
+    if(!this.state.loadedStore) {
+      alert("Keystore must first be loaded")
+      return
+    }
+    const dialog = new DialogAndroid()
+    var deleted = new Array()
+    dialog.set({
+      items: this.state.loadedStoreKeys,
+      content: "Select key(s) to delete",
+      positiveText: "Delete",
+      itemsCallbackMultiChoice: (id, names) => {
+        names.forEach(x => {
+          console.log("X", x)
+          Crypto.deleteKeyEntry(x)
+          .then((y) => {
+            console.log("deleted", y)
+            deleted.push(y)
+          })
+          .catch(error => {
+            alert(error)
+          })
+        })
+        setTimeout(() => {
+          this._refreshKeys()
+          alert(JSON.stringify(deleted) + " deleted")
+        }, 200)
+      }
+    })
+    dialog.show()
+  }
+
   render() {
     return (
       <Container>
@@ -126,11 +278,19 @@ export default class DebugKeyStore extends Scene {
           <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
           <View style={{ alignItems: 'center' }}>
             <H1>Keystore Manager</H1>
+            <H2>Keystore</H2>
           </View>
-          <Text>Available Stores: {this.state.stores.map(x => x + ",")}</Text>
-          <Text>Loaded Store: {this.state.loadedStore || "None" }</Text>
+          <Text>Available Stores: { this.state.stores.map(x => x + ", ")}</Text>
+          <Text>Loaded Store: { this.state.loadedStore || "None" }</Text>
           <Button style={[styles.btn]} onPress={() => this.newKeystore()}> Create New KeyStore</Button>
           <Button style={[styles.btn]} onPress={() => this.deleteKeystore()}> Delete KeyStore</Button>
+          <Button style={[styles.btn]} onPress={() => this.loadKeystore()}> Load KeyStore</Button>
+          <View style={{ alignItems: 'center' }}>
+            <H2>Keys</H2>
+          </View>
+          <Text>Keys in store: { this.state.loadedStoreKeys.map(x => x + ", ") || null}</Text>
+          <Button style={[styles.btn]} onPress={() => this.newKey()}> New Keypair</Button>
+          <Button style={[styles.btn]} onPress={() => this.deleteKeys()}>Delete Keys</Button>
         </Content>
       </Container>
     )
