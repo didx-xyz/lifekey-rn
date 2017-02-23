@@ -20,7 +20,7 @@ const SCHEME = 'http://'
 const DEBUG = true
 const API_VERSION = 1
 const TOKEN_REFRESH_URL = "http://staging.api.lifekey.cnsnt.io/management/device"
-
+const SESSION_KEY = "consent_lifekey_session"
 
 /**
  * The configuration file for the App
@@ -79,7 +79,9 @@ export default {
       'Content-Type': 'application/json'
     }
   },
-
+  session: {
+    dbKey: SESSION_KEY
+  }
   // Google Analytics
   googleAnalytics: {
     trackers: {

@@ -6,29 +6,19 @@
  */
 
 import Config from './Config'
-
+import Storage from './Storage'
 /**
  * A static class to store and retrieve a global state
  */
 export default class Session {
 
-  static changes = []
-  static lastState = {}
-
+  static state = {}
   /**
    * Return an Object representing the current state
    * @returns {Object} data The current state held in the store
    */
   static getState() {
-    // Merge changes since last retrieval into state
-    const lastState = this.changes.reduce(
-      (a, x) => Object.assign(a,x),
-      this.lastState
-    )
-    // Reset array of changes
-    this.changes = []
-    this.lastState = lastState
-    return lastState
+    return state
   }
   /**
    * Update the current state
@@ -37,19 +27,25 @@ export default class Session {
    * @throws {string} Update only accepts objects
    */
   static update(data) {
-    if(typeof data === 'object')
-      this.changes.push(data)
-    else
-      throw 'Update only accepts objects'
+    return new Promise((resolve, reject) => {
+    if (typeof data === 'object') {
+      Object.assign(this.state, data)
+      resolve(true)
+    } else {
+      reject( "Update only accepts objects")
+    }
+  })
   }
 
-  static updatePersistent(data) {
+  static persist() {
+    return Storage.store(Config.session.dbKey, this.state)
+    .catch(error => {
+      Logger.error(error, "Session")
+    })
+  }
 
+  static rehydrate() {
+    return Storage.load(Config.session.dbKey)
   }
 
 }
-
-Object.defineProperty(Session, 'changes',{
-  writable: false,
-  enumerable: true
-})
