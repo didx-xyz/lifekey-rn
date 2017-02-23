@@ -15,7 +15,7 @@ import FormGenerator from './Scenes/FormGenerator'
 import DebugRegister from './Scenes/DebugRegister'
 import Animation from './Scenes/Animation'
 import DebugConnectionRequest from './Scenes/DebugConnectionRequest'
-
+import DebugShowQRCode from './Scenes/DebugShowQRCode'
 export default {
   login: { title: 'Login', scene: Login },
   main: { title: 'Main', scene: Main },
@@ -26,5 +26,6 @@ export default {
   formGenerator: { title: 'form generator', scene: FormGenerator },
   debugRegister: { title: 'register', scene: DebugRegister },
   animation: { title: 'Animation', scene: Animation },
-  debugConnectionRequest: { title: 'Connection request', scene: DebugConnectionRequest }
+  debugConnectionRequest: { title: 'Connection request', scene: DebugConnectionRequest },
+  debugShowQRCode: { title: "Show QR Code", scene: DebugShowQRCode }
 }

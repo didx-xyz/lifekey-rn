@@ -45,6 +45,17 @@ export default class Lifekeyrn extends Component {
     }
     DeviceEventEmitter.addListener('messageReceived', (e) => this._nativeEventMessageReceived(e))
     DeviceEventEmitter.addListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
+    Crypto.getKeyStoreList()
+    .then(list => {
+      if (list.find(x => x === "consent")) {
+        Session.update({
+          userRegistered: true
+        })
+      }
+    })
+    .catch(error => {
+      Logger.error(error, this._fileName)
+    })
   }
 
   _nativeEventMessageReceived(message) {
@@ -56,7 +67,7 @@ export default class Lifekeyrn extends Component {
     // add to Session
     Session.update({ firebaseToken: token })
     const state = Session.getState()
-    console.log("Caught event", state)
+
     var pemKey
     if (state.registered) {
       const toSign = Date.now().toString()
@@ -74,7 +85,10 @@ export default class Lifekeyrn extends Component {
           "x-cnsnt-signed": sig.trim()
         }
       }))
-      .catch(error => alert(error))
+      .catch(error => {
+        alert("Could not update token")
+        Logger.error(error, this._fileName)
+      })
 
     }
   }

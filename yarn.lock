@@ -3399,6 +3399,10 @@ punycode@^1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/punycode/-/punycode-1.4.1.tgz#c0d5a63b2718800ad8e1eb0fa5269c84dd41845e"
 
+qr.js@0.0.0:
+  version "0.0.0"
+  resolved "https://registry.yarnpkg.com/qr.js/-/qr.js-0.0.0.tgz#cace86386f59a0db8050fa90d9b6b0e88a1e364f"
+
 qs@4.0.0:
   version "4.0.0"
   resolved "https://registry.yarnpkg.com/qs/-/qs-4.0.0.tgz#c31d9b74ec27df75e543a86c78728ed8d4623607"
@@ -3459,6 +3463,10 @@ react-native-checkbox@~1.0.8:
   version "1.0.17"
   resolved "https://registry.yarnpkg.com/react-native-checkbox/-/react-native-checkbox-1.0.17.tgz#94c61f190ef728c38763f48cd7ab91a6ad9fd4e2"
 
+react-native-dialogs@0.0.19:
+  version "0.0.19"
+  resolved "https://registry.yarnpkg.com/react-native-dialogs/-/react-native-dialogs-0.0.19.tgz#5fce60fa4f14779377598a10ab76ba274623f1f5"
+
 react-native-easy-grid@0.1.8:
   version "0.1.8"
   resolved "https://registry.yarnpkg.com/react-native-easy-grid/-/react-native-easy-grid-0.1.8.tgz#7953fb85e0e2c316d814bbd189cb9efdf56ff2a5"
@@ -3478,6 +3486,12 @@ react-native-keyboard-aware-scroll-view@0.2.0:
 react-native-navbar@^1.6.0:
   version "1.6.0"
   resolved "https://registry.yarnpkg.com/react-native-navbar/-/react-native-navbar-1.6.0.tgz#27f42a933107d12f5ef86e7056f7c3f5dd4fe3b0"
+
+react-native-qrcode@^0.2.3:
+  version "0.2.3"
+  resolved "https://registry.yarnpkg.com/react-native-qrcode/-/react-native-qrcode-0.2.3.tgz#cce06c5a8509c1f55a18d79053ace6fa0cedb376"
+  dependencies:
+    qr.js "0.0.0"
 
 react-native-vector-icons@^4.0.0:
   version "4.0.0"
