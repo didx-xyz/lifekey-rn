@@ -42,24 +42,13 @@ export default class DebugRegister extends Scene {
     return true
   }
 
-  _consentKeystoreExists() {
-    Crypto.getKeyStoreList()
-    .then(list => {
-      if (list.find(x => x === "consent")) {
-        this.setState({
-          registered: true
-        })
-        Session.update({
-          userRegistered: true
-        })
-      }
-    })
-    .catch(error => alert(error))
-  }
-
   componentDidMount() {
     super.componentDidMount()
-    this._consentKeystoreExists()
+    if (Session.getState().userRegistered) {
+      this.setState({
+        registered: true
+      })
+    }
   }
 
   register() {
