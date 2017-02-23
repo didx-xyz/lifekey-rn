@@ -7,10 +7,12 @@
 
 import {
   Config,
-  Logger,
-  Lifecycle,
   Palette
 } from './App'
+
+import * as Lifecycle from './App/Lifecycle'
+import Logger from './App/Logger'
+
 import EventEmitter from 'EventEmitter'
 import React, { Component } from 'react';
 import {
@@ -27,7 +29,7 @@ export default class Lifekeyrn extends Component {
 
   constructor(props) {
     super(props)
-    console.log(props)
+    console.log("CONST HAPPEN")
     this._fileName = 'index.android.js'
     this._className = this.constructor.name
     this._initialRoute = Config.initialRoute
@@ -130,8 +132,8 @@ export default class Lifekeyrn extends Component {
     return (
         <Navigator
           initialRoute={this._initialRoute}
-          onWillFocus={this._onWillFocus}
-          onDidFocus={this._onDidFocus}
+          onWillFocus={(route) => this.onWillFocus(route)}
+          onDidFocus={(route) => this.onDidFocus(route)}
           renderScene={ (route, navigator) => {
             if (Config.debug && Config.debugNavigator) {
               console.log("--- ROUTES STACK ---")
@@ -149,7 +151,7 @@ export default class Lifekeyrn extends Component {
                       screenOrientation: this.state.screenOrientation,
                       route,
                       navigator,
-                      _navigationEventEmitter: this._navigationEventEmitter // Navigator events
+                      _navigationEventEmitter: this._navigationEventEmitter, // Navigator events
                     }
                   )}
                 </View>

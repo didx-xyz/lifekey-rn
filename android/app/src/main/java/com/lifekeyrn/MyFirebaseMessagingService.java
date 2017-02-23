@@ -18,7 +18,7 @@ package com.lifekeyrn;
 import android.util.Log;
 
 import com.google.firebase.messaging.*;
-
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 public class MyFirebaseMessagingService extends FirebaseMessagingService {
 
@@ -47,6 +47,7 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
         if (remoteMessage.getNotification() != null) {
             Log.d(TAG, "Message Notification Body: " + remoteMessage.getNotification().getBody());
         }
+
 
         // Also if you intend on generating your own notifications as a result of a received FCM
         // message, here is where that should be initiated. See sendNotification method below.

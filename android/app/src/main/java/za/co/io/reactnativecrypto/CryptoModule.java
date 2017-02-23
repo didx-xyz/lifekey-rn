@@ -391,14 +391,11 @@ public class CryptoModule extends ReactContextBaseJavaModule {
       return;
     }
 
-
-    FileOutputStream fos = null;
     char[] passwordCharacters = password.toCharArray();
-    try {
+    try (FileOutputStream fos = new FileOutputStream(filePath)) {
       if(this.keyStore == null) {
         this.init();
       }
-      fos = new FileOutputStream(filePath);
       this.keyStore.load(null, passwordCharacters);
       this.keyStore.store(fos, passwordCharacters);
       this.alias = name;
@@ -411,14 +408,6 @@ public class CryptoModule extends ReactContextBaseJavaModule {
       promise.reject(Byte.toString(E_KEYSTORE), e);
     } catch(CertificateException e) {
       promise.reject(Byte.toString(E_CERTIFICATE), e);
-    } finally {
-      if(fos != null) {
-        try {
-          fos.close();
-        } catch(IOException e) {
-          promise.reject(Byte.toString(E_KEYSTORE), e);
-        }
-      }
     }
   }
 
@@ -555,10 +544,9 @@ public class CryptoModule extends ReactContextBaseJavaModule {
    * @throws IOException
    */
   @ReactMethod
-  public void addKeyPair(String type, String keyAlias, int keySize, String password, String certificateFilename, Promise promise) {
+  public void addKeyPair(String type, String keyAlias, int keySize, String keystorePassword, String certificateFilename, Promise promise) {
 
-    FileOutputStream fos = null;
-    try {
+    try (FileOutputStream fos = new FileOutputStream(this.absolutePath(this.alias))) {
       if(this.keyStore == null) {
         throw new KeyStoreException("Keystore must first be loaded");
       }
@@ -586,8 +574,8 @@ public class CryptoModule extends ReactContextBaseJavaModule {
       map.putString("privateKey", privateKeyB64);
       map.putString("publicKey", publicKeyB64);
 
-      // Convert password to char array
-      char[] passwordCharacters = password.toCharArray();
+      // Convert keystorePassword to char array
+      char[] keystorePasswordCharacters = keystorePassword.toCharArray();
 
       // Load certificate
       Certificate x509Cert = this.loadCertificate(certificateFilename);
@@ -595,17 +583,14 @@ public class CryptoModule extends ReactContextBaseJavaModule {
       certChain[0] = x509Cert;
 
       // Set entries
-      this.keyStore.setKeyEntry("public" + keyAlias, publicKey, passwordCharacters, certChain);
-      this.keyStore.setKeyEntry("private" + keyAlias, privateKey, passwordCharacters, certChain);
+      this.keyStore.setKeyEntry("public" + keyAlias, publicKey, keystorePasswordCharacters, certChain);
+      this.keyStore.setKeyEntry("private" + keyAlias, privateKey, keystorePasswordCharacters, certChain);
 
       // Write to file
-      fos = new FileOutputStream(this.absolutePath(this.alias));
-      this.keyStore.store(fos, passwordCharacters);
+      this.keyStore.store(fos, keystorePasswordCharacters);
 
       promise.resolve(map);
-    }
-
-    catch(IOException e) {
+    } catch(IOException e) {
       promise.reject(Byte.toString(E_IO), e);
     } catch(NoSuchAlgorithmException e) {
       promise.reject(Byte.toString(E_NO_SUCH_ALGORITHM), e);
@@ -613,14 +598,6 @@ public class CryptoModule extends ReactContextBaseJavaModule {
       promise.reject(Byte.toString(E_CERTIFICATE), e);
     } catch(KeyStoreException e) {
       promise.reject(Byte.toString(E_KEYSTORE), e);
-    } finally {
-      try {
-        if(fos != null) {
-          fos.close();
-        }
-      } catch(IOException e) {
-        promise.reject(Byte.toString(E_IO), e);
-      }
     }
   }
 

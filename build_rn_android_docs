@@ -1,0 +1,2 @@
+#! /usr/bin/env bash
+javadoc -d rn-android-docs/ $(find . -name *.java)

@@ -14,6 +14,7 @@ import DebugKeyStore from './Scenes/DebugKeyStore'
 import FormGenerator from './Scenes/FormGenerator'
 import DebugRegister from './Scenes/DebugRegister'
 import Animation from './Scenes/Animation'
+import DebugConnectionRequest from './Scenes/DebugConnectionRequest'
 
 export default {
   login: { title: 'Login', scene: Login },
@@ -24,5 +25,6 @@ export default {
   debug: { title: 'Debug', scene: Debug },
   formGenerator: { title: 'form generator', scene: FormGenerator },
   debugRegister: { title: 'register', scene: DebugRegister },
-  animation: { title: 'Animation', scene: Animation }
+  animation: { title: 'Animation', scene: Animation },
+  debugConnectionRequest: { title: 'Connection request', scene: DebugConnectionRequest }
 }

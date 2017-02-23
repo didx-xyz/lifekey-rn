@@ -16,7 +16,8 @@ const pkg = require('../package.json')
 
 const APP_NAME = 'Lifekey'
 const SERVER = 'staging.lifekey.cnsnt.io'
-const DEBUG = false
+const SCHEME = 'http://'
+const DEBUG = true
 const API_VERSION = 1
 
 /**
@@ -28,6 +29,7 @@ export default {
   appName: APP_NAME,
 
   // First scene to show
+  // initialRoute: Routes.debugRegister,
   initialRoute: Routes.debug,
 
   // Predefined error messages
@@ -64,7 +66,7 @@ export default {
   // Server details
   http: {
     server: SERVER,
-    baseUrl: 'http://' + SERVER + '/api/v' + API_VERSION + '/',
+    baseUrl: SCHEME + SERVER,
     headers: {
       'X-Requested-With': 'XMLHttpRequest',
       'x-client-platform': APP_NAME + Platform.OS + ' v' + pkg.version,

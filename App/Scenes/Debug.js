@@ -8,9 +8,11 @@
 import React from 'react'
 import Scene from '../Scene'
 import Routes from '../Routes'
+import Crypto from '../Crypto'
+import Session from '../Session'
+
 import {
   Text,
-  ScrollView,
   StyleSheet,
   View
 } from 'react-native'
@@ -25,9 +27,35 @@ import AndroidBackButton from 'react-native-android-back-button'
 
 export default class Debug extends Scene {
 
-  componentDidMount() {
-    // this._newKeyPair()
-    // alert(NativeModules.Keystore.ANDROID_CA_STORE)
+  constructor(props) {
+    super(props)
+    this.state = {
+      keystoreFound: false
+    }
+  }
+
+  _checkForKeystore() {
+    Crypto.getKeyStoreList()
+    .then(list => {
+      if (list.find(x => x === "consent")) {
+        this.setState({ keystoreFound: true })
+        Session.update({ registered: true })
+      } else {
+        this.setState({ keystoreFound: false })
+        Session.update({ registered: false })
+      }
+    })
+    .catch(error => alert(error))
+  }
+
+  componentWillMount() {
+    super.componentWillMount()
+    this._checkForKeystore()
+  }
+
+  componentWillFocus() {
+    super.componentWillFocus()
+    this._checkForKeystore()
   }
 
   _hardwareBackHandler() {
@@ -52,13 +80,16 @@ export default class Debug extends Scene {
           <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
           <View style={{ alignItems: 'center' }}>
             <H1>Lifekey Tech Demo</H1>
+            <Text>{ this.state.keystoreFound ? "Keypair detected" : "No keypair detected" }</Text>
           </View>
-          <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugKeyStore)}>Keystore Manager</Button>
-          <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.scanQrCode)}>QR Code Scanner</Button>
-          <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.selfieCam)}>Self-facing Camera</Button>
-          <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.formGenerator)}>JSON Form Generator</Button>
-          <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugRegister)}>Register a consent user</Button>
-          <Button style={[styles.btn]} onPress={() => this.navigator.push(Routes.animation)}>Animation</Button>
+          <Button iconName="md-key" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugKeyStore)}>Keystore Manager</Button>
+          {/* <Button iconName="md-qr-scanner" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.scanQrCode)}>QR Code Scanner</Button> */}
+          <Button iconName="md-reverse-camera" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.selfieCam)}>Self-facing Camera</Button>
+          {/* <Button iconName="md-document" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.formGenerator)}>JSON Form Generator</Button> */}
+          <Button iconName="md-contact" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugRegister)}>{ this.state.keystoreFound ? "Unlock/Login" : "Register on Consent" }</Button>
+          {/* <Button iconName="md-flame" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.animation)}>Animation</Button> */}
+          <Button iconName="md-globe" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugConnectionRequest)}>QR Connection Request</Button>
+          <Button iconName="md-no-smoking" kind="squared" style={[styles.btn]} onPress={() => alert("No smoking!")}>No smoking</Button>
         </Content>
       </Container>
     )

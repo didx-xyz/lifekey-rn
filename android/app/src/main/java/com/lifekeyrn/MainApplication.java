@@ -13,6 +13,7 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.aakashns.reactnativedialogs.ReactNativeDialogsPackage;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
 
 import za.co.io.reactnativecrypto.CryptoPackage;
 
@@ -49,5 +50,8 @@ public class MainApplication extends Application implements ReactApplication {
   public void onCreate() {
     super.onCreate();
     SoLoader.init(this, /* native exopackage */ false);
+    MainApplication.this.mReactNativeHost.getReactInstanceManager().getCurrentReactContext()
+    .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
+    .emit("nativeEvent", "something");
   }
 }

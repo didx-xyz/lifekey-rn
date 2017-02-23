@@ -20,7 +20,7 @@ import {
 import { Button, H1, H2 } from 'nachos-ui'
 import Crypto from '../Crypto'
 import AndroidBackButton from 'react-native-android-back-button'
-import DialogAndroid from 'react-native-dialogs';
+import DialogAndroid from 'react-native-dialogs'
 
 export default class DebugKeyStore extends Scene {
 
