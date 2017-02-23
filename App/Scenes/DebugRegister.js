@@ -8,6 +8,7 @@
 import React from 'react'
 import Scene from '../Scene'
 import Crypto from '../Crypto'
+import PushNotifications from '../PushNotifications'
 
 import {
   Text,
@@ -112,10 +113,41 @@ export default class DebugRegister extends Scene {
     alert("todo")
   }
 
+  _getToken() {
+    PushNotifications.getToken().then(
+      console.log
+    ).catch(
+      console.log
+    )
+  }
+
+  _getMessages() {
+    PushNotifications.getMessages().then(
+      console.log
+    ).catch(
+      console.log
+    )
+  }
+
+  _getMessage(index) {
+    PushNotifications.getMessage(index).then(
+      console.log
+    ).catch(
+      console.log
+    )
+  }
+
+  _getMessagesLength() {
+    PushNotifications.getMessagesLength().then(
+      console.log
+    ).catch(
+      console.log
+    )
+  }
+
   render() {
     return (
       <Container>
-
         <Content>
           <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
           <View style={{ alignItems: 'center' }}>
@@ -140,6 +172,11 @@ export default class DebugRegister extends Scene {
             value={this.state.password}
             onChangeText={password => this.setState({ password })}
           />
+          <Button style={[styles.btn]} onPress={ () => this._getToken()}>Get Token</Button>
+          <Button style={[styles.btn]} onPress={ () => this._getMessages()}>Get Messages</Button>
+          <Button style={[styles.btn]} onPress={ () => this._getMessage(1)}>Get First Message</Button>
+          <Button style={[styles.btn]} onPress={ () => this._getMessagesLength()}>Get Number of Messages</Button>
+          
           { this.state.registered ?
           <Button style={[styles.btn]} onPress={ () => this.login()}>Login</Button>
           :
