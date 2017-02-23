@@ -1,4 +1,9 @@
 
+# oppressive gradle rules
+gradlew
+gradlew.bat
+android/gradle/
+
 # app keystores (will get removed on ci server)
 !*.keystore
 
