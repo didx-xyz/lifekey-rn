@@ -1,32 +1,46 @@
 package za.co.io.reactnativecrypto;
 
-import java.security.*;
-import java.security.cert.CertificateFactory;
-import java.security.spec.RSAKeyGenParameterSpec;
-import java.security.cert.Certificate;
-import java.security.cert.CertificateException;
-
-import javax.crypto.KeyGenerator;
-import java.io.*;
-import java.nio.charset.Charset;
-import java.util.*;
-import java.nio.charset.StandardCharsets;
-
-import android.util.Log;
-import android.util.Base64;
 import android.content.Context;
 import android.content.res.AssetManager;
-import android.security.keystore.*;
+import android.util.Base64;
+import android.util.Log;
 
-import com.facebook.react.bridge.NativeModule;
+import com.facebook.react.bridge.Arguments;
+import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.ReactApplicationContext;
-import com.facebook.react.bridge.ReactContext;
 import com.facebook.react.bridge.ReactContextBaseJavaModule;
 import com.facebook.react.bridge.ReactMethod;
-import com.facebook.react.bridge.Promise;
 import com.facebook.react.bridge.WritableMap;
 import com.facebook.react.bridge.WritableNativeArray;
-import com.facebook.react.bridge.Arguments;
+import com.facebook.react.modules.core.DeviceEventManagerModule;
+
+import java.io.BufferedInputStream;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.InvalidKeyException;
+import java.security.Key;
+import java.security.KeyPair;
+import java.security.KeyPairGenerator;
+import java.security.KeyStore;
+import java.security.KeyStoreException;
+import java.security.MessageDigest;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.PublicKey;
+import java.security.SecureRandom;
+import java.security.Signature;
+import java.security.SignatureException;
+import java.security.UnrecoverableKeyException;
+import java.security.cert.Certificate;
+import java.security.cert.CertificateException;
+import java.security.cert.CertificateFactory;
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 public class CryptoModule extends ReactContextBaseJavaModule {
 
