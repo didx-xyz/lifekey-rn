@@ -66,7 +66,7 @@ export default class DebugConnectionRequest extends Scene {
   }
 
   pullProfile(data) {
-    alert(data); return
+    // alert(data); return
     console.log("fetching: http://" + data)
     fetch("http://" + data, {
       method: "GET",

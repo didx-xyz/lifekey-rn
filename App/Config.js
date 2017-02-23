@@ -19,6 +19,8 @@ const SERVER = 'staging.lifekey.cnsnt.io'
 const SCHEME = 'http://'
 const DEBUG = true
 const API_VERSION = 1
+const TOKEN_REFRESH_URL = "http://staging.api.lifekey.cnsnt.io/management/device"
+
 
 /**
  * The configuration file for the App
@@ -65,6 +67,7 @@ export default {
 
   // Server details
   http: {
+    tokenRefreshUrl: TOKEN_REFRESH_URL,
     server: SERVER,
     baseUrl: SCHEME + SERVER,
     headers: {

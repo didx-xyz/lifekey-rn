@@ -9,6 +9,7 @@ import React from 'react'
 import Scene from '../Scene'
 import Crypto from '../Crypto'
 import PushNotifications from '../PushNotifications'
+import Session from '../Session'
 
 import {
   Text,
@@ -48,12 +49,16 @@ export default class DebugRegister extends Scene {
         this.setState({
           registered: true
         })
+        Session.update({
+          userRegistered: true
+        })
       }
     })
     .catch(error => alert(error))
   }
 
   componentDidMount() {
+    super.componentDidMount()
     this._consentKeystoreExists()
   }
 
@@ -63,13 +68,30 @@ export default class DebugRegister extends Scene {
       return
     }
 
-    var pemKey
+    var pemKey, token
     const toSign = Date.now().toString()
-    Crypto.getKeyStoreList()
+    PushNotifications.getToken()
+    .then(result => {
+      if (!result) {
+        token = Session.getState().firebaseToken
+        if (!token) {
+          throw "No token available"
+        }
+      } else {
+        Session.update({
+          firebaseToken: result
+        })
+        token = result
+      }
+
+      console.log("Result", result)
+      return Crypto.getKeyStoreList()
+    })
     .then(list => {
       if (list.find(x => x === "consent")) {
         throw "Already registered"
       } else {
+
         return Crypto.createKeyStore("consent", this.state.password)
       }
     })
@@ -90,11 +112,11 @@ export default class DebugRegister extends Scene {
       body: JSON.stringify({
         email: this.state.email.trim(),
         nickname: this.state.nickname.trim(),
-        device_id: 234,
+        device_id: token,
         device_platform: "android",
         public_key_algorithm: "rsa",
         public_key: pemKey,
-        plaintext_proof: toSign.trim(),
+        plaintext_proof: toSign,
         signed_proof: signature.trim()
       }),
       method: "POST",
@@ -102,11 +124,18 @@ export default class DebugRegister extends Scene {
         "content-type": "application/json"
       }
     }))
-    .then(response => {
-      console.log(response)
-      alert(JSON.stringify(response))
+    .then(response => response.json())
+    .then(responseJson => {
+      console.log(responseJson)
+      alert(JSON.stringify(responseJson))
+      Session.update({
+        dbUserId: responseJson.id,
+      })
     })
-    .catch(error => alert("Already registered?", error))
+    .catch(error => {
+      alert(error)
+      console.log(error)
+    })
   }
 
   login() {
@@ -176,7 +205,7 @@ export default class DebugRegister extends Scene {
           <Button style={[styles.btn]} onPress={ () => this._getMessages()}>Get Messages</Button>
           <Button style={[styles.btn]} onPress={ () => this._getMessage(1)}>Get First Message</Button>
           <Button style={[styles.btn]} onPress={ () => this._getMessagesLength()}>Get Number of Messages</Button>
-          
+
           { this.state.registered ?
           <Button style={[styles.btn]} onPress={ () => this.login()}>Login</Button>
           :

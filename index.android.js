@@ -12,6 +12,9 @@ import {
 
 import * as Lifecycle from './App/Lifecycle'
 import Logger from './App/Logger'
+import Crypto from './App/Crypto'
+import Session from './App/Session'
+
 
 import EventEmitter from 'EventEmitter'
 import React, { Component } from 'react';
@@ -19,7 +22,9 @@ import {
   View,
   Dimensions,
   AppRegistry,
-  Navigator
+  Navigator,
+  DeviceEventEmitter,
+  Platform
 } from 'react-native';
 
 const PORTRAIT = 0
@@ -29,7 +34,6 @@ export default class Lifekeyrn extends Component {
 
   constructor(props) {
     super(props)
-    console.log("CONST HAPPEN")
     this._fileName = 'index.android.js'
     this._className = this.constructor.name
     this._initialRoute = Config.initialRoute
@@ -38,6 +42,40 @@ export default class Lifekeyrn extends Component {
       orientation: null,
       screenWidth: null,
       screenHeight: null
+    }
+    DeviceEventEmitter.addListener('messageReceived', (e) => this._nativeEventMessageReceived(e))
+    DeviceEventEmitter.addListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
+  }
+
+  _nativeEventMessageReceived(message) {
+    console.log(message)
+    alert(message)
+  }
+
+  _nativeEventTokenRefreshed(token) {
+    // add to Session
+    Session.update({ firebaseToken: token })
+    const state = Session.getState()
+    console.log("Caught event", state)
+    var pemKey
+    if (state.registered) {
+      const toSign = Date.now().toString()
+      Crypto.sign(toSign, "private_lifekey", "consent", Crypto.SIG_SHA256_WITH_RSA)
+      .then(sig => fetch(Config.http.tokenRefreshUrl, {
+        method: 'POST',
+        body: JSON.stringify({
+          device_id: token,
+          device_platform: Platform.OS
+        }),
+        headers: {
+          "content-type": "application/json",
+          "x-cnsnt-id": Session.getState().dbUserId,
+          "x-cnsnt-plain": toSign,
+          "x-cnsnt-signed": sig.trim()
+        }
+      }))
+      .catch(error => alert(error))
+
     }
   }
 
@@ -91,6 +129,9 @@ export default class Lifekeyrn extends Component {
   }
 
   componentWillUnmount() {
+
+    DeviceEventEmitter.removeListener('messageReceived', (message) => this._nativeEventMessageReceived(message))
+    DeviceEventEmitter.removeListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
     if (Config.debug && Config.debugReact) {
       Logger.react(this._fileName, Lifecycle.COMPONENT_WILL_UNMOUNT)
     }

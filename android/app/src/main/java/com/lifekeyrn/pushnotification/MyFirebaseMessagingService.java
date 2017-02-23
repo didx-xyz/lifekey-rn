@@ -52,7 +52,9 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             notification.putString("clickAction", n.getClickAction());
             notification.putString("color", n.getColor());
             notification.putString("sound", n.getSound());
-            notification.putString("link", n.getLink().toString()); // TODO test this - not sure how instances of Uri must be coerced to String
+            if(n.getLink() != null) {
+                notification.putString("link", n.getLink().toString()); // TODO test this - not sure how instances of Uri must be coerced to String
+            }
             msg.putMap("notification", notification);
         }
 

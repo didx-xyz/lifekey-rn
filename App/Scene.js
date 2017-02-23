@@ -21,18 +21,13 @@ export default class Scene extends Component {
     this._className = this.constructor.name
 
     this.navigator = this.props.navigator
-    console.log(this._className)
     this.props._navigationEventEmitter.addListener('onWillFocus' + this._className, this.componentWillFocus, this)
     this.props._navigationEventEmitter.addListener('onDidFocus' + this._className, this.componentDidFocus, this)
     // this.props._deviceEventEmitter.addListener("nativeEvent", this._nativeEvent, this)
-    DeviceEventEmitter.addListener('nativeEvent', (e) => this._nativeEvent(e))
+
     if (Config.debug && Config.debugReact) {
       Logger.react(this._className, Lifecycle.CONSTRUCTOR)
     }
-  }
-
-  _nativeEvent(e) {
-    alert("native event");
   }
 
   componentWillFocus() {
@@ -98,7 +93,6 @@ export default class Scene extends Component {
     // Remove event listeners
     this.props._navigationEventEmitter.removeListener('onWillFocus' + this._className, this.componentWillFocus, this)
     this.props._navigationEventEmitter.removeListener('onDidFocus' + this._className, this.componentDidFocus, this)
-    // DeviceEventEmitter.removeListener('keyboardWillShow', (e) => this._nativeEvent(e))
   }
 
   render() {
