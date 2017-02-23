@@ -43,6 +43,10 @@ export default class Session {
       throw 'Update only accepts objects'
   }
 
+  static updatePersistent(data) {
+
+  }
+
 }
 
 Object.defineProperty(Session, 'changes',{

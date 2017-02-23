@@ -90,6 +90,9 @@ export default class Debug extends Scene {
           {/* <Button iconName="md-flame" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.animation)}>Animation</Button> */}
           <Button iconName="md-globe" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugConnectionRequest)}>QR Connection Request</Button>
           <Button iconName="md-no-smoking" kind="squared" style={[styles.btn]} onPress={() => alert("No smoking!")}>No smoking</Button>
+          { this.state.keystoreFound ?
+          <Button kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugShowQRCode)}>View QR Code</Button>
+          : null }
         </Content>
       </Container>
     )

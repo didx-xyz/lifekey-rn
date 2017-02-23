@@ -15,7 +15,7 @@ import Palette from './Palette'
 const pkg = require('../package.json')
 
 const APP_NAME = 'Lifekey'
-const SERVER = 'staging.lifekey.cnsnt.io'
+const SERVER = 'staging.api.lifekey.cnsnt.io'
 const SCHEME = 'http://'
 const DEBUG = true
 const API_VERSION = 1

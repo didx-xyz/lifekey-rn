@@ -91,7 +91,6 @@ export default class DebugRegister extends Scene {
       if (list.find(x => x === "consent")) {
         throw "Already registered"
       } else {
-
         return Crypto.createKeyStore("consent", this.state.password)
       }
     })
