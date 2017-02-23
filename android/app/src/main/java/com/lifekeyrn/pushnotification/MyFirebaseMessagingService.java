@@ -1,6 +1,8 @@
 
 package com.lifekeyrn.pushnotification;
 
+import android.util.Log;
+
 import com.facebook.react.bridge.Arguments;
 import com.facebook.react.bridge.WritableMap;
 import com.google.firebase.messaging.FirebaseMessagingService;
@@ -54,12 +56,13 @@ public class MyFirebaseMessagingService extends FirebaseMessagingService {
             msg.putMap("notification", notification);
         }
 
+        PushNotificationData.MESSAGES.add(msg);
         try {
             // if the RN native module is not yet initialised, this will throw
             sendMessageReceivedEvent(msg);
         } catch (Throwable t) {
             // so if it threw, just store the message to be fetched manually later
-            PushNotificationData.MESSAGES.add(msg);
+            Log.d(TAG, "REACT NATIVE NOT YET INITIALISED - STORING MESSAGE FOR LATER");
         }
     }
 }

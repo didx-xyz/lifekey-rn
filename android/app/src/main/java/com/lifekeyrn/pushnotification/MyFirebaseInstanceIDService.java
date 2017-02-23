@@ -23,7 +23,7 @@ public class MyFirebaseInstanceIDService extends FirebaseInstanceIdService {
             sendTokenRefreshedEvent(refreshedToken);
         } catch (Throwable t) {
             // but if it does, just set the token in static data so it may be fetched manually later
-            PushNotificationData.TOKEN = refreshedToken;
+            Log.d(TAG, "REACT NATIVE NOT YET INITIALISED - STORING TOKEN FOR LATER");
         }
     }
 }
