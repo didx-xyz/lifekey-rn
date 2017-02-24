@@ -49,7 +49,7 @@ export default class Lifekeyrn extends Component {
     Crypto.getKeyStoreList()
     .then(list => {
       if (list.find(x => x === "consent")) {
-        Logger.info("Keystore detected, setting Session { userRegistered: true }")
+        Logger.info("Keystore detected, setting Session { userRegistered: true }", this._fileName)
         Session.update({
           userRegistered: true
         })

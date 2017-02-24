@@ -11,9 +11,18 @@ import Config from './Config'
 import Logger from './Logger'
 
 function request(route, opts) {
-  const options = opts || { method: 'GET' }
+  // const options = opts || { method: 'GET' }
+  const options = Object.assign({
+    method: "GET",
+    headers: {
+      "content-type":  "application/json"
+    }
+  }, opts)
   if (Config.debug && Config.debugNetwork) {
     Logger.networkRequest(options.method, new Date(), Config.http.baseUrl + route)
+    if (opts.body) {
+      console.log(opts.body)
+    }
   } else {
     // Sentry.addBreadcrumb('HTTP ' + options.method, Config.http.baseUrl + route)
   }
@@ -73,7 +82,8 @@ export default {
 
       if (containsRequired(requiredFields, data)) {
         return request('/management/register', {
-          body: JSON.stringify(data)
+          body: JSON.stringify(data),
+          method: "POST"
         })
       } else {
         return reject("Missing fields")

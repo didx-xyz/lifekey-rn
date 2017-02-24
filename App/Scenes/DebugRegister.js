@@ -57,13 +57,17 @@ export default class DebugRegister extends Scene {
   }
 
   register() {
-    if (!this.state.email || !this.state.nickname || !this.state.password) {
+    if (!this.state.email.trim() || !this.state.nickname.trim() || !this.state.password.trim()) {
       alert("Please fill in all fields")
       return
     }
+    const email = this.state.email.trim()
+    const nickname = this.state.nickname.trim()
+    const password = this.state.password.trim()
+
     Logger.info("registering as " +
-                this.state.email + ", " +
-                this.state.nickname + ", " + this.state.password,
+                email + ", " +
+                nickname + ", " + password,
                 this._fileName)
 
     var pemKey, firebaseToken
@@ -74,17 +78,17 @@ export default class DebugRegister extends Scene {
       if (list.find(x => x === "consent")) {
         throw "Already registered"
       } else {
-        return Crypto.createKeyStore("consent", this.state.password)
+        return Crypto.createKeyStore("consent", password)
       }
     })
     .then(() => Crypto.addKeyPair(
       Crypto.KEYPAIR_RSA,
       "_lifekey",
       2048,
-      this.state.password,
+      password,
       "rsa-example.pem"
     ))
-    .then(keys => Crypto.getKeyAsPem("public_lifekey", this.state.password))
+    .then(keys => Crypto.getKeyAsPem("public_lifekey", password))
     .then(pem => {
       pemKey = pem
       return Firebase.getToken()
@@ -92,16 +96,16 @@ export default class DebugRegister extends Scene {
 
     .then(_firebaseToken => {
       firebaseToken = _firebaseToken
-      return Crypto.sign(toSign, "private_lifekey", this.state.password, Crypto.SIG_SHA256_WITH_RSA)})
+      return Crypto.sign(toSign, "private_lifekey", password, Crypto.SIG_SHA256_WITH_RSA)})
     .then(signature => Api.register({
-      email: this.state.email.trim(),
-      nickname: this.state.nickname.trim(),
+      email: email,
+      nickname: nickname,
       device_id: firebaseToken,
       device_platform: "android",
       public_key_algorithm: "rsa",
       public_key: pemKey,
       plaintext_proof: toSign,
-      signed_proof: signature.trim()
+      signed_proof: signature
     }))
     .then(responseJson => {
       console.log(responseJson)
