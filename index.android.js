@@ -43,6 +43,7 @@ export default class Lifekeyrn extends Component {
       screenWidth: null,
       screenHeight: null
     }
+    Logger.info("Booting ReactNative " + Config.appName, this._fileName)
     DeviceEventEmitter.addListener('messageReceived', (e) => this._nativeEventMessageReceived(e))
     DeviceEventEmitter.addListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
 
@@ -194,6 +195,15 @@ export default class Lifekeyrn extends Component {
     if (Config.debug && Config.debugReact) {
       Logger.react(this._fileName, Lifecycle.COMPONENT_WILL_UNMOUNT)
     }
+    // Update persistence in persistence
+    // TODO change to batch storage
+    // so we can also store dbUserId here 
+    Storage.store("firebaseToken", Session.getState().firebaseToken)
+    .then(result => {
+      Logger.async("Stored " + "firebaseToken", this._fileName)
+
+    })
+    .catch(error => Logger.error(error, this._fileName))
   }
 
   shouldComponentUpdate(nextProps, nextState) {
