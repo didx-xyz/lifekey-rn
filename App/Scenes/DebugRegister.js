@@ -10,6 +10,8 @@ import Scene from '../Scene'
 import Crypto from '../Crypto'
 import PushNotifications from '../PushNotifications'
 import Session from '../Session'
+import Storage from '../Storage'
+import Logger from '../Logger'
 
 import {
   Text,
@@ -57,23 +59,31 @@ export default class DebugRegister extends Scene {
       return
     }
 
-    var pemKey, token
+    var pemKey, token, loadedFromPersistence
     const toSign = Date.now().toString()
     PushNotifications.getToken()
-    .then(result => {
-      if (!result) {
-        token = Session.getState().firebaseToken
-        if (!token) {
-          throw "No token available"
-        }
+    .then(tokenFromPN => {
+      if (tokenFromPN) {
+        Promise.resolve(tokenFromPN)
       } else {
-        Session.update({
-          firebaseToken: result
-        })
-        token = result
+        const tokenFromSession = Session.getState().firebaseToken
+        if (tokenFromSession) {
+          Promise.resolve(tokenFromSession)
+        } else {
+          loadedFromPersistence = true
+          return Storage.load('firebaseToken')
+        }
       }
-
-      console.log("Result", result)
+    })
+    .then(loadedToken => {
+      token = loadedToken
+      if (!loadedFromPersistence) {
+        Storage.store('firebaseToken', loadedToken)
+        .then(() => {
+          Logger.async("Stored firebaseToken " + loadedToken)
+        })
+        .catch(error => Logger.error(error, this._fileName))
+      }
       return Crypto.getKeyStoreList()
     })
     .then(list => {

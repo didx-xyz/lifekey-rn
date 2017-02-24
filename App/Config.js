@@ -81,7 +81,7 @@ export default {
   },
   session: {
     dbKey: SESSION_KEY
-  }
+  },
   // Google Analytics
   googleAnalytics: {
     trackers: {

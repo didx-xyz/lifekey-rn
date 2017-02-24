@@ -8,9 +8,7 @@
 import Logger from './Logger'
 
 import { AsyncStorage } from 'react-native'
-/**
- * A static class to store and retrieve a global state
- */
+
 export default class Storage {
 
   static store(key, value) {
