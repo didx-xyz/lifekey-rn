@@ -7,7 +7,7 @@
 
 /* global fetch FormData */
 import Config from './Config'
-import Sentry from './Sentry'
+// import Sentry from './Sentry'
 import Logger from './Logger'
 
 function request(route, opts) {
@@ -15,7 +15,7 @@ function request(route, opts) {
   if (Config.debug && Config.debugNetwork) {
     Logger.networkRequest(options.method, new Date(), Config.http.baseUrl + route)
   } else {
-    Sentry.addBreadcrumb('HTTP ' + options.method, Config.http.baseUrl + route)
+    // Sentry.addBreadcrumb('HTTP ' + options.method, Config.http.baseUrl + route)
   }
 
   return fetch(Config.http.baseUrl + route, options)
@@ -25,7 +25,7 @@ function request(route, opts) {
     if (Config.debug && Config.debugNetwork) {
       Logger.networkResponse(response.status, new Date(), response._bodyText)
     } else {
-      Sentry.addHttpBreadcrumb(Config.http.baseUrl + route, options.method, response.status)
+      // Sentry.addHttpBreadcrumb(Config.http.baseUrl + route, options.method, response.status)
     }
     return response.json()
   })
@@ -44,30 +44,42 @@ function request(route, opts) {
       Logger.error('API Error', error)
       return Promise.reject(error.toString())
     } else {
-      return Promise.reject(error)
+      return Promise.reject(error.toString())
     }
   })
 }
 
+const containsRequired = (requiredFields, data) =>
+  JSON.stringify(requiredFields.sort()) ===
+  JSON.stringify(Object.keys(data).sort())
+
 /** API functions avaialble to the App */
 export default {
 
-  /**
-   * Register a new yser
-   * @memberof Api
-   * @param {string} email
-   * @param {string} password
-   * @returns {undefined}
-   */
-  register: (email, password) => {
-    const formData = new FormData()
-    formData.append('email', email)
-    formData.append('pasword', password)
-    return request('management/register', {
-      body: formData,
-      method: 'POST',
-      headers: Config.http.headers
+  register: (data) => {
+    // check integrity
+    return new Promise((resolve, reject) => {
+
+      const requiredFields = [
+        "email",
+        "nickname",
+        "device_id",
+        "device_platform",
+        "public_key_algorithm",
+        "public_key",
+        "plaintext_proof",
+        "signed_proof"
+      ]
+
+      if (containsRequired(requiredFields, data)) {
+        return request('/management/register', {
+          body: JSON.stringify(data)
+        })
+      } else {
+        return reject("Missing fields")
+      }
     })
+
   },
 
 }

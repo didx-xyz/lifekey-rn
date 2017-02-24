@@ -7,6 +7,7 @@
 
 import ANSI from 'ansi-styles'
 import * as Lifecycle from './Lifecycle'
+import Config from './Config'
 
 /** Provides a wide variety of logging features */
 export default class Logger {
@@ -21,7 +22,9 @@ export default class Logger {
    * @returns {undefined}
    */
   static _log(prefix, text, fgColor, bgColor = ANSI.bgBlack) {
-    console.log(`${prefix}${bgColor.open}${fgColor.open}${text}${fgColor.close}${bgColor.close}`)
+    if (Config.debug) {
+      console.log(`${prefix}${bgColor.open}${fgColor.open}${text}${fgColor.close}${bgColor.close}`)
+    }
   }
 
   static _asColumn(text, width = 100) {
@@ -35,12 +38,12 @@ export default class Logger {
   }
 
   // TODO: We can use this in session now instead of for redux
-  static store = (data) => {
-    const prefix = `${ANSI.magenta.open}[ST]${ANSI.magenta.close}`
-    // adding color destroys prettyprint
-    console.log(prefix)
-    console.log(data)
-  }
+  // static store = (data) => {
+  //   const prefix = `${ANSI.magenta.open}[ST]${ANSI.magenta.close}`
+  //   // adding color destroys prettyprint
+  //   console.log(prefix)
+  //   console.log(data)
+  // }
 
   /**
    * Log an AsyncStorage action
@@ -49,7 +52,9 @@ export default class Logger {
    */
   static async = message => {
     const prefix = `${ANSI.cyan.open}[AS]${ANSI.cyan.close} `
-    Logger._log(prefix, message, ANSI.yellow)
+    if (Config.debug && Config.debugAsyncStorage) {
+      Logger._log(prefix, message, ANSI.yellow)
+    }
   }
 
   /**
@@ -64,7 +69,9 @@ export default class Logger {
     const method_color = `${ANSI.bold.open}${ANSI.green.open}${method}${ANSI.green.close}${ANSI.bold.close}`
     const timestamp_color = `${ANSI.gray.open}${ANSI.underline.open}${timestamp}${ANSI.underline.close}${ANSI.gray.close}`
     const route_color = `${ANSI.white.open}${route}${ANSI.white.close}`
-    console.log(`${prefix} ${method_color} ${Logger._asColumn(timestamp_color,64)} ${route_color}`)
+    if(Config.debug && Config.debugNetwork) {
+      console.log(`${prefix} ${method_color} ${Logger._asColumn(timestamp_color,64)} ${route_color}`)
+    }
   }
 
   /**
@@ -88,8 +95,10 @@ export default class Logger {
     const timestamp_color = `${ANSI.gray.open}${ANSI.underline.open}${timestamp}${ANSI.underline.close}${ANSI.gray.close}`
 
     const status_color = `${codes.color.open}${status}${codes.color.close}`
-    console.log(`${prefix} ${status_color} ${timestamp_color}`)
-    console.log(data)
+    if (Config.debug && Config.debugNetwork) {
+      console.log(`${prefix} ${status_color} ${timestamp_color}`)
+      console.log(data)
+    }
 
   }
 
@@ -102,7 +111,31 @@ export default class Logger {
   static error = (message, fileName) => {
     const prefix = `${ANSI.bgRed.open}${ANSI.white.open}[ER]${ANSI.white.close}${ANSI.bgRed.close}`
     const fileName_color = `${ANSI.green.open}${fileName}${ANSI.green.close}`
-    console.log(`${prefix} ${fileName} ${ANSI.red.open} ${message}${ANSI.red.close}`)
+    if (Config.debug) {
+      console.log(`${prefix} ${fileName} ${ANSI.red.open} ${message}${ANSI.red.close}`)
+    }
+  }
+
+  /**
+   * Log an info
+   * @param {string} message
+   * @param {string} filename
+   * @returns {undefined}
+   */
+  static info = (message, fileName) => {
+    const prefix = `${ANSI.bgGreen.open}${ANSI.white.open}[i]${ANSI.white.close}${ANSI.bgGreen.close}`
+    const fileName_color = `${ANSI.green.open}${fileName}${ANSI.green.close}`
+    if (Config.debug) {
+      console.log(`${prefix} ${fileName} ${ANSI.white.open} ${message}${ANSI.white.close}`)
+    }
+  }
+
+  static firebase = (message, fileName) => {
+    const prefix = `${ANSI.bgBlack.open}${ANSI.red.open}[FB]${ANSI.red.close}${ANSI.bgBlack.close}`
+    const fileName_color = `${ANSI.green.open}${fileName}${ANSI.green.close}`
+    if (Config.debug && Config.debugFirebase) {
+      console.log(`${prefix} ${fileName} ${ANSI.white.open} ${message}${ANSI.white.close}`)
+    }
   }
 
   /**

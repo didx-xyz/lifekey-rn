@@ -14,7 +14,7 @@ import * as Lifecycle from './App/Lifecycle'
 import Logger from './App/Logger'
 import Crypto from './App/Crypto'
 import Session from './App/Session'
-
+import Storage from './App/Storage'
 
 import EventEmitter from 'EventEmitter'
 import React, { Component } from 'react';
@@ -45,25 +45,70 @@ export default class Lifekeyrn extends Component {
     }
     DeviceEventEmitter.addListener('messageReceived', (e) => this._nativeEventMessageReceived(e))
     DeviceEventEmitter.addListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
+
     Crypto.getKeyStoreList()
     .then(list => {
       if (list.find(x => x === "consent")) {
+        Logger.info("Keystore detected, setting Session { userRegistered: true }")
         Session.update({
           userRegistered: true
+        })
+      } else {
+        Logger.info("No keystore detected, setting Session { userRegistered: false }", this._fileName)
+        Session.update({
+          userRegistered: false
         })
       }
     })
     .catch(error => {
       Logger.error(error, this._fileName)
     })
+
+    if (!Session.getState().firebaseToken) {
+      Storage.load(Config.storage.dbKey)
+      .then(storage => {
+        if (storage === null) {
+          // enoent
+          if (Config.debug) {
+            Logger.async(Config.storage.dbKey + " not found. No persistent app storage found")
+          }
+        } else if (storage.firebase) {
+          if (Config.debug) {
+            Logger.async("Restoring firebase token from persistent storage")
+          }
+          Session.update({
+            firebaseToken: storage.firebaseToken
+          })
+        } else {
+          if (Config.debug) {
+            Logger.async("No firebase token found in persistent storage")
+          }
+        }
+      })
+      .catch(error => {
+        Logger.error(error, this._fileName)
+      })
+    }
   }
 
-  _nativeEventMessageReceived(message) {
+  _nativeEventMessageReceived(data) {
+    // switch (data.notification.tag) {
+    // case "REGISTRATION_COMPLETE":
+    //   // User->registrationComplete(id, ....)
+    //   break
+    // case "CONNECTION_REQUEST":
+    // // handle
+    //   break
+    // }
+
     console.log(message)
     alert(message)
   }
 
   _nativeEventTokenRefreshed(token) {
+    if (Config.debug) {
+      Logger.firebase("Token refresh event fired")
+    }
     // add to Session
     Session.update({ firebaseToken: token })
     const state = Session.getState()

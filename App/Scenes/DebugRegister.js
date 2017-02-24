@@ -1,6 +1,6 @@
 /**
  * Lifekey App
- * @copyright 2016 Global Consent Ltd
+ * @copyright 2017 Global Consent Ltd
  * Civvals, 50 Seymour Street, London, England, W1H 7JG
  * @author Werner Roets <werner@io.co.za>
  */
@@ -12,6 +12,9 @@ import PushNotifications from '../PushNotifications'
 import Session from '../Session'
 import Storage from '../Storage'
 import Logger from '../Logger'
+import Config from '../Config'
+import Firebase from '../Firebase'
+import Api from '../Api'
 
 import {
   Text,
@@ -58,34 +61,15 @@ export default class DebugRegister extends Scene {
       alert("Please fill in all fields")
       return
     }
+    Logger.info("registering as " +
+                this.state.email + ", " +
+                this.state.nickname + ", " + this.state.password,
+                this._fileName)
 
-    var pemKey, token, loadedFromPersistence
+    var pemKey, firebaseToken
     const toSign = Date.now().toString()
-    PushNotifications.getToken()
-    .then(tokenFromPN => {
-      if (tokenFromPN) {
-        Promise.resolve(tokenFromPN)
-      } else {
-        const tokenFromSession = Session.getState().firebaseToken
-        if (tokenFromSession) {
-          Promise.resolve(tokenFromSession)
-        } else {
-          loadedFromPersistence = true
-          return Storage.load('firebaseToken')
-        }
-      }
-    })
-    .then(loadedToken => {
-      token = loadedToken
-      if (!loadedFromPersistence) {
-        Storage.store('firebaseToken', loadedToken)
-        .then(() => {
-          Logger.async("Stored firebaseToken " + loadedToken)
-        })
-        .catch(error => Logger.error(error, this._fileName))
-      }
-      return Crypto.getKeyStoreList()
-    })
+
+    Crypto.getKeyStoreList()
     .then(list => {
       if (list.find(x => x === "consent")) {
         throw "Already registered"
@@ -103,31 +87,27 @@ export default class DebugRegister extends Scene {
     .then(keys => Crypto.getKeyAsPem("public_lifekey", this.state.password))
     .then(pem => {
       pemKey = pem
-      return toSign
+      return Firebase.getToken()
     })
-    .then(toSign => Crypto.sign(toSign, "private_lifekey", this.state.password, Crypto.SIG_SHA256_WITH_RSA))
-    .then(signature => fetch("http://staging.api.lifekey.cnsnt.io/management/register", {
-      body: JSON.stringify({
-        email: this.state.email.trim(),
-        nickname: this.state.nickname.trim(),
-        device_id: token,
-        device_platform: "android",
-        public_key_algorithm: "rsa",
-        public_key: pemKey,
-        plaintext_proof: toSign,
-        signed_proof: signature.trim()
-      }),
-      method: "POST",
-      headers: {
-        "content-type": "application/json"
-      }
+
+    .then(_firebaseToken => {
+      firebaseToken = _firebaseToken
+      return Crypto.sign(toSign, "private_lifekey", this.state.password, Crypto.SIG_SHA256_WITH_RSA)})
+    .then(signature => Api.register({
+      email: this.state.email.trim(),
+      nickname: this.state.nickname.trim(),
+      device_id: firebaseToken,
+      device_platform: "android",
+      public_key_algorithm: "rsa",
+      public_key: pemKey,
+      plaintext_proof: toSign,
+      signed_proof: signature.trim()
     }))
-    .then(response => response.json())
     .then(responseJson => {
       console.log(responseJson)
       alert(JSON.stringify(responseJson))
       Session.update({
-        dbUserId: responseJson.id,
+        dbUserId: responseJson.id
       })
     })
     .catch(error => {

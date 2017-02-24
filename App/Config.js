@@ -15,13 +15,13 @@ import Palette from './Palette'
 const pkg = require('../package.json')
 
 const APP_NAME = 'Lifekey'
+const APP_UUID = "123123354223432"
 const SERVER = 'staging.api.lifekey.cnsnt.io'
 const SCHEME = 'http://'
 const DEBUG = true
 const API_VERSION = 1
 const TOKEN_REFRESH_URL = "http://staging.api.lifekey.cnsnt.io/management/device"
-const SESSION_KEY = "consent_lifekey_session"
-
+const STORAGE_KEY = "consent_lifekey_storage"
 /**
  * The configuration file for the App
  */
@@ -29,7 +29,7 @@ export default {
 
   // The full name of the application
   appName: APP_NAME,
-
+  appUUID: APP_UUID,
   // First scene to show
   // initialRoute: Routes.debugRegister,
   initialRoute: Routes.debug,
@@ -47,11 +47,12 @@ export default {
   },
 
   debug: DEBUG,          // Main switch
-  debugNetwork: false,   // HTTP
+  debugNetwork: true,   // HTTP
   debugReact: true,      // Show react lifescylce data
   debugNavigator: false,
   debugAutoLogin: true,
-
+  debugAsyncStorage: true,
+  debugFirebase: true,
   // App version
   version: pkg.version,
 
@@ -79,8 +80,11 @@ export default {
       'Content-Type': 'application/json'
     }
   },
-  session: {
-    dbKey: SESSION_KEY
+  // session: {
+  //   dbKey: APP_UUID + APP_NAME + "_session"
+  // },
+  storage: {
+    dbKey: APP_UUID + "_" + APP_NAME.toLowerCase() + "_storage"
   },
   // Google Analytics
   googleAnalytics: {

@@ -18,7 +18,7 @@ export default class Session {
    * @returns {Object} data The current state held in the store
    */
   static getState() {
-    return state
+    return this.state
   }
   /**
    * Update the current state
