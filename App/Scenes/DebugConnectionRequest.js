@@ -51,16 +51,16 @@ export default class DebugConnectionRequest extends Scene {
   }
 
   requestConnection(user) {
-    this.setState({ready: false})
-    var toSign = ''+Date.now()
+    this.setState({ ready: false })
+    const toSign = '' + Date.now()
     Crypto.sign(
       toSign,
       "private_lifekey",
-      'consent',
+      Session.getState().userPassword,
       Crypto.SIG_SHA256_WITH_RSA
     ).then(signature => {
       return fetch(Config.http.baseUrl + "/management/connection", {
-        body: JSON.stringify({target: user.id}),
+        body: JSON.stringify({ target: user.id }),
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -72,12 +72,15 @@ export default class DebugConnectionRequest extends Scene {
     }).then(response => {
       return response.json()
     }).then(json => {
-      if (json.error) return alert(json.message)
-      alert('connection request sent')
-      this.setState({ready: true})
+      if (json.error) {
+        return alert(json.message)
+      } else {
+        this.setState({ ready: true })
+        alert('connection request sent')
+      }
     }).catch(err => {
       alert(err)
-      this.setState({ready: true})
+      this.setState({ ready: true })
     })
   }
 
@@ -85,11 +88,11 @@ export default class DebugConnectionRequest extends Scene {
     // alert(data); return
     // console.log("fetching: http://" + data)
     var toSign = ''+Date.now()
-    Crypto.loadKeyStore('consent', 'consent').then(name => {
+    Crypto.loadKeyStore('consent', Session.getState().userPassword).then(name => {
       return Crypto.sign(
         toSign,
         "private_lifekey",
-        'consent',
+        Session.getState().userPassword,
         Crypto.SIG_SHA256_WITH_RSA
       )
     }).then(signature => {

@@ -57,13 +57,13 @@ export default class DebugRegister extends Scene {
   }
 
   register() {
-    if (!this.state.email.trim() || !this.state.nickname.trim() || !this.state.password.trim()) {
-      alert("Please fill in all fields")
-      return
-    }
     const email = this.state.email.trim()
     const nickname = this.state.nickname.trim()
     const password = this.state.password.trim()
+    if (!email || !nickname || !password) {
+      alert("Please fill in all fields")
+      return
+    }
 
     Logger.info("registering as " +
                 email + ", " +
@@ -115,7 +115,8 @@ export default class DebugRegister extends Scene {
     })
     .then(() => {
       return Session.update({
-        dbUserId: jsonData.id
+        dbUserId: jsonData.id,
+        userPassword: password // Not ideal
       })
     })
     .then(() => {
