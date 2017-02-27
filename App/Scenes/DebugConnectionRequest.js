@@ -10,12 +10,14 @@ import Scene from '../Scene'
 import Session from '../Session'
 import Crypto from '../Crypto'
 import Config from '../Config'
+import DebugBeforeSendConnectionRequest from './DebugBeforeSendConnectionRequest'
 
 import {
   Text,
   Dimensions,
   View,
-  StyleSheet
+  StyleSheet,
+  Alert
 } from 'react-native'
 
 import {
@@ -50,81 +52,14 @@ export default class DebugConnectionRequest extends Scene {
     return true
   }
 
-  requestConnection(user) {
-    this.setState({ ready: false })
-    const toSign = '' + Date.now()
-    Crypto.sign(
-      toSign,
-      "private_lifekey",
-      Session.getState().userPassword,
-      Crypto.SIG_SHA256_WITH_RSA
-    ).then(signature => {
-      return fetch(Config.http.baseUrl + "/management/connection", {
-        body: JSON.stringify({ target: user.id }),
-        method: "POST",
-        headers: {
-          "content-type": "application/json",
-          'x-cnsnt-id': Session.getState().dbUserId,
-          'x-cnsnt-plain': toSign,
-          'x-cnsnt-signed': signature.trim()
-        }
-      })
-    }).then(response => {
-      return response.json()
-    }).then(json => {
-      if (json.error) {
-        return alert(json.message)
-      } else {
-        this.setState({ ready: true })
-        alert('connection request sent')
-      }
-    }).catch(err => {
-      alert(err)
-      this.setState({ ready: true })
-    })
-  }
-
-  pullProfile(data) {
-    // alert(data); return
-    // console.log("fetching: http://" + data)
-    var toSign = ''+Date.now()
-    Crypto.loadKeyStore('consent', Session.getState().userPassword).then(name => {
-      return Crypto.sign(
-        toSign,
-        "private_lifekey",
-        Session.getState().userPassword,
-        Crypto.SIG_SHA256_WITH_RSA
-      )
-    }).then(signature => {
-      return fetch(`http://${data}`, {
-        method: "GET",
-        headers: {
-          "content-type": "application/json",
-          'x-cnsnt-id': Session.getState().dbUserId,
-          'x-cnsnt-plain': toSign,
-          'x-cnsnt-signed': signature.trim()
-        }
-      })
-    }).then(response => {
-      return response.json()
-    }).then(json => {
-      if (json.error) return alert(json.message)
-      this.requestConnection(json.body.user)
-    }).catch(err => {
-      alert(err)
-      this.setState({ready: true})
-    })
-
-  }
-
   scanQR(data) {
-    if (!this.state.ready) {
-      return
-    }
-    this.setState({
-      ready: false
+    if (!this.state.ready) return
+    this.setState({ready: false})
+    this.navigator.replace({
+      title: 'Send Connection Request',
+      scene: DebugBeforeSendConnectionRequest,
+      passProps: {url: data.data}
     })
-    this.pullProfile(data.data)
   }
 
   render() {
