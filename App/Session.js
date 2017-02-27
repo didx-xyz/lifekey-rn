@@ -7,6 +7,8 @@
 
 import Config from './Config'
 import Storage from './Storage'
+import Logger from './Logger'
+
 /**
  * A static class to store and retrieve a global state
  */

@@ -3,12 +3,15 @@
         "react",
         "react-native"
     ],
+    "extends": "eslint:recommended",
+    "parser": "babel-eslint",
     "parserOptions": {
         "ecmaVersion": 6,
         "sourceType": "module",
         "ecmaFeatures": {
             "jsx": true,
-            "experimentalObjectRestSpread": true
+            "experimentalObjectRestSpread": true,
+            "classes": true
         }
     },
     "globals": {

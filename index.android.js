@@ -73,7 +73,7 @@ export default class Lifekeyrn extends Component {
           if (Config.debug) {
             Logger.async(Config.storage.dbKey + " not found. No persistent app storage found")
           }
-        } else if (storage.firebase) {
+        } else if (storage.firebaseToken) {
           if (Config.debug) {
             Logger.async("Restoring firebase token from persistent storage")
           }
@@ -113,8 +113,8 @@ export default class Lifekeyrn extends Component {
       // add it to session
       Session.update(ucr_merge).then(function() {
         // and then merge it to storage
-        return Session.store(Config.storage.dbKey,{
-          ucr_merge: ucr_merge
+        return Session.store(Config.storage.dbKey, {
+          connections: ucr_merge
         })
       }).catch(function(err) {
         console.log('uh oh, could not persist new user connection request', err)
@@ -129,6 +129,13 @@ export default class Lifekeyrn extends Component {
     }
     // add to Session
     Session.update({ firebaseToken: token })
+    .then(() => Storage.store(Config.storage.dbKey, {
+      firebaseToken: token
+    }))
+    .catch((err) => {
+      throw "Unable to store firebase token"
+    })
+
     const state = Session.getState()
 
     var pemKey
