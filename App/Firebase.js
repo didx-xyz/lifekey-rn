@@ -31,8 +31,12 @@ export default class Firebase {
       const [token, appStorage] = value
       if (token) {
         return Promise.resolve(token)
-      } else if (appStorage.firebaseToken) {
-        return Promise.resolve(appStorage.firebaseToken)
+      } else if (appStorage) {
+        if (appStorage.firebaseToken) {
+          return Promise.resolve(appStorage.firebaseToken)
+        } else {
+          Promise.reject("No firebase token available")
+        }
       } else {
         return Promise.reject("No firebase token available")
       }
