@@ -31,7 +31,7 @@ export default class DebugShowQRCode extends Scene {
 
   render() {
     const state = Session.getState()
-    const data = `${Config.http.baseUrl}/profile/${state.dbUserId || state.userDid}`
+    const data = `${Config.http.baseUrl}/profile/${state.dbUserId}`
 
     return (
       <Container>
