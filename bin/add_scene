@@ -38,7 +38,7 @@ export default class $SCENE_NAME extends Scene {
 }
 TEMPLATE
 
-if [ -f FILE_NAME ]
+if [ -f $FILE_NAME ]
 then
   # Already exists
   echo "Scene already exists"
@@ -48,6 +48,14 @@ fi
 
 # regenerate routes file
 # Look at the files in ../App/Scenes
+
+SCENE_FILES="App/Scenes/*.js"
+IMPORTS=()
+for i in "${SCENE_FILES[@]}"; do
+  #build import
+  #
+  IMPORTS[$i]="import $(echo "$SCENE_FILES[$i]" | cut -d'.' -f1)"
+done
 # generate imports and the object
 ROUTES_TEMPLATE_HEADER=<<TEMPLATE
 /**
