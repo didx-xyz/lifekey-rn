@@ -74,19 +74,8 @@ export default class Lifekeyrn extends Component {
           Logger.async(Config.storage.dbKey + " not found. No persistent app storage found")
         }
       } else {
-        // storage found
-        if (storage.firebaseToken) {
-          Session.update({ firebaseToken: storage.firebaseToken })
-          Logger.async("Restored firebase token from persistent storage")
-        } else {
-          Logger.async("No firebase token found in persistent storage")
-        }
-        if (storage.dbUserId) {
-          Session.update({ dbUserId: storage.dbUserId })
-          Logger.async("Restored dbUserId from persistent storage")
-        } else {
-          Logger.async("No dbUserId found in persistent storage")
-        }
+        // ANT - just use everything for now
+        Session.update(storage)
       }
 
 
@@ -97,29 +86,55 @@ export default class Lifekeyrn extends Component {
   }
 
   _nativeEventMessageReceived(msg) {
-    alert(JSON.stringify(msg))
+    if (msg.notification) {
+      alert(msg.notification.title + ' - ' + msg.notification.body)
+    }
+    
     if (msg.data.type === 'user_connection_request') {
-      // how it appears in storage/Session: {user_connection_requests: {1: {...}, 2: {...}, etc...}}
-      // keyed by database id: it has to be objects because we can't merge arrays
-
-      var new_connection_request = { // the new record
+      var new_connection_request = {
         id: msg.data.user_connection_request_id,
         from_id: msg.data.from_id,
         from_did: msg.data.from_did,
         from_nickname: msg.data.from_nickname
       }
-      var ucr_merge = {user_connection_requests: {}} // the field into which we merge the new record
-
+      var ucr_merge = {user_connection_requests: {}}
       ucr_merge.user_connection_requests[
         msg.data.user_connection_request_id
-      ] = new_connection_request // the record is to be keyed by database id
+      ] = new_connection_request
 
-      // add it to session
-      Storage.store(Config.storage.dbKey, { connections: ucr_merge })
-      .then(() => {
-        Session.update({ connections: ucr_merge })
+      var users_merge = {}
+      var new_discovered_user = {
+        id: msg.data.from_id,
+        did: msg.data.from_did,
+        nickname: msg.data.from_nickname
+      }
+      users_merge[msg.data.from_id] = new_discovered_user
+
+      Promise.all([
+        Session.update({users: users_merge, connections: ucr_merge}),
+        Storage.store(Config.storage.dbKey, {users: users_merge, connections: ucr_merge})
+      ]).then(_ => {
+        Logger.async('added a new user connection record')
+      }).catch((err) => {
+        Logger.error('uh oh, could not persist new user connection request', this._fileName)
       })
-      .catch((err) => {
+    } else if (msg.data.type === 'user_connection_created') {
+      var new_connection = {
+        id: msg.data.user_connection_id,
+        to_id: msg.data.to_id,
+        from_id: msg.data.from_id
+      }
+      var uc_merge = {user_connections: {}}
+      uc_merge.user_connections[
+        msg.data.user_connection_id
+      ] = new_connection
+
+      Promise.all([
+        Session.update({connections: uc_merge}),
+        Storage.store(Config.storage.dbKey, {connections: uc_merge})
+      ]).then(_ => {
+        Logger.async('added a new user connection record')
+      }).catch(err => {
         Logger.error('uh oh, could not persist new user connection request', this._fileName)
       })
     }
@@ -131,34 +146,38 @@ export default class Lifekeyrn extends Component {
       Logger.firebase("Token refresh event fired")
     }
     // add to Session
-    Session.update({ firebaseToken: token })
-    .then(() => Storage.store(Config.storage.dbKey, {
-      firebaseToken: token
-    }))
-    .catch((err) => {
-      throw "Unable to store firebase token"
+
+    Promise.all([
+      Session.update({firebaseToken: token}),
+      Storage.store(Config.storage.dbKey, {firebaseToken: token})
+    ]).then(_ => {
+      console.log('STORED NEW FIREBASE TOKEN')
+    }).catch(err => {
+      console.log('FIREBASE TOKEN REFRESH ERROR', err)
     })
 
     const state = Session.getState()
 
     var pemKey
-    if (state.registered) {
+    if (state.dbUserId) {
       const toSign = Date.now().toString()
-      Crypto.sign(toSign, "private_lifekey", "consent", Crypto.SIG_SHA256_WITH_RSA)
-      .then(sig => fetch(Config.http.tokenRefreshUrl, {
-        method: 'POST',
-        body: JSON.stringify({
-          device_id: token,
-          device_platform: Platform.OS
-        }),
-        headers: {
-          "content-type": "application/json",
-          "x-cnsnt-id": Session.getState().dbUserId,
-          "x-cnsnt-plain": toSign,
-          "x-cnsnt-signed": sig.trim()
-        }
-      }))
-      .catch(error => {
+      Crypto.loadKeyStore('consent', state.userPassword).then(name => {
+        return Crypto.sign(toSign, "private_lifekey", "consent", Crypto.SIG_SHA256_WITH_RSA)
+      }).then(sig => {
+        return fetch(Config.http.tokenRefreshUrl, {
+          method: 'POST',
+          body: JSON.stringify({
+            device_id: token,
+            device_platform: Platform.OS
+          }),
+          headers: {
+            "content-type": "application/json",
+            "x-cnsnt-id": state.dbUserId,
+            "x-cnsnt-plain": toSign,
+            "x-cnsnt-signed": sig.trim()
+          }
+        })
+      }).catch(error => {
         alert("Could not update token")
         Logger.error(error, this._fileName)
       })
@@ -215,17 +234,8 @@ export default class Lifekeyrn extends Component {
     }
 
     // Remove event listeners
-    DeviceEventEmitter.removeListener('messageReceived', (message) => this._nativeEventMessageReceived(message))
+    DeviceEventEmitter.removeListener('messageReceived', (e) => this._nativeEventMessageReceived(e))
     DeviceEventEmitter.removeListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
-
-    // Copy relevant session to storage
-    Storage.store("firebaseToken", {
-      firebaseToken: Session.getState().firebaseToken
-    })
-    .then(result => {
-      Logger.async("Stored " + "firebaseToken", this._fileName)
-    })
-    .catch(error => Logger.error(error, this._fileName))
   }
 
   shouldComponentUpdate(nextProps, nextState) {
@@ -284,6 +294,7 @@ export default class Lifekeyrn extends Component {
                       route,
                       navigator,
                       _navigationEventEmitter: this._navigationEventEmitter, // Navigator events
+                      passProps: route.passProps || {} // allow views to pass data to new views
                     }
                   )}
                 </View>
