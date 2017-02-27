@@ -9,6 +9,8 @@ import React from 'react'
 import Scene from '../Scene'
 import Session from '../Session'
 
+import DebugRespondUserConnectionRequest from './DebugRespondUserConnectionRequest'
+
 import {
   Text
 } from 'react-native'
@@ -17,8 +19,10 @@ import {
   Container,
   Content,
   List,
-  ListItem
+  ListItem,
+  Button
 } from 'native-base'
+
 import AndroidBackButton from 'react-native-android-back-button'
 
 export default class DebugViewConnectionRequests extends Scene {
@@ -28,10 +32,22 @@ export default class DebugViewConnectionRequests extends Scene {
     return true
   }
 
+  _navigateRespondUserConnectionRequest(ucr) {
+    this.navigator.replace({
+      title: 'Respond to Connection Request',
+      scene: DebugRespondUserConnectionRequest,
+      passProps: {
+        id: ucr.id,
+        from_id: ucr.from_id,
+        nickname: ucr.from_nickname
+      }
+    })
+  }
+
   _renderUserConnectionRequest(ucr) {
     // TODO - onpress navigate to connection request page with these props: ucr.id, ucr.from_id, ucr.from_did, ucr.from_nickname
     return (
-      <ListItem>
+      <ListItem onPress={this._navigateRespondUserConnectionRequest.bind(this, ucr)}>
         <Text>{ucr.from_nickname}</Text>
       </ListItem>
     )
@@ -54,6 +70,9 @@ export default class DebugViewConnectionRequests extends Scene {
       <Container>
         <Content>
           <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <ListItem itemHeader first>
+            <Text>CONNECTION REQUESTS</Text>
+          </ListItem>
           <List dataArray={user_connection_requests}
                 renderRow={this._renderUserConnectionRequest.bind(this)} />
         </Content>
