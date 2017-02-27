@@ -65,6 +65,7 @@ export default class Lifekeyrn extends Component {
       Logger.error(error, this._fileName)
     })
 
+    // Load Firebase token from storage
     if (!Session.getState().firebaseToken) {
       Storage.load(Config.storage.dbKey)
       .then(storage => {
