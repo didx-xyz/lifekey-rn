@@ -24,6 +24,11 @@ import QRCode from 'react-native-qrcode'
 
 export default class DebugShowQRCode extends Scene {
 
+  _hardwareBackHandler() {
+    this.navigator.pop()
+    return true
+  }
+
   render() {
     const state = Session.getState()
     const data = `${Config.http.baseUrl}/profile/${state.dbUserId || state.userDid}`
