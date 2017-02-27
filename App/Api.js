@@ -43,36 +43,36 @@ function request(route, opts) {
   })
 }
 
-const containsRequired = (requiredFields, data) =>
-  JSON.stringify(requiredFields.sort()) ===
-  JSON.stringify(Object.keys(data).sort())
+const containsRequired = (requiredFields, data) => {
+  return (
+    JSON.stringify(requiredFields.sort()) ===
+    JSON.stringify(Object.keys(data).sort())
+  )
+}
 
 /** API functions avaialble to the App */
 export default {
 
   register: (data) => {
-    return new Promise((resolve, reject) => {
+    const requiredFields = [
+      "email",
+      "nickname",
+      "device_id",
+      "device_platform",
+      "public_key_algorithm",
+      "public_key",
+      "plaintext_proof",
+      "signed_proof"
+    ]
 
-      const requiredFields = [
-        "email",
-        "nickname",
-        "device_id",
-        "device_platform",
-        "public_key_algorithm",
-        "public_key",
-        "plaintext_proof",
-        "signed_proof"
-      ]
-
-      if (containsRequired(requiredFields, data)) {
-        return request('/management/register', {
-          body: JSON.stringify(data),
-          method: "POST"
-        })
-      } else {
-        return reject("Missing fields")
-      }
-    })
+    if (containsRequired(requiredFields, data)) {
+      return request('/management/register', {
+        body: JSON.stringify(data),
+        method: "POST"
+      })
+    } else {
+      return Promise.reject("Missing fields")
+    }
 
   },
 
