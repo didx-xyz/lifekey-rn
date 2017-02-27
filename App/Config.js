@@ -21,7 +21,7 @@ const SCHEME = 'http://'
 const DEBUG = true
 const API_VERSION = 1
 const TOKEN_REFRESH_URL = "http://staging.api.lifekey.cnsnt.io/management/device"
-const STORAGE_KEY = "consent_lifekey_storage"
+
 /**
  * The configuration file for the App
  */
@@ -33,18 +33,6 @@ export default {
   // First scene to show
   // initialRoute: Routes.debugRegister,
   initialRoute: Routes.debug,
-
-  // Predefined error messages
-  errorMessage: {
-    login: {
-      title: 'Invalid login',
-      message: ''
-    },
-    network: {
-      title: 'Network Error',
-      message: 'Could not connect to server. Please ensure you are connected to the internet'
-    }
-  },
 
   debug: DEBUG,          // Main switch
   debugNetwork: true,   // HTTP
@@ -80,9 +68,6 @@ export default {
       'Content-Type': 'application/json'
     }
   },
-  // session: {
-  //   dbKey: APP_UUID + APP_NAME + "_session"
-  // },
   storage: {
     dbKey: APP_UUID + "_" + APP_NAME.toLowerCase() + "_storage"
   },

@@ -60,7 +60,8 @@
         "eol-last": "error",
         "space-in-parens": ["warn", "never"],
         "array-bracket-spacing": "error",
-        "object-curly-spacing": ["warn", "always"]
+        "object-curly-spacing": ["warn", "always"],
+        "no-console": "warn"
 
     }
 }

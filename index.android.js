@@ -43,7 +43,7 @@ export default class Lifekeyrn extends Component {
       screenWidth: null,
       screenHeight: null
     }
-    Logger.info("Booting ReactNative " + Config.appName, this._fileName)
+    Logger.info("Booting ReactNative " + Config.appName + " " + Config.version, this._fileName)
     DeviceEventEmitter.addListener('messageReceived', (e) => this._nativeEventMessageReceived(e))
     DeviceEventEmitter.addListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
 
@@ -75,7 +75,7 @@ export default class Lifekeyrn extends Component {
           }
         } else if (storage.firebaseToken) {
           if (Config.debug) {
-            Logger.async("Restoring firebase token from persistent storage")
+            Logger.async("Restored firebase token from persistent storage")
           }
           Session.update({
             firebaseToken: storage.firebaseToken
@@ -188,12 +188,6 @@ export default class Lifekeyrn extends Component {
     }
   }
 
-  componentWillUnmount() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._fileName, Lifecycle.COMPONENT_WILL_UNMOUNT)
-    }
-  }
-
   componentWillReceiveProps() {
     if (Config.debug && Config.debugReact) {
       Logger.react(this._fileName, Lifecycle.COMPONENT_WILL_RECEIEVE_PROPS)
@@ -213,19 +207,20 @@ export default class Lifekeyrn extends Component {
   }
 
   componentWillUnmount() {
-
-    DeviceEventEmitter.removeListener('messageReceived', (message) => this._nativeEventMessageReceived(message))
-    DeviceEventEmitter.removeListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
     if (Config.debug && Config.debugReact) {
       Logger.react(this._fileName, Lifecycle.COMPONENT_WILL_UNMOUNT)
     }
-    // Update persistence in persistence
-    // TODO change to batch storage
-    // so we can also store dbUserId here
-    Storage.store("firebaseToken", Session.getState().firebaseToken)
+
+    // Remove event listeners
+    DeviceEventEmitter.removeListener('messageReceived', (message) => this._nativeEventMessageReceived(message))
+    DeviceEventEmitter.removeListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
+
+    // Copy relevant session to storage
+    Storage.store("firebaseToken", {
+      firebaseToken: Session.getState().firebaseToken
+    })
     .then(result => {
       Logger.async("Stored " + "firebaseToken", this._fileName)
-
     })
     .catch(error => Logger.error(error, this._fileName))
   }
@@ -295,7 +290,7 @@ export default class Lifekeyrn extends Component {
           configureScene={ (route, routeStack ) =>
             ({
               ...Config.sceneConfig,
-              gestures: {}} // Prevents the user from being able to swipe to go back
+              gestures: {} } // Prevents the user from being able to swipe to go back
             )}
         />
     );
