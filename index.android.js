@@ -92,18 +92,33 @@ export default class Lifekeyrn extends Component {
     }
   }
 
-  _nativeEventMessageReceived(data) {
-    // switch (data.notification.tag) {
-    // case "REGISTRATION_COMPLETE":
-    //   // User->registrationComplete(id, ....)
-    //   break
-    // case "CONNECTION_REQUEST":
-    // // handle
-    //   break
-    // }
+  _nativeEventMessageReceived(msg) {
+    
+    if (msg.data.type === 'user_connection_request') {
+      // how it appears in storage/Session: {user_connection_requests: {1: {...}, 2: {...}, etc...}}
+      // keyed by database id: it has to be objects because we can't merge arrays
 
-    console.log(message)
-    alert(message)
+      var new_connection_request = { // the new record
+        id: msg.data.user_connection_request_id,
+        from_id: msg.data.from_id,
+        from_did: msg.data.from_did,
+        from_nickname: msg.data.from_nickname
+      }
+      var ucr_merge = {user_connection_requests: {}} // the field into which we merge the new record
+      
+      ucr_merge.user_connection_requests[
+        msg.data.user_connection_request_id
+      ] = new_connection_request // the record is to be keyed by database id
+      
+      // add it to session
+      Session.update(ucr_merge).then(function() {
+        // and then merge it to storage
+        return Session.persist()
+      }).catch(function(err) {
+        console.log('uh oh, could not persist new user connection request', err)
+      })
+    }
+
   }
 
   _nativeEventTokenRefreshed(token) {
