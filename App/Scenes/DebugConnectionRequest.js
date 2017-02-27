@@ -7,6 +7,8 @@
 
 import React from 'react'
 import Scene from '../Scene'
+import Session from '../Session'
+import Crypto from '../Crypto'
 import Config from '../Config'
 
 import {
@@ -48,40 +50,53 @@ export default class DebugConnectionRequest extends Scene {
     return true
   }
 
-  requestConnection() {
-    this.setState({
-      ready: false
+  requestConnection(user_id) {
+    this.setState({ready: false})
+    var toSign = ''+Date.now()
+    Crypto.sign(
+      toSign,
+      "private_lifekey",
+      'consent',
+      Crypto.SIG_SHA256_WITH_RSA
+    ).then(signature => {
+      return fetch(Config.http.baseUrl + "/management/connection", {
+        body: JSON.stringify({target: user_id}),
+        method: "POST",
+        headers: {
+          "content-type": "application/json",
+          'x-cnsnt-id': Session.getState().dbUserId,
+          'x-cnsnt-plain': toSign,
+          'x-cnsnt-signed': signature.trim()
+        }
+      })
+    }).then(response => {
+      return response.json()
+    }).then(json => {
+      if (json.error) return alert(json.message)
+      alert('connection request sent')
+      this.setState({ready: true})
+    }).catch(err => {
+      alert(err)
+      this.setState({ready: true})
     })
-    fetch(Config.http.baseUrl + "/management/connection", {
-      body: JSON.stringify({
-        target: 123
-      }),
-      method: "POST",
-      "content-type": "application/json"
-    })
-    .then(response => {
-
-    })
-    .catch(error => alert(error))
   }
 
   pullProfile(data) {
     // alert(data); return
-    console.log("fetching: http://" + data)
+    // console.log("fetching: http://" + data)
     fetch(data, {
       method: "GET",
       headers: {
         "content-type": "application/json"
       }
-    })
-    .then(response => {
-      console.log(response)
-      alert(response._bodyText)
-      // this.setState({ ready: true })
-    })
-    .catch(error => {
-      alert(error)
-      // this.setState({ ready: true })
+    }).then(response => {
+      return response.json()
+    }).then(json => {
+      if (json.error) return alert(json.message)
+      this.requestConnection(json.body.id)
+    }).catch(err => {
+      alert(err)
+      this.setState({ready: true})
     })
 
   }
