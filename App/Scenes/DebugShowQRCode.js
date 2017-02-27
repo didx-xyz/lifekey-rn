@@ -46,8 +46,8 @@ export default class DebugShowQRCode extends Scene {
             <QRCode
               value={data}
               size={200}
-              bgColor='purple'
-              fgColor='white'
+              bgColor="purple"
+              fgColor="white"
             />
           </View>
         </Content>
