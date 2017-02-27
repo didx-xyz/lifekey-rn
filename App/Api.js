@@ -32,14 +32,10 @@ function request(route, opts) {
   })
   .then((json) => {
     if (json.error) {
-      return Promise.reject({ error: json.error.toString() })
+      return Promise.reject(json)
     } else {
       return Promise.resolve(json)
     }
-  })
-  .catch((error) => {
-    Logger.error('API Error', error)
-    return Promise.reject(error.toString())
   })
 }
 
