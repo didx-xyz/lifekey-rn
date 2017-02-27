@@ -66,36 +66,34 @@ export default class Lifekeyrn extends Component {
     })
 
     // Load Firebase token from storage
-    if (!Session.getState().firebaseToken) {
-      Storage.load(Config.storage.dbKey)
-      .then(storage => {
-        if (storage === null) {
-          // enoent
-          if (Config.debug) {
-            Logger.async(Config.storage.dbKey + " not found. No persistent app storage found")
-          }
-        } else {
-          // storage found
-          if (storage.firebaseToken) {
-            Session.update({ firebaseToken: storage.firebaseToken })
-            Logger.async("Restored firebase token from persistent storage")
-          } else {
-            Logger.async("No firebase token found in persistent storage")
-          }
-          if (storage.dbUserId) {
-            Session.update({ dbUserId: storage.dbUserId })
-            Logger.async("Restored dbUserId from persistent storage")
-          } else {
-            Logger.async("No dbUserId found in persistent storage")
-          }
+    Storage.load(Config.storage.dbKey)
+    .then(storage => {
+      if (storage === null) {
+        // enoent
+        if (Config.debug) {
+          Logger.async(Config.storage.dbKey + " not found. No persistent app storage found")
         }
+      } else {
+        // storage found
+        if (storage.firebaseToken) {
+          Session.update({ firebaseToken: storage.firebaseToken })
+          Logger.async("Restored firebase token from persistent storage")
+        } else {
+          Logger.async("No firebase token found in persistent storage")
+        }
+        if (storage.dbUserId) {
+          Session.update({ dbUserId: storage.dbUserId })
+          Logger.async("Restored dbUserId from persistent storage")
+        } else {
+          Logger.async("No dbUserId found in persistent storage")
+        }
+      }
 
 
-      })
-      .catch(error => {
-        Logger.error(error, this._fileName)
-      })
-    }
+    })
+    .catch(error => {
+      Logger.error(error, this._fileName)
+    })
   }
 
   _nativeEventMessageReceived(msg) {
@@ -117,12 +115,11 @@ export default class Lifekeyrn extends Component {
       ] = new_connection_request // the record is to be keyed by database id
 
       // add it to session
-      Session.update(ucr_merge).then(function() {
-        // and then merge it to storage
-        return Storage.store(Config.storage.dbKey, {
-          connections: ucr_merge
-        })
-      }).catch(function(err) {
+      Storage.store(Config.storage.dbKey, { connections: ucr_merge })
+      .then(() => {
+        Session.update({ connections: ucr_merge })
+      })
+      .catch((err) => {
         Logger.error('uh oh, could not persist new user connection request', this._fileName)
       })
     }
