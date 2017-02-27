@@ -50,7 +50,7 @@ export default class DebugConnectionRequest extends Scene {
     return true
   }
 
-  requestConnection(user_id) {
+  requestConnection(user) {
     this.setState({ready: false})
     var toSign = ''+Date.now()
     Crypto.sign(
@@ -60,7 +60,7 @@ export default class DebugConnectionRequest extends Scene {
       Crypto.SIG_SHA256_WITH_RSA
     ).then(signature => {
       return fetch(Config.http.baseUrl + "/management/connection", {
-        body: JSON.stringify({target: user_id}),
+        body: JSON.stringify({target: user.id}),
         method: "POST",
         headers: {
           "content-type": "application/json",
@@ -84,16 +84,29 @@ export default class DebugConnectionRequest extends Scene {
   pullProfile(data) {
     // alert(data); return
     // console.log("fetching: http://" + data)
-    fetch(data, {
-      method: "GET",
-      headers: {
-        "content-type": "application/json"
-      }
+    var toSign = ''+Date.now()
+    Crypto.loadKeyStore('consent', 'consent').then(name => {
+      return Crypto.sign(
+        toSign,
+        "private_lifekey",
+        'consent',
+        Crypto.SIG_SHA256_WITH_RSA
+      )
+    }).then(signature => {
+      return fetch(`http://${data}`, {
+        method: "GET",
+        headers: {
+          "content-type": "application/json",
+          'x-cnsnt-id': Session.getState().dbUserId,
+          'x-cnsnt-plain': toSign,
+          'x-cnsnt-signed': signature.trim()
+        }
+      })
     }).then(response => {
       return response.json()
     }).then(json => {
       if (json.error) return alert(json.message)
-      this.requestConnection(json.body.id)
+      this.requestConnection(json.body.user)
     }).catch(err => {
       alert(err)
       this.setState({ready: true})
