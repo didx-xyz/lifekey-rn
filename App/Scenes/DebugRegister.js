@@ -108,8 +108,8 @@ export default class DebugRegister extends Scene {
       signed_proof: signature
     }))
     .then(responseJson => {
-      console.log(responseJson)
-      alert(JSON.stringify(responseJson))
+      // console.log(responseJson)
+      // alert(JSON.stringify(responseJson))
       jsonData = responseJson
       return Storage.store(Config.storage.dbKey, {
         dbUserId: jsonData.id
@@ -119,10 +119,12 @@ export default class DebugRegister extends Scene {
       Session.update({
         dbUserId: jsonData.id
       })
+      this.navigator.pop()
     })
     .catch(error => {
       alert(error)
-      console.log(error)
+      Logger.error(error, this._fileName)
+      this.navigator.pop()
     })
   }
 

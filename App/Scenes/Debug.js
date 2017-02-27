@@ -10,6 +10,8 @@ import Scene from '../Scene'
 import Routes from '../Routes'
 import Crypto from '../Crypto'
 import Session from '../Session'
+import Storage from '../Storage'
+import Config from '../Config'
 
 import {
   Text,
@@ -21,7 +23,7 @@ import {
   Container,
   Content,
 } from 'native-base'
-import { Button, Input, H1 } from 'nachos-ui'
+import { Button, Input, H1, H5 } from 'nachos-ui'
 import { NativeModules } from 'react-native'
 import AndroidBackButton from 'react-native-android-back-button'
 
@@ -30,7 +32,8 @@ export default class Debug extends Scene {
   constructor(props) {
     super(props)
     this.state = {
-      keystoreFound: false
+      keystoreFound: false,
+      storageDump: null
     }
   }
 
@@ -39,39 +42,48 @@ export default class Debug extends Scene {
     .then(list => {
       if (list.find(x => x === "consent")) {
         this.setState({ keystoreFound: true })
-        Session.update({ registered: true })
+        Session.update({ keyStoreExists: true })
       } else {
         this.setState({ keystoreFound: false })
-        Session.update({ registered: false })
+        Session.update({ keyStoreExists: false })
       }
     })
     .catch(error => alert(error))
   }
 
+  _readStorage() {
+    Storage.load(Config.storage.dbKey)
+    .then((data) => {
+      this.setState({ storageDump: JSON.stringify(data) })
+    })
+  }
+
   componentWillMount() {
     super.componentWillMount()
     this._checkForKeystore()
+    this._readStorage()
   }
 
   componentWillFocus() {
     super.componentWillFocus()
     this._checkForKeystore()
+    this._readStorage()
   }
 
   _hardwareBackHandler() {
     this.navigator.pop()
     return true
   }
-  _newKeyPair() {
-    NativeModules.Keystore.newKeyPair(13, "test1234", "pass123", "rsa-example.pem").then((x) => {
-      console.log('RNKEYSTORE')
-      console.log(x)
+  // _newKeyPair() {
+  //   NativeModules.Keystore.newKeyPair(13, "test1234", "pass123", "rsa-example.pem").then((x) => {
+  //     console.log('RNKEYSTORE')
+  //     console.log(x)
 
-    })
-    .catch((e) => {
-      console.log('RNKEYSTORE', e, 'e')
-    })
-  }
+  //   })
+  //   .catch((e) => {
+  //     console.log('RNKEYSTORE', e, 'e')
+  //   })
+  // }
 
   render() {
 
@@ -96,6 +108,12 @@ export default class Debug extends Scene {
             <Button key={4} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugConnectionRequest)}>View QR Code</Button>
           ]
           : null }
+          <View>
+            <H5>Session</H5>
+            <Text>{ JSON.stringify(Session.getState()) }</Text>
+            <H5>Storage</H5>
+            <Text>{ this.state.storageDump || "No storage" }</Text>
+          </View>
         </Content>
       </Container>
     )

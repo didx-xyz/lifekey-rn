@@ -52,12 +52,12 @@ export default class Lifekeyrn extends Component {
       if (list.find(x => x === "consent")) {
         Logger.info("Keystore detected, setting Session { userRegistered: true }", this._fileName)
         Session.update({
-          userRegistered: true
+          keyStoreExists: true
         })
       } else {
         Logger.info("No keystore detected, setting Session { userRegistered: false }", this._fileName)
         Session.update({
-          userRegistered: false
+          keyStoreExists: false
         })
       }
     })
