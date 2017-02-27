@@ -70,7 +70,7 @@ export default class DebugRegister extends Scene {
                 nickname + ", " + password,
                 this._fileName)
 
-    var pemKey, firebaseToken
+    var pemKey, firebaseToken, jsonData
     const toSign = Date.now().toString()
 
     Crypto.getKeyStoreList()
@@ -110,8 +110,14 @@ export default class DebugRegister extends Scene {
     .then(responseJson => {
       console.log(responseJson)
       alert(JSON.stringify(responseJson))
+      jsonData = responseJson
+      return Storage.store(Config.storage.dbKey, {
+        dbUserId: jsonData.id
+      })
+    })
+    .then(() => {
       Session.update({
-        dbUserId: responseJson.id
+        dbUserId: jsonData.id
       })
     })
     .catch(error => {

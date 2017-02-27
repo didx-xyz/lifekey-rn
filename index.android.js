@@ -74,18 +74,23 @@ export default class Lifekeyrn extends Component {
           if (Config.debug) {
             Logger.async(Config.storage.dbKey + " not found. No persistent app storage found")
           }
-        } else if (storage.firebaseToken) {
-          if (Config.debug) {
-            Logger.async("Restored firebase token from persistent storage")
-          }
-          Session.update({
-            firebaseToken: storage.firebaseToken
-          })
         } else {
-          if (Config.debug) {
+          // storage found
+          if (storage.firebaseToken) {
+            Session.update({ firebaseToken: storage.firebaseToken })
+            Logger.async("Restored firebase token from persistent storage")
+          } else {
             Logger.async("No firebase token found in persistent storage")
           }
+          if (storage.dbUserId) {
+            Session.update({ dbUserId: storage.dbUserId })
+            Logger.async("Restored dbUserId from persistent storage")
+          } else {
+            Logger.async("No dbUserId found in persistent storage")
+          }
         }
+
+
       })
       .catch(error => {
         Logger.error(error, this._fileName)
