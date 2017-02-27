@@ -17,6 +17,7 @@ export default class Storage {
         reject("Key must be a string and value must be an object")
       }
       return AsyncStorage.mergeItem(key, JSON.stringify(value))
+      .then(resolve)
       .catch(error => {
         Logger.error(error, "Storage")
         reject(error)

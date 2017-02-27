@@ -12,6 +12,7 @@ import Crypto from '../Crypto'
 import Session from '../Session'
 import Storage from '../Storage'
 import Config from '../Config'
+import Logger from '../Logger'
 
 import {
   Text,
@@ -56,6 +57,9 @@ export default class Debug extends Scene {
     .then((data) => {
       this.setState({ storageDump: JSON.stringify(data) })
     })
+    .catch((err) => {
+      Logger.error(err, this._fileName)
+    })
   }
 
   componentWillMount() {
@@ -74,16 +78,6 @@ export default class Debug extends Scene {
     this.navigator.pop()
     return true
   }
-  // _newKeyPair() {
-  //   NativeModules.Keystore.newKeyPair(13, "test1234", "pass123", "rsa-example.pem").then((x) => {
-  //     console.log('RNKEYSTORE')
-  //     console.log(x)
-
-  //   })
-  //   .catch((e) => {
-  //     console.log('RNKEYSTORE', e, 'e')
-  //   })
-  // }
 
   render() {
 
@@ -108,11 +102,12 @@ export default class Debug extends Scene {
             <Button key={4} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugConnectionRequest)}>View QR Code</Button>
           ]
           : null }
+
           <View>
             <H5>Session</H5>
             <Text>{ JSON.stringify(Session.getState()) }</Text>
             <H5>Storage</H5>
-            <Text>{ this.state.storageDump || "No storage" }</Text>
+            <Text>{ this.state.storageDump === null ? "No storage" : this.state.storageDump}</Text>
           </View>
         </Content>
       </Container>

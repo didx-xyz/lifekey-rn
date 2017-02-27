@@ -31,7 +31,7 @@ export default class Session {
   static update(data) {
     return new Promise((resolve, reject) => {
       if (typeof data === 'object') {
-        Object.assign(this.state, data)
+        this.state = Object.assign(this.state, data)
         resolve(true)
       } else {
         reject("Update only accepts objects")

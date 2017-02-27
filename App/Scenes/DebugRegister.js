@@ -122,7 +122,7 @@ export default class DebugRegister extends Scene {
       this.navigator.pop()
     })
     .catch(error => {
-      alert(error)
+      // alert(error)
       Logger.error(error, this._fileName)
       this.navigator.pop()
     })
