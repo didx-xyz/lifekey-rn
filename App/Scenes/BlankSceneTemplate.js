@@ -20,6 +20,11 @@ import AndroidBackButton from 'react-native-android-back-button'
 
 export default class BlankSceneTemplate extends Scene {
 
+  _hardwareBackHandler() {
+    this.navigator.pop()
+    return true
+  }
+
   render() {
     return (
       <Container>
