@@ -50,12 +50,12 @@ export default class Lifekeyrn extends Component {
     Crypto.getKeyStoreList()
     .then(list => {
       if (list.find(x => x === "consent")) {
-        Logger.info("Keystore detected, setting Session { userRegistered: true }", this._fileName)
+        Logger.info("Keystore detected, setting Session { keyStoreExists: true }", this._fileName)
         Session.update({
           keyStoreExists: true
         })
       } else {
-        Logger.info("No keystore detected, setting Session { userRegistered: false }", this._fileName)
+        Logger.info("No keystore detected, setting Session { keyStoreExists: false }", this._fileName)
         Session.update({
           keyStoreExists: false
         })
