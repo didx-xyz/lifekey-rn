@@ -74,6 +74,7 @@ export default class Debug extends Scene {
   }
 
   render() {
+
     return (
       <Container>
         <Content>
@@ -82,16 +83,18 @@ export default class Debug extends Scene {
             <H1>Lifekey Tech Demo</H1>
             <Text>{ this.state.keystoreFound ? "Keypair detected" : "No keypair detected" }</Text>
           </View>
+
           <Button iconName="md-key" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugKeyStore)}>Keystore Manager</Button>
-          {/* <Button iconName="md-qr-scanner" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.scanQrCode)}>QR Code Scanner</Button> */}
           <Button iconName="md-reverse-camera" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.selfieCam)}>Self-facing Camera</Button>
-          {/* <Button iconName="md-document" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.formGenerator)}>JSON Form Generator</Button> */}
           <Button iconName="md-contact" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugRegister)}>{ this.state.keystoreFound ? "Unlock/Login" : "Register on Consent" }</Button>
-          {/* <Button iconName="md-flame" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.animation)}>Animation</Button> */}
-          <Button iconName="md-globe" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugConnectionRequest)}>QR Connection Request</Button>
-          <Button iconName="md-no-smoking" kind="squared" style={[styles.btn]} onPress={() => alert("No smoking!")}>No smoking</Button>
+
           { this.state.keystoreFound ?
-          <Button kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugShowQRCode)}>View QR Code</Button>
+          [
+            <Button key={1} iconName="md-globe" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.scanQrCode)}>QR Connection Request</Button>,
+            <Button key={2} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugViewConnectionRequests)}>Connection Requests</Button>,
+            <Button key={3} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugViewConnections)}>Connections</Button>,
+            <Button key={4} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugShowQRCode)}>View QR Code</Button>
+          ]
           : null }
         </Content>
       </Container>

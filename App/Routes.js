@@ -16,6 +16,9 @@ import DebugRegister from './Scenes/DebugRegister'
 import Animation from './Scenes/Animation'
 import DebugConnectionRequest from './Scenes/DebugConnectionRequest'
 import DebugShowQRCode from './Scenes/DebugShowQRCode'
+import DebugPushNotifications from './Scenes/DebugPushNotifications'
+import DebugViewConnectionRequests from './Scenes/DebugViewConnectionRequests'
+import DebugViewConnections from './Scenes/DebugViewConnections'
 export default {
   login: { title: 'Login', scene: Login },
   main: { title: 'Main', scene: Main },
@@ -27,5 +30,8 @@ export default {
   debugRegister: { title: 'register', scene: DebugRegister },
   animation: { title: 'Animation', scene: Animation },
   debugConnectionRequest: { title: 'Connection request', scene: DebugConnectionRequest },
-  debugShowQRCode: { title: "Show QR Code", scene: DebugShowQRCode }
+  debugShowQRCode: { title: "Show QR Code", scene: DebugShowQRCode },
+  debugPushNotifications: { title: "Push notifications", scene: DebugPushNotifications },
+  debugViewConnectionRequests: { title: 'View Connection Requests', scene: DebugViewConnectionRequests },
+  debugViewConnections: { title: 'Connections', scene: DebugViewConnections }
 }
