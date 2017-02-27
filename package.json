@@ -6,7 +6,8 @@
     "start": "node node_modules/react-native/local-cli/cli.js start",
     "test": "node node_modules/jest/bin/jest.js",
     "precommit": "node node_modules/eslint/bin/eslint.js eslint",
-    "set_cfg": "./bin/set_cfg"
+    "set_cfg": "./bin/set_cfg",
+    "uninstall-apk": "for d in $(adb devices -l | sed '1d' | sed '$d' |  awk '{print $1}'); do adb -s $d uninstall com.lifekeyrn; done"
   },
   "dependencies": {
     "ansi-styles": "^2.2.1",
