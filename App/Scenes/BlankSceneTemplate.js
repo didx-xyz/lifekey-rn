@@ -18,7 +18,7 @@ import {
 } from 'native-base'
 import AndroidBackButton from 'react-native-android-back-button'
 
-export default class Blank extends Scene {
+export default class BlankSceneTemplate extends Scene {
 
   render() {
     return (

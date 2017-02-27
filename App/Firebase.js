@@ -9,6 +9,7 @@ import Storage from './Storage'
 import Config from './Config'
 import PushNotifications from './PushNotifications'
 
+// A higher lever wrapper around PushNotifications
 export default class Firebase {
 
   static getToken() {

@@ -22,18 +22,10 @@ public class MainActivity extends ReactActivity {
     @Override
     protected void onCreate(Bundle savedInstance) {
         super.onCreate(savedInstance);
-        // ReactInstanceManager rim = this.getReactInstanceManager();
-        // Log.d("TEST", rim.getCurrentReactContext().toString());
-        // getReactInstanceManager().getCurrentReactContext()
-        // .getJSModule(DeviceEventManagerModule.RCTDeviceEventEmitter.class)
-        // .emit("nativeEvent", "something");
-
     }
 
     @Override
     protected String getMainComponentName() {
         return "Lifekeyrn";
     }
-
-
 }
