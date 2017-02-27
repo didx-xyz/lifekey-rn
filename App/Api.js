@@ -5,56 +5,41 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-/* global fetch FormData */
 import Config from './Config'
-// import Sentry from './Sentry'
+
 import Logger from './Logger'
 
 function request(route, opts) {
-  // const options = opts || { method: 'GET' }
+
   const options = Object.assign({
     method: "GET",
     headers: {
       "content-type":  "application/json"
     }
   }, opts)
-  if (Config.debug && Config.debugNetwork) {
-    Logger.networkRequest(options.method, new Date(), Config.http.baseUrl + route)
-    if (opts.body) {
-      console.log(opts.body)
-    }
-  } else {
-    // Sentry.addBreadcrumb('HTTP ' + options.method, Config.http.baseUrl + route)
+
+  // Logging
+  Logger.networkRequest(options.method, new Date(), Config.http.baseUrl + route)
+  if (opts.body) {
+    console.log(opts.body)
   }
-
   return fetch(Config.http.baseUrl + route, options)
-
-  // Response received
   .then((response) => {
     if (Config.debug && Config.debugNetwork) {
       Logger.networkResponse(response.status, new Date(), response._bodyText)
-    } else {
-      // Sentry.addHttpBreadcrumb(Config.http.baseUrl + route, options.method, response.status)
     }
     return response.json()
   })
-
   .then((json) => {
     if (json.error) {
-      return { error: json.error.toString() }
+      return Promise.reject({ error: json.error.toString() })
     } else {
-      return json
+      return Promise.resolve(json)
     }
   })
-
-  // On reject
   .catch((error) => {
-    if (Config.debug && Config.debugNetwork) {
-      Logger.error('API Error', error)
-      return Promise.reject(error.toString())
-    } else {
-      return Promise.reject(error.toString())
-    }
+    Logger.error('API Error', error)
+    return Promise.reject(error.toString())
   })
 }
 
@@ -66,7 +51,6 @@ const containsRequired = (requiredFields, data) =>
 export default {
 
   register: (data) => {
-    // check integrity
     return new Promise((resolve, reject) => {
 
       const requiredFields = [
