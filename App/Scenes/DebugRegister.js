@@ -95,8 +95,18 @@ export default class DebugRegister extends Scene {
     })
 
     .then(_firebaseToken => {
-      firebaseToken = _firebaseToken
-      return Crypto.sign(toSign, "private_lifekey", password, Crypto.SIG_SHA256_WITH_RSA)})
+      return _firebaseToken ? (
+        Promise.all([
+          _firebaseToken,
+          Session.update({firebaseToken: _firebaseToken}),
+          Storage.store(Config.storage.dbKey, {firebaseToken: _firebaseToken})
+        ])
+      ) : Promise.all([Session.getState().firebaseToken])
+    })
+    .then(values => {
+      firebaseToken = values[0]
+      return Promise.resolve()
+    })
     .then(signature => Api.register({
       email: email,
       nickname: nickname,
