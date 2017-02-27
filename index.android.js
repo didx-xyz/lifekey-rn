@@ -93,7 +93,7 @@ export default class Lifekeyrn extends Component {
   }
 
   _nativeEventMessageReceived(msg) {
-    
+
     if (msg.data.type === 'user_connection_request') {
       // how it appears in storage/Session: {user_connection_requests: {1: {...}, 2: {...}, etc...}}
       // keyed by database id: it has to be objects because we can't merge arrays
@@ -105,15 +105,17 @@ export default class Lifekeyrn extends Component {
         from_nickname: msg.data.from_nickname
       }
       var ucr_merge = {user_connection_requests: {}} // the field into which we merge the new record
-      
+
       ucr_merge.user_connection_requests[
         msg.data.user_connection_request_id
       ] = new_connection_request // the record is to be keyed by database id
-      
+
       // add it to session
       Session.update(ucr_merge).then(function() {
         // and then merge it to storage
-        return Session.persist()
+        return Session.store(Config.storage.dbKey,{
+          ucr_merge: ucr_merge
+        })
       }).catch(function(err) {
         console.log('uh oh, could not persist new user connection request', err)
       })
@@ -212,7 +214,7 @@ export default class Lifekeyrn extends Component {
     }
     // Update persistence in persistence
     // TODO change to batch storage
-    // so we can also store dbUserId here 
+    // so we can also store dbUserId here
     Storage.store("firebaseToken", Session.getState().firebaseToken)
     .then(result => {
       Logger.async("Stored " + "firebaseToken", this._fileName)
