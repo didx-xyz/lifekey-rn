@@ -40,7 +40,7 @@ export default class DebugViewConnectionRequests extends Scene {
   render() {
 
     // get UCRs from session storage
-    var ucr_map = Session.getState().user_connection_requests || {}
+    var ucr_map = Session.getState().connections.user_connection_requests || {}
     // map it to an array of objects
     var user_connection_requests = Object.keys(ucr_map).map(function(ucr_key) {
       return {
