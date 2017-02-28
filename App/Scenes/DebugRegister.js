@@ -167,8 +167,10 @@ export default class DebugRegister extends Scene {
             onChangeText={nickname => this.setState({ nickname })}
           /> }
           <Input
-            placeholder="Password"
+            placeholder="PIN"
             value={this.state.password}
+            keyboardType={'numeric'}
+            secureTextEntry={true}
             onChangeText={password => this.setState({ password })}
           />
 
