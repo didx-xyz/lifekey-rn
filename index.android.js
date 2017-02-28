@@ -99,6 +99,15 @@ export default class Lifekeyrn extends Component {
       alert(msg.notification.title + ' - ' + msg.notification.body)
     }
     
+    if (msg.data.type === 'received_did') {
+      Promise.all([
+        Session.update({dbDid: msg.data.did_value}),
+        Storage.store(Config.storage.dbKey, {dbDid: msg.data.did_value})
+      ]).catch((err) => {
+        Logger.error('could not persist did value from server', this._fileName)
+      })
+    }
+
     if (msg.data.type === 'user_connection_request') {
       var new_connection_request = {
         id: msg.data.user_connection_request_id,
