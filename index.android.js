@@ -95,6 +95,7 @@ export default class Lifekeyrn extends Component {
   }
 
   _nativeEventMessageReceived(msg) {
+    var current_state = Session.getState()
     if (msg.notification) {
       alert(msg.notification.title + ' - ' + msg.notification.body)
     }
@@ -115,22 +116,24 @@ export default class Lifekeyrn extends Component {
         from_did: msg.data.from_did,
         from_nickname: msg.data.from_nickname
       }
-      var ucr_merge = {user_connection_requests: {}}
-      ucr_merge.user_connection_requests[
-        msg.data.user_connection_request_id
-      ] = new_connection_request
-
-      var users_merge = {}
       var new_discovered_user = {
         id: msg.data.from_id,
         did: msg.data.from_did,
         nickname: msg.data.from_nickname
       }
-      users_merge[msg.data.from_id] = new_discovered_user
+      if (!current_state.users) current_state.users = {}
+      if (!current_state.connections) current_state.connections = {}
+      if (!current_state.connections.user_connection_requests) {
+        current_state.connections.user_connection_requests = {}
+      }
+      current_state.connections.user_connection_requests[
+        msg.data.user_connection_request_id
+      ] = new_connection_request
+      current_state.users[msg.data.from_id] = new_discovered_user
 
       Promise.all([
-        Session.update({users: users_merge, connections: ucr_merge}),
-        Storage.store(Config.storage.dbKey, {users: users_merge, connections: ucr_merge})
+        Session.update(current_state),
+        Storage.store(Config.storage.dbKey, current_state)
       ]).then(_ => {
         Logger.async('added a new user connection record')
       }).catch((err) => {
@@ -142,14 +145,19 @@ export default class Lifekeyrn extends Component {
         to_id: msg.data.to_id,
         from_id: msg.data.from_id
       }
-      var uc_merge = {user_connections: {}}
-      uc_merge.user_connections[
+      if (!current_state.connections) {
+        current_state.connections = {}
+      }
+      if (!current_state.connections.user_connections) {
+        current_state.connections.user_connections = {}
+      }
+      current_state.connections.user_connections[
         msg.data.user_connection_id
       ] = new_connection
 
       Promise.all([
-        Session.update({connections: uc_merge}),
-        Storage.store(Config.storage.dbKey, {connections: uc_merge})
+        Session.update(current_state),
+        Storage.store(Config.storage.dbKey, current_state)
       ]).then(_ => {
         Logger.async('added a new user connection record')
       }).catch(err => {
