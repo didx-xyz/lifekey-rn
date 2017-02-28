@@ -12,7 +12,8 @@ import Session from '../Session'
 
 import {
   Text,
-  View
+  View,
+  Image
 } from 'react-native'
 
 import {
@@ -20,7 +21,8 @@ import {
   Content,
 } from 'native-base'
 import AndroidBackButton from 'react-native-android-back-button'
-import QRCode from 'react-native-qrcode'
+
+var url
 
 export default class DebugShowQRCode extends Scene {
 
@@ -31,7 +33,7 @@ export default class DebugShowQRCode extends Scene {
 
   render() {
     const state = Session.getState()
-    const data = `${Config.http.baseUrl}/profile/${state.dbUserId}`
+    const data = `${Config.http.baseUrl}/demo/qr/${state.dbDid}`
 
     return (
       <Container>
@@ -43,12 +45,8 @@ export default class DebugShowQRCode extends Scene {
             justifyContent: 'center',
             alignItems: 'center'
           }}>
-            <QRCode
-              value={data}
-              size={200}
-              bgColor="purple"
-              fgColor="white"
-            />
+            <Image style={{width: 250, height: 250}}
+                   source={{uri: data}} />
           </View>
         </Content>
       </Container>
