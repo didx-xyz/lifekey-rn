@@ -99,15 +99,15 @@ export default class Debug extends Scene {
             <Button key={1} iconName="md-globe" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugConnectionRequest)}>QR Connection Request</Button>,
             <Button key={2} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugViewConnectionRequests)}>Connection Requests</Button>,
             <Button key={3} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugViewConnections)}>Connections</Button>,
-            <Button key={4} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugConnectionRequest)}>View QR Code</Button>
+            <Button key={4} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugShowQRCode)}>View QR Code</Button>
           ]
           : null }
 
           <View>
             <H5>Session</H5>
-            <Text>{ JSON.stringify(Session.getState()) }</Text>
+            <Text>{JSON.stringify(Session.getState(), '\t', 2)}</Text>
             <H5>Storage</H5>
-            <Text>{ this.state.storageDump === null ? "No storage" : this.state.storageDump}</Text>
+            <Text>{this.state.storageDump === null ? "No storage" : this.state.storageDump}</Text>
           </View>
         </Content>
       </Container>
