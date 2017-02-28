@@ -65,10 +65,13 @@ export default class DebugRespondUserConnectionRequest extends Scene {
       return r.json()
     }).then(res => {
       if (res.error) alert(res.message)
+      var session = Session.getState()
+      session.connections.user_connection_requests[ucr_id].responded = true
+      Session.update(session)
+      return Storage.store(Config.storage.dbKey, session)
+    }).then(_ => {
       this.navigator.pop()
-    }).catch(err => {
-      alert(err)
-    })
+    }).catch(alert)
   }
 
   _reject(ucr_id) {
