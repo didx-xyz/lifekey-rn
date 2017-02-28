@@ -24,7 +24,8 @@ import {
 import {
   Container,
   Content,
-  Button
+  Button,
+  ListItem
 } from 'native-base'
 import AndroidBackButton from 'react-native-android-back-button'
 
@@ -87,6 +88,9 @@ export default class DebugRespondUserConnectionRequest extends Scene {
         <Container>
             <Content>
                 <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+                <ListItem itemHeader first>
+                  <Text>CONNECTION REQUEST FROM USER</Text>
+                </ListItem>
                 <Text>You received a connection request from {this.props.passProps.nickname}</Text>
                 <Button onPress={this._reject.bind(this, this.props.passProps.id)}>
                     <Text>Reject</Text>

@@ -23,7 +23,8 @@ import {
 import {
   Container,
   Content,
-  Button
+  Button,
+  ListItem
 } from 'native-base'
 import AndroidBackButton from 'react-native-android-back-button'
 
@@ -134,6 +135,9 @@ export default class DebugBeforeSendConnectionRequest extends Scene {
       <Container>
         <Content>
           <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <ListItem itemHeader first>
+            <Text>CONNECTION REQUEST TO USER</Text>
+          </ListItem>
           <Text>You are about to send a connection request to {nickname || 'fetching...'}</Text>
           <Button onPress={this.navigator.pop}>
               <Text>Back</Text>
