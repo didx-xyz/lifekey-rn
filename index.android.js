@@ -76,18 +76,17 @@ export default class Lifekeyrn extends Component {
       } else {
         // ANT - just use everything for now
         Session.update(storage)
-        var session = Session.getState()
-        if (!session.connections) {
-          session.update({
-            connections: {
-              user_connection_requests: {},
-              user_connections: {}
-            }
-          })
-        }
-        return Storage.store(Config.storage.dbKey, Session.getState())
       }
-
+      var session = Session.getState()
+      if (!session.connections) {
+        Session.update({
+          connections: {
+            user_connection_requests: {},
+            user_connections: {}
+          }
+        })
+      }
+      return Storage.store(Config.storage.dbKey, Session.getState())
 
     })
     .catch(error => {
