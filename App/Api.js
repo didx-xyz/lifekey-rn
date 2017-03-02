@@ -12,17 +12,12 @@ import Logger from './Logger'
 function request(route, opts) {
 
   const options = Object.assign({
-    method: "GET",
-    headers: {
-      "content-type":  "application/json"
-    }
+    method: 'GET',
+    headers: { 'content-type': 'application/json' }
   }, opts)
 
-  // Logging
   Logger.networkRequest(options.method, new Date(), Config.http.baseUrl + route)
-  if (opts.body) {
-    console.log(opts.body)
-  }
+
   return fetch(Config.http.baseUrl + route, options)
   .then((response) => {
     if (Config.debug && Config.debugNetwork) {
@@ -39,7 +34,7 @@ function request(route, opts) {
   })
 }
 
-const containsRequired = (requiredFields, data) => {
+function containsRequired(requiredFields, data) {
   return (
     JSON.stringify(requiredFields.sort()) ===
     JSON.stringify(Object.keys(data).sort())
@@ -51,23 +46,23 @@ export default {
 
   register: (data) => {
     const requiredFields = [
-      "email",
-      "nickname",
-      "device_id",
-      "device_platform",
-      "public_key_algorithm",
-      "public_key",
-      "plaintext_proof",
-      "signed_proof"
+      'email',
+      'nickname',
+      'device_id',
+      'device_platform',
+      'public_key_algorithm',
+      'public_key',
+      'plaintext_proof',
+      'signed_proof'
     ]
 
     if (containsRequired(requiredFields, data)) {
       return request('/management/register', {
         body: JSON.stringify(data),
-        method: "POST"
+        method: 'POST'
       })
     } else {
-      return Promise.reject("Missing fields")
+      return Promise.reject('Missing fields')
     }
 
   },

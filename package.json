@@ -7,7 +7,8 @@
     "test": "node node_modules/jest/bin/jest.js",
     "precommit": "node node_modules/eslint/bin/eslint.js eslint",
     "set_cfg": "./bin/set_cfg",
-    "uninstall-apk": "for d in $(adb devices -l | sed '1d' | sed '$d' |  awk '{print $1}'); do adb -s $d uninstall com.lifekeyrn; done"
+    "uninstall-apk": "for d in $(adb devices -l | sed '1d' | sed '$d' |  awk '{print $1}'); do adb -s $d uninstall com.lifekeyrn; done",
+    "clear_packager_cache": "rm -rf $TMPDIR/react-native-packager-cache-*; rm -rf $TMPDIR/haste-map-react-native-packager-*"
   },
   "dependencies": {
     "ansi-styles": "^2.2.1",

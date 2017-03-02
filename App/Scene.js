@@ -8,8 +8,7 @@
 import React, { Component } from 'react'
 import Logger from './Logger'
 import * as Lifecycle from './Lifecycle'
-import Config from './Config'
-import { DeviceEventEmitter } from 'react-native'
+
 /**
  * Scene Component - A component that extends the functionality of React.Component
  */
@@ -23,72 +22,47 @@ export default class Scene extends Component {
     this.navigator = this.props.navigator
     this.props._navigationEventEmitter.addListener('onWillFocus' + this._className, this.componentWillFocus, this)
     this.props._navigationEventEmitter.addListener('onDidFocus' + this._className, this.componentDidFocus, this)
-    // this.props._deviceEventEmitter.addListener("nativeEvent", this._nativeEvent, this)
 
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.CONSTRUCTOR)
-    }
+    Logger.react(this._className, Lifecycle.CONSTRUCTOR)
   }
 
   componentWillFocus() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.COMPONENT_WILL_FOCUS)
-    }
+    Logger.react(this._className, Lifecycle.COMPONENT_WILL_FOCUS)
   }
 
   componentDidFocus() {
-    if (Config.debug) {
-      if (Config.debugReact) {
-        Logger.react(this._className, Lifecycle.COMPONENT_DID_FOCUS)
-      }
-    }
+    Logger.react(this._className, Lifecycle.COMPONENT_DID_FOCUS)
   }
 
   componentWillMount() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.COMPONENT_WILL_MOUNT)
-    }
+    Logger.react(this._className, Lifecycle.COMPONENT_WILL_MOUNT)
   }
 
   componentDidMount() {
-    if (Config.debug) {
-      if (Config.debugReact) {
-        Logger.react(this._className, Lifecycle.COMPONENT_DID_MOUNT)
-      }
-    }
+    Logger.react(this._className, Lifecycle.COMPONENT_DID_MOUNT)
   }
 
   componentWillReceiveProps() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.COMPONENT_WILL_RECEIEVE_PROPS)
-    }
+    Logger.react(this._className, Lifecycle.COMPONENT_WILL_RECEIEVE_PROPS)
   }
 
   shouldComponentUpdate() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.SHOULD_COMPONENT_UPDATE)
-    }
+    Logger.react(this._className, Lifecycle.SHOULD_COMPONENT_UPDATE)
 
     // Must return true
     return true
   }
 
   componentWillUpdate() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.COMPONENT_WILL_UPDATE)
-    }
+    Logger.react(this._className, Lifecycle.COMPONENT_WILL_UPDATE)
   }
 
   componentDidUpdate() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.COMPONENT_DID_UPDATE)
-    }
+    Logger.react(this._className, Lifecycle.COMPONENT_DID_UPDATE)
   }
 
   componentWillUnmount() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.COMPONENT_WILL_UNMOUNT)
-    }
+    Logger.react(this._className, Lifecycle.COMPONENT_WILL_UNMOUNT)
 
     // Remove event listeners
     this.props._navigationEventEmitter.removeListener('onWillFocus' + this._className, this.componentWillFocus, this)
@@ -96,9 +70,7 @@ export default class Scene extends Component {
   }
 
   render() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.RENDER)
-    }
+    Logger.react(this._className, Lifecycle.RENDER)
   }
 }
 
