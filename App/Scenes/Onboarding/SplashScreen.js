@@ -38,7 +38,7 @@ export default class SplashScreen extends Scene {
           <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
 
           <Grid>
-            <Col style={{ height: this.props.screenHeight }}>
+            <Col style={{ flex: 1, height: this.props.screenHeight }}>
               <Row style={[style.firstRow]}>
                 <Text>Splash Page</Text>
               </Row>

@@ -69,8 +69,9 @@ export default {
     }
   },
   storage: {
-    dbKey: APP_UUID + "_" + APP_NAME.toLowerCase() + "_storage"
+    dbKey: APP_NAME.toLowerCase() + '_storage'
   },
+  keyStoreName: APP_NAME.toLowerCase(),
   // Google Analytics
   googleAnalytics: {
     trackers: {

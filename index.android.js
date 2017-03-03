@@ -43,22 +43,18 @@ export default class Lifekeyrn extends Component {
       screenWidth: null,
       screenHeight: null
     }
-    Logger.info("Booting ReactNative " + Config.appName + " " + Config.version, this._fileName)
+    Logger.info('Booting ReactNative ' + Config.appName + ' ' + Config.version, this._fileName)
     DeviceEventEmitter.addListener('messageReceived', (e) => this._nativeEventMessageReceived(e))
     DeviceEventEmitter.addListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
 
     Crypto.getKeyStoreList()
     .then(list => {
-      if (list.find(x => x === "consent")) {
-        Logger.info("Keystore detected, setting Session { keyStoreExists: true }", this._fileName)
-        Session.update({
-          keyStoreExists: true
-        })
+      if (list.find(x => x === 'consent')) {
+        Logger.info('Keystore detected, setting Session { keyStoreExists: true }', this._fileName)
+        Session.update({ keyStoreExists: true })
       } else {
-        Logger.info("No keystore detected, setting Session { keyStoreExists: false }", this._fileName)
-        Session.update({
-          keyStoreExists: false
-        })
+        Logger.info('No keystore detected, setting Session { keyStoreExists: false }', this._fileName)
+        Session.update({ keyStoreExists: false })
       }
     })
     .catch(error => {
@@ -212,11 +208,11 @@ export default class Lifekeyrn extends Component {
   }
 
   componentWillMount() {
-    // const initialDimensions = Dimensions.get('window')
-    // this.setState({
-    //   screenWidth: Math.round(initialDimensions.width),
-    //   screenHeight: Math.round(initialDimensions.height)
-    // })
+    const initialDimensions = Dimensions.get('window')
+    this.setState({
+      screenWidth: Math.round(initialDimensions.width),
+      screenHeight: Math.round(initialDimensions.height)
+    })
     if (Config.debug && Config.debugReact) {
       Logger.react(this._fileName, Lifecycle.COMPONENT_WILL_MOUNT)
     }
@@ -267,25 +263,13 @@ export default class Lifekeyrn extends Component {
   shouldComponentUpdate(nextProps, nextState) {
     if (nextState.screenWidth !== this.state.screenWidth) {
       if (nextState.screenWidth > nextState.screenHeight) {
-        this.setState({
-          orientation: LANDSCAPE
-        })
+        this.setState({ orientation: LANDSCAPE })
         Logger.info('LANDSCAPE', this._fileName)
       } else {
-        this.setState({
-          orientation: PORTRAIT
-        })
+        this.setState({ orientation: PORTRAIT })
 
         Logger.info('PORTRAIT', this._fileName)
       }
-      return true
-    }
-
-    if (JSON.stringify(this.props) !== JSON.stringify(nextProps)) {
-      return true
-    }
-
-    if (JSON.stringify(this.state) !== JSON.stringify(nextState)) {
       return true
     }
     return false
@@ -294,12 +278,12 @@ export default class Lifekeyrn extends Component {
   _onLayout(event) {
     const width = Math.round(event.nativeEvent.layout.width)
     const height = Math.round(event.nativeEvent.layout.height)
-    const orientation = width > height ? LANDSCAPE : PORTRAIT
     this.setState({
       screenWidth: width,
       screenHeight: height,
       orientation: width > height ? LANDSCAPE : PORTRAIT
     })
+    this.forceUpdate()
   }
 
   render() {
@@ -336,8 +320,9 @@ export default class Lifekeyrn extends Component {
           configureScene={ (route, routeStack ) =>
             ({
               ...Config.sceneConfig,
-              gestures: {} } // Prevents the user from being able to swipe to go back
-            )}
+              gestures: {} // Prevents the user from being able to swipe to go back
+            })
+          }
         />
     );
   }
