@@ -5,6 +5,7 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
+// Debug
 import Login from './Scenes/Login'
 import Main from './Scenes/Main'
 import ScanQRCode from './Scenes/ScanQRCode'
@@ -19,7 +20,12 @@ import DebugShowQRCode from './Scenes/DebugShowQRCode'
 import DebugPushNotifications from './Scenes/DebugPushNotifications'
 import DebugViewConnectionRequests from './Scenes/DebugViewConnectionRequests'
 import DebugViewConnections from './Scenes/DebugViewConnections'
+// Main
+import SplashScreen from './Scenes/Onboarding/SplashScreen'
+import QRCodeScanner from './Scenes/Camera/QRCodeScanner'
+
 export default {
+  // Debug
   login: { title: 'Login', scene: Login },
   main: { title: 'Main', scene: Main },
   scanQrCode: { title: 'Scan QR Code', scene: ScanQRCode },
@@ -33,5 +39,12 @@ export default {
   debugShowQRCode: { title: "Show QR Code", scene: DebugShowQRCode },
   debugPushNotifications: { title: "Push notifications", scene: DebugPushNotifications },
   debugViewConnectionRequests: { title: 'View Connection Requests', scene: DebugViewConnectionRequests },
-  debugViewConnections: { title: 'Connections', scene: DebugViewConnections }
+  debugViewConnections: { title: 'Connections', scene: DebugViewConnections },
+  // Main
+  onboarding: {
+    splashScreen: { scene: SplashScreen }
+  },
+  camera: {
+    qrCodeScanner: { scene: QRCodeScanner }
+  }
 }

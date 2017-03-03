@@ -32,7 +32,7 @@ export default {
   appUUID: APP_UUID,
   // First scene to show
   // initialRoute: Routes.debugRegister,
-  initialRoute: Routes.debug,
+  initialRoute: Routes.onboarding.splashScreen,
 
   debug: DEBUG,          // Main switch
   debugNetwork: true,   // HTTP

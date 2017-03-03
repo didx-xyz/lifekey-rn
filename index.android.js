@@ -99,7 +99,7 @@ export default class Lifekeyrn extends Component {
     if (msg.notification) {
       alert(msg.notification.title + ' - ' + msg.notification.body)
     }
-    
+
     if (msg.data.type === 'received_did') {
       Promise.all([
         Session.update({dbDid: msg.data.did_value}),
@@ -212,11 +212,11 @@ export default class Lifekeyrn extends Component {
   }
 
   componentWillMount() {
-    const initialDimensions = Dimensions.get('window')
-    this.setState({
-      screenWidth: Math.round(initialDimensions.width),
-      screenHeight: Math.round(initialDimensions.height)
-    })
+    // const initialDimensions = Dimensions.get('window')
+    // this.setState({
+    //   screenWidth: Math.round(initialDimensions.width),
+    //   screenHeight: Math.round(initialDimensions.height)
+    // })
     if (Config.debug && Config.debugReact) {
       Logger.react(this._fileName, Lifecycle.COMPONENT_WILL_MOUNT)
     }
@@ -270,18 +270,13 @@ export default class Lifekeyrn extends Component {
         this.setState({
           orientation: LANDSCAPE
         })
-        if (Config.debug) {
-          // FIXME
-          Logger.error('LANDSCAPE', this._fileName)
-        }
+        Logger.info('LANDSCAPE', this._fileName)
       } else {
         this.setState({
           orientation: PORTRAIT
         })
-        if (Config.debug) {
-          // FIXME
-          Logger.error('PORTRAIT', this._fileName)
-        }
+
+        Logger.info('PORTRAIT', this._fileName)
       }
       return true
     }
@@ -294,6 +289,17 @@ export default class Lifekeyrn extends Component {
       return true
     }
     return false
+  }
+
+  _onLayout(event) {
+    const width = Math.round(event.nativeEvent.layout.width)
+    const height = Math.round(event.nativeEvent.layout.height)
+    const orientation = width > height ? LANDSCAPE : PORTRAIT
+    this.setState({
+      screenWidth: width,
+      screenHeight: height,
+      orientation: width > height ? LANDSCAPE : PORTRAIT
+    })
   }
 
   render() {
@@ -310,7 +316,7 @@ export default class Lifekeyrn extends Component {
             }
             return (
               <View style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}>
-                <View onLayout={this._onLayout} style={{flex: 1, backgroundColor: Palette.sceneBackgroundColour }}>
+                <View onLayout={(event) => this._onLayout(event)} style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}>
                   {React.createElement(
                     route.scene,
                     {
