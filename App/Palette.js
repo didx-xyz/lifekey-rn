@@ -6,5 +6,5 @@
  */
 
 export default {
-  consentBlue: '#1886BC'
+  consentBlue: '#216BFF'
 }

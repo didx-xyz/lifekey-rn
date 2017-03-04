@@ -1,6 +1,6 @@
 /**
  * Lifekey App
- * @copyright 2016 Global Consent Ltd
+ * @copyright 2016 - 2017 Global Consent Ltd
  * Civvals, 50 Seymour Street, London, England, W1H 7JG
  * @author Werner Roets <werner@io.co.za>
  */

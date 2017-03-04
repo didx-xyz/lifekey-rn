@@ -71,7 +71,7 @@
         "no-return-assign": "warn",
         "no-useless-call": "warn",
         "no-warning-comments": ["warn", { "terms": ["todo", "fixme"], "location": "start" }],
-        "camelcase": "warn",
+        // "camelcase": "warn",
         "computed-property-spacing": ["warn", "never"],
         "func-call-spacing": ["warn", "never"],
         "key-spacing": ["warn", {
@@ -90,7 +90,6 @@
         "no-multi-assign": "warn",
         "no-tabs": "warn",
         "no-trailing-spaces": "warn",
-        "object-curly-newline": ["warn", { "multiline": true }],
         "one-var-declaration-per-line": "warn",
         "quote-props": ["warn", "as-needed"],
         "quotes": ["warn", "single"],

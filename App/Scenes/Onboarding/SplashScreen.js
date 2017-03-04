@@ -7,6 +7,7 @@
 
 import React from 'react'
 import Scene from '../../Scene'
+import Routes from '../../Routes'
 
 import {
   Text,
@@ -55,7 +56,7 @@ export default class SplashScreen extends Scene {
               </Row>
               <Row style={[style.fourthRow]}>
                 <Col>
-                  <TouchableNativeFeedback onPress={() => ({})}>
+                  <TouchableNativeFeedback onPress={() => this.navigator.push(Routes.camera.qrCodeScanner)}>
                     <View style={style.buttonView} >
                       <Text style={[style.buttonText]}>Scan</Text>
                     </View>

@@ -34,6 +34,9 @@ export default class Lifekeyrn extends Component {
 
   constructor(props) {
     super(props)
+    Logger.info('Booting ReactNative ' + Config.appName + ' ' + Config.version, this._fileName)
+
+    // Members
     this._fileName = 'index.android.js'
     this._className = this.constructor.name
     this._initialRoute = Config.initialRoute
@@ -43,17 +46,19 @@ export default class Lifekeyrn extends Component {
       screenWidth: null,
       screenHeight: null
     }
-    Logger.info('Booting ReactNative ' + Config.appName + ' ' + Config.version, this._fileName)
+
+    // Events
     DeviceEventEmitter.addListener('messageReceived', (e) => this._nativeEventMessageReceived(e))
     DeviceEventEmitter.addListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
 
+    // Check for keystore
     Crypto.getKeyStoreList()
     .then(list => {
-      if (list.find(x => x === 'consent')) {
-        Logger.info('Keystore detected, setting Session { keyStoreExists: true }', this._fileName)
+      if (list.find(x => x === Config.keyStoreName)) {
+        Logger.info('Keystore detected', this._fileName)
         Session.update({ keyStoreExists: true })
       } else {
-        Logger.info('No keystore detected, setting Session { keyStoreExists: false }', this._fileName)
+        Logger.info('No keystore detected', this._fileName)
         Session.update({ keyStoreExists: false })
       }
     })
@@ -66,28 +71,27 @@ export default class Lifekeyrn extends Component {
     .then(storage => {
       if (storage === null) {
         // enoent
-        if (Config.debug) {
-          Logger.async(Config.storage.dbKey + " not found. No persistent app storage found")
-        }
+        Logger.async(Config.storage.dbKey + 'not found. No persistent app storage found')
       } else {
-        // ANT - just use everything for now
-        Session.update(storage)
+        Session.update({ firebaseToken: storage.firebaseToken })
       }
-      var session = Session.getState()
-      if (!session.connections) {
-        Session.update({
-          connections: {
-            user_connection_requests: {},
-            user_connections: {}
-          }
-        })
-      }
+
       return Storage.store(Config.storage.dbKey, Session.getState())
 
     })
     .catch(error => {
       Logger.error(error, this._fileName)
     })
+
+    // Init connections session
+    if (!Session.getState().connections) {
+      Session.update({
+        connections: {
+          userConnectionRequets: {},
+          userConnections: {}
+        }
+      })
+    }
   }
 
   _nativeEventMessageReceived(msg) {
@@ -106,6 +110,7 @@ export default class Lifekeyrn extends Component {
     }
 
     if (msg.data.type === 'user_connection_request') {
+
       var new_connection_request = {
         id: msg.data.user_connection_request_id,
         from_id: msg.data.from_id,
@@ -122,9 +127,7 @@ export default class Lifekeyrn extends Component {
       if (!current_state.connections.user_connection_requests) {
         current_state.connections.user_connection_requests = {}
       }
-      current_state.connections.user_connection_requests[
-        msg.data.user_connection_request_id
-      ] = new_connection_request
+      current_state.connections.user_connection_requests[msg.data.user_connection_request_id] = new_connection_request
       current_state.users[msg.data.from_id] = new_discovered_user
 
       Promise.all([
@@ -135,6 +138,9 @@ export default class Lifekeyrn extends Component {
       }).catch((err) => {
         Logger.error('uh oh, could not persist new user connection request', this._fileName)
       })
+
+
+
     } else if (msg.data.type === 'user_connection_created') {
       var new_connection = {
         id: msg.data.user_connection_id,
