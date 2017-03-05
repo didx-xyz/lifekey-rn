@@ -12,7 +12,6 @@ import Routes from '../../Routes'
 import {
   Text,
   View,
-  Dimensions,
   StyleSheet,
   TouchableNativeFeedback
 } from 'react-native'
@@ -56,7 +55,9 @@ export default class SplashScreen extends Scene {
               </Row>
               <Row style={[style.fourthRow]}>
                 <Col>
-                  <TouchableNativeFeedback onPress={() => this.navigator.push(Routes.camera.qrCodeScanner)}>
+                  <TouchableNativeFeedback
+                    onPress={() => this.navigator.push(Routes.camera.qrCodeScanner)}
+                  >
                     <View style={style.buttonView} >
                       <Text style={[style.buttonText]}>Scan</Text>
                     </View>
@@ -114,12 +115,3 @@ const style = StyleSheet.create({
     color: 'white'
   }
 })
-
-/*
-210px = 2.7 = 6
-215 = 2.7 = 6
-65 = 8.9 = 18
-90 = 6.4 = 12
-*/
-
-// total: 580
