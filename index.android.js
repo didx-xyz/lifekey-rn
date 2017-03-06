@@ -43,8 +43,8 @@ export default class Lifekeyrn extends Component {
     this._navigationEventEmitter = new EventEmitter()
     this.state = {
       orientation: null,
-      screenWidth: null,
-      screenHeight: null
+      viewableScreenWidth: null,
+      viewableScreenHeight: null
     }
 
     // Events
@@ -216,8 +216,8 @@ export default class Lifekeyrn extends Component {
   componentWillMount() {
     const initialDimensions = Dimensions.get('window')
     this.setState({
-      screenWidth: Math.round(initialDimensions.width),
-      screenHeight: Math.round(initialDimensions.height)
+      viewableScreenWidth: Math.round(initialDimensions.width),
+      viewableScreenHeight: Math.round(initialDimensions.height)
     })
     if (Config.debug && Config.debugReact) {
       Logger.react(this._fileName, Lifecycle.COMPONENT_WILL_MOUNT)
@@ -267,7 +267,7 @@ export default class Lifekeyrn extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
-    if (nextState.screenWidth !== this.state.screenWidth) {
+    if (nextState.screenWidth !== this.state.viewableScreenWidth) {
       if (nextState.screenWidth > nextState.screenHeight) {
         this.setState({ orientation: LANDSCAPE })
         Logger.info('LANDSCAPE', this._fileName)
@@ -285,11 +285,12 @@ export default class Lifekeyrn extends Component {
     const width = Math.round(event.nativeEvent.layout.width)
     const height = Math.round(event.nativeEvent.layout.height)
     this.setState({
-      screenWidth: width,
-      screenHeight: height,
+      viewableScreenWidth: width,
+      viewableScreenHeight: height,
       orientation: width > height ? LANDSCAPE : PORTRAIT
     })
-    this.forceUpdate()
+    Logger.info("onLayout " + width + " " + height + " " + (width > height ? LANDSCAPE : PORTRAIT), this._fileName)
+    // this.forceUpdate()
   }
 
   render() {
@@ -305,13 +306,13 @@ export default class Lifekeyrn extends Component {
               console.log("--- END ROUTES STACK ---")
             }
             return (
-              <View style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}>
-                <View onLayout={(event) => this._onLayout(event)} style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}>
+              <View onLayout={(event) => this._onLayout(event)} style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}>
+                <View style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}>
                   {React.createElement(
                     route.scene,
                     {
-                      screenWidth: this.state.screenWidth,
-                      screenHeight: this.state.screenHeight,
+                      screenWidth: this.state.viewableScreenWidth,
+                      screenHeight: this.state.viewableScreenHeight,
                       screenOrientation: this.state.screenOrientation,
                       route,
                       navigator,

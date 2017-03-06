@@ -8,11 +8,13 @@
 import React from 'react'
 import Scene from '../../Scene'
 import Routes from '../../Routes'
+import Palette from '../../Palette'
 
 import {
   Text,
   View,
   StyleSheet,
+  StatusBar,
   TouchableNativeFeedback
 } from 'react-native'
 
@@ -31,6 +33,21 @@ export default class SplashScreen extends Scene {
     return false // exit the app
   }
 
+  _onAttention() {
+    StatusBar.setHidden(true)
+  }
+
+  componentWillMount() {
+    super.componentWillMount()
+    this._onAttention()
+  }
+
+  componentWillFocus() {
+    super.componentWillFocus()
+    this._onAttention()
+
+  }
+
   render() {
     return (
       <Container>
@@ -43,20 +60,26 @@ export default class SplashScreen extends Scene {
                 <Text>Splash Page</Text>
               </Row>
               <Row style={[style.secondRow]}>
-                <Row style={{ alignItems: 'center' }}>
-                  <Text>Securely store and verify personal information.</Text>
-                </Row>
-                <Row style={{ alignItems: 'center' }}>
-                  <Text>{this.props.screenHeight}</Text>
+                <Row style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                  <View style={{ flex: 1, padding: 20, paddingTop: 40, paddingBotom: 40 }}>
+                    <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 2 }}>
+                      <Text style={{ fontSize: 20, textAlign: 'center' }}>Securely store and verify personal information.</Text>
+                    </View>
+                    <View style={{ flex: 1, alignItems: 'center', paddingTop: 2 }}>
+                      <Text style={{ fontSize: 16 }}>Carousel between 3 opening lines</Text>
+                    </View>
+                  </View>
                 </Row>
               </Row>
               <Row style={[style.thirdRow]}>
                 <Text>Trusted Partner Logos</Text>
               </Row>
-              <Row style={[style.fourthRow]}>
+              <Row style={[style.trustedPartnersRow]}>
                 <Col>
                   <TouchableNativeFeedback
+                    background={TouchableNativeFeedback.Ripple(Palette.consentGrayLight, true)}
                     onPress={() => this.navigator.push(Routes.camera.qrCodeScanner)}
+                    delayPressIn={0}
                   >
                     <View style={style.buttonView} >
                       <Text style={[style.buttonText]}>Scan</Text>
@@ -64,7 +87,11 @@ export default class SplashScreen extends Scene {
                   </TouchableNativeFeedback>
                 </Col>
                 <Col>
-                  <TouchableNativeFeedback onPress={() => ({})}>
+                  <TouchableNativeFeedback
+                    background={TouchableNativeFeedback.Ripple(Palette.consentGrayLight, true)}
+                    onPress={() => this.navigator.push(Routes.onboarding.register)}
+                    delayPressIn={0}
+                  >
                     <View style={style.buttonView} >
                       <Text style={[style.buttonText]}>Let's start</Text>
                     </View>
@@ -100,11 +127,12 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  fourthRow: {
+  trustedPartnersRow: {
     backgroundColor: '#216BFF',
     flex: 6,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    fontSize: 16
   },
   buttonView: {
     flex: 1,
@@ -112,6 +140,7 @@ const style = StyleSheet.create({
     justifyContent: 'center'
   },
   buttonText: {
-    color: 'white'
+    color: 'white',
+    fontSize: 20
   }
 })

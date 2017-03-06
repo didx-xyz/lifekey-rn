@@ -15,7 +15,8 @@ import {
   View,
   TouchableNativeFeedback,
   InteractionManager,
-  ActivityIndicator
+  ActivityIndicator,
+  StatusBar
 } from 'react-native'
 
 import {
@@ -33,7 +34,20 @@ export default class QRCodeScanner extends Scene {
       showCamera: false
     }
   }
+  _onAttention() {
+    StatusBar.setHidden(true)
+  }
 
+  componentWillMount() {
+    super.componentWillMount()
+    this._onAttention()
+  }
+
+  componentWillFocus() {
+    super.componentWillFocus()
+    this._onAttention()
+
+  }
   _hardwareBackHandler() {
     this.navigator.pop()
     return true
@@ -61,11 +75,7 @@ export default class QRCodeScanner extends Scene {
           orientation={Camera.constants.Orientation.portrait}
           onBarCodeRead={(data) => {
             alert(JSON.stringify(data))
-            this.setState({
-              showCamera: false
-            })
-            // this.scanQR(data)
-            // this.crosshair.bounce()
+            this.setState({ showCamera: false })
           }}
           type={Camera.constants.Type.back}
           barCodeTypes={['qr']}
@@ -75,14 +85,16 @@ export default class QRCodeScanner extends Scene {
         :
         <View style={{ flex: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: 'black' }}>
           <ActivityIndicator animating={true}/>
+          <Text style={{ color: Palette.consentGrayLightest }}>Loading...</Text>
         </View>
         }
         <View style={style.boxBottom}>
           <Grid>
             <Col>
               <TouchableNativeFeedback
-                background={ TouchableNativeFeedback.Ripple('white', false) }
+                background={ TouchableNativeFeedback.Ripple(Palette.consentGrayLightest, false) }
                 onPress={() => this.navigator.pop()}
+                delayPressIn={0}
               >
                 <View style={style.buttonView} >
                   <Text style={[style.buttonText]}>Cancel</Text>
@@ -138,6 +150,7 @@ const style = StyleSheet.create({
     justifyContent: 'center'
   },
   buttonText: {
-    color: 'white'
+    color: 'white',
+    fontSize: 20
   }
 })

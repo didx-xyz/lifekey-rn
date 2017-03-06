@@ -110,7 +110,7 @@ export default class Logger {
    * @param {string} filename The filename to log
    * @returns {undefined}
    */
-  static info = (message, filename) => {
+  static info = (message, filename = 'Unknown') => {
     const prefix = `${ANSI.bgGreen.open}${ANSI.white.open}[i]${ANSI.white.close}${ANSI.bgGreen.close}`
     if (Config.debug) {
       console.log(`${prefix} ${filename} ${ANSI.white.open} ${message}${ANSI.white.close}`)

@@ -23,7 +23,7 @@ import DebugViewConnections from './Scenes/DebugViewConnections'
 // Main
 import SplashScreen from './Scenes/Onboarding/SplashScreen'
 import QRCodeScanner from './Scenes/Camera/QRCodeScanner'
-
+import Register from './Scenes/Onboarding/Register'
 export default {
   // Debug
   login: { title: 'Login', scene: Login },
@@ -42,7 +42,8 @@ export default {
   debugViewConnections: { title: 'Connections', scene: DebugViewConnections },
   // Main
   onboarding: {
-    splashScreen: { scene: SplashScreen }
+    splashScreen: { scene: SplashScreen },
+    register: { scene: Register }
   },
   camera: {
     qrCodeScanner: { scene: QRCodeScanner }
