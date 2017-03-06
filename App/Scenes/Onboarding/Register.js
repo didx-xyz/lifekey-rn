@@ -121,32 +121,3 @@ export default class Register extends Scene {
     )
   }
 }
-
-const style = StyleSheet.create({
-  firstRow: {
-    backgroundColor: 'white',
-    flex: 11,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  secondRow: {
-    backgroundColor: '#F5F6F6',
-    flex: 12,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  thirdRow: {
-    backgroundColor: '#ECEEEE',
-    flex: 4,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  trustedPartnersRow: {
-    backgroundColor: '#216BFF',
-    flex: 6,
-    alignItems: 'center',
-    justifyContent: 'center',
-    fontSize: 16
-  }
-})
