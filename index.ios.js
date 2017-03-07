@@ -5,19 +5,7 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-import React, { Component } from 'react'
-import {
-  AppRegistry,
-  Platform
-} from 'react-native';
-import Lifekey from './Lifekey'
-
-export default class Lifekeyrn extends Component {
-
-  render() {
-    return (<Lifekey os={Platform.OS}/>)
-  }
-}
+import { AppRegistry } from 'react-native'
+import { Lifekeyrn } from './App'
 
 AppRegistry.registerComponent('Lifekeyrn', () => Lifekeyrn)
-
