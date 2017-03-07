@@ -10,11 +10,13 @@ import Logger from './Logger'
 import Palette from './Palette'
 import Routes from './Routes'
 import Scene from './Scene'
+import Lifekeyrn from './Lifekeyrn'
 
 export {
   Config,
   Logger,
   Palette,
   Routes,
-  Scene
+  Scene,
+  Lifekeyrn
 }
