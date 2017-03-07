@@ -10,12 +10,16 @@ import Scene from '../../Scene'
 import Routes from '../../Routes'
 import Palette from '../../Palette'
 
+import Touchable from '../../Components/Touchable'
+
 import {
   Text,
   View,
   StyleSheet,
   StatusBar,
-  TouchableNativeFeedback
+  TouchableNativeFeedback,
+  TouchableWithoutFeedback,
+  Platform
 } from 'react-native'
 
 import {
@@ -49,6 +53,26 @@ export default class SplashScreen extends Scene {
   }
 
   render() {
+    let scan = (
+      <Touchable
+        onPress={() => this.navigator.push(Routes.camera.qrCodeScanner)}
+      >
+        <View style={style.buttonView} >
+          <Text style={[style.buttonText]}>Scan</Text>
+        </View>
+      </Touchable>
+    )
+
+    let start = (
+      <Touchable
+        onPress={() => this.navigator.push(Routes.onboarding.register)}
+      >
+        <View style={style.buttonView} >
+          <Text style={[style.buttonText]}>Let's start</Text>
+        </View>
+      </Touchable>
+    )
+
     return (
       <Container>
         <Content>
@@ -76,26 +100,10 @@ export default class SplashScreen extends Scene {
               </Row>
               <Row style={[style.trustedPartnersRow]}>
                 <Col>
-                  <TouchableNativeFeedback
-                    background={TouchableNativeFeedback.Ripple(Palette.consentGrayLight, true)}
-                    onPress={() => this.navigator.push(Routes.camera.qrCodeScanner)}
-                    delayPressIn={0}
-                  >
-                    <View style={style.buttonView} >
-                      <Text style={[style.buttonText]}>Scan</Text>
-                    </View>
-                  </TouchableNativeFeedback>
+                  {scan}
                 </Col>
                 <Col>
-                  <TouchableNativeFeedback
-                    background={TouchableNativeFeedback.Ripple(Palette.consentGrayLight, true)}
-                    onPress={() => this.navigator.push(Routes.onboarding.register)}
-                    delayPressIn={0}
-                  >
-                    <View style={style.buttonView} >
-                      <Text style={[style.buttonText]}>Let's start</Text>
-                    </View>
-                  </TouchableNativeFeedback>
+                  {start}
                 </Col>
               </Row>
             </Col>
@@ -132,7 +140,7 @@ const style = StyleSheet.create({
     flex: 6,
     alignItems: 'center',
     justifyContent: 'center',
-    fontSize: 16
+    // fontSize: 16
   },
   buttonView: {
     flex: 1,
