@@ -39,8 +39,8 @@ export default class EventTimeline extends Component {
       <ScrollView
         ref={scrollView => {this._scrollView = scrollView}}
         style={{ flex: 1, backgroundColor: 'red' }}>
-        { this.state.events.map((x) =>
-          <EventTimelineItem text={x.text} time={x.time}/>
+        { this.state.events.map((x, i) =>
+          <EventTimelineItem key={i} text={x.text} time={x.time}/>
         )}
       </ScrollView>
     )
