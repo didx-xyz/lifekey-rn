@@ -61,7 +61,7 @@ export default class SplashScreen extends Scene {
               </Row>
               <Row style={[style.secondRow]}>
                 <Row style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-                  <View style={{ flex: 1, padding: 20, paddingTop: 40, paddingBotom: 40 }}>
+                  <View style={{ flex: 1, padding: 20, paddingTop: 40, paddingBottom: 40 }}>
                     <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 2 }}>
                       <Text style={{ fontSize: 20, textAlign: 'center' }}>Securely store and verify personal information.</Text>
                     </View>
