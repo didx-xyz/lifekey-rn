@@ -11,19 +11,27 @@ import {
   Text,
 } from 'react-native'
 
+import Palette from '../Palette'
+
+import moment from 'moment'
+
 export default class EventTimelineItem extends Component {
   constructor(props) {
     super(props)
   }
 
+  _fromNow() {
+    return moment(new Date()).fromNow()
+  }
+
   render() {
     return (
-      <View style={{ flex: 1, flexDirection: 'column', backgroundColor: 'green' }}>
+      <View style={{ flex: 1, flexDirection: 'column', marginTop: 5 }}>
         <View>
           <Text>{this.props.text}</Text>
         </View>
         <View>
-          <Text>{this.props.time}</Text>
+          <Text style={{ color: Palette.consentGrayDark, fontSize: 10 }}>{this._fromNow()}</Text>
         </View>
       </View>
     )

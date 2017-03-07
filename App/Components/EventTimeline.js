@@ -22,15 +22,16 @@ export default class EventTimeline extends Component {
 
   }
 
-  pushEvent(event) {
-    if (! (typeof event === 'object')) {
-      throw 'Event must be an object'
-    }
-    // this._scrollView.scrollToEnd({ animated: true }) NOT AVAILABLE IN 0.40
+  pushEvent(text) {
     let events = this.state.events
-    events.push(event)
+    events.push(text)
     this.setState({
       events: events
+    }, () => {
+      setTimeout(() => {
+        // Prevent this happening too early
+        this._scrollView.scrollToEnd({ animated: true })
+      }, 0)
     })
   }
 
@@ -38,9 +39,9 @@ export default class EventTimeline extends Component {
     return (
       <ScrollView
         ref={scrollView => {this._scrollView = scrollView}}
-        style={{ flex: 1, backgroundColor: 'red' }}>
-        { this.state.events.map((x, i) =>
-          <EventTimelineItem key={i} text={x.text} time={x.time}/>
+        style={{ flex: 1 }}>
+        { this.state.events.map((text, i) =>
+          <EventTimelineItem key={i} text={text}/>
         )}
       </ScrollView>
     )

@@ -26,7 +26,6 @@ import {
 import AndroidBackButton from 'react-native-android-back-button'
 import OnboardingTextInput from '../../Components/OnboardingTextInput'
 import EventTimeline from '../../Components/EventTimeline'
-import moment from 'moment'
 
 import Touchable from '../../Components/Touchable'
 
@@ -36,11 +35,6 @@ export default class Register extends Scene {
     super(props)
     this.i = 0
     this.state = {
-      events: [
-        { text: 'Something', time: Date.now() },
-        { text: 'Username saved as: Jacques', time: Date.now() },
-        { text: 'Magic link sent to', time: moment().format() },
-      ]
     }
   }
 
@@ -68,10 +62,7 @@ export default class Register extends Scene {
   }
 
   _pushTimelineEvent() {
-    this._eventTimeline.pushEvent({
-      text: 'Event text ' + this.i,
-      time: 'test'
-    })
+    this._eventTimeline.pushEvent("Event text " + this.i)
     this.i++
   }
 
@@ -88,11 +79,11 @@ export default class Register extends Scene {
                   ref={(eventTimeline) => this._eventTimeline = eventTimeline}
                 />
               </Row>
-              <Row style={{ paddingRight: 100, flex: 11, flexDirection: 'column', justifyContent: 'flex-end' }}>
+              <Row style={{ flex: 11, flexDirection: 'column', justifyContent: 'flex-end' }}>
                 <Text style={{ fontSize: 38 }}>Create your username</Text>
               </Row>
-              <Row style={{ flex: 2, paddingTop: 25, paddingRight: 90 }}>
-                <Text style={{ fontSize: 18 }}>Don't worry, you can change this at any time.</Text>
+              <Row style={{ flex: 2, paddingTop: 20 }}>
+                <Text style={{ fontSize: 18 }}>Don't worry, you can change this{'\n'}at any time.</Text>
               </Row>
               <Row style= {{ flex: 8, alignItems: 'center' }}>
                 <OnboardingTextInput/>
