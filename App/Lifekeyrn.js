@@ -31,8 +31,9 @@ const LANDSCAPE = 1
 
 export default class Lifekeyrn extends Component {
 
-  constructor(props) {
-    super(props)
+  constructor(...params) {
+    super(...params)
+
     Logger.info('Booting ReactNative ' + Config.appName + ' ' + Config.version, this._fileName)
 
     // Members
@@ -47,23 +48,27 @@ export default class Lifekeyrn extends Component {
     }
 
     // Events
-    DeviceEventEmitter.addListener('messageReceived', (e) => this._nativeEventMessageReceived(e))
-    DeviceEventEmitter.addListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
+    if (Platform.OS === "android") {
+        DeviceEventEmitter.addListener('messageReceived', (e) => this._nativeEventMessageReceived(e))
+        DeviceEventEmitter.addListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
 
-    // Check for keystore
-    Crypto.getKeyStoreList()
-    .then(list => {
-      if (list.find(x => x === Config.keyStoreName)) {
-        Logger.info('Keystore detected', this._fileName)
-        Session.update({ keyStoreExists: true })
-      } else {
-        Logger.info('No keystore detected', this._fileName)
-        Session.update({ keyStoreExists: false })
-      }
-    })
-    .catch(error => {
-      Logger.error(error, this._fileName)
-    })
+        // Check for keystore
+        Crypto.getKeyStoreList()
+        .then(list => {
+          if (list.find(x => x === Config.keyStoreName)) {
+            Logger.info('Keystore detected', this._fileName)
+            Session.update({ keyStoreExists: true })
+          } else {
+            Logger.info('No keystore detected', this._fileName)
+            Session.update({ keyStoreExists: false })
+          }
+        })
+        .catch(error => {
+          Logger.error(error, this._fileName)
+        })
+    } else {
+      Session.update({ keyStoreExists: false })
+    }
 
     // Load Firebase token from storage
     Storage.load(Config.storage.dbKey)

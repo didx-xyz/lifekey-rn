@@ -13,8 +13,7 @@ import {
   View,
   StyleSheet,
   Dimensions,
-  StatusBar,
-  TouchableNativeFeedback
+  StatusBar
 } from 'react-native'
 
 import {
@@ -28,6 +27,9 @@ import AndroidBackButton from 'react-native-android-back-button'
 import OnboardingTextInput from '../../Components/OnboardingTextInput'
 import EventTimeline from '../../Components/EventTimeline'
 import moment from 'moment'
+
+import Touchable from '../../Components/Touchable'
+
 export default class Register extends Scene {
 
   constructor(props) {
@@ -101,15 +103,13 @@ export default class Register extends Scene {
                     <Text>Help</Text>
                   </View>
                   <View>
-                    <TouchableNativeFeedback
+                    <Touchable
                       onPress={() => this._pushTimelineEvent()}
-                      background={TouchableNativeFeedback.Ripple(Palette.consentGrayLight, true)}
-                      delayPressIn={0}
                     >
                       <View style={{ paddingTop: 20, paddingBottom: 20 }}>
                         <Text style={{ fontSize: 20 }}>I already have a key</Text>
                       </View>
-                    </TouchableNativeFeedback>
+                    </Touchable>
                   </View>
                 </View>
               </Row>
