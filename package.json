@@ -26,6 +26,7 @@
     "react-native-dialogs": "0.0.19",
     "react-native-google-analytics-bridge": "^5.0.0",
     "react-native-qrcode": "^0.2.3",
+    "react-native-svg": "^5.1.5",
     "react-native-vector-icons": "^4.0.0",
     "tcomb-form-native": "^0.6.4"
   },
