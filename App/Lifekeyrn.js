@@ -248,10 +248,8 @@ export default class Lifekeyrn extends Component {
     }
   }
 
-  componentWillUpdate() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._fileName, Lifecycle.COMPONENT_WILL_UPDATE)
-    }
+  componentWillUpdate(nextProps, nextState) {
+    Logger.react(this._fileName, Lifecycle.COMPONENT_WILL_UPDATE)
   }
 
   componentDidUpdate() {

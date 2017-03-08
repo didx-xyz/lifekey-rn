@@ -9,6 +9,7 @@ import React from 'react'
 import Scene from '../../Scene'
 import Palette from '../../Palette'
 import Session from '../../Session'
+import Logger from '../../Logger'
 import {
   Text,
   View,
@@ -60,6 +61,14 @@ export default class Register extends Scene {
 
   }
 
+  componentWillUpdate(nextProps, nextState) {
+    Logger.info(JSON.stringify(nextState), this._fileName )
+  }
+
+  componentWillReceiveProps(props) {
+    console.log(props)
+  }
+
   _hardwareBackHandler() {
     this.navigator.pop()
     return true
@@ -75,24 +84,34 @@ export default class Register extends Scene {
     if (this.state.username) {
       setTimeout(() => {
         this._eventTimeline.pushEvent('Username saved as: ' + this.state.username)
-        this.setState({ username: '' })
+        if (this.state.username !== '') {
+          this.setState({ username: '' })
+        }
       }, 300)
     } else {
       alert('Please enter something')
     }
+  }
 
+  _startShouldSetResponder(who) {
+    console.log('startShouldSetResponder', who)
+  }
+
+  _tapAway() {
+    Keyboard.dismiss()
+    console.log('dismiss')
   }
 
 
   render() {
 
     return (
-      <Container>
-        <Content keyboardShouldPersistTaps="always">
+      <Container onStartShouldSetResponder={() => this._startShouldSetResponder('container')}>
+        <Content onStartShouldSetResponder={() => this._startShouldSetResponder('content')} keyboardShouldPersistTaps="always" onResponderGrant={(e) => console.log(e)}>
           <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
-          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
-            <Grid>
-              <Col style={{ flex: 1, paddingLeft: 35, paddingRight: 35, height: Dimensions.get('window').height }}>
+          <TouchableWithoutFeedback onPress={() => this._tapAway()} onStartShouldSetResponder={() => this._startShouldSetResponder('twf')}>
+            <Grid onStartShouldSetResponder={() => this._startShouldSetResponder('grid')} onResponderGrant={(e) => console.log(e)}>
+              <Col onStartShouldSetResponder={() => this._startShouldSetResponder('col')} style={{ flex: 1, paddingLeft: 35, paddingRight: 35, height: Dimensions.get('window').height }}>
                 <Row style={{ flex: 2, flexDirection: 'column' }}>
                   <EventTimeline
                     ref={(eventTimeline) => this._eventTimeline = eventTimeline}
@@ -104,7 +123,7 @@ export default class Register extends Scene {
                 <Row style={{ flex: 2, paddingTop: 20 }}>
                   <Text style={{ fontSize: 18 }}>Don't worry, you can change this{'\n'}at any time.</Text>
                 </Row>
-                <Row style= {{ flex: 8, alignItems: 'center' }}>
+                <Row onStartShouldSetResponder={() => this._startShouldSetResponder('row')} style= {{ flex: 8, alignItems: 'center' }}>
                   <OnboardingTextInput
                     onChangeText={(text) => this.setState({ username: text })}
                     value={this.state.username}

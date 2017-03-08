@@ -57,13 +57,16 @@ export default class OnboardingTextInput extends Component {
     this.setState({ underlineColor: color })
 
   }
-
+  _startShouldSetResponder(who) {
+    console.log('startShouldSetResponder', who)
+  }
   render() {
     const platformInputStyle = Platform.OS === 'android'
                              ? {} // android
                              : { borderBottomWidth: 1, borderColor: this.state.underlineColor } // ios
     return (
       <View
+        onStartShouldSetResponder={() => this._startShouldSetResponder('OnboardingTextInput')}
         style={[style.wrappingView, platformInputStyle, {
         flex: 1,
         flexDirection: 'row',
@@ -82,9 +85,9 @@ export default class OnboardingTextInput extends Component {
           onSubmitEditing={() => { alert('done editing') }}
           returnKeyValue="done"
         />
-        <Animated.View style={{ alignItems: 'center', justifyContent: 'center', opacity: this.state.fadeAnim }} >
-          <View style={{ width: 50, height: 50 }}>
-            <Svg height="100" width="100">
+        <Animated.View onStartShouldSetResponder={() => this._startShouldSetResponder('Animated.View')} style={{ alignItems: 'center', justifyContent: 'center', opacity: this.state.fadeAnim, backgroundColor: 'red' }} >
+          <View onStartShouldSetResponder={() => true} style={{ width: 50, height: 50 }}>
+            <Svg onResponderGrant={() => setTimeout(() => this.props.onPress(), 200)} onStartShouldSetResponder={() => true} height="100" width="100">
               <Path
                 d="M30,0C13.4 0 0 13.4 0 30c0 16.6 13.4 30 30 30c16.6 0 30-13.4 30-30C60 13.4 46.6 0 30 0z M39.8 30.4 L25.6 44.6c-0.2 0.2-0.5 0.3-0.7 0.3s-0.5-0.1-0.7-0.3c-0.4-0.4-0.4-1 0-1.4l13.5-13.5l-13-13c-0.4-0.4-0.4-1 0-1.4 c0.4-0.4 1-0.4 1.4 0L39.8 29C40.2 29.4 40.2 30.1 39.8 30.4z"
                 fill={ Palette.consentBlue }
