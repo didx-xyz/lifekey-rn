@@ -183,9 +183,9 @@ export default class Lifekeyrn extends Component {
       Session.update({firebaseToken: token}),
       Storage.store(Config.storage.dbKey, {firebaseToken: token})
     ]).then(_ => {
-      console.log('STORED NEW FIREBASE TOKEN')
+      Logger.firebase('STORED NEW FIREBASE TOKEN', this._fileName)
     }).catch(err => {
-      console.log('FIREBASE TOKEN REFRESH ERROR', err)
+      Logger.firebase(err, this._fileName)
     })
 
     const state = Session.getState()
@@ -237,15 +237,11 @@ export default class Lifekeyrn extends Component {
   }
 
   componentDidMount() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._fileName, Lifecycle.COMPONENT_DID_MOUNT)
-    }
+    Logger.react(this._fileName, Lifecycle.COMPONENT_DID_MOUNT)
   }
 
   componentWillReceiveProps() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._fileName, Lifecycle.COMPONENT_WILL_RECEIEVE_PROPS)
-    }
+    Logger.react(this._fileName, Lifecycle.COMPONENT_WILL_RECEIEVE_PROPS)
   }
 
   componentWillUpdate(nextProps, nextState) {
@@ -253,15 +249,11 @@ export default class Lifekeyrn extends Component {
   }
 
   componentDidUpdate() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._fileName, Lifecycle.COMPONENT_DID_UPDATE)
-    }
+    Logger.react(this._fileName, Lifecycle.COMPONENT_DID_UPDATE)
   }
 
   componentWillUnmount() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._fileName, Lifecycle.COMPONENT_WILL_UNMOUNT)
-    }
+    Logger.react(this._fileName, Lifecycle.COMPONENT_WILL_UNMOUNT)
 
     // Remove event listeners
     DeviceEventEmitter.removeListener('messageReceived', (e) => this._nativeEventMessageReceived(e))
