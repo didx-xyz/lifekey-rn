@@ -37,8 +37,8 @@ export default class Lifekeyrn extends Component {
     Logger.info('Booting ReactNative ' + Config.appName + ' ' + Config.version, this._fileName)
 
     // Members
-    this._fileName = 'index.android.js'
     this._className = this.constructor.name
+    this._fileName = this._className + '.js'
     this._initialRoute = Config.initialRoute
     this._navigationEventEmitter = new EventEmitter()
     this.state = {
@@ -284,12 +284,12 @@ export default class Lifekeyrn extends Component {
       orientation: width > height ? LANDSCAPE : PORTRAIT
     })
     Logger.info("onLayout " + width + " " + height + " " + (width > height ? LANDSCAPE : PORTRAIT), this._fileName)
-    // this.forceUpdate()
   }
 
   render() {
     return (
         <Navigator
+          onLayout={(event) => this._onLayout(event)}
           initialRoute={this._initialRoute}
           onWillFocus={(route) => this.onWillFocus(route)}
           onDidFocus={(route) => this.onDidFocus(route)}
@@ -300,7 +300,7 @@ export default class Lifekeyrn extends Component {
               console.log("--- END ROUTES STACK ---")
             }
             return (
-              <View onLayout={(event) => this._onLayout(event)} style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}>
+              <View style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}>
                 <View style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}>
                   {React.createElement(
                     route.scene,
