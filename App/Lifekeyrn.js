@@ -33,9 +33,6 @@ export default class Lifekeyrn extends Component {
 
   constructor(...params) {
     super(...params)
-
-    Logger.info('Booting ReactNative ' + Config.appName + ' ' + Config.version, this._fileName)
-
     // Members
     this._className = this.constructor.name
     this._fileName = this._className + '.js'
@@ -46,6 +43,7 @@ export default class Lifekeyrn extends Component {
       viewableScreenWidth: null,
       viewableScreenHeight: null
     }
+    Logger.info('Booting ReactNative ' + Config.appName + ' ' + Config.version, this._fileName)
 
     // Events
     if (Platform.OS === "android") {
@@ -79,9 +77,7 @@ export default class Lifekeyrn extends Component {
       } else {
         Session.update({ firebaseToken: storage.firebaseToken })
       }
-
       return Storage.store(Config.storage.dbKey, Session.getState())
-
     })
     .catch(error => {
       Logger.error(error, this._fileName)
@@ -106,8 +102,8 @@ export default class Lifekeyrn extends Component {
 
     if (msg.data.type === 'received_did') {
       Promise.all([
-        Session.update({dbDid: msg.data.did_value}),
-        Storage.store(Config.storage.dbKey, {dbDid: msg.data.did_value})
+        Session.update({ dbDid: msg.data.did_value }),
+        Storage.store(Config.storage.dbKey, { dbDid: msg.data.did_value })
       ]).catch((err) => {
         Logger.error('could not persist did value from server', this._fileName)
       })

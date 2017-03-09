@@ -50,51 +50,55 @@ export default class OnboardingTextInputAndroid extends Component {
     })
   }
 
-  _changeUnderlineColor(e, color) {
-    this.setState({ underlineColor: color })
-  }
-
-  _toggleState(color, buttonVisible) {
-    this.setState({ underlineColor: color })
-
-  }
-
   render() {
-    const platformInputStyle = Platform.OS === 'android'
-                             ? {} // android
-                             : { borderBottomWidth: 1, borderColor: this.state.underlineColor } // ios
     return (
       <View
-        onStartShouldSetResponder={() => this._startShouldSetResponder('OnboardingTextInput')}
-        style={[style.wrappingView, platformInputStyle, {
-        flex: 1,
-        flexDirection: 'row',
-        justifyContent: 'flex-end'
-      }]}>
-        <TextInput
-          ref={input => {this._input = input }}
-          onFocus={() => this._focus()}
-          onBlur={() => this._blur()}
-          onChangeText={text => this.props.onChangeText(text)}
-          value={this.props.value}
-          style={[{ flex: 1, fontSize: 30 }]}
-          underlineColorAndroid={ this.state.underlineColor }
-          scrollEnabled={false}
-          onSubmitEditing={() => { alert('done editing') }}
-          returnKeyValue="done"
-        />
-        <TouchableWithoutFeedback style={{ flex: 1, width: 50, height: 50, backgroundColor: 'green' }} onPress={() => alert('touchable works')}>
-          <Animated.View style={{ alignItems: 'center', justifyContent: 'center', opacity: this.state.fadeAnim }} >
-            <View onStartShouldSetResponder={() => true} style={{ width: 50, height: 50 }}>
-              <Svg  height="100" width="100">
+        style={[style.wrappingView, {
+          flex: 1,
+          flexDirection: 'row',
+          justifyContent: 'flex-end',
+          borderBottomWidth: 1,
+          borderBottomColor: this.state.underlineColor
+        }]}>
+        <View style={{ flex: 6 }}>
+          <TextInput
+            ref={input => {this._input = input }}
+            onFocus={() => this._focus()}
+            onBlur={() => this._blur()}
+            onChangeText={text => this.props.onChangeText(text)}
+            value={this.props.value}
+            style={[{
+              flex: 1,
+              fontSize: 30,
+
+            }]}
+            underlineColorAndroid="transparent"
+            scrollEnabled={false}
+            onSubmitEditing={() => this.props.onSubmit()}
+            returnKeyValue="done"
+          />
+        </View>
+        <TouchableWithoutFeedback style={{ width: 50, height: 50, backgroundColor: 'green' }} onPress={() => this.props.onSubmit()}>
+          <Animated.View style={{
+            flex: 1,
+            width: 100,
+            height: 100,
+            alignItems: 'center',
+            justifyContent: 'center',
+            opacity: this.state.fadeAnim
+          }} >
+              <Svg style={{
+                marginLeft: 50, // or it will only draw half,
+                marginTop: 25,
+                width: 100,
+                height: 100
+              }} height="100" width="100">
                 <Path
                   d="M30,0C13.4 0 0 13.4 0 30c0 16.6 13.4 30 30 30c16.6 0 30-13.4 30-30C60 13.4 46.6 0 30 0z M39.8 30.4 L25.6 44.6c-0.2 0.2-0.5 0.3-0.7 0.3s-0.5-0.1-0.7-0.3c-0.4-0.4-0.4-1 0-1.4l13.5-13.5l-13-13c-0.4-0.4-0.4-1 0-1.4 c0.4-0.4 1-0.4 1.4 0L39.8 29C40.2 29.4 40.2 30.1 39.8 30.4z"
                   fill={ Palette.consentBlue }
                   scale={0.7}
-                  onPress={this.props.onPress}
                 />
               </Svg>
-            </View>
           </Animated.View>
         </TouchableWithoutFeedback>
       </View>

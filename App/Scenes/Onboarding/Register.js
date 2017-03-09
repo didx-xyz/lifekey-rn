@@ -33,6 +33,7 @@ import OnboardingTextInputAndroid from '../../Components/OnboardingTextInputAndr
 import EventTimeline from '../../Components/EventTimeline'
 
 import Touchable from '../../Components/Touchable'
+import DialogAndroid from 'react-native-dialogs'
 
 export default class Register extends Scene {
 
@@ -66,9 +67,9 @@ export default class Register extends Scene {
     Logger.info(JSON.stringify(nextState), this._fileName )
   }
 
-  componentWillReceiveProps(props) {
-    console.log(props)
-  }
+  // componentWillReceiveProps(props) {
+  //   console.log(props)
+  // }
 
   _hardwareBackHandler() {
     this.navigator.pop()
@@ -81,16 +82,32 @@ export default class Register extends Scene {
   }
 
   _submitUsername() {
+    // Close keyboard
     Keyboard.dismiss()
+
     if (this.state.username) {
+      // If the user entered a username
+      // give the keyboard enough time to close
       setTimeout(() => {
+        // Push the event to the timeline
         this._eventTimeline.pushEvent('Username saved as: ' + this.state.username)
-        if (this.state.username !== '') {
-          this.setState({ username: '' })
-        }
+        // Clear the username
+        this.setState({ username: '' })
       }, 300)
     } else {
-      alert('Please enter something')
+      // Otherwise inform them
+      if (Platform.OS === 'android') {
+        const dialog = new DialogAndroid()
+        dialog.set({
+          title: 'Username can\'t be empty!',
+          content: 'You must enter a username to uniquely identify yourself on the network.',
+          positiveText: 'OK'
+        })
+        dialog.show()
+      } else {
+        // iOS
+        alert('TODO')
+      }
     }
   }
 
@@ -105,7 +122,7 @@ export default class Register extends Scene {
       <Container>
         <Content keyboardShouldPersistTaps="always">
           <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
-          <TouchableWithoutFeedback onPress={() => this._tapAway()} onStartShouldSetResponder={() => this._startShouldSetResponder('twf')}>
+          <TouchableWithoutFeedback onPress={() => this._tapAway()}>
             <Grid>
               <Col style={{ flex: 1, paddingLeft: 35, paddingRight: 35, height: Dimensions.get('window').height }}>
                 <Row style={{ flex: 2, flexDirection: 'column' }}>
@@ -125,7 +142,7 @@ export default class Register extends Scene {
                       onChangeText={(text) => this.setState({ username: text })}
                       value={this.state.username}
                       ref={oti => { this._oti = oti }}
-                      onPress={() => this._submitUsername()}
+                      onSubmit={() => this._submitUsername()}
                     /> :
                     null
                   }

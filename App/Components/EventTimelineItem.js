@@ -21,7 +21,7 @@ export default class EventTimelineItem extends Component {
   }
 
   _fromNow() {
-    return moment(new Date()).fromNow()
+    return moment(this.props.timestamp).fromNow()
   }
 
   render() {
