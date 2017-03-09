@@ -17,7 +17,8 @@ import {
   Dimensions,
   StatusBar,
   TouchableWithoutFeedback,
-  Keyboard
+  Keyboard,
+  Platform
 } from 'react-native'
 
 import {
@@ -28,7 +29,7 @@ import {
   Col
 } from 'native-base'
 import AndroidBackButton from 'react-native-android-back-button'
-import OnboardingTextInput from '../../Components/OnboardingTextInput'
+import OnboardingTextInputAndroid from '../../Components/OnboardingTextInputAndroid'
 import EventTimeline from '../../Components/EventTimeline'
 
 import Touchable from '../../Components/Touchable'
@@ -93,25 +94,20 @@ export default class Register extends Scene {
     }
   }
 
-  _startShouldSetResponder(who) {
-    console.log('startShouldSetResponder', who)
-  }
-
   _tapAway() {
     Keyboard.dismiss()
-    console.log('dismiss')
   }
 
 
   render() {
 
     return (
-      <Container onStartShouldSetResponder={() => this._startShouldSetResponder('container')}>
-        <Content onStartShouldSetResponder={() => this._startShouldSetResponder('content')} keyboardShouldPersistTaps="always" onResponderGrant={(e) => console.log(e)}>
+      <Container>
+        <Content keyboardShouldPersistTaps="always">
           <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
           <TouchableWithoutFeedback onPress={() => this._tapAway()} onStartShouldSetResponder={() => this._startShouldSetResponder('twf')}>
-            <Grid onStartShouldSetResponder={() => this._startShouldSetResponder('grid')} onResponderGrant={(e) => console.log(e)}>
-              <Col onStartShouldSetResponder={() => this._startShouldSetResponder('col')} style={{ flex: 1, paddingLeft: 35, paddingRight: 35, height: Dimensions.get('window').height }}>
+            <Grid>
+              <Col style={{ flex: 1, paddingLeft: 35, paddingRight: 35, height: Dimensions.get('window').height }}>
                 <Row style={{ flex: 2, flexDirection: 'column' }}>
                   <EventTimeline
                     ref={(eventTimeline) => this._eventTimeline = eventTimeline}
@@ -124,12 +120,15 @@ export default class Register extends Scene {
                   <Text style={{ fontSize: 18 }}>Don't worry, you can change this{'\n'}at any time.</Text>
                 </Row>
                 <Row onStartShouldSetResponder={() => this._startShouldSetResponder('row')} style= {{ flex: 8, alignItems: 'center' }}>
-                  <OnboardingTextInput
-                    onChangeText={(text) => this.setState({ username: text })}
-                    value={this.state.username}
-                    ref={oti => { this._oti = oti }}
-                    onPress={() => this._submitUsername()}
-                  />
+                  { Platform.OS === 'android' ?
+                    <OnboardingTextInputAndroid
+                      onChangeText={(text) => this.setState({ username: text })}
+                      value={this.state.username}
+                      ref={oti => { this._oti = oti }}
+                      onPress={() => this._submitUsername()}
+                    /> :
+                    null
+                  }
                 </Row>
                 <Row style= {{ flex: 4, flexDirection: 'column', justifyContent: 'center' }}>
                   <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
