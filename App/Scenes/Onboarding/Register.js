@@ -8,8 +8,7 @@
 import React from 'react'
 import Scene from '../../Scene'
 import Palette from '../../Palette'
-import Session from '../../Session'
-import Logger from '../../Logger'
+
 import {
   Text,
   View,
@@ -44,11 +43,30 @@ export default class Register extends Scene {
   constructor(props) {
     super(props)
     this.i = 0
+    this._steps = [
+      {
+        largeText: 'Create your username',
+        smallText: 'Don\'t worry you can change this at any time',
+        bottomRightButton: 'I already have a key'
+      },
+      {
+        largeText: 'Please enter your personal email address',
+        smallText: 'To set up or recover your key',
+        bottomRightButton: null
+      },
+      {
+        largeText: 'Check your mail for a magic link',
+        smallText: 'The link will be valid for 24 hours',
+        bottomRightButton: 'Resend link'
+      }
+    ]
     this.state = {
+      step: 0, // The beginning
       textInputValue: '',
-      largeText: 'Create your username',
-      smallText: 'Don\'t  worry you can change this at any time',
-      step: 0,
+      username: null,
+      email: null,
+      largeText: this._steps[0].largeText,
+      smallText: this._steps[0].smallText,
       moveTransitionValue: new Animated.Value(160),
       fadeTransitionValue: new Animated.Value(1)
     }
@@ -56,10 +74,6 @@ export default class Register extends Scene {
 
   _onAttention() {
     StatusBar.setHidden(true)
-  }
-
-  _stepTo(step) {
-
   }
 
   componentWillMount() {
@@ -84,14 +98,14 @@ export default class Register extends Scene {
 
   _changeTexts(largeText, smallText) {
     //  Move
-    Animated.timing(                    // Uses easing functions
-      this.state.moveTransitionValue,   // The value to drive]
-      { toValue: 0 }            // Configuration
+    Animated.timing(
+      this.state.moveTransitionValue,
+      { toValue: 0 }
     ).start()
     // Fade
-    Animated.timing(          // Uses easing functions
-      this.state.fadeTransitionValue,    // The value to drive
-      { toValue: 0}            // Configuration
+    Animated.timing(
+      this.state.fadeTransitionValue,
+      { toValue: 0 }
     ).start()
     InteractionManager.runAfterInteractions(() => {
       this.setState({
@@ -106,105 +120,98 @@ export default class Register extends Scene {
         ).start()
         // Fade
         Animated.timing(
-          this.state.fadeTransitionValue,    // The value to drive
-          { toValue: 1}            // Configuration
+          this.state.fadeTransitionValue,
+          { toValue: 1 }
         ).start()
       })
     })
   }
-  _submitUsername() {
-    // Close keyboard
-    Keyboard.dismiss()
 
-    if (this.state.textInputValue) {
-      // If the user entered a username
-      // give the keyboard enough time to close
-      setTimeout(() => {
-        // Push the event to the timeline
-        this._eventTimeline.pushEvent('Username saved as: ' + this.state.textInputValue)
-        // Clear the username
-        this._changeTexts('Please enter your personal email address', 'To set up or recover your key')
-      }, 300)
-    } else {
-      // Otherwise inform them
-      if (Platform.OS === 'android') {
-        const dialog = new DialogAndroid()
-        dialog.set({
-          title: 'Username can\'t be empty!',
-          content: 'You must enter a username to uniquely identify yourself on the network.',
-          positiveText: 'OK'
+  _submitText(text) {
+    switch (this.state.step) {
+
+    // username -> email
+    case 0:
+      // If a username was entered
+      if (text) {
+
+        Keyboard.dismiss()
+
+        // Give the keyboard time to close
+        setTimeout(() => {
+          this._eventTimeline.pushEvent(`Username saved as: ${text}`)
+          this._changeTexts(this._steps[1].largeText, this._steps[1].smallText)
+        }, 300)
+
+        // Update state to reflect we are on the 2nd step now
+        this.setState({
+          step: 1,
+          username: text
+        }, () => {
+          // Clear TextInput value
+          this.setState({
+            textInputValue: ''
+          })
         })
-        dialog.show()
       } else {
-        // iOS
-        alert('TODO')
+        // Tell the user they must enter something
+        if (Platform.OS === 'android') {
+          const dialog = new DialogAndroid()
+          dialog.set({
+            title: 'Username can\'t be empty!',
+            content: 'You must enter a username to uniquely identify yourself on the network.',
+            positiveText: 'OK'
+          })
+          dialog.show()
+        } else {
+          // iOS
+          alert('TODO')
+        }
       }
+      break
+
+
+    // email -> magic link
+    case 1:
+      if (text) {
+
+        Keyboard.dismiss()
+
+        setTimeout(() => {
+          this._eventTimeline.pushEvent(`Email saved as: ${text}`)
+          this._changeTexts(this._steps[2].largeText, this._steps[2].smallText)
+        }, 300)
+
+        // Update the state to show we are on the 3rd step
+        this.setState({
+          step: 2,
+          email: text
+        }, () => {
+          this.setState({
+            textInputValue: ''
+          })
+        })
+
+      } else {
+        // Tell the user they must enter something
+        if (Platform.OS === 'android') {
+          const dialog = new DialogAndroid()
+          dialog.set({
+            title: 'Username can\'t be empty!',
+            content: 'You must enter a username to uniquely identify yourself on the network.',
+            positiveText: 'OK'
+          })
+          dialog.show()
+        } else {
+          // iOS
+          alert('TODO')
+        }
+      }
+      break
+    // Magic link
+    case 2:
+      break
     }
-  }
-
-  _tapAway() {
-    Keyboard.dismiss()
-  }
-
-  _renderUsernameStepCenterContent() {
-    return (
-      <Row style={{ flex: 13, flexDirection: 'column' }}>
-
-        { /* LARGE TEXT */ }
-        <Row style={style.largeTextRow}>
-          <Animated.View style= {{
-            flex: 1,
-            opacity: this.state.fadeTransitionValue,
-            marginTop: this.state.moveTransitionValue
-          }}>
-            <Text style={{ fontSize: 38 }}>{this.state.largeText}</Text>
-          </Animated.View>
-        </Row>
-
-        { /* SMALL TEXT */ }
-        <Row style={[style.smallTextRow]}>
-          <Animated.View style={{
-            opacity: this.state.fadeTransitionValue,
-            flex: 1
-          }}>
-            <Text style={{ fontSize: 18 }}>{this.state.smallText}</Text>
-          </Animated.View>
-        </Row>
-
-        { /* TEXT INPUT */}
-        <Row style= {[style.textInputRow]}>
-          { Platform.OS === 'android' ?
-            <OnboardingTextInputAndroid
-              onChangeText={(text) => this.setState({ textInputValue: text })}
-              value={this.state.textInputValue}
-              ref={oti => { this._oti = oti }}
-              onSubmit={() => this._submitUsername()}
-            /> : null }
-        </Row>
-
-      </Row>
-    )
-  }
-
-  _renderUsernameStepBottomContent() {
-    return (
-      <Row style= {style.bottomContentRow}>
-        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-          <View>
-            <Text>Help</Text>
-          </View>
-          <View>
-            <Touchable
-              onPress={() => this._pushTimelineEvent()}
-            >
-              <View style={{ paddingTop: 20, paddingBottom: 20 }}>
-                <Text style={{ fontSize: 20 }}>I already have a key</Text>
-              </View>
-            </Touchable>
-          </View>
-        </View>
-      </Row>
-    )
   }
 
   render() {
@@ -213,7 +220,7 @@ export default class Register extends Scene {
       <Container>
         <Content keyboardShouldPersistTaps="always">
           <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
-          <TouchableWithoutFeedback onPress={() => this._tapAway()}>
+          <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <Grid>
               <Col style={[style.sceneColumn, { height: Dimensions.get('window').height }]}>
                 <Row style={style.timelineRow}>
@@ -221,10 +228,70 @@ export default class Register extends Scene {
                     ref={(eventTimeline) => this._eventTimeline = eventTimeline}
                   />
                 </Row>
+
                 { /* center content */ }
-                { this._renderUsernameStepCenterContent() }
-                { /* bottom content */ }
-                { this._renderUsernameStepBottomContent() }
+                <Row style={{ flex: 13, flexDirection: 'column' }}>
+
+                  { /* LARGE TEXT */ }
+                  <Row style={style.largeTextRow}>
+                    <Animated.View style= {{
+                      flex: 1,
+                      opacity: this.state.fadeTransitionValue,
+                      marginTop: this.state.moveTransitionValue
+                    }}>
+                      <Text style={{ fontSize: 38 }}>{this.state.largeText}</Text>
+                    </Animated.View>
+                  </Row>
+
+                  { /* SMALL TEXT */ }
+                  <Row style={[style.smallTextRow]}>
+                    <Animated.View style={{
+                      opacity: this.state.fadeTransitionValue,
+                      flex: 1
+                    }}>
+                      <Text style={{ fontSize: 18 }}>{this.state.smallText}</Text>
+                    </Animated.View>
+                  </Row>
+
+                  { /* TEXT INPUT */}
+                  <Row style= {[
+                    style.textInputRow,
+                    { backgroundColor: this.state.step <= 1 ? null : Palette.consentGrayLight }
+                  ]}>
+                    { this.state.step <= 1 ?
+                        Platform.OS === 'android' ?
+                          <OnboardingTextInputAndroid
+                            onChangeText={(text) => this.setState({ textInputValue: text })}
+                            value={this.state.textInputValue}
+                            ref={oti => { this._oti = oti }}
+                            onSubmit={() => this._submitText(this.state.textInputValue)}
+                          />
+                        :
+                          // TODO: iOS
+                          null
+                      :
+                        null }
+                  </Row>
+
+                </Row>
+
+                { /* Footer content */ }
+                <Row style= {style.bottomContentRow}>
+                  <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <View>
+                      <Text>Help</Text>
+                    </View>
+                    <View>
+                      <Touchable
+                        onPress={() => this._pushTimelineEvent()}
+                      >
+                        <View style={{ paddingTop: 20, paddingBottom: 20 }}>
+                          <Text style={{ fontSize: 20 }}>I already have a key</Text>
+                        </View>
+                      </Touchable>
+                    </View>
+                  </View>
+                </Row>
 
               </Col>
             </Grid>
@@ -238,34 +305,44 @@ export default class Register extends Scene {
 const style = StyleSheet.create({
   sceneColumn: {
     flex: 1,
-    paddingLeft: 35,
-    paddingRight: 35
+    // paddingLeft: 35,
+    // paddingRight: 35
   },
   textInputRow: {
     flex: 8,
     alignItems: 'center',
-    backgroundColor: DEBUG ? 'blue' : null
+    backgroundColor: DEBUG ? 'blue' : null,
+    paddingLeft: 35,
+    paddingRight: 35
   },
   timelineRow: {
     flex: 2,
     flexDirection: 'column',
-    backgroundColor: DEBUG ? 'green' : null
+    backgroundColor: DEBUG ? 'green' : null,
+    paddingLeft: 35,
+    paddingRight: 35
   },
   bottomContentRow: {
     flex: 4,
     flexDirection: 'column',
     justifyContent: 'center',
-    backgroundColor: DEBUG ? 'red' : null
+    backgroundColor: DEBUG ? 'red' : null,
+    paddingLeft: 35,
+    paddingRight: 35
   },
   smallTextRow: {
     flex: 2,
     marginTop: 5,
-    backgroundColor: DEBUG ? 'orange' : null
+    backgroundColor: DEBUG ? 'orange' : null,
+    paddingLeft: 35,
+    paddingRight: 35
   },
   largeTextRow: {
     flex: 11,
     flexDirection: 'column',
     justifyContent: 'flex-end',
-    backgroundColor: DEBUG ? 'purple' : null
+    backgroundColor: DEBUG ? 'purple' : null,
+    paddingLeft: 35,
+    paddingRight: 35
   }
 })

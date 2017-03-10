@@ -25,8 +25,13 @@ export default class EventTimelineItem extends Component {
   }
 
   componentDidMount() {
+    /* This has to be handled more safely as the timer
+       will continue after the component is unmounted
+       which will lead to a crash
+       https://facebook.github.io/react-native/docs/timers.html
+       */
     setInterval(() => {
-      Logger.info(`Updating timeline item [${this.props.text}]`, this.constructor.name)
+      Logger.info(`Updating timeline item fromNow value ['${this.props.text}']`, this.constructor.name)
       this.setState({
         fromNow: moment(this.props.timestamp).fromNow()
       }, () => {
