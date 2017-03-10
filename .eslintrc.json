@@ -17,6 +17,7 @@
     "globals": {
         "require": false,
         "setTimeout": false,
+        "setInterval": false,
         "jest": false,
         "it": false,
         "expect": false,

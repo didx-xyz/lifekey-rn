@@ -12,12 +12,27 @@ import {
 } from 'react-native'
 
 import Palette from '../Palette'
+import Logger from '../Logger'
 
 import moment from 'moment'
 
 export default class EventTimelineItem extends Component {
   constructor(props) {
     super(props)
+    this.state = {
+      fromNow: moment(props.timestamp).fromNow()
+    }
+  }
+
+  componentDidMount() {
+    setInterval(() => {
+      Logger.info(`Updating timeline item [${this.props.text}]`, this.constructor.name)
+      this.setState({
+        fromNow: moment(this.props.timestamp).fromNow()
+      }, () => {
+        this.forceUpdate()
+      })
+    }, 60000)
   }
 
   _fromNow() {
