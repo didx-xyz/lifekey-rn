@@ -11,6 +11,7 @@ import Session from '../Session'
 import Storage from '../Storage'
 import Crypto from '../Crypto'
 import Config from '../Config'
+import Logger from '../Logger'
 
 import {
   Text,
@@ -119,12 +120,10 @@ export default class DebugBeforeSendConnectionRequest extends Scene {
         nickname: json.body.user.nickname
       }
       users_merge[json.body.user.id] = new_discovered_user
-      return Promise.all([
-          Storage.store(Config.storage.dbKey, {users: users_merge}),
-          Session.update({users: users_merge})
-      ])
-    }).catch(err => {
-      alert(err)
+      Session.update({ users: users_merge })
+      return Storage.store(Config.storage.dbKey, { users: users_merge })
+    }).catch(error => {
+      Logger.error('Could not update users_merge', this._fileName, error)
     })
 
   }

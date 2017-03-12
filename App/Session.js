@@ -22,6 +22,21 @@ export default class Session {
   static getState() {
     return this.state
   }
+
+  /**
+   * Update the current state
+   * @param {Object} data Data to modify or put into the store
+   * @returns {undefined}
+   * @throws {string} Update only accepts objects
+   */
+  static update(data) {
+    if (typeof data === 'object') {
+      this.state = Object.assign(this.state, data)
+    } else {
+      throw 'Update only accepts objects'
+    }
+  }
+
   /**
    * Update the current state
    * @param {Object} data Data to modify or put into the store

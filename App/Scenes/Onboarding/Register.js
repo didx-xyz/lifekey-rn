@@ -67,7 +67,7 @@ export default class Register extends Scene {
       email: null,
       largeText: this._steps[0].largeText,
       smallText: this._steps[0].smallText,
-      moveTransitionValue: new Animated.Value(160),
+      moveTransitionValue: new Animated.Value(props.screenHeight / 6),
       fadeTransitionValue: new Animated.Value(1)
     }
   }
@@ -222,7 +222,7 @@ export default class Register extends Scene {
           <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <Grid>
-              <Col style={[style.sceneColumn, { height: Dimensions.get('window').height }]}>
+              <Col style={[style.sceneColumn, { flex: 1, height: this.props.screenHeight }]}>
                 <Row style={style.timelineRow}>
                   <EventTimeline
                     ref={(eventTimeline) => this._eventTimeline = eventTimeline}

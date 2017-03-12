@@ -1,19 +1,21 @@
+/**
+ * Lifekey App
+ * @copyright 2017 Global Consent Ltd
+ * Civvals, 50 Seymour Street, London, England, W1H 7JG
+ * @author Werner Roets <werner@io.co.za>
+ */
+
 import React, { Component } from 'react'
 import {
-  Text,
   View,
   TextInput,
   StyleSheet,
-  Platform,
-  Image,
-  ScrollView,
   Animated,
   TouchableWithoutFeedback
 } from 'react-native'
 import Palette from '../Palette'
-import Svg, {
-    Path
-} from 'react-native-svg'
+import Svg, { Path } from 'react-native-svg'
+
 export default class OnboardingTextInputAndroid extends Component {
   constructor(props) {
     super(props)

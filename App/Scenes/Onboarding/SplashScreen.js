@@ -9,7 +9,7 @@ import React from 'react'
 import Scene from '../../Scene'
 import Routes from '../../Routes'
 import Palette from '../../Palette'
-
+import Config from '../../Config'
 import Touchable from '../../Components/Touchable'
 
 import {
@@ -17,9 +17,6 @@ import {
   View,
   StyleSheet,
   StatusBar,
-  TouchableNativeFeedback,
-  TouchableWithoutFeedback,
-  Platform
 } from 'react-native'
 
 import {
@@ -29,6 +26,7 @@ import {
   Row,
   Col
 } from 'native-base'
+
 import AndroidBackButton from 'react-native-android-back-button'
 
 export default class SplashScreen extends Scene {
@@ -49,7 +47,6 @@ export default class SplashScreen extends Scene {
   componentWillFocus() {
     super.componentWillFocus()
     this._onAttention()
-
   }
 
   render() {
@@ -80,9 +77,19 @@ export default class SplashScreen extends Scene {
 
           <Grid>
             <Col style={{ flex: 1, height: this.props.screenHeight }}>
-              <Row style={[style.firstRow]}>
-                <Text>Splash Page</Text>
-              </Row>
+              { Config.DEBUG ?
+                <Touchable style={{ flex: 1 }} delayLongPress={500} onLongPress={() => this.navigator.push(Routes.debug)}>
+                  <Row style={[style.firstRow]}>
+                    <Text>Splash Page</Text>
+                  </Row>
+                </Touchable>
+                :
+                <Row style={[style.firstRow]}>
+                  <Text>Splash Page</Text>
+                </Row>
+              }
+
+
               <Row style={[style.secondRow]}>
                 <Row style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
                   <View style={{ flex: 1, padding: 20, paddingTop: 40, paddingBottom: 40 }}>
@@ -95,9 +102,9 @@ export default class SplashScreen extends Scene {
                   </View>
                 </Row>
               </Row>
-              <Row style={[style.thirdRow]}>
-                <Text>Trusted Partner Logos</Text>
-              </Row>
+                <Row style={[style.thirdRow]}>
+                  <Text>Trusted Partner Logos</Text>
+                </Row>
               <Row style={[style.trustedPartnersRow]}>
                 <Col>
                   {scan}

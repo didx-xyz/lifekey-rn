@@ -16,7 +16,6 @@ import Logger from '../Logger'
 
 import {
   Text,
-  StyleSheet,
   View
 } from 'react-native'
 
@@ -25,7 +24,6 @@ import {
   Content,
 } from 'native-base'
 import { Button, Input, H1, H5 } from 'nachos-ui'
-import { NativeModules } from 'react-native'
 import AndroidBackButton from 'react-native-android-back-button'
 
 export default class Debug extends Scene {
@@ -86,7 +84,7 @@ export default class Debug extends Scene {
         <Content>
           <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
           <View style={{ alignItems: 'center' }}>
-            <H1>Lifekey Tech Demo</H1>
+            <H1>Developer Menu</H1>
             <Text>{ this.state.keystoreFound ? "Keypair detected" : "No keypair detected" }</Text>
           </View>
 
