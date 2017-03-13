@@ -29,11 +29,10 @@ import {
   H1
 } from 'nachos-ui'
 import Camera from 'react-native-camera'
-import AndroidBackButton from 'react-native-android-back-button'
+import BackButton from '../Components/BackButton'
 import DialogAndroid from 'react-native-dialogs'
 
 export default class DebugConnectionRequest extends Scene {
-
   constructor(props) {
     super(props)
     this.state = {
@@ -45,11 +44,6 @@ export default class DebugConnectionRequest extends Scene {
     this.setState({
       ready: true
     })
-  }
-
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
   }
 
   scanQR(data) {
@@ -66,7 +60,7 @@ export default class DebugConnectionRequest extends Scene {
     return (
       <Container>
         <Content>
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <BackButton />
           <Camera
             ref={(cam) => { this.camera = cam }}
             style={styles.preview}

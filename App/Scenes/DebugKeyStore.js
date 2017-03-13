@@ -19,7 +19,7 @@ import {
 } from 'native-base'
 import { Button, H1, H2 } from 'nachos-ui'
 import Crypto from '../Crypto'
-import AndroidBackButton from 'react-native-android-back-button'
+import BackButton from '../Components/BackButton'
 import DialogAndroid from 'react-native-dialogs'
 
 export default class DebugKeyStore extends Scene {
@@ -43,11 +43,6 @@ export default class DebugKeyStore extends Scene {
     .catch(error => {
       alert(error)
     })
-  }
-
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
   }
 
   newKey(text) {
@@ -275,7 +270,7 @@ export default class DebugKeyStore extends Scene {
     return (
       <Container>
         <Content>
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <BackButton />
           <View style={{ alignItems: 'center' }}>
             <H1>Keystore Manager</H1>
             <H2>Keystore</H2>

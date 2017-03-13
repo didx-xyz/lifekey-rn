@@ -23,15 +23,9 @@ import {
   Button
 } from 'native-base'
 
-import AndroidBackButton from 'react-native-android-back-button'
+import BackButton from '../Components/BackButton'
 
 export default class DebugViewConnectionRequests extends Scene {
-
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
-  }
-
   _navigateRespondUserConnectionRequest(ucr) {
     this.navigator.replace({
       title: 'Respond to Connection Request',
@@ -74,7 +68,7 @@ export default class DebugViewConnectionRequests extends Scene {
     return (
       <Container>
         <Content>
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <BackButton />
           <ListItem itemHeader first>
             <Text>CONNECTION REQUESTS</Text>
           </ListItem>
