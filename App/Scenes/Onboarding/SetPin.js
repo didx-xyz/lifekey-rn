@@ -17,7 +17,7 @@ import {
   Content,
 } from 'native-base'
 
-import BackButton from '../Components/BackButton'
+import BackButton from '../../Components/BackButton'
 
 export default class SetPin extends Scene {
   render() {
