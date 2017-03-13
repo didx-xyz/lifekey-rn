@@ -1,6 +1,6 @@
 import AndroidBackButton from 'react-native-android-back-button'
-
-class BackButton extends React.Component {
+import React, { Component } from 'react'
+class BackButton extends Component {
   constructor(...params) {
     super(...params)
     this._handlePress = this._handlePress.bind(this)

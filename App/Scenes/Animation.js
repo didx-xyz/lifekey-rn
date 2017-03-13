@@ -5,7 +5,7 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-import React from 'react'
+import React, { Component } from 'react'
 import Scene from '../Scene'
 
 import {
@@ -21,7 +21,7 @@ import {
   Content
 } from 'native-base'
 
-export default class Animation extends React.Component {
+export default class Animation extends Component {
   constructor(props) {
     super(props);
     this.state = {
