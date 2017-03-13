@@ -12,14 +12,8 @@ import {
   Text,
   View,
   Animated,
-  TouchableWithoutFeedback,
   PanResponder
 } from 'react-native'
-
-import {
-  Container,
-  Content
-} from 'native-base'
 
 export default class Animation extends Component {
   constructor(props) {
