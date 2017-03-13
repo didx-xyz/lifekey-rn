@@ -29,14 +29,10 @@ import {
   Row,
   Col
 } from 'native-base'
-import AndroidBackButton from 'react-native-android-back-button'
+
+import BackButton from '../../Components/BackButton'
 
 export default class SplashScreen extends Scene {
-
-  _hardwareBackHandler() {
-    return false // exit the app
-  }
-
   _onAttention() {
     StatusBar.setHidden(true)
   }
@@ -76,8 +72,7 @@ export default class SplashScreen extends Scene {
     return (
       <Container>
         <Content>
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
-
+          <BackButton onPress={() => false} />
           <Grid>
             <Col style={{ flex: 1, height: this.props.screenHeight }}>
               <Row style={[style.firstRow]}>

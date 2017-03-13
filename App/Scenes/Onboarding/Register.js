@@ -29,10 +29,10 @@ import {
   Row,
   Col
 } from 'native-base'
-import AndroidBackButton from 'react-native-android-back-button'
+
+import BackButton from '../../Components/BackButton'
 import OnboardingTextInputAndroid from '../../Components/OnboardingTextInputAndroid'
 import EventTimeline from '../../Components/EventTimeline'
-
 import Touchable from '../../Components/Touchable'
 import DialogAndroid from 'react-native-dialogs'
 
@@ -219,7 +219,7 @@ export default class Register extends Scene {
     return (
       <Container>
         <Content keyboardShouldPersistTaps="always">
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <BackButton />
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <Grid>
               <Col style={[style.sceneColumn, { height: Dimensions.get('window').height }]}>

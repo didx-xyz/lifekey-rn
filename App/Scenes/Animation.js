@@ -20,7 +20,6 @@ import {
   Container,
   Content
 } from 'native-base'
-import AndroidBackButton from 'react-native-android-back-button'
 
 export default class Animation extends React.Component {
   constructor(props) {
@@ -48,41 +47,9 @@ export default class Animation extends React.Component {
         {...this.state.panResponder.panHandlers}
         style={[this.state.pan.getLayout(),{flex: 1}]}>
         <View style={{ height: 100, width: 100, backgroundColor: 'blue', alignItems: 'center', justifyContent: 'center' }}>
-          <Text style={{ fontSize: 20, color: 'white'}}>:'(</Text>
+          <Text style={{ fontSize: 20, color: 'white'}}></Text>
         </View>
       </Animated.View>
-    );
+    )
   }
 }
-
-
-  // render() {
-  //   return (
-  //     <View style={{flex: 1}}>
-  //       <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
-  //       <Container>
-  //         <Content>
-  //           <TouchableWithoutFeedback onPress={() => this._animate()}>
-  //             <Animated.View
-  //               style={{
-  //                 justifyContent: 'center',
-  //                 alignItems: 'center',
-  //                 flex: 1,
-  //                 opacity: this.state.fadeAnim,
-  //                 backgroundColor: 'red',
-  //                 height: 200
-  //               }}
-  //             >
-  //               <Text style={{ color: 'white' }}>Don't touch me :(</Text>
-  //             </Animated.View>
-  //           </TouchableWithoutFeedback>
-  //           <Animated.View
-  //             {...this.state.panResponder.panHandlers}
-  //             style={[this.state.pan.getLayout(), { flex: 1, width: 200, height: 200, backgroundColor: 'blue' }]}>
-  //             {this.props.children}
-  //           </Animated.View>
-  //         </Content>
-  //       </Container>
-  //     </View>
-  //   )
-  // }

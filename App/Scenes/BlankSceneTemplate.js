@@ -16,20 +16,15 @@ import {
   Container,
   Content,
 } from 'native-base'
-import AndroidBackButton from 'react-native-android-back-button'
+
+import BackButton from '../Components/BackButton'
 
 export default class BlankSceneTemplate extends Scene {
-
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
-  }
-
   render() {
     return (
       <Container>
         <Content>
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <BackButton />
           <Text>Hello World</Text>
         </Content>
       </Container>
