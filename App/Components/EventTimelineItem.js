@@ -22,6 +22,7 @@ export default class EventTimelineItem extends Component {
     this.state = {
       fromNow: moment(props.timestamp).fromNow()
     }
+    this.keepUpdating = true
   }
 
   componentDidMount() {
@@ -31,13 +32,19 @@ export default class EventTimelineItem extends Component {
        https://facebook.github.io/react-native/docs/timers.html
        */
     setInterval(() => {
-      Logger.info(`Updating timeline item fromNow value ['${this.props.text}']`, this.constructor.name)
-      this.setState({
-        fromNow: moment(this.props.timestamp).fromNow()
-      }, () => {
-        this.forceUpdate()
-      })
+      if (this.keepUpdating) {
+        Logger.info(`Updating timeline item fromNow value ['${this.props.text}']`, this.constructor.name)
+        this.setState({
+          fromNow: moment(this.props.timestamp).fromNow()
+        }, () => {
+          this.forceUpdate()
+        })
+      }
     }, 60000)
+  }
+
+  componentWillUnmount() {
+    this.keepUpdating = false
   }
 
   _fromNow() {

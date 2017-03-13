@@ -115,16 +115,14 @@ export default class DebugRegister extends Scene {
     }))
     .then(responseJson => {
       jsonData = responseJson.body
-      return Promise.all([
-        Session.update({
-          dbUserId: jsonData.id,
-          userPassword: password // Not ideal
-        }),
-        Storage.store(Config.storage.dbKey, {
-          userPassword: password,
-          dbUserId: jsonData.id
-        })
-      ])
+      Session.update({
+        dbUserId: jsonData.id,
+        userPassword: password // Not ideal
+      })
+      Storage.store(Config.storage.dbKey, {
+        userPassword: password,
+        dbUserId: jsonData.id
+      })
     })
     .then(_ => {
       this.navigator.pop()

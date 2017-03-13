@@ -6,16 +6,19 @@
  */
 import EventTimelineItem from './EventTimelineItem'
 import Session from '../Session'
+import Config from '../Config'
 import React, { Component } from 'react'
 import {
   View,
-  Text,
   ScrollView
 } from 'react-native'
 
 export default class EventTimeline extends Component {
   constructor(props) {
     super(props)
+    this.state = {
+      timelineEvents: []
+    }
   }
 
   pushEvent(text) {
@@ -30,7 +33,7 @@ export default class EventTimeline extends Component {
     })
     setTimeout(() => {
       this._scrollView.scrollToEnd({ animated: true })
-    }, 0)
+    }, 100)
   }
 
   render() {
@@ -39,11 +42,15 @@ export default class EventTimeline extends Component {
       <ScrollView
         showsVerticalScrollIndicator={false}
         ref={scrollView => {this._scrollView = scrollView}}
-        style={{ flex: 1 }}>
+        style={{ flex: 1 }}
+        contentContainerStyle={{ justifyContent: 'space-between', flexDirection: 'column' }}
+        >
+        <View style={{ flex: 1, justifyContent: 'flex-end' }}>
         { timelineEvents ?
          timelineEvents.map((x, i) =>
           <EventTimelineItem key={i} text={x.text} timestamp={x.timestamp}/>
         ) : null }
+        </View>
       </ScrollView>
     )
   }

@@ -14,12 +14,12 @@ export default class Storage {
   static store(key, value) {
     return new Promise((resolve, reject) => {
       if ((typeof value !== 'object') || (typeof key !== 'string')) {
-        reject("Key must be a string and value must be an object")
+        reject('Key must be a string and value must be an object')
       }
       return AsyncStorage.mergeItem(key, JSON.stringify(value))
       .then(resolve)
       .catch(error => {
-        Logger.error(error, "Storage")
+        Logger.error(error, 'Storage')
         reject(error)
       })
     })
@@ -28,14 +28,18 @@ export default class Storage {
   static load(key) {
     return new Promise((resolve, reject) => {
       if (typeof key !== 'string') {
-        reject("Key must be a string")
+        reject('Key must be a string')
       } else {
         return AsyncStorage.getItem(key)
         .then(result => {
-          resolve(JSON.parse(result))
+          if (result) {
+            resolve(JSON.parse(result))
+          } else {
+            reject(`AsyncStorage Key "${key}" does not exist`)
+          }
         })
         .catch(error => {
-          Logger.error(error, "Storage")
+          Logger.error(error, 'Storage')
           reject(error)
         })
       }
