@@ -63,7 +63,6 @@ const style = StyleSheet.create({
   scrollView: {
     flex: 1,
     flexDirection: 'column',
-    backgroundColor: 'green',
     justifyContent: 'flex-end'
   }
 })

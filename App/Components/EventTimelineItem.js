@@ -69,7 +69,6 @@ export default class EventTimelineItem extends Component {
 const style = StyleSheet.create({
   wrappingView: {
     flexDirection: 'column',
-    // backgroundColor: 'purple',
     height: 40,
     padding: 2
   }
