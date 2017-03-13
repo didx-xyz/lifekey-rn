@@ -42,7 +42,7 @@ export default {
   debugPushNotifications: { title: "Push notifications", scene: DebugPushNotifications },
   debugViewConnectionRequests: { title: 'View Connection Requests', scene: DebugViewConnectionRequests },
   debugViewConnections: { title: 'Connections', scene: DebugViewConnections },
-  debugListAllResources: {title: 'List All Resources', scene: DebugListAllResouces},
+  debugListAllResources: {title: 'List All Resources', scene: DebugListAllResources},
 
   // Main
   onboarding: {
