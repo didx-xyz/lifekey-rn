@@ -25,6 +25,7 @@ import SplashScreen from './Scenes/Onboarding/SplashScreen'
 import QRCodeScanner from './Scenes/Camera/QRCodeScanner'
 import Register from './Scenes/Onboarding/Register'
 import SetPin from './Scenes/Onboarding/SetPin'
+import Unlocked from './Scenes/Onboarding/Unlocked'
 export default {
   // Debug
   login: { title: 'Login', scene: Login },
@@ -45,7 +46,8 @@ export default {
   onboarding: {
     splashScreen: { scene: SplashScreen },
     register: { scene: Register },
-    setPin: { scene: SetPin }
+    setPin: { scene: SetPin },
+    unlocked: { scene: Unlocked },
   },
   camera: {
     qrCodeScanner: { scene: QRCodeScanner }
