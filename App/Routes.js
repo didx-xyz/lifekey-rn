@@ -20,7 +20,7 @@ import DebugShowQRCode from './Scenes/DebugShowQRCode'
 import DebugPushNotifications from './Scenes/DebugPushNotifications'
 import DebugViewConnectionRequests from './Scenes/DebugViewConnectionRequests'
 import DebugViewConnections from './Scenes/DebugViewConnections'
-import DebugListAllResouces from './Scenes/DebugListAllResources'
+import DebugListAllResources from './Scenes/DebugListAllResources'
 
 // Main
 import SplashScreen from './Scenes/Onboarding/SplashScreen'
