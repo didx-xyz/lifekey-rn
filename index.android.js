@@ -76,6 +76,7 @@ export default class Lifekeyrn extends Component {
       var session = Session.getState()
       if (!session.connections) {
         Session.update({
+          user_data: {},
           connections: {
             user_connection_requests: {},
             user_connections: {}
