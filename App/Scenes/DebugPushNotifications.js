@@ -68,7 +68,7 @@ export default class DebugPushNotification extends Scene {
     return (
       <Container>
         <Content>
-          <BackButton />
+          <BackButton navigator={this.navigator} />
           <View style={{ alignItems: 'center' }}>
             <H2>Debug Firebase and PN</H2>
           </View>

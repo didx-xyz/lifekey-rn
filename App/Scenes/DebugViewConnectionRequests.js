@@ -68,7 +68,7 @@ export default class DebugViewConnectionRequests extends Scene {
     return (
       <Container>
         <Content>
-          <BackButton />
+          <BackButton navigator={this.navigator} />
           <ListItem itemHeader first>
             <Text>CONNECTION REQUESTS</Text>
           </ListItem>

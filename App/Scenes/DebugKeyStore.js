@@ -270,7 +270,7 @@ export default class DebugKeyStore extends Scene {
     return (
       <Container>
         <Content>
-          <BackButton />
+          <BackButton navigator={this.navigator} />
           <View style={{ alignItems: 'center' }}>
             <H1>Keystore Manager</H1>
             <H2>Keystore</H2>

@@ -219,7 +219,7 @@ export default class Register extends Scene {
     return (
       <Container>
         <Content keyboardShouldPersistTaps="always">
-          <BackButton />
+          <BackButton navigator={this.navigator} />
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <Grid>
               <Col style={[style.sceneColumn, { flex: 1, height: this.props.screenHeight }]}>

@@ -68,7 +68,7 @@ export default class SplashScreen extends Scene {
     return (
       <Container>
         <Content>
-          <BackButton onPress={() => false} />
+          <BackButton navigator={this.navigator} onPress={() => false} />
           <Grid>
             <Col style={{ flex: 1, height: this.props.screenHeight }}>
               { Config.DEBUG ?

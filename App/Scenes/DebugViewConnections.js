@@ -55,7 +55,7 @@ export default class DebugViewConnections extends Scene {
     return (
       <Container>
         <Content>
-          <BackButton />
+          <BackButton navigator={this.navigator} />
           <ListItem itemHeader first>
             <Text>CONNECTIONS</Text>
           </ListItem>

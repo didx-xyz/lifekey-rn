@@ -33,7 +33,7 @@ export default class DebugShowQRCode extends Scene {
     return (
       <Container>
         <Content>
-          <BackButton />
+          <BackButton navigator={this.navigator} />
           <View style={{
             flex: 1,
             flexDirection: 'column',

@@ -54,7 +54,7 @@ export default class ScanQRCode extends Scene {
   render() {
     return (
       <View style={styles.container}>
-        <BackButton />
+        <BackButton navigator={this.navigator} />
         <Camera
           ref={(cam) => { this.camera = cam }}
           style={styles.preview}

@@ -24,7 +24,7 @@ export default class BlankSceneTemplate extends Scene {
     return (
       <Container>
         <Content>
-          <BackButton />
+          <BackButton navigator={this.navigator} />
           <Text>Hello World</Text>
         </Content>
       </Container>
