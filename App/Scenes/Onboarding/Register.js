@@ -265,7 +265,12 @@ export default class Register extends Scene {
                           onSubmit={() => this._submitText(this.state.textInputValue)}
                         />
                       :
-                        null }
+                        <Touchable style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} onPress={() => this.navigator.push(Routes.onboarding.setPin)}>
+                          <View style={{ width: 200, height: 100, alignItems: 'center', justifyContent: 'center', backgroundColor: '#aaaaaa' }}>
+                            <Text>Next</Text>
+                          </View>
+                        </Touchable>
+                    }
                   </Row>
                 </Row>
 
