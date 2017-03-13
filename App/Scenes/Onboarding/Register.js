@@ -8,6 +8,7 @@
 import React from 'react'
 import Scene from '../../Scene'
 import Palette from '../../Palette'
+import Routes from '../../Routes'
 
 import {
   Text,
