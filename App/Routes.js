@@ -24,6 +24,7 @@ import DebugViewConnections from './Scenes/DebugViewConnections'
 import SplashScreen from './Scenes/Onboarding/SplashScreen'
 import QRCodeScanner from './Scenes/Camera/QRCodeScanner'
 import Register from './Scenes/Onboarding/Register'
+import SetPin from './Scenes/Onboarding/SetPin'
 export default {
   // Debug
   login: { title: 'Login', scene: Login },
@@ -43,7 +44,8 @@ export default {
   // Main
   onboarding: {
     splashScreen: { scene: SplashScreen },
-    register: { scene: Register }
+    register: { scene: Register },
+    setPin: { scene: SetPin }
   },
   camera: {
     qrCodeScanner: { scene: QRCodeScanner }
