@@ -9,6 +9,7 @@ import React, { Component } from 'react'
 import {
   View,
   Text,
+  StyleSheet
 } from 'react-native'
 
 import Palette from '../Palette'
@@ -53,7 +54,7 @@ export default class EventTimelineItem extends Component {
 
   render() {
     return (
-      <View style={{ flex: 1, flexDirection: 'column', marginTop: 5 }}>
+      <View style={style.wrappingView}>
         <View>
           <Text>{this.props.text}</Text>
         </View>
@@ -64,3 +65,12 @@ export default class EventTimelineItem extends Component {
     )
   }
 }
+
+const style = StyleSheet.create({
+  wrappingView: {
+    flexDirection: 'column',
+    // backgroundColor: 'purple',
+    height: 40,
+    padding: 2
+  }
+})

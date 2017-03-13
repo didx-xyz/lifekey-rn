@@ -92,7 +92,7 @@ export default class Register extends Scene {
   }
 
   _pushTimelineEvent() {
-    this._eventTimeline.pushEvent('Event text ' + this.i)
+    this._eventTimeline.pushEvent('Event text ')
     this.i++
   }
 

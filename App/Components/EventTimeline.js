@@ -10,8 +10,10 @@ import Config from '../Config'
 import React, { Component } from 'react'
 import {
   View,
-  ScrollView
+  ScrollView,
+  StyleSheet
 } from 'react-native'
+import { Footer } from 'native-base'
 
 export default class EventTimeline extends Component {
   constructor(props) {
@@ -34,6 +36,7 @@ export default class EventTimeline extends Component {
     setTimeout(() => {
       this._scrollView.scrollToEnd({ animated: true })
     }, 100)
+    this.forceUpdate()
   }
 
   render() {
@@ -43,15 +46,24 @@ export default class EventTimeline extends Component {
         showsVerticalScrollIndicator={false}
         ref={scrollView => {this._scrollView = scrollView}}
         style={{ flex: 1 }}
-        contentContainerStyle={{ justifyContent: 'space-between', flexDirection: 'column' }}
-        >
-        <View style={{ flex: 1, justifyContent: 'flex-end' }}>
-        { timelineEvents ?
-         timelineEvents.map((x, i) =>
-          <EventTimelineItem key={i} text={x.text} timestamp={x.timestamp}/>
-        ) : null }
-        </View>
+        contentContainerStyle={style.scrollView} >
+          <View style={{ flexDirection: 'column' }}>
+            { timelineEvents ?
+            timelineEvents.map((x, i) =>
+              <EventTimelineItem key={i} text={x.text} timestamp={x.timestamp}/>
+            ) : null }
+          </View>
       </ScrollView>
     )
   }
 }
+
+
+const style = StyleSheet.create({
+  scrollView: {
+    flex: 1,
+    flexDirection: 'column',
+    backgroundColor: 'green',
+    justifyContent: 'flex-end'
+  }
+})
