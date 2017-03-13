@@ -43,7 +43,35 @@ function containsRequired(requiredFields, data) {
 
 /** API functions avaialble to the App */
 export default {
-
+  doAuthenticatedRequest: async function (uri, method, body) {
+    var toSign = Date.now().toString()
+    var caught = false
+    try {
+      var name = await Crypto.getCurrentKeyStoreAlias()
+    } catch (e) {
+      caught = true
+    }
+    try {
+      if (caught) name = await Crypto.loadKeyStore('consent', Session.state.userPassword)
+      var signature = await Crypto.sign(toSign, 'private_lifekey', Session.state.userPassword, Crypto.SIG_SHA256_WITH_RSA)
+      var opts = {
+        method: method || 'get',
+        headers: {
+          "content-type": "application/json",
+          'x-cnsnt-id': Session.getState().dbUserId,
+          'x-cnsnt-plain': toSign,
+          'x-cnsnt-signed': signature.trim()
+        }
+      }
+      if (typeof body === 'object' && body !== null) {
+        opts.body = JSON.stringify(body)
+      }
+      var response = await fetch(uri, opts)
+      return (await response.json())
+    } catch (e) {
+      return {error: true, message: e.toString()}
+    }
+  },
   register: (data) => {
     const requiredFields = [
       'email',
