@@ -6,7 +6,7 @@
  */
 
 import React from 'react'
-import Scene from '../Scene'
+import Scene from '../../Scene'
 
 import {
   Text
