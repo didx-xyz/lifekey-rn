@@ -24,7 +24,9 @@ import {
   Content,
 } from 'native-base'
 import { Button, Input, H1, H5 } from 'nachos-ui'
-import AndroidBackButton from 'react-native-android-back-button'
+
+import BackButton from '../Components/BackButton'
+
 
 export default class Debug extends Scene {
 
@@ -72,17 +74,12 @@ export default class Debug extends Scene {
     this._readStorage()
   }
 
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
-  }
-
   render() {
 
     return (
       <Container>
         <Content>
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <BackButton />
           <View style={{ alignItems: 'center' }}>
             <H1>Developer Menu</H1>
             <Text>{ this.state.keystoreFound ? "Keypair detected" : "No keypair detected" }</Text>

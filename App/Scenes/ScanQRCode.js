@@ -21,7 +21,7 @@ import * as NB from 'native-base'
 import Camera from 'react-native-camera'
 const t = require('tcomb-form-native')
 const Form = t.form.Form
-import AndroidBackButton from 'react-native-android-back-button'
+import BackButton from '../Components/BackButton'
 
 
 export default class ScanQRCode extends Scene {
@@ -31,11 +31,6 @@ export default class ScanQRCode extends Scene {
     this.state = {
       qrCaptured: false
     }
-  }
-
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
   }
 
   goToDisplayForm(formData) {
@@ -59,7 +54,7 @@ export default class ScanQRCode extends Scene {
   render() {
     return (
       <View style={styles.container}>
-        <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+        <BackButton />
         <Camera
           ref={(cam) => { this.camera = cam }}
           style={styles.preview}

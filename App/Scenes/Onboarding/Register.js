@@ -29,10 +29,10 @@ import {
   Row,
   Col
 } from 'native-base'
-import AndroidBackButton from 'react-native-android-back-button'
+
+import BackButton from '../../Components/BackButton'
 import OnboardingTextInputAndroid from '../../Components/OnboardingTextInputAndroid'
 import EventTimeline from '../../Components/EventTimeline'
-
 import Touchable from '../../Components/Touchable'
 import DialogAndroid from 'react-native-dialogs'
 
@@ -219,7 +219,7 @@ export default class Register extends Scene {
     return (
       <Container>
         <Content keyboardShouldPersistTaps="always">
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <BackButton />
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <Grid>
               <Col style={[style.sceneColumn, { flex: 1, height: this.props.screenHeight }]}>
@@ -228,7 +228,6 @@ export default class Register extends Scene {
                     ref={(eventTimeline) => this._eventTimeline = eventTimeline}
                   />
                 </Row>
-
                 { /* center content */ }
                 <Row style={{ flex: 13, flexDirection: 'column' }}>
 
@@ -259,20 +258,15 @@ export default class Register extends Scene {
                     { backgroundColor: this.state.step <= 1 ? null : Palette.consentGrayLight }
                   ]}>
                     { this.state.step <= 1 ?
-                        Platform.OS === 'android' ?
-                          <OnboardingTextInputAndroid
-                            onChangeText={(text) => this.setState({ textInputValue: text })}
-                            value={this.state.textInputValue}
-                            ref={oti => { this._oti = oti }}
-                            onSubmit={() => this._submitText(this.state.textInputValue)}
-                          />
-                        :
-                          // TODO: iOS
-                          null
+                        <OnboardingTextInputAndroid
+                          onChangeText={(text) => this.setState({ textInputValue: text })}
+                          value={this.state.textInputValue}
+                          ref={oti => { this._oti = oti }}
+                          onSubmit={() => this._submitText(this.state.textInputValue)}
+                        />
                       :
                         null }
                   </Row>
-
                 </Row>
 
                 { /* Footer content */ }

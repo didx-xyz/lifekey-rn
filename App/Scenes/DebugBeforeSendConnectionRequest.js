@@ -27,20 +27,15 @@ import {
   Button,
   ListItem
 } from 'native-base'
-import AndroidBackButton from 'react-native-android-back-button'
+
+import BackButton from '../Components/BackButton'
 
 export default class DebugBeforeSendConnectionRequest extends Scene {
-
-    constructor(props) {
-        super(props)
-        this.state = {
-            target_user: null
-        }
-    }
-
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
+  constructor(props) {
+      super(props)
+      this.state = {
+          target_user: null
+      }
   }
 
   componentDidMount() {
@@ -133,7 +128,7 @@ export default class DebugBeforeSendConnectionRequest extends Scene {
     return (
       <Container>
         <Content>
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <BackButton />
           <ListItem itemHeader first>
             <Text>CONNECTION REQUEST TO USER</Text>
           </ListItem>
