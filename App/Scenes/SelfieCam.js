@@ -46,7 +46,7 @@ export default class SelfieCam extends Scene {
   render() {
     return (
       <View style={styles.container}>
-        <BackButton />
+        <BackButton navigator={this.navigator} />
         <Camera
           ref={(cam) => { this.camera = cam }}
           captureTarget={ Camera.constants.CaptureTarget.temp }

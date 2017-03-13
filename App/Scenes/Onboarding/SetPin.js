@@ -24,7 +24,7 @@ export default class SetPin extends Scene {
     return (
       <Container>
         <Content>
-          <BackButton />
+          <BackButton navigator={this.navigator} />
           <Text>Hello World</Text>
         </Content>
       </Container>

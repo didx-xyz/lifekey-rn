@@ -11,7 +11,9 @@ class BackButton extends Component {
       return this.props.onPress()
     }
 
-    this.navigator.pop()
+    const navigator = this.props.navigator
+    navigator.pop.call(navigator)
+
     return true
   }
 

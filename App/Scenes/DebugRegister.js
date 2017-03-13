@@ -142,7 +142,7 @@ export default class DebugRegister extends Scene {
     return (
       <Container>
         <Content>
-          <BackButton />
+          <BackButton navigator={this.navigator} />
           <View style={{ alignItems: 'center' }}>
             <H1>Register on Consent</H1>
           </View>

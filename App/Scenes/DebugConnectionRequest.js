@@ -60,7 +60,7 @@ export default class DebugConnectionRequest extends Scene {
     return (
       <Container>
         <Content>
-          <BackButton />
+          <BackButton navigator={this.navigator} />
           <Camera
             ref={(cam) => { this.camera = cam }}
             style={styles.preview}

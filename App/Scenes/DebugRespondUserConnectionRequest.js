@@ -78,7 +78,7 @@ export default class DebugRespondUserConnectionRequest extends Scene {
     return (
         <Container>
             <Content>
-                <BackButton />
+                <BackButton navigator={this.navigator} />
                 <ListItem itemHeader first>
                   <Text>CONNECTION REQUEST FROM USER</Text>
                 </ListItem>

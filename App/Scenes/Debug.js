@@ -79,7 +79,7 @@ export default class Debug extends Scene {
     return (
       <Container>
         <Content>
-          <BackButton />
+          <BackButton navigator={this.navigator} />
           <View style={{ alignItems: 'center' }}>
             <H1>Developer Menu</H1>
             <Text>{ this.state.keystoreFound ? "Keypair detected" : "No keypair detected" }</Text>
