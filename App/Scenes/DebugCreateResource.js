@@ -12,6 +12,7 @@ import Session from '../Session'
 import Storage from '../Storage'
 import Config from '../Config'
 import Crypto from '../Crypto'
+import Api from '../Api'
 
 import {
   Text,
@@ -40,36 +41,6 @@ var INITIAL = {
   value: ''
 }
 
-async function doAuthenticatedRequest(uri, method, body) {
-  var toSign = Date.now().toString()
-  var caught = false
-  try {
-    var name = await Crypto.getCurrentKeyStoreAlias()
-  } catch (e) {
-    caught = true
-  }
-  try {
-    if (caught) name = await Crypto.loadKeyStore('consent', Session.state.userPassword)
-    var signature = await Crypto.sign(toSign, 'private_lifekey', Session.state.userPassword, Crypto.SIG_SHA256_WITH_RSA)
-    var opts = {
-      method: method || 'get',
-      headers: {
-        "content-type": "application/json",
-        'x-cnsnt-id': Session.getState().dbUserId,
-        'x-cnsnt-plain': toSign,
-        'x-cnsnt-signed': signature.trim()
-      }
-    }
-    if (typeof body === 'object' && body !== null) {
-      opts.body = JSON.stringify(body)
-    }
-    var response = await fetch(uri, opts)
-    return (await response.json())
-  } catch (e) {
-    return {error: true, message: e.toString()}
-  }
-}
-
 export default class DebugCreateResource extends Scene {
 
   constructor(props) {
@@ -89,30 +60,19 @@ export default class DebugCreateResource extends Scene {
           this.state.value)) {
       alert('Please choose an entity, attribute, alias and value.')
     }
-    var sesh = Session.getState()
-    var resource_post = await doAuthenticatedRequest(
-      `${Config.http.baseUrl}/resource/${this.state.entity}/${this.state.attribute}/${this.state.alias}`,
+    var resource_key = `${this.state.entity}/${this.state.attribute}/${this.state.alias}`
+    var resource_post = await Api.doAuthenticatedRequest(
+      `${Config.http.baseUrl}/resource/${resource_key}`,
       'post',
       this.state
     )
 
-    if (resource_post.error) {
-      return alert(resource_post.message)
-    }
-
-    var session_update = {user_data: {}}
-
-    session_update.user_data[
-      `${this.state.entity}/${this.state.attribute}/${this.state.alias}`
-    ] = this.state
-    
-    Promise.all([
-      (_ => {
-        Session.state.user_data[
-          `${this.state.entity}/${this.state.attribute}/${this.state.alias}`
-        ] = this.state
-      })(),
-      Storage.store(Config.storage.dbKey, session_update)
+    if (resource_post.error) return alert(resource_post.message)
+    var resources_update = {resources: {}}
+    resources_update.resources[resource_key] = this.state
+    return Promise.all([
+      (_ => Session.state.resources[resource_key] = this.state)(),
+      Storage.store(Config.storage.dbKey, resources_update)
     ]).then(
       this.navigator.pop
     ).catch(
