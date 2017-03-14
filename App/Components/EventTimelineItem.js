@@ -9,7 +9,8 @@ import React, { Component } from 'react'
 import {
   View,
   Text,
-  StyleSheet
+  StyleSheet,
+  Animated
 } from 'react-native'
 
 import Palette from '../Palette'
@@ -21,12 +22,19 @@ export default class EventTimelineItem extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      fromNow: moment(props.timestamp).fromNow()
+      fromNow: moment(props.timestamp).fromNow(),
+      fadeTransitionValue: new Animated.Value(0)
+
     }
     this.keepUpdating = true
   }
 
   componentDidMount() {
+    Animated.timing(
+      this.state.fadeTransitionValue,
+      { toValue: 1 }
+    ).start()
+
     /* This has to be handled more safely as the timer
        will continue after the component is unmounted
        which will lead to a crash
@@ -54,14 +62,14 @@ export default class EventTimelineItem extends Component {
 
   render() {
     return (
-      <View style={style.wrappingView}>
+      <Animated.View style={[style.wrappingView, { opacity: this.state.fadeTransitionValue }]}>
         <View>
           <Text>{this.props.text}</Text>
         </View>
         <View>
           <Text style={{ color: Palette.consentGrayDark, fontSize: 10 }}>{this._fromNow()}</Text>
         </View>
-      </View>
+      </Animated.View>
     )
   }
 }
