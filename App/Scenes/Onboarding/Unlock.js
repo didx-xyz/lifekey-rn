@@ -5,9 +5,10 @@ import { Container, Content, Grid, Col, Row } from "native-base"
 import Scene from "../../Scene"
 import Routes from "../../Routes"
 import BackButton from "../../Components/BackButton"
+import Touchable from "../../Components/Touchable"
 import Dots from "../../Components/Dots"
 
-class SetPin extends Scene {
+class Unlocked extends Scene {
   constructor(...params) {
     super(...params)
 
@@ -22,6 +23,7 @@ class SetPin extends Scene {
     this.onSubmit = this.onSubmit.bind(this)
     this.onKeyboardWithShow = this.onKeyboardWithShow.bind(this)
     this.onKeyboardWillHide = this.onKeyboardWillHide.bind(this)
+    this.onPressForgot = this.onPressForgot.bind(this)
   }
 
   onFocus(event) {
@@ -49,7 +51,7 @@ class SetPin extends Scene {
   onSubmit() {
     if (!this.submitted) {
       this.submitted = true
-      this.navigator.push(Routes.onboarding.locked)
+      this.navigator.push(Routes.blankSceneTemplate)
     }
   }
 
@@ -67,6 +69,13 @@ class SetPin extends Scene {
       "screenHeight": this.props.screenHeight,
       "keyboardVisible": false
     })
+  }
+
+  onPressForgot(event) {
+    alert("forgot")
+
+    event.preventDefault()
+    event.stopPropagation()
   }
 
   componentWillReceiveProps(props) {
@@ -94,20 +103,34 @@ class SetPin extends Scene {
             <Col style={[style.col, {"height": this.state.screenHeight}]}>
               <Row style={[style.firstRow]}>
                 <Text style={[style.firstText]}>
-                  Create a 5-digit {"\n"} key PIN.
+                  Unlock
                 </Text>
               </Row>
               <Row style={[style.secondRow]}>
                 <Text style={[style.secondText]}>
-                  Your key will secure your valuable {"\n"} personal information with bank-grade {"\n"} encryption
+                  Enter your 5-digit key PIN.
                 </Text>
               </Row>
               <Row style={[style.thirdRow]}>
-                {/* need a component for the hexagon of dots */}
+                <Touchable onPress={this.onPressForgot}>
+                  <View>
+                    <Text style={[style.thirdText]}>
+                      I forgot
+                    </Text>
+                  </View>
+                </Touchable>
               </Row>
               <Row style={[style.fourthRow]}>
+                {/* need a component for the hexagon of dots */}
+              </Row>
+              <Row style={[style.fifthRow]}>
                 <View>
-                  <Dots current={this.state.characters.length} />
+                  <Dots
+                    current={this.state.characters.length}
+                    strokeColor="#3f484e"
+                    fullFill="#3f484e"
+                    emptyFill="#eceeee"
+                  />
                   <TextInput
                     ref="input"
                     autoFocus={true}
@@ -137,7 +160,7 @@ const textStyle = {
 
 const style = StyleSheet.create({
   "container": {
-    "backgroundColor": "#f9fafa"
+    "backgroundColor": "#eceeee"
   },
   "col": {
     "flexDirection": "column"
@@ -163,14 +186,14 @@ const style = StyleSheet.create({
     "alignItems": "center",
     "justifyContent": "center"
   },
-  "fourthRow": {
-    "alignItems": "center",
-    "justifyContent": "center"
-  },
+  "thirdText": Object.assign(Object.create(textStyle), {
+    "color": "#3f8efa",
+    "fontSize": 16
+  }),
   "input": {
     "position": "absolute",
     "top": -1000
   }
 })
 
-export default SetPin
+export default Unlocked
