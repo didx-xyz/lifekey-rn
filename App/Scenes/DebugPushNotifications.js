@@ -22,7 +22,7 @@ import {
   Container,
   Content
 } from 'native-base'
-import AndroidBackButton from 'react-native-android-back-button'
+import BackButton from '../Components/BackButton'
 
 export default class DebugPushNotification extends Scene {
 
@@ -30,16 +30,6 @@ export default class DebugPushNotification extends Scene {
     super(props)
     this.state = {
     }
-  }
-
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
-  }
-
-  componentDidMount() {
-    super.componentDidMount()
-
   }
 
   _getToken() {
@@ -78,7 +68,7 @@ export default class DebugPushNotification extends Scene {
     return (
       <Container>
         <Content>
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <BackButton navigator={this.navigator} />
           <View style={{ alignItems: 'center' }}>
             <H2>Debug Firebase and PN</H2>
           </View>

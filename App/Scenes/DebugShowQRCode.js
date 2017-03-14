@@ -20,17 +20,12 @@ import {
   Container,
   Content,
 } from 'native-base'
-import AndroidBackButton from 'react-native-android-back-button'
+
+import BackButton from '../Components/BackButton'
 
 var url
 
 export default class DebugShowQRCode extends Scene {
-
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
-  }
-
   render() {
     const state = Session.getState()
     const data = `${Config.http.baseUrl}/demo/qr/${state.dbDid}`
@@ -38,7 +33,7 @@ export default class DebugShowQRCode extends Scene {
     return (
       <Container>
         <Content>
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <BackButton navigator={this.navigator} />
           <View style={{
             flex: 1,
             flexDirection: 'column',

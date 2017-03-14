@@ -21,11 +21,19 @@ import DebugPushNotifications from './Scenes/DebugPushNotifications'
 import DebugViewConnectionRequests from './Scenes/DebugViewConnectionRequests'
 import DebugViewConnections from './Scenes/DebugViewConnections'
 // Main
+import BlankSceneTemplate from './Scenes/BlankSceneTemplate'
 import SplashScreen from './Scenes/Onboarding/SplashScreen'
 import QRCodeScanner from './Scenes/Camera/QRCodeScanner'
+import Register from './Scenes/Onboarding/Register'
+import SetPin from './Scenes/Onboarding/SetPin'
+import Unlocked from './Scenes/Onboarding/Unlocked'
+
+import Locked from './Scenes/Onboarding/Locked'
+import Unlock from './Scenes/Onboarding/Unlock'
 
 export default {
   // Debug
+  blankSceneTemplate: { title: 'Blank Scene Template', scene: BlankSceneTemplate },
   login: { title: 'Login', scene: Login },
   main: { title: 'Main', scene: Main },
   scanQrCode: { title: 'Scan QR Code', scene: ScanQRCode },
@@ -42,7 +50,12 @@ export default {
   debugViewConnections: { title: 'Connections', scene: DebugViewConnections },
   // Main
   onboarding: {
-    splashScreen: { scene: SplashScreen }
+    splashScreen: { scene: SplashScreen },
+    register: { scene: Register },
+    setPin: { scene: SetPin },
+    unlocked: { scene: Unlocked },
+    locked: { scene: Locked },
+    unlock: { scene: Unlock }
   },
   camera: {
     qrCodeScanner: { scene: QRCodeScanner }

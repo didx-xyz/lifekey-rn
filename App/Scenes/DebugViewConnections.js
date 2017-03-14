@@ -19,20 +19,15 @@ import {
   List,
   ListItem
 } from 'native-base'
-import AndroidBackButton from 'react-native-android-back-button'
+
+import BackButton from '../Components/BackButton'
 
 export default class DebugViewConnections extends Scene {
-
   constructor(props) {
     super(props)
     this.state = {
       current_session: Session.getState()
     }
-  }
-
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
   }
 
   _renderUserConnections(uc) {
@@ -60,7 +55,7 @@ export default class DebugViewConnections extends Scene {
     return (
       <Container>
         <Content>
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <BackButton navigator={this.navigator} />
           <ListItem itemHeader first>
             <Text>CONNECTIONS</Text>
           </ListItem>

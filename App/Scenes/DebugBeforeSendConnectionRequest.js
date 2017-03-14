@@ -11,6 +11,7 @@ import Session from '../Session'
 import Storage from '../Storage'
 import Crypto from '../Crypto'
 import Config from '../Config'
+import Logger from '../Logger'
 
 import {
   Text,
@@ -26,20 +27,15 @@ import {
   Button,
   ListItem
 } from 'native-base'
-import AndroidBackButton from 'react-native-android-back-button'
+
+import BackButton from '../Components/BackButton'
 
 export default class DebugBeforeSendConnectionRequest extends Scene {
-
-    constructor(props) {
-        super(props)
-        this.state = {
-            target_user: null
-        }
-    }
-
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
+  constructor(props) {
+      super(props)
+      this.state = {
+          target_user: null
+      }
   }
 
   componentDidMount() {
@@ -119,12 +115,10 @@ export default class DebugBeforeSendConnectionRequest extends Scene {
         nickname: json.body.user.nickname
       }
       users_merge[json.body.user.id] = new_discovered_user
-      return Promise.all([
-          Storage.store(Config.storage.dbKey, {users: users_merge}),
-          Session.update({users: users_merge})
-      ])
-    }).catch(err => {
-      alert(err)
+      Session.update({ users: users_merge })
+      return Storage.store(Config.storage.dbKey, { users: users_merge })
+    }).catch(error => {
+      Logger.error('Could not update users_merge', this._fileName, error)
     })
 
   }
@@ -134,7 +128,7 @@ export default class DebugBeforeSendConnectionRequest extends Scene {
     return (
       <Container>
         <Content>
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <BackButton navigator={this.navigator} />
           <ListItem itemHeader first>
             <Text>CONNECTION REQUEST TO USER</Text>
           </ListItem>
