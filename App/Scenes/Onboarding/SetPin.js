@@ -18,7 +18,6 @@ class SetPin extends Scene {
     }
 
     this.onFocus = this.onFocus.bind(this)
-    this.onKeyPress = this.onKeyPress.bind(this)
     this.onSubmit = this.onSubmit.bind(this)
     this.onKeyboardWithShow = this.onKeyboardWithShow.bind(this)
     this.onKeyboardWillHide = this.onKeyboardWillHide.bind(this)
@@ -28,17 +27,10 @@ class SetPin extends Scene {
     this.refs.input.focus()
   }
 
-  onKeyPress(event) {
-    if (event.nativeEvent.key === "Backspace") {
-      this.setState({
-        "characters": this.state.characters.substr(0, this.state.characters.length - 1)
-      })
-    } else {
-      this.setState({
-        "characters": this.state.characters + event.nativeEvent.key
-      })
-    }
-
+  onChangeText(text) {
+    this.setState({
+      characters: text
+    })
     setTimeout(() => {
       if (this.state.characters.length >= 5) {
         this.onSubmit()
@@ -70,18 +62,21 @@ class SetPin extends Scene {
   }
 
   componentWillReceiveProps(props) {
+    super.componentWillReceiveProps()
     this.setState({
       "screenHeight": this.props.screenHeight
     })
   }
 
   componentDidMount() {
-    this.keyboardWillShowListener = Keyboard.addListener("keyboardWillShow", this.onKeyboardWithShow)
+    super.componentDidMount()
+    this.keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", this.onKeyboardWithShow)
     this.keyboardWillHideListener = Keyboard.addListener("keyboardWillHide", this.onKeyboardWillHide)
   }
 
   componentWillUnmount() {
-    this.keyboardWillShowListener.remove()
+    super.componentWillUnmount()
+    this.keyboardDidShowListener.remove()
     this.keyboardWillHideListener.remove()
   }
 
@@ -113,7 +108,7 @@ class SetPin extends Scene {
                     autoFocus={true}
                     returnKeyType="done"
                     keyboardType="phone-pad"
-                    onKeyPress={this.onKeyPress}
+                    onChangeText={(text) => this.onChangeText(text)}
                     style={[style.input]}
                   />
                 </View>
