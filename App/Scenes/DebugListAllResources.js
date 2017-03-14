@@ -10,7 +10,6 @@ import Scene from '../Scene'
 import Session from '../Session'
 import Storage from '../Storage'
 import Config from '../Config'
-import Crypto from '../Crypto'
 import Api from '../Api'
 
 import DebugUpdateResource from './DebugUpdateResource'
@@ -104,7 +103,7 @@ export default class DebugListAllResources extends Scene {
     var resources = Object.keys(this.state.current_session.resources)
     return (
       <Container>
-        <Content>
+        <Content style={{padding: 5}}>
           <AndroidBackButton onPress={this._hardwareBackHandler.bind(this)} />
           <ListItem itemHeader first>
             <Text>USER RESOURCES</Text>
