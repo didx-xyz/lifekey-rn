@@ -10,7 +10,6 @@ import React from 'react'
 import Scene from '../Scene'
 import Session from '../Session'
 import Storage from '../Storage'
-import Crypto from '../Crypto'
 import Config from '../Config'
 import Api from '../Api'
 
@@ -27,7 +26,8 @@ import {
   Content,
   List,
   ListItem,
-  Button
+  Button,
+  Separator
 } from 'native-base'
 
 import AndroidBackButton from 'react-native-android-back-button'
@@ -189,7 +189,7 @@ export default class DebugUpdateResource extends Scene {
   render() {
     return (
       <Container>
-        <Content>
+        <Content style={{padding: 5}}>
           <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
           <ListItem itemHeader first>
             <Text>UPDATE {this.props.passProps.resource_key}</Text>
@@ -204,12 +204,21 @@ export default class DebugUpdateResource extends Scene {
             this.state.resource.fetched && (
               this.state.editing && (
                 <View>
-                  <Text>{this.state.resource.entity}</Text>
-                  <Text>{this.state.resource.attribute}</Text>
-                  <Text>{this.state.resource.alias}</Text>
+                  <ListItem itemHeader first>
+                    <Text>RESOURCE KEY</Text>
+                  </ListItem>
+                  <ListItem itemHeader first>
+                    <Text>{this.state.resource.entity}/{this.state.resource.attribute}/{this.state.resource.alias}</Text>
+                  </ListItem>
+                  <ListItem itemHeader first>
+                    <Text>RESOURCE VALUE</Text>
+                  </ListItem>
                   <TextInput placeholder={'Resource value'}
                              value={(this.state.update || this.state.resource).value}
                              onChangeText={this._updateValue.bind(this)} />
+                  <ListItem itemHeader first>
+                    <Text>RESOURCE METADATA</Text>
+                  </ListItem>
                   <TextInput placeholder={'Encoding'}
                              value={(this.state.update || this.state.resource).encoding}
                              onChangeText={this._updateEncoding.bind(this)} />
@@ -230,12 +239,27 @@ export default class DebugUpdateResource extends Scene {
                 </View>
               ) || (
                 <View>
-                  <Text>{this.state.resource.entity}</Text>
-                  <Text>{this.state.resource.attribute}</Text>
-                  <Text>{this.state.resource.alias}</Text>
-                  <Text>{this.state.resource.value}</Text>
-                  <Text>{this.state.resource.encoding}</Text>
-                  <Text>{this.state.resource.mime}</Text>
+                  <ListItem itemHeader first>
+                    <Text>RESOURCE KEY</Text>
+                  </ListItem>
+                  <ListItem itemHeader first>
+                    <Text>{this.state.resource.entity}/{this.state.resource.attribute}/{this.state.resource.alias}</Text>
+                  </ListItem>
+                  <ListItem itemHeader first>
+                    <Text>RESOURCE VALUE</Text>
+                  </ListItem>
+                  <ListItem itemHeader first>
+                    <Text>{this.state.resource.value}</Text>
+                  </ListItem>
+                  <ListItem itemHeader first>
+                    <Text>RESOURCE METADATA</Text>
+                  </ListItem>
+                  <ListItem itemHeader first>
+                    <Text>{this.state.resource.encoding}</Text>
+                  </ListItem>
+                  <ListItem itemHeader first>
+                    <Text>{this.state.resource.mime}</Text>
+                  </ListItem>
                   <Text>Default resource for this entity/attribute?</Text>
                   <Switch disabled={true}
                           value={this.state.resource.is_default} />
