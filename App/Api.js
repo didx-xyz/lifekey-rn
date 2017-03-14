@@ -6,7 +6,9 @@
  */
 
 import Config from './Config'
-
+import Crypto from './Crypto'
+import Session from './Session'
+import Storage from './Storage'
 import Logger from './Logger'
 
 function request(route, opts) {
