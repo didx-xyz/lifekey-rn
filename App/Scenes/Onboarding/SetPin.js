@@ -1,5 +1,5 @@
 import React from "react"
-import { Text, View, StyleSheet, TextInput, DeviceEventEmitter, Animated, Platform } from "react-native"
+import { Text, View, StyleSheet, TextInput, Keyboard, Animated, Platform } from "react-native"
 import { Container, Content, Grid, Col, Row } from "native-base"
 
 import Scene from "../../Scene"
@@ -47,7 +47,10 @@ class SetPin extends Scene {
   }
 
   onSubmit() {
-    this.navigator.push(Routes.onboarding.locked)
+    if (!this.submitted) {
+      this.submitted = true
+      this.navigator.push(Routes.onboarding.locked)
+    }
   }
 
   onKeyboardWithShow(event) {
@@ -73,8 +76,13 @@ class SetPin extends Scene {
   }
 
   componentDidMount() {
-    DeviceEventEmitter.addListener("keyboardWillShow", this.onKeyboardWithShow)
-    DeviceEventEmitter.addListener("keyboardWillHide", this.onKeyboardWillHide)
+    this.keyboardWillShowListener = Keyboard.addListener("keyboardWillShow", this.onKeyboardWithShow)
+    this.keyboardWillHideListener = Keyboard.addListener("keyboardWillHide", this.onKeyboardWillHide)
+  }
+
+  componentWillUnmount() {
+    this.keyboardWillShowListener.remove()
+    this.keyboardWillHideListener.remove()
   }
 
   render() {

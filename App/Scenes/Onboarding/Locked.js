@@ -32,7 +32,7 @@ class Locked extends Scene {
     return (
       <Container onTouchStart={this.onFocus} style={[style.container]}>
         <BackButton navigator={this.navigator} />
-        <Content style={[style.content]}>
+        <Content>
           <Grid>
             <Col style={[style.col, {"height": this.props.screenHeight}]}>
               <Row style={[style.firstRow]}>
@@ -87,13 +87,7 @@ const textStyle = {
 
 const style = StyleSheet.create({
   "container": {
-    "backgroundColor": "#fff",
-    "padding": 20
-  },
-  "content": {
-    "backgroundColor": "#eceeee",
-    "borderColor": "#e6e6e6",
-    "borderWidth": 1
+    "backgroundColor": "#eceeee"
   },
   "col": {
     "flexDirection": "column"
