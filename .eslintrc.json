@@ -69,7 +69,6 @@
         "no-lone-blocks": "warn",
         "no-octal-escape": "error",
         "no-octal": "error",
-        "no-return-assign": "warn",
         "no-useless-call": "warn",
         "no-warning-comments": ["warn", { "terms": ["todo", "fixme"], "location": "start" }],
         // "camelcase": "warn",

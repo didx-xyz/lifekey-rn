@@ -26,8 +26,11 @@ import SplashScreen from './Scenes/Onboarding/SplashScreen'
 import QRCodeScanner from './Scenes/Camera/QRCodeScanner'
 import Register from './Scenes/Onboarding/Register'
 import SetPin from './Scenes/Onboarding/SetPin'
+import Unlocked from './Scenes/Onboarding/Unlocked'
+
 import Locked from './Scenes/Onboarding/Locked'
 import Unlock from './Scenes/Onboarding/Unlock'
+
 export default {
   // Debug
   blankSceneTemplate: { title: 'Blank Scene Template', scene: BlankSceneTemplate },
@@ -50,6 +53,7 @@ export default {
     splashScreen: { scene: SplashScreen },
     register: { scene: Register },
     setPin: { scene: SetPin },
+    unlocked: { scene: Unlocked },
     locked: { scene: Locked },
     unlock: { scene: Unlock }
   },
