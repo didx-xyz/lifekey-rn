@@ -11,7 +11,6 @@ import Scene from '../Scene'
 import Session from '../Session'
 import Storage from '../Storage'
 import Config from '../Config'
-import Crypto from '../Crypto'
 import Api from '../Api'
 
 import {
@@ -26,8 +25,10 @@ import {
   Content,
   List,
   ListItem,
-  Button
+  Button,
+  Separator
 } from 'native-base'
+
 import AndroidBackButton from 'react-native-android-back-button'
 
 var INITIAL = {
@@ -123,7 +124,7 @@ export default class DebugCreateResource extends Scene {
   render() {
     return (
       <Container>
-        <Content>
+        <Content style={{padding: 5}}>
           <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
           <ListItem itemHeader first>
             <Text>CREATE A RESOURCE</Text>
