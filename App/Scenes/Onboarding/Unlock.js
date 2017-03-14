@@ -21,7 +21,7 @@ class Unlocked extends Scene {
     this.onFocus = this.onFocus.bind(this)
     this.onSubmit = this.onSubmit.bind(this)
     this.onKeyboardWithShow = this.onKeyboardWithShow.bind(this)
-    this.onKeyboardWillHide = this.onKeyboardWillHide.bind(this)
+    this.onKeyboardDidHide = this.onKeyboardDidHide.bind(this)
     this.onPressForgot = this.onPressForgot.bind(this)
   }
 
@@ -58,7 +58,7 @@ class Unlocked extends Scene {
     })
   }
 
-  onKeyboardWillHide(event) {
+  onKeyboardDidHide(event) {
     this.setState({
       "screenHeight": this.props.screenHeight,
       "keyboardVisible": false
@@ -81,13 +81,13 @@ class Unlocked extends Scene {
   componentDidMount() {
     super.componentDidMount()
     this.keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", this.onKeyboardWithShow)
-    this.keyboardWillHideListener = Keyboard.addListener("keyboardWillHide", this.onKeyboardWillHide)
+    this.keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", this.onKeyboardDidHide)
   }
 
   componentWillUnmount() {
     super.componentWillUnmount()
     this.keyboardDidShowListener.remove()
-    this.keyboardWillHideListener.remove()
+    this.keyboardDidHideListener.remove()
   }
 
   render() {
