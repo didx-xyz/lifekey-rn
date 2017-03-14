@@ -48,17 +48,17 @@ export default class Register extends Scene {
       {
         largeText: 'Create your username',
         smallText: 'Don\'t worry you can change this at any time',
-        bottomRightButton: 'I already have a key'
+        bottomText: 'I already have a key'
       },
       {
         largeText: 'Please enter your personal email address',
         smallText: 'To set up or recover your key',
-        bottomRightButton: null
+        bottomText: null
       },
       {
         largeText: 'Check your mail for a magic link',
         smallText: 'The link will be valid for 24 hours',
-        bottomRightButton: 'Resend link'
+        bottomText: 'Resend link'
       }
     ]
     this.state = {
@@ -68,6 +68,7 @@ export default class Register extends Scene {
       email: null,
       largeText: this._steps[0].largeText,
       smallText: this._steps[0].smallText,
+      bottomText: this._steps[0].bottomText,
       moveTransitionValue: new Animated.Value(props.screenHeight / 6),
       fadeTransitionValue: new Animated.Value(1)
     }
@@ -97,7 +98,7 @@ export default class Register extends Scene {
     this.i++
   }
 
-  _changeTexts(largeText, smallText) {
+  _changeTexts(largeText, smallText, bottomText) {
     //  Move
     Animated.timing(
       this.state.moveTransitionValue,
@@ -112,7 +113,8 @@ export default class Register extends Scene {
       this.setState({
         textInputValue: '',
         largeText: largeText,
-        smallText: smallText
+        smallText: smallText,
+        bottomText: bottomText
       }, () => {
         // change back
         Animated.timing(
@@ -141,7 +143,7 @@ export default class Register extends Scene {
         // Give the keyboard time to close
         setTimeout(() => {
           this._eventTimeline.pushEvent(`Username saved as: ${text}`)
-          this._changeTexts(this._steps[1].largeText, this._steps[1].smallText)
+          this._changeTexts(this._steps[1].largeText, this._steps[1].smallText, this._steps[1].bottomText)
         }, 300)
 
         // Update state to reflect we are on the 2nd step now
@@ -180,8 +182,14 @@ export default class Register extends Scene {
 
         setTimeout(() => {
           this._eventTimeline.pushEvent(`Email saved as: ${text}`)
-          this._changeTexts(this._steps[2].largeText, this._steps[2].smallText)
-        }, 300)
+          this._changeTexts(this._steps[2].largeText, this._steps[2].smallText, this._steps[2].bottomText)
+          this.forceUpdate()
+        }, 500)
+
+        setTimeout(() => {
+          this._eventTimeline.pushEvent(`Magic link sent to: ${text}`)
+          this.forceUpdate()
+        }, 1000)
 
         // Update the state to show we are on the 3rd step
         this.setState({
@@ -268,7 +276,7 @@ export default class Register extends Scene {
                       :
                         <Touchable style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }} onPress={() => this.navigator.push(Routes.onboarding.setPin)}>
                           <View style={{ width: 200, height: 100, alignItems: 'center', justifyContent: 'center', backgroundColor: '#aaaaaa' }}>
-                            <Text>Next</Text>
+                            <Text>Simulate e-mail link clicked</Text>
                           </View>
                         </Touchable>
                     }
@@ -283,10 +291,10 @@ export default class Register extends Scene {
                     </View>
                     <View>
                       <Touchable
-                        onPress={() => this._pushTimelineEvent()}
+                        onPress={() => alert('No you don\'t')}
                       >
                         <View style={{ paddingTop: 20, paddingBottom: 20 }}>
-                          <Text style={{ fontSize: 20 }}>I already have a key</Text>
+                          <Text style={{ fontSize: 20 }}>{this.state.bottomText}</Text>
                         </View>
                       </Touchable>
                     </View>

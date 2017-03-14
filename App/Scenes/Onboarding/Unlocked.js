@@ -31,7 +31,7 @@ export default class Unlocked extends Scene {
 
   componentDidMount() {
     setTimeout(() => {
-      this._eventTimeline.pushEvent('Identity Document photo added to your MyData')
+      this._eventTimeline.pushEvent('Unlocked with numerical pin')
     }, 100)
   }
 
@@ -39,7 +39,7 @@ export default class Unlocked extends Scene {
     return (
       <Container>
         <Content>
-          <BackButton onPress={() => true()}/>
+          <BackButton onPress={() => true}/>
           <Grid>
             <Col style={{ flex: 1, height: this.props.screenHeight }}>
               <Row style={style.firstRow}>
@@ -54,7 +54,7 @@ export default class Unlocked extends Scene {
               <Row style={style.fourthRow}>
                 <Touchable onPress={() => this.navigator.popToTop()}>
                   <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                    <Text style={{ fontSize: 18, color: 'white'}}>Back to start</Text>
+                    <Text style={{ fontSize: 18, color: 'white' }}>Back to start</Text>
                   </View>
                 </Touchable>
               </Row>
