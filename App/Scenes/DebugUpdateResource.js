@@ -26,8 +26,7 @@ import {
   Content,
   List,
   ListItem,
-  Button,
-  Separator
+  Button
 } from 'native-base'
 
 import AndroidBackButton from 'react-native-android-back-button'
