@@ -6,6 +6,7 @@ import Scene from "../../Scene"
 import Routes from "../../Routes"
 import BackButton from "../../Components/BackButton"
 import Dots from "../../Components/Dots"
+import HexagonDots from "../../Components/HexagonDots"
 
 class SetPin extends Scene {
   constructor(...params) {
@@ -31,6 +32,7 @@ class SetPin extends Scene {
     this.setState({
       characters: text
     })
+
     setTimeout(() => {
       if (this.state.characters.length >= 5) {
         this.onSubmit()
@@ -43,6 +45,7 @@ class SetPin extends Scene {
       this.submitted = true
       this.navigator.push(Routes.onboarding.locked)
     }
+
     Keyboard.dismiss()
   }
 
@@ -52,8 +55,6 @@ class SetPin extends Scene {
     this.setState({
       "screenHeight": this.props.screenHeight - change,
       "keyboardVisible": true
-    }, () => {
-      this.forceUpdate()
     })
   }
 
@@ -61,8 +62,6 @@ class SetPin extends Scene {
     this.setState({
       "screenHeight": this.props.screenHeight,
       "keyboardVisible": false
-    }, () => {
-      this.forceUpdate()
     })
   }
 
@@ -75,12 +74,16 @@ class SetPin extends Scene {
 
   componentDidMount() {
     super.componentDidMount()
+    this.keyboardWillShowListener = Keyboard.addListener("keyboardWillShow", this.onKeyboardWithShow)
+    this.keyboardWillHideListener = Keyboard.addListener("keyboardWillHide", this.onKeyboardDidHide)
     this.keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", this.onKeyboardWithShow)
     this.keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", this.onKeyboardDidHide)
   }
 
   componentWillUnmount() {
     super.componentWillUnmount()
+    this.keyboardWillShowListener.remove()
+    this.keyboardWillHideListener.remove()
     this.keyboardDidShowListener.remove()
     this.keyboardDidHideListener.remove()
   }
@@ -103,7 +106,7 @@ class SetPin extends Scene {
                 </Text>
               </Row>
               <Row style={[style.thirdRow]}>
-                {/* need a component for the hexagon of dots */}
+                <HexagonDots current={this.state.characters.length} />
               </Row>
               <Row style={[style.fourthRow]}>
                 <View>

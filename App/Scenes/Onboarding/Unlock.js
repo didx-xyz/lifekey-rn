@@ -1,5 +1,5 @@
 import React from "react"
-import { Text, View, StyleSheet, TextInput, Keyboard, Animated, Platform } from "react-native"
+import { Text, View, StyleSheet, TextInput, Keyboard, Animated, Platform, Image } from "react-native"
 import { Container, Content, Grid, Col, Row } from "native-base"
 
 import Scene from "../../Scene"
@@ -80,12 +80,16 @@ class Unlocked extends Scene {
 
   componentDidMount() {
     super.componentDidMount()
+    this.keyboardWillShowListener = Keyboard.addListener("keyboardWillShow", this.onKeyboardWithShow)
+    this.keyboardWillHideListener = Keyboard.addListener("keyboardWillHide", this.onKeyboardDidHide)
     this.keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", this.onKeyboardWithShow)
     this.keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", this.onKeyboardDidHide)
   }
 
   componentWillUnmount() {
     super.componentWillUnmount()
+    this.keyboardWillShowListener.remove()
+    this.keyboardWillHideListener.remove()
     this.keyboardDidShowListener.remove()
     this.keyboardDidHideListener.remove()
   }
@@ -117,7 +121,7 @@ class Unlocked extends Scene {
                 </Touchable>
               </Row>
               <Row style={[style.fourthRow]}>
-                {/* need a component for the hexagon of dots */}
+                <Image style={{ height: 67, resizeMode: "contain" }} source={require('../../Images/grey_dots_1.png')} />
               </Row>
               <Row style={[style.fifthRow]}>
                 <View>
@@ -189,6 +193,10 @@ const style = StyleSheet.create({
   "input": {
     "position": "absolute",
     "top": -1000
+  },
+  "fourthRow": {
+    "alignItems": "center",
+    "justifyContent": "center"
   }
 })
 
