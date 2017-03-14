@@ -30,13 +30,12 @@ export default class EventTimeline extends Component {
       timestamp: new Date()
     })
 
-    Session.update({
+    this.setState({
       timelineEvents: events
     }, () => {
-      this._scrollView.scrollToEnd({ animated: true })
-      setTimeout(() => {
-        this.forceUpdate()
-      }, 100)
+      Session.update({
+        timelineEvents: events
+      })
     })
   }
 

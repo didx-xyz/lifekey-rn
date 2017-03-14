@@ -183,12 +183,10 @@ export default class Register extends Scene {
         setTimeout(() => {
           this._eventTimeline.pushEvent(`Email saved as: ${text}`)
           this._changeTexts(this._steps[2].largeText, this._steps[2].smallText, this._steps[2].bottomText)
-          this.forceUpdate()
         }, 500)
 
         setTimeout(() => {
           this._eventTimeline.pushEvent(`Magic link sent to: ${text}`)
-          this.forceUpdate()
         }, 1000)
 
         // Update the state to show we are on the 3rd step
