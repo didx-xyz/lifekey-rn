@@ -79,6 +79,9 @@ export default class DebugUpdateResource extends Scene {
           fetched: true
         }
       }),
+      (_ => {
+        Session.state.resources[this.props.passProps.resource_key] = resource_get
+      })(),
       Storage.store(Config.storage.dbKey, resources_update)
     ])
   }
