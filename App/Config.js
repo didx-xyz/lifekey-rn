@@ -20,7 +20,7 @@ export default {
   // The full name of the application
   APP_NAME: APP_NAME,
   // First scene to show
-  initialRoute: BUILD_CONFIG.DEBUG ? Routes.onboarding.splashScreen    // Quick access
+  initialRoute: BUILD_CONFIG.DEBUG ? Routes.onboarding.setPin    // Quick access
                       : Routes.onboarding.splashScreen,
 
   DEBUG: BUILD_CONFIG.DEBUG,                      // All logging on/off (MASTER)

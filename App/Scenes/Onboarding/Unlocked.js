@@ -52,7 +52,7 @@ export default class Unlocked extends Scene {
                 <Text style={{ fontSize: 16, textAlign: 'center' }}>This page will lead to the homepage. "Back to Start" will just restart this prototype.</Text>
               </Row>
               <Row style={style.fourthRow}>
-                <Touchable onPress={() => alert('todo')}>
+                <Touchable onPress={() => this.navigator.popToTop()}>
                   <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                     <Text style={{ fontSize: 18, color: 'white'}}>Back to start</Text>
                   </View>
