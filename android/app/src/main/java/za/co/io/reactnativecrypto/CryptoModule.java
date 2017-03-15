@@ -215,6 +215,18 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   }
 
   /**
+   * Check if a keystore is loaded
+   */
+  @ReactMethod
+  public void getKeyStoreIsLoaded(Promise promise) {
+    if(this.keyStore == null) {
+      promise.resolve(false);
+    } else {
+      promise.resolve(true);
+    }
+  }
+
+  /**
    * Get the alias of the currently loaded keystore
    */
   @ReactMethod
