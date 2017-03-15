@@ -185,7 +185,7 @@ export default class Lifekeyrn extends Component {
       // This should be something random
       const toSign = Date.now().toString()
 
-      Crypto.loadKeyStore(Config.keyStoreName, state.userPassword)
+      Crypto.loadKeyStore(Config.keystore.name, state.userPassword)
       .then(name => {
         return Crypto.sign(
           toSign,                     // dataString
