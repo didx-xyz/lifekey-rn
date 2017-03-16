@@ -62,7 +62,7 @@ export default {
         method: 'POST'
       })
     } else {
-      return Promise.reject('Missing fields')
+      return Promise.reject('Missing fields. Required: ' + JSON.stringify(requiredFields))
     }
 
   },

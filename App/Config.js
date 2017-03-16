@@ -61,8 +61,12 @@ export default {
   storage: {
     dbKey: 'cns_' + APP_NAME.toLowerCase() + '_storage'
   },
-  keyStoreName: APP_NAME.toLowerCase(),
-
+  keystore: {
+    name: APP_NAME.toLowerCase(),
+    pemCertificatePath: 'rsa-example.pem',
+    keyName: APP_NAME.toLowerCase(),
+    publicKeyAlgorithm: 'rsa'
+  },
   // Google Analytics
   googleAnalytics: {
     trackers: {

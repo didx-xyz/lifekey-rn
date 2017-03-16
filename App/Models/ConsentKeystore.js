@@ -12,14 +12,23 @@ export default class ConsentKeystore {
 
   static exists() {
     return new Promise((resolve, reject) => {
-      return Crypto.getKeyStoreList()
-      .then(list => {
-        if (list.find(x => x === Config.keyStoreName)) {
+      return Crypto.getKeyStoreIsLoaded()
+      .then(_loaded => {
+        if (_loaded) {
+          console.log('loaded: ' + _loaded)
+          return Crypto.getKeyStoreList()
+        } else {
+          resolve(false)
+        }
+      })
+      .then(_keystoreList => {
+        if (_keystoreList.find(x => x === Config.keystore.name)) {
           resolve(true)
         } else {
           resolve(false)
         }
       })
+      .catch(error => reject(error))
     })
   }
 
