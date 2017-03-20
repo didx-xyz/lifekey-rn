@@ -75,7 +75,7 @@ const style = StyleSheet.create({
   footer: {
     flex: 1,
     flexDirection: 'row',
-    justiftContent: 'space-between'
+    justifyContent: 'space-between'
   },
   footerLeftView: {
     flex: 1
