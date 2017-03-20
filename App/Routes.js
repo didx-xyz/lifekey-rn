@@ -27,6 +27,7 @@ import QRCodeScanner from './Scenes/Camera/QRCodeScanner'
 import Register from './Scenes/Onboarding/Register'
 import SetPin from './Scenes/Onboarding/SetPin'
 import Unlocked from './Scenes/Onboarding/Unlocked'
+import Me from './Scenes/Me'
 
 import Locked from './Scenes/Onboarding/Locked'
 import Unlock from './Scenes/Onboarding/Unlock'
@@ -36,6 +37,7 @@ export default {
   blankSceneTemplate: { title: 'Blank Scene Template', scene: BlankSceneTemplate },
   login: { title: 'Login', scene: Login },
   main: { title: 'Main', scene: Main },
+  me: { title: 'Main', scene: Me },
   scanQrCode: { title: 'Scan QR Code', scene: ScanQRCode },
   selfieCam: { title: 'Self-facing Camera', scene: SelfieCam },
   debugKeyStore: { title: 'Keypair Generator', scene: DebugKeyStore },

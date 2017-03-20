@@ -11,20 +11,53 @@ import Touchable from '../Components/Touchable'
 import {
   Text,
   View,
-  StyleSheet
+  StyleSheet,
+  Image
 } from 'react-native'
+
+const DEBUG = false
 
 class LifekeyHeader extends Component {
 
+  TAB_CONNECTED = 0
+  TAB_SUGGESTED = 1
+
   constructor(props) {
+
     super(props)
     this.state = {
+      activeTab: this.TAB_CONNECTED,
       bottomLeftText: props.bottomLeftText,
-      bottomRightText: props.bottomRightText
+      bottomRightText: props.bottomRightText,
+      tabs: props.tabs
     }
   }
 
+  onPressBottomLeftButton() {
+    this.props.onPressBottomLeft()
+    this.setState({
+      activeTab: this.TAB_CONNECTED
+    })
+  }
+
+  onPressBottomRightButton() {
+    this.props.onPressBottomRight()
+    this.setState({
+      activeTab: this.TAB_SUGGESTED
+    })
+  }
+
   render() {
+    const leftButtonDynamicStyle = {
+      borderColor: this.state.activeTab === this.TAB_CONNECTED ? Palette.consentBlue :
+                                                                 Palette.consentGrayDark,
+      backgroundColor: DEBUG ? 'orange' : null
+    }
+    const rightButtonDynamicStyle = {
+      borderColor: this.state.activeTab === this.TAB_SUGGESTED ? Palette.consentBlue :
+                                                                 Palette.consentGrayDark,
+      backgroundColor: DEBUG ? 'purple' : null
+    }
     return (
       <View style={style.header}>
 
@@ -33,42 +66,34 @@ class LifekeyHeader extends Component {
 
           { /* TOP LEFT */ }
           <View style={style.topViewLeft}>
-            <Text>1</Text>
+            <Image source={require('../Images/torn_page.png')}/>
           </View>
 
           { /* TOP CENTER */ }
           <View style={style.topViewCenter}>
-            <Text>2</Text>
+            <Image source={require('../Images/blue_dots_static.png')}/>
           </View>
 
           { /* TOP RIGHT */ }
           <View style={style.topViewRight}>
-            <Text>3</Text>
+            <Image source={require('../Images/smiley_speech_bubble.png')}/>
           </View>
 
         </View>
 
         { /* BOTTOM SECTION */ }
         <View style={style.bottomView}>
-          <View style={style.bottomGap}/>
 
-          {/* LEFT BOTTOM TEXT BUTTON */}
-          <Touchable onPress={this.props.onPressBottomLeft}>
-            <View style={style.bottomButton}>
-              <Text style={{ fontSize: 16 }}>CONNECTED</Text>
-            </View>
-          </Touchable>
-
-          <View style={style.bottomGap}/>
-
-          {/* RIGHT BOTTOM TEXT BUTTON */}
-          <Touchable onPress={this.props.onPressBottomRight}>
-            <View style={style.bottomButton}>
-              <Text style={{ fontSize: 16 }}>SUGGESTED</Text>
-            </View>
-          </Touchable>
-
-          <View style={style.bottomGap}/>
+          { this.props.tabs.map((tab, i) =>
+            <Touchable key={i} onPress={() => tab.onPress()}>
+              <View style={[
+                style.bottomButton,
+                { borderColor: tab.active ? Palette.consentBlue : Palette.consentGrayDark }
+              ]}>
+                <Text style={{ fontSize: 16 }}>{tab.text}</Text>
+              </View>
+            </Touchable>
+          )}
         </View>
 
       </View>
@@ -88,17 +113,20 @@ const style = StyleSheet.create({
   topViewLeft: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: DEBUG ? 'green' : null
   },
   topViewCenter: {
     flex: 3,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: DEBUG ? 'red' : null
   },
   topViewRight: {
     flex: 1,
     justifyContent: 'center',
-    alignItems: 'center'
+    alignItems: 'center',
+    backgroundColor: DEBUG ? 'green' : null
   },
   bottomView: {
     flex: 2,
@@ -106,8 +134,7 @@ const style = StyleSheet.create({
   },
   bottomGap: {
     flex: 2,
-    borderColor: Palette.consentGrayDark,
-    borderBottomWidth: 1
+
   },
   bottomButton: {
     flex: 4,
@@ -123,13 +150,15 @@ LifekeyHeader.propTypes = {
   onPressBottomLeft: React.PropTypes.func,
   bottomRightText: React.PropTypes.string,
   onPressBottomRight: React.PropTypes.func,
+  activeTab: React.PropTypes.number
 }
 
 LifekeyHeader.defaultProps = {
-  onPressBottomLeft: () => alert('Nothing'),
-  onPressBottomRight: () => alert('Nothing'),
-  bottomLeftText: 'NOT_SET',
-  bottomRightText: 'NOT_SET'
+  bottomLeftText: 'Connected',
+  bottomRightText: 'Suggested',
+  activeTab: LifekeyHeader.TAB_CONNECTED,
+  onPressBottomLeft: () => ({}),
+  onPressBottomRight: () => ({})
 }
 
 export default LifekeyHeader
