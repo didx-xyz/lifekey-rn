@@ -168,7 +168,6 @@ export default {
     }
   },
 
-  // management/isa - post - to, requested_schemas, purpose, license
   /* 7 POST /management/isa
    * Request an ISA
    */
