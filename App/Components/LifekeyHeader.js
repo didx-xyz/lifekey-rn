@@ -84,8 +84,8 @@ class LifekeyHeader extends Component {
         { /* BOTTOM SECTION */ }
         <View style={style.bottomView}>
 
-          { this.props.tabs.map(tab =>
-            <Touchable onPress={() => tab.onPress()}>
+          { this.props.tabs.map((tab, i) =>
+            <Touchable key={i} onPress={() => tab.onPress()}>
               <View style={[
                 style.bottomButton,
                 { borderColor: tab.active ? Palette.consentBlue : Palette.consentGrayDark }
