@@ -402,11 +402,11 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   }
 
   /**
- * Create a new keystore in the application directory
- * @param name The name of the keystore
- * @param password The password to lock/unlock the keystore
- * @return True on success
- */
+   * Create a new keystore in the application directory
+   * @param name The name of the keystore
+   * @param password The password to lock/unlock the keystore
+   * @return True on success
+   */
   @ReactMethod
   public void createKeyStore(String name, String password, Promise promise) throws IOException {
 
@@ -625,6 +625,18 @@ public class CryptoModule extends ReactContextBaseJavaModule {
     } catch(KeyStoreException e) {
       promise.reject(Byte.toString(E_KEYSTORE), e);
     }
+  }
+
+  /**
+   * Secure random from Java with <3
+   */
+  @ReactMethod
+  public void secureRandom(Promise promise) {
+    SecureRandom rand = this.newSecureRandom();
+    byte[] randBytes = new byte[32];
+    rand.nextBytes(randBytes);
+    String hexString = bytesToHex((randBytes));
+    promise.resolve(hexString);
   }
 
   // Private Methods
