@@ -22,6 +22,7 @@ export default class Session {
   static getState() {
     return this.state
   }
+
   /**
    * Update the current state
    * @param {Object} data Data to modify or put into the store
@@ -29,20 +30,17 @@ export default class Session {
    * @throws {string} Update only accepts objects
    */
   static update(data) {
-    return new Promise((resolve, reject) => {
-      if (typeof data === 'object') {
-        this.state = Object.assign(this.state, data)
-        resolve(true)
-      } else {
-        reject("Update only accepts objects")
-      }
-    })
+    if (typeof data === 'object') {
+      this.state = Object.assign(this.state, data)
+    } else {
+      throw 'Update only accepts objects'
+    }
   }
 
   static persist() {
     return Storage.store(Config.session.dbKey, this.state)
     .catch(error => {
-      Logger.error(error, "Session")
+      Logger.error(error, 'Session')
     })
   }
 

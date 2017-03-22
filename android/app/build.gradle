@@ -94,6 +94,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-svg')
     compile project(':react-native-dialogs')
     compile project(':react-native-camera')
     compile project(':react-native-vector-icons')

@@ -17,6 +17,7 @@
     "globals": {
         "require": false,
         "setTimeout": false,
+        "setInterval": false,
         "jest": false,
         "it": false,
         "expect": false,
@@ -68,10 +69,9 @@
         "no-lone-blocks": "warn",
         "no-octal-escape": "error",
         "no-octal": "error",
-        "no-return-assign": "warn",
         "no-useless-call": "warn",
         "no-warning-comments": ["warn", { "terms": ["todo", "fixme"], "location": "start" }],
-        "camelcase": "warn",
+        // "camelcase": "warn",
         "computed-property-spacing": ["warn", "never"],
         "func-call-spacing": ["warn", "never"],
         "key-spacing": ["warn", {
@@ -80,6 +80,7 @@
         }],
         "linebreak-style": ["error", "unix"],
         "max-len": ["warn", {
+            "code": 100,
             "ignoreComments": true,
             "ignoreStrings": true,
             "ignoreTemplateLiterals": true
@@ -90,7 +91,6 @@
         "no-multi-assign": "warn",
         "no-tabs": "warn",
         "no-trailing-spaces": "warn",
-        "object-curly-newline": ["warn", { "multiline": true }],
         "one-var-declaration-per-line": "warn",
         "quote-props": ["warn", "as-needed"],
         "quotes": ["warn", "single"],

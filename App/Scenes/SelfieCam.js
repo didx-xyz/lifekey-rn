@@ -19,24 +19,18 @@ import {
 } from 'react-native'
 import * as NB from 'native-base'
 import Camera from 'react-native-camera'
-import AndroidBackButton from 'react-native-android-back-button'
+import BackButton from '../Components/BackButton'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
 const t = require('tcomb-form-native')
 const Form = t.form.Form
 
 
 export default class SelfieCam extends Scene {
-
   constructor(props) {
     super(props)
     this.state = {
       qrCaptured: false
     }
-  }
-
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
   }
 
   takePicture() {
@@ -52,7 +46,7 @@ export default class SelfieCam extends Scene {
   render() {
     return (
       <View style={styles.container}>
-        <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+        <BackButton navigator={this.navigator} />
         <Camera
           ref={(cam) => { this.camera = cam }}
           captureTarget={ Camera.constants.CaptureTarget.temp }

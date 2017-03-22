@@ -7,13 +7,16 @@
 
 import React from 'react'
 import Scene from '../../Scene'
+import Routes from '../../Routes'
+import Palette from '../../Palette'
+import Config from '../../Config'
+import Touchable from '../../Components/Touchable'
 
 import {
   Text,
   View,
-  Dimensions,
   StyleSheet,
-  TouchableNativeFeedback
+  StatusBar,
 } from 'react-native'
 
 import {
@@ -23,50 +26,85 @@ import {
   Row,
   Col
 } from 'native-base'
-import AndroidBackButton from 'react-native-android-back-button'
+
+import BackButton from '../../Components/BackButton'
 
 export default class SplashScreen extends Scene {
+  _onAttention() {
+    StatusBar.setHidden(true)
+  }
 
-  _hardwareBackHandler() {
-    return false // exit the app
+  componentWillMount() {
+    super.componentWillMount()
+    this._onAttention()
+  }
+
+  componentWillFocus() {
+    super.componentWillFocus()
+    this._onAttention()
   }
 
   render() {
+    let scan = (
+      <Touchable
+        onPress={() => this.navigator.push(Routes.camera.qrCodeScanner)}
+      >
+        <View style={style.buttonView} >
+          <Text style={[style.buttonText]}>Scan</Text>
+        </View>
+      </Touchable>
+    )
+
+    let start = (
+      <Touchable
+        onPress={() => this.navigator.push(Routes.onboarding.register)}
+      >
+        <View style={style.buttonView} >
+          <Text style={[style.buttonText]}>Let's start</Text>
+        </View>
+      </Touchable>
+    )
+
     return (
       <Container>
         <Content>
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
-
+          <BackButton navigator={this.navigator} onPress={() => false} />
           <Grid>
             <Col style={{ flex: 1, height: this.props.screenHeight }}>
-              <Row style={[style.firstRow]}>
-                <Text>Splash Page</Text>
-              </Row>
+              { Config.DEBUG ?
+                <Touchable style={{ flex: 1 }} delayLongPress={500} onLongPress={() => this.navigator.push(Routes.debug)}>
+                  <Row style={[style.firstRow]}>
+                    <Text>Splash Page</Text>
+                  </Row>
+                </Touchable>
+                :
+                <Row style={[style.firstRow]}>
+                  <Text>Splash Page</Text>
+                </Row>
+              }
+
+
               <Row style={[style.secondRow]}>
-                <Row style={{ alignItems: 'center' }}>
-                  <Text>Securely store and verify personal information.</Text>
-                </Row>
-                <Row style={{ alignItems: 'center' }}>
-                  <Text>{this.props.screenHeight}</Text>
-                </Row>
-              </Row>
-              <Row style={[style.thirdRow]}>
-                <Text>Trusted Partner Logos</Text>
-              </Row>
-              <Row style={[style.fourthRow]}>
-                <Col>
-                  <TouchableNativeFeedback onPress={() => ({})}>
-                    <View style={style.buttonView} >
-                      <Text style={[style.buttonText]}>Scan</Text>
+                <Row style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
+                  <View style={{ flex: 1, padding: 20, paddingTop: 40, paddingBottom: 40 }}>
+                    <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 2 }}>
+                      <Text style={{ fontSize: 20, textAlign: 'center' }}>Securely store and verify personal information.</Text>
                     </View>
-                  </TouchableNativeFeedback>
+                    <View style={{ flex: 1, alignItems: 'center', paddingTop: 2 }}>
+                      <Text style={{ fontSize: 16 }}>Carousel between 3 opening lines</Text>
+                    </View>
+                  </View>
+                </Row>
+              </Row>
+                <Row style={[style.thirdRow]}>
+                  <Text>Trusted Partner Logos</Text>
+                </Row>
+              <Row style={[style.trustedPartnersRow]}>
+                <Col>
+                  {scan}
                 </Col>
                 <Col>
-                  <TouchableNativeFeedback onPress={() => ({})}>
-                    <View style={style.buttonView} >
-                      <Text style={[style.buttonText]}>Let's start</Text>
-                    </View>
-                  </TouchableNativeFeedback>
+                  {start}
                 </Col>
               </Row>
             </Col>
@@ -98,11 +136,12 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  fourthRow: {
+  trustedPartnersRow: {
     backgroundColor: '#216BFF',
     flex: 6,
     alignItems: 'center',
-    justifyContent: 'center'
+    justifyContent: 'center',
+    // fontSize: 16
   },
   buttonView: {
     flex: 1,
@@ -110,15 +149,7 @@ const style = StyleSheet.create({
     justifyContent: 'center'
   },
   buttonText: {
-    color: 'white'
+    color: 'white',
+    fontSize: 20
   }
 })
-
-/*
-210px = 2.7 = 6
-215 = 2.7 = 6
-65 = 8.9 = 18
-90 = 6.4 = 12
-*/
-
-// total: 580

@@ -1,0 +1,135 @@
+/**
+ * Lifekey App
+ * @copyright 2017 Global Consent Ltd
+ * Civvals, 50 Seymour Street, London, England, W1H 7JG
+ * @author Werner Roets <werner@io.co.za>
+ */
+import { Platform } from 'react-native'
+import Session from '../Session'
+import Storage from '../Storage'
+import Crypto from '../Crypto'
+import Firebase from '../Firebase'
+import Logger from '../Logger'
+import Config from '../Config'
+import Api from '../Api'
+import ConsentKeystore from './ConsentKeystore'
+
+export default class ConsentUser {
+
+  static login(password) {
+    Session.update({ user: { loggedIn: true } })
+  }
+
+  static logout() {
+    Session.update({ user: { loggedIn: false } })
+  }
+
+  static register(username, email, password) {
+    return new Promise((resolve, reject) => {
+      let publicKeyPem, firebaseToken
+      const toSign = Date.now().toString() // should be a random
+
+      // Check if already registered
+      return ConsentUser.isRegistered()
+      .then(registered => {
+        if (registered) {
+          Promise.reject('Already registered')
+        } else {
+          // create keystore first
+          return Crypto.createKeyStore(Config.keystore.name, password)
+          // Create the user's keypair
+
+        }
+      })
+
+      .then(() => Crypto.addKeyPair(
+        Crypto.KEYPAIR_RSA,
+        Config.keystore.name,
+        2048,
+        password,
+        Config.keystore.pemCertificatePath
+      ))
+      // Get public key in PEM format
+      .then(_keys => {
+        console.log(JSON.stringify(_keys))
+        Crypto.getKeyAsPem(`public${Config.keystore.keyName}`, password)
+      })
+
+      // Get firebase token
+      .then(_publicKeyPem => {
+        publicKeyPem = _publicKeyPem
+        return Firebase.getToken()
+      })
+
+      // Sign with private key
+      .then(_firebaseToken => {
+        firebaseToken = _firebaseToken
+        return Crypto.sign(
+          toSign,
+          `private_${Config.keystore.keyName}`,
+          password,
+          Crypto.SIG_SHA256_WITH_RSA
+        )
+      })
+
+      // Send to server
+      .then(signature => Api.register({
+        email: email,
+        nickname: username,
+        device_id: firebaseToken,
+        device_platform: Platform.OS,
+        public_key_algorithm: Config.keystore.publicKeyAlgorithm,
+        public_key: publicKeyPem,
+        plaintext_proof: toSign,
+        signed_proof: signature
+      }))
+
+      // Update session and storage
+      .then(response => {
+        const jsonData = response.body
+        Session.update({
+          user: {
+            dbId: jsonData.id,
+            password: password,
+            email: email
+          }
+        })
+        return Storage.store(Config.storage.dbKey, {
+          user: {
+            dbId: jsonData.id,
+            email: email
+          }
+        })
+      })
+      .then(() => {
+        Logger.info('User registered')
+        Promise.resolve()
+      })
+      .catch(error => {
+        Logger.error('Could not register user', 'ConsentUser', error)
+        reject(error)
+      })
+    })
+  }
+
+  static isLoggedIn() {
+    return Session.getState().user.loggedIn
+  }
+
+  static isRegistered() {
+    return new Promise((resolve, reject) => {
+      return ConsentKeystore.exists()
+      .then(exists => {
+        if (exists) {
+          Logger.info(`Keystore "${Config.keystore.name}" found. User not registered.`, this.filename)
+          Session.update({ user: { registered: true } })
+          resolve(true)
+        } else {
+          Logger.info(`Keystore "${Config.keystore.name}" not found. User not registered.`, this.filename)
+          Session.update({ user: { registered: false } })
+          resolve(false)
+        }
+      })
+    })
+  }
+}

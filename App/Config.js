@@ -5,22 +5,12 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-import {
-  Platform,
-  Navigator
-} from 'react-native'
+import { Platform, Navigator } from 'react-native'
 import Routes from './Routes'
 import Palette from './Palette'
-
-const pkg = require('../package.json')
-
+const NPM_PACKAGE = require('../package.json')
+const BUILD_CONFIG = require('../cfg/dev.json')
 const APP_NAME = 'Lifekey'
-const APP_UUID = "123123354223432"
-const SERVER = 'staging.api.lifekey.cnsnt.io'
-const SCHEME = 'http://'
-const DEBUG = true
-const API_VERSION = 1
-const TOKEN_REFRESH_URL = "http://staging.api.lifekey.cnsnt.io/management/device"
 
 /**
  * The configuration file for the App
@@ -28,50 +18,56 @@ const TOKEN_REFRESH_URL = "http://staging.api.lifekey.cnsnt.io/management/device
 export default {
 
   // The full name of the application
-  appName: APP_NAME,
-  appUUID: APP_UUID,
+  APP_NAME: APP_NAME,
+  
   // First scene to show
-  // initialRoute: Routes.debugRegister,
-  initialRoute: Routes.debug,
+  initialRoute: BUILD_CONFIG.DEBUG ? Routes.main    // Quick access
+                      : Routes.onboarding.splashScreen,
 
-  debug: DEBUG,          // Main switch
-  debugNetwork: true,   // HTTP
-  debugReact: true,      // Show react lifescylce data
-  debugNavigator: false,
-  debugAutoLogin: true,
-  debugAsyncStorage: true,
-  debugFirebase: true,
-  // App version
-  version: pkg.version,
+  DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
+  debugNetwork: true,         // Log API requests and responses
+  debugReact: false,          // Log the React Lifecycle events
+  debugNavigator: false,      // Log the current stack of Navigator routes
+  debugAsyncStorage: true,    // Log Storage (AsyncStorage) reads/writes
+  debugFirebase: true,        // Log Firebase events
+
+  version: NPM_PACKAGE.version, // App version
 
   // React Native version
-  rnVersion: pkg.dependencies['react-native'].substring(1),
+  rnVersion: NPM_PACKAGE.dependencies['react-native'].substring(1),
 
   // Android navigator transitions
   sceneConfig: Navigator.SceneConfigs.FloatFromRight,
   sceneTransitionMinumumTime: 200,
 
   // Modal settings
-  progressBarColor: Palette.consentOrange,
+  progressBarColor: Palette.consentBlue,
 
-  // Server details
+  // HTTP settings
   http: {
-    tokenRefreshUrl: TOKEN_REFRESH_URL,
-    server: SERVER,
-    baseUrl: SCHEME + SERVER,
+    // tokenRefreshUrl: TOKEN_REFRESH_URL,
+    server: BUILD_CONFIG.SERVER,
+    baseUrl: 'http://' + BUILD_CONFIG.SERVER,
     headers: {
       'X-Requested-With': 'XMLHttpRequest',
-      'x-client-platform': APP_NAME + Platform.OS + ' v' + pkg.version,
-      'x-client-version': pkg.version,
+      'x-client-platform': `${APP_NAME} ${Platform.OS} v${NPM_PACKAGE.version}`,
+      'x-client-version': NPM_PACKAGE.version,
       'x-cnsnt-did': 'did',
       'x-cnsnt-signature': 'sig',
       'Content-Type': 'application/json'
     }
   },
+
+  // AsyncStorage
   storage: {
-    dbKey: APP_NAME.toLowerCase() + '_storage'
+    dbKey: 'cns_' + APP_NAME.toLowerCase() + '_storage'
   },
-  keyStoreName: APP_NAME.toLowerCase(),
+  keystore: {
+    name: APP_NAME.toLowerCase(),
+    pemCertificatePath: 'rsa-example.pem',
+    keyName: APP_NAME.toLowerCase(),
+    publicKeyAlgorithm: 'rsa'
+  },
   // Google Analytics
   googleAnalytics: {
     trackers: {
@@ -83,4 +79,3 @@ export default {
     optOut: false
   }
 }
-

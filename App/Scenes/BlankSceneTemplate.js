@@ -1,6 +1,6 @@
 /**
  * Lifekey App
- * @copyright 2016 Global Consent Ltd
+ * @copyright 2016 - 2017 Global Consent Ltd
  * Civvals, 50 Seymour Street, London, England, W1H 7JG
  * @author Werner Roets <werner@io.co.za>
  */
@@ -9,30 +9,49 @@ import React from 'react'
 import Scene from '../Scene'
 
 import {
-  Text
+  Text,
+  View,
+  StyleSheet
 } from 'react-native'
 
 import {
   Container,
   Content,
+  Grid,
+  Col,
+  Row
 } from 'native-base'
-import AndroidBackButton from 'react-native-android-back-button'
+
+import BackButton from '../Components/BackButton'
 
 export default class BlankSceneTemplate extends Scene {
-
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
-  }
-
   render() {
     return (
       <Container>
         <Content>
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
-          <Text>Hello World</Text>
+          <BackButton navigator={this.navigator} />
+          <Grid>
+            <Col style={[style.col, {"height": this.props.screenHeight}]}>
+              <Row style={[style.row]}>
+                <View>
+                  <Text>Hello World</Text>
+                </View>
+              </Row>
+            </Col>
+          </Grid>
         </Content>
       </Container>
     )
   }
 }
+
+const style = StyleSheet.create({
+  "col": {
+    "backgroundColor": "#f9fafa",
+    "flexDirection": "column"
+  },
+  "row": {
+    "justifyContent": "center",
+    "alignItems": "center"
+  }
+})

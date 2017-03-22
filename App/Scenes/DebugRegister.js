@@ -27,7 +27,8 @@ import {
   Container,
   Content
 } from 'native-base'
-import AndroidBackButton from 'react-native-android-back-button'
+
+import BackButton from '../Components/BackButton'
 
 export default class DebugRegister extends Scene {
 
@@ -40,11 +41,6 @@ export default class DebugRegister extends Scene {
       keystoreLoaded: false,
       registered: false
     }
-  }
-
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
   }
 
   componentDidMount() {
@@ -119,16 +115,14 @@ export default class DebugRegister extends Scene {
     }))
     .then(responseJson => {
       jsonData = responseJson.body
-      return Promise.all([
-        Session.update({
-          dbUserId: jsonData.id,
-          userPassword: password // Not ideal
-        }),
-        Storage.store(Config.storage.dbKey, {
-          userPassword: password,
-          dbUserId: jsonData.id
-        })
-      ])
+      Session.update({
+        dbUserId: jsonData.id,
+        userPassword: password // Not ideal
+      })
+      Storage.store(Config.storage.dbKey, {
+        userPassword: password,
+        dbUserId: jsonData.id
+      })
     })
     .then(_ => {
       this.navigator.pop()
@@ -148,7 +142,7 @@ export default class DebugRegister extends Scene {
     return (
       <Container>
         <Content>
-          <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+          <BackButton navigator={this.navigator} />
           <View style={{ alignItems: 'center' }}>
             <H1>Register on Consent</H1>
           </View>

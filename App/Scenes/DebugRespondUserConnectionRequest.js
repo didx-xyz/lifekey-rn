@@ -27,19 +27,10 @@ import {
   Button,
   ListItem
 } from 'native-base'
-import AndroidBackButton from 'react-native-android-back-button'
+
+import BackButton from '../Components/BackButton'
 
 export default class DebugRespondUserConnectionRequest extends Scene {
-
-  constructor(props) {
-    super(props)
-  }
-
-  _hardwareBackHandler() {
-    this.navigator.pop()
-    return true
-  }
-
   _doRespond(ucr_id, body) {
     var toSign = Date.now().toString()
     Crypto.loadKeyStore(
@@ -82,12 +73,12 @@ export default class DebugRespondUserConnectionRequest extends Scene {
   _accept(ucr_id) {
     this._doRespond(ucr_id, {accepted: true})
   }
-  
+
   render() {
     return (
         <Container>
             <Content>
-                <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
+                <BackButton navigator={this.navigator} />
                 <ListItem itemHeader first>
                   <Text>CONNECTION REQUEST FROM USER</Text>
                 </ListItem>
