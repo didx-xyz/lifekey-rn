@@ -20,6 +20,8 @@ import DebugShowQRCode from './Scenes/DebugShowQRCode'
 import DebugPushNotifications from './Scenes/DebugPushNotifications'
 import DebugViewConnectionRequests from './Scenes/DebugViewConnectionRequests'
 import DebugViewConnections from './Scenes/DebugViewConnections'
+import DebugListAllResources from './Scenes/DebugListAllResources'
+
 // Main
 import BlankSceneTemplate from './Scenes/BlankSceneTemplate'
 import SplashScreen from './Scenes/Onboarding/SplashScreen'
@@ -50,6 +52,8 @@ export default {
   debugPushNotifications: { title: "Push notifications", scene: DebugPushNotifications },
   debugViewConnectionRequests: { title: 'View Connection Requests', scene: DebugViewConnectionRequests },
   debugViewConnections: { title: 'Connections', scene: DebugViewConnections },
+  debugListAllResources: {title: 'List All Resources', scene: DebugListAllResources},
+
   // Main
   onboarding: {
     splashScreen: { scene: SplashScreen },
