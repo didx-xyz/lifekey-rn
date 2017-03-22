@@ -16,12 +16,29 @@ import ConsentKeystore from './ConsentKeystore'
 
 export default class ConsentUser {
 
+  static storageKey = 'users'
+
+  static get() {
+    return Session.getState().user
+  }
+
   static login(password) {
+    // load keys maybe?
     Session.update({ user: { loggedIn: true } })
   }
 
   static logout() {
     Session.update({ user: { loggedIn: false } })
+  }
+
+  static setDid(did) {
+    return Storage.store(Config.storage.dbKey, {
+      user: { dbDid: did }
+    })
+    .then(() => {
+      Session.update({ user: { dbDid: did } })
+      Promise.resolve(did)
+    })
   }
 
   static register(username, email, password) {
