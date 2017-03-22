@@ -8,12 +8,17 @@
 import Config from './Config'
 
 import Logger from './Logger'
+import Crypto from './Crypto'
 
 function request(route, opts) {
 
   const options = Object.assign({
-    method: 'GET',
-    headers: { 'content-type': 'application/json' }
+    method: 'GET',  // Default
+    headers: {
+      'content-type': 'application/json',
+      'x-cnsnt-platform': Config.http.headers['x-client-platform'],
+      'x-client-version': Config.http.headers['x-client-version']
+    }
   }, opts)
 
   Logger.networkRequest(options.method, new Date(), Config.http.baseUrl + route)
@@ -85,7 +90,13 @@ export default {
     if (containsRequired(requiredFields, data)) {
       return request('/management/device', {
         body: JSON.stringify(data),
-        method: 'POST'
+        method: 'POST',
+        headers: {
+          'content-type': 'application/json',
+          'x-cnsnt-id': data.user_id,
+          'x-cnsnt-plain': data.plain,
+          'x-cnsnt-signed': data.signature
+        }
       })
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
