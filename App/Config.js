@@ -64,7 +64,9 @@ export default {
   keystore: {
     name: APP_NAME.toLowerCase(),
     pemCertificatePath: 'rsa-example.pem',
-    keyName: APP_NAME.toLowerCase(),
+    keyName: APP_NAME.toLowerCase(), // TODO: Deprecate
+    privateKeyName: 'private_'.APP_NAME.toLowerCase(),
+    publicKeyName: 'public_'.APP_NAME.toLowerCase(),
     publicKeyAlgorithm: 'rsa'
   },
   // Google Analytics
