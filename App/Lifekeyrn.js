@@ -15,6 +15,9 @@ import Config from './Config'
 import Firebase from './Firebase'
 // import ConsentKeystore from './Models/ConsentKeystore'
 import ConsentUser from './Models/ConsentUser'
+import ConsentConnection from './Models/ConsentConnection'
+import ConsentConnectionRequest from './Models/ConsentConnectionRequest'
+import ConsentDiscoveredUser from './Models/ConsentDiscoveredUser'
 import EventEmitter from 'EventEmitter'
 import React, { Component } from 'react'
 import {
@@ -61,24 +64,7 @@ export default class Lifekeyrn extends Component {
       Logger.info('TODO: Firebase iOS', this.filename)
     }
 
-
-
-    // Load Firebase token from storage
-    Storage.load(Config.storage.dbKey)
-    .then(storage => {
-      if (storage === null) {
-        // enoent
-        Logger.async(Config.storage.dbKey + 'not found. No persistent app storage found')
-      } else {
-        Session.update({ firebaseToken: storage.firebaseToken })
-      }
-      return Storage.store(Config.storage.dbKey, Session.getState())
-    })
-    .catch(error => {
-      Logger.error(error, this.filename)
-    })
-
-    // Init connections session
+    // Init connections session ?? needed
     if (!Session.getState().connections) {
       Session.update({
         connections: {
@@ -91,139 +77,71 @@ export default class Lifekeyrn extends Component {
 
   /**
    * Fires when a Firebase EventMessage is received
+   * @param {string} message The firebase message
    */
-  _nativeEventMessageReceived(msg) {
-    var current_state = Session.getState()
-    if (msg.notification) {
-      alert(msg.notification.title + ' - ' + msg.notification.body)
+  _nativeEventMessageReceived(message) {
+    if (message.data && message.data.type) {
+      switch (message.data.type) {
+
+      case 'received_did':
+        ConsentUser.setDid(message.data.did_value)
+        break
+
+      case 'user_connection_request':
+        ConsentConnectionRequest.add(
+          message.data.user_connection_request_id,
+          message.data.from_id,
+          message.data.from_did,
+          message.data.from_nickname
+        )
+        ConsentDiscoveredUser.add(
+          message.data.from_id,
+          message.data.from_did,
+          message.data.from_nickname
+        )
+        break
+
+      case 'user_connection_created':
+        ConsentConnection.add(
+          message.data.user_connection_id,
+          message.data.to_id,
+          message.data.from_id
+        )
+        break
+      }
+    } else {
+      // Just a normal notification
+      if (message.notification) {
+        alert(message.notification.title + ' - ' + message.notification.body)
+      } else {
+        Logger.error('Unexpeted firebase message format')
+      }
     }
-
-    if (msg.data.type === 'received_did') {
-      Session.update({ dbDid: msg.data.did_value })
-      Storage.store(Config.storage.dbKey, { dbDid: msg.data.did_value })
-      .catch((err) => {
-        Logger.error('could not persist did value from server', this.filename)
-      })
-    }
-
-    if (msg.data.type === 'user_connection_request') {
-
-      var new_connection_request = {
-        id: msg.data.user_connection_request_id,
-        from_id: msg.data.from_id,
-        from_did: msg.data.from_did,
-        from_nickname: msg.data.from_nickname
-      }
-      var new_discovered_user = {
-        id: msg.data.from_id,
-        did: msg.data.from_did,
-        nickname: msg.data.from_nickname
-      }
-      if (!current_state.users) current_state.users = {}
-      if (!current_state.connections) current_state.connections = {}
-      if (!current_state.connections.user_connection_requests) {
-        current_state.connections.user_connection_requests = {}
-      }
-      current_state.connections.user_connection_requests[msg.data.user_connection_request_id] = new_connection_request
-      current_state.users[msg.data.from_id] = new_discovered_user
-
-
-      Session.update(current_state),
-      Storage.store(Config.storage.dbKey, current_state)
-      .then(() => {
-        Logger.async('added a new user connection record')
-      })
-      .catch(error => {
-        Logger.error('uh oh, could not persist new user connection request', this.filename, error)
-      })
-
-
-
-    } else if (msg.data.type === 'user_connection_created') {
-      var new_connection = {
-        id: msg.data.user_connection_id,
-        to_id: msg.data.to_id,
-        from_id: msg.data.from_id
-      }
-      if (!current_state.connections) {
-        current_state.connections = {}
-      }
-      if (!current_state.connections.user_connections) {
-        current_state.connections.user_connections = {}
-      }
-      current_state.connections.user_connections[
-        msg.data.user_connection_id
-      ] = new_connection
-
-      Session.update(current_state),
-      Storage.store(Config.storage.dbKey, current_state)
-      .then(() => {
-        Logger.async('added a new user connection record')
-      })
-      .catch(error => {
-        Logger.error('uh oh, could not persist new user connection request', this.filename, error)
-      })
-    }
-
   }
 
   /**
    * Fires when firebase pushes a new token to the device
    * @param {string} token The firebase token
+   * @returns {undefined} undefined
    */
   _nativeEventTokenRefreshed(token) {
     Firebase.updateToken(token)
     .catch(error => {
-      Logger.error('Firebase error', this.filename, error)
+      Logger.error('Firebase error updating token', this.filename, error)
     })
-
-    const state = Session.getState()
-
-    var pemKey
-    if (state.dbUserId) {
-
-      // This should be something random
-      const toSign = Date.now().toString()
-
-      Crypto.loadKeyStore(Config.keystore.name, state.userPassword)
-      .then(name => {
-        return Crypto.sign(
-          toSign,                     // dataString
-          'private_lifekey',          // privateKeyAlias
-          'consent',                  // privateKeyPassword
-          Crypto.SIG_SHA256_WITH_RSA  // algorithm
-        )
-      })
-      .then(sig => {
-        return fetch(`${Config.http.baseUrl}/management/device`, {
-          method: 'POST',
-          body: JSON.stringify({
-            device_id: token,
-            device_platform: Platform.OS
-          }),
-          headers: {
-            'content-type': 'application/json',
-            'x-cnsnt-id': state.dbUserId,
-            'x-cnsnt-plain': toSign,
-            'x-cnsnt-signed': sig.trim()
-          }
-        })
-      })
-      .catch(error => {
-        alert("Could not update token")
-        Logger.error(error, this.filename)
-      })
-
-    }
   }
 
   componentWillMount() {
+    Logger.react(this.filename, Lifecycle.COMPONENT_WILL_MOUNT)
+
+    // Get some initial size data
     const width = Math.round(Dimensions.get('window').width)
     const height = Math.round(Dimensions.get('window').height)
     const scale = Dimensions.get('window').scale
     const fontScale = Dimensions.get('window').fontScale
-
     Logger.info(`Initial Dimensions: ${width} x ${height} ${width < height ? 'PORTRAIT' : 'LANDSCAPE'}`, this.filename)
+
+    // Set to state
     this.setState({
       viewableScreenWidth: width,
       viewableScreenHeight: height,
@@ -231,7 +149,6 @@ export default class Lifekeyrn extends Component {
       scale: scale,
       fontScale: fontScale
     })
-    Logger.react(this.filename, Lifecycle.COMPONENT_WILL_MOUNT)
   }
 
   onWillFocus(route) {
@@ -276,6 +193,7 @@ export default class Lifekeyrn extends Component {
   }
 
   shouldComponentUpdate(nextProps, nextState) {
+    // Re-render when orientation changes
     if (nextState.viewableScreenWidth !== this.state.viewableScreenWidth ||
         nextState.viewableScreenHeight !== this.state.viewableScreenHeight) {
       return true
@@ -283,7 +201,13 @@ export default class Lifekeyrn extends Component {
     return false
   }
 
+  /**
+   * Called when the outermost view's dimensions change
+   * @param {Object} event
+   * @returns {undefined} undefined
+   */
   onScreenUpdate(event) {
+
     const width = Math.round(event.nativeEvent.layout.width)
     const height = Math.round(event.nativeEvent.layout.height)
     const orientation = width > height ? 'LANDSCAPE' : 'PORTRAIT'
@@ -305,7 +229,6 @@ export default class Lifekeyrn extends Component {
   render() {
     return (
         <Navigator
-
           initialRoute={this._initialRoute}
           onWillFocus={(route) => this.onWillFocus(route)}
           onDidFocus={(route) => this.onDidFocus(route)}
@@ -314,10 +237,7 @@ export default class Lifekeyrn extends Component {
             return (
               <View
                 onLayout={(event) => this.onScreenUpdate(event)}
-                style={{
-                  flex: 1,
-                  backgroundColor: Palette.sceneBackgroundColour
-                }}
+                style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}
               >
                 {React.createElement(
                   route.scene,
