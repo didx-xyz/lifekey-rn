@@ -27,6 +27,7 @@ class ConsentDiscoveredUser {
   static remove(id) {
     const discoveredUsers = Session.getState()[ConsentDiscoveredUser.storageKey]
     if (discoveredUsers) {
+      // Remove element with matching ID
       const updatedDiscoveredUsers = discoveredUsers.filter(element => element.id !== id)
       const update = {}[ConsentDiscoveredUser.storageKey] = updatedDiscoveredUsers
       Session.update(update)
@@ -36,11 +37,26 @@ class ConsentDiscoveredUser {
   }
 
   static get(id) {
-
+    const discoveredUsers = Session.getState()[ConsentDiscoveredUser.storageKey]
+    if (discoveredUsers) {
+      const user = discoveredUsers.find(user => user.id === id)
+      if (user) {
+        return user
+      } else {
+        throw `No discovered user with id: ${id}`
+      }
+    } else {
+      throw 'No discoveredUsers exist yet'
+    }
   }
 
   static all() {
-
+    const discoveredUsers = Session.getState()[ConsentDiscoveredUser.storageKey]
+    if (discoveredUsers) {
+      return discoveredUsers
+    } else {
+      throw 'No discoveredUsers exist yet'
+    }
   }
 }
 
