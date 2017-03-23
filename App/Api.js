@@ -10,7 +10,6 @@ import Crypto from './Crypto'
 import Session from './Session'
 import Storage from './Storage'
 import Logger from './Logger'
-import Crypto from './Crypto'
 
 function request(route, opts) {
 
@@ -87,7 +86,7 @@ export default {
 
   /* 0 POST /management/register
    * Register a user
-   */  
+   */
   register: (data) => {
     const requiredFields = [
       'email',
