@@ -19,7 +19,7 @@ export default {
 
   // The full name of the application
   APP_NAME: APP_NAME,
-  
+
   // First scene to show
   initialRoute: BUILD_CONFIG.DEBUG ? Routes.main    // Quick access
                       : Routes.onboarding.splashScreen,
@@ -66,8 +66,8 @@ export default {
     name: APP_NAME.toLowerCase(),
     pemCertificatePath: 'rsa-example.pem',
     keyName: APP_NAME.toLowerCase(), // TODO: Deprecate
-    privateKeyName: 'private_' + APP_NAME.toLowerCase(),
-    publicKeyName: 'public_' + APP_NAME.toLowerCase(),
+    privateKeyName: 'private' + APP_NAME.toLowerCase(), // Do not change this because it's hardcoded on the java side
+    publicKeyName: 'public' + APP_NAME.toLowerCase(),   // or this
     publicKeyAlgorithm: 'rsa'
   },
   // Google Analytics
