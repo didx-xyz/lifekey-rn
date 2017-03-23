@@ -50,8 +50,6 @@ export default {
     baseUrl: 'http://' + BUILD_CONFIG.SERVER,
     headers: {
       'X-Requested-With': 'XMLHttpRequest',
-      'x-client-platform': `${APP_NAME} ${Platform.OS} v${NPM_PACKAGE.version}`,
-      'x-client-version': NPM_PACKAGE.version,
       'x-cnsnt-did': 'did',
       'x-cnsnt-signature': 'sig',
       'Content-Type': 'application/json'

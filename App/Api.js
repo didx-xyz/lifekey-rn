@@ -17,8 +17,6 @@ function request(route, opts) {
     method: 'GET',  // Default
     headers: {
       'content-type': 'application/json',
-      'x-cnsnt-platform': Config.http.headers['x-client-platform'],
-      'x-client-version': Config.http.headers['x-client-version']
     }
   }, opts)
 
