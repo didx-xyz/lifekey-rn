@@ -46,33 +46,22 @@ export default class Lifekeyrn extends Component {
       viewableScreenWidth: null,
       viewableScreenHeight: null
     }
-    Logger.info(`Booting ReactNative ${Config.APP_NAME}  ${Config.version}`, this.filename)
+    Logger.info(`${Config.APP_NAME}  ${Config.version}`, this.filename)
 
     // Events
     if (Platform.OS === 'android') {
       DeviceEventEmitter.addListener('messageReceived', (message) => this._nativeEventMessageReceived(message))
       DeviceEventEmitter.addListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
       // lol
-      Firebase.getToken()
-      .then(token => {
-        Logger.firebase(`Token loaded: ${token}`)
-      })
-      .catch(error => {
-        Logger.error('Could not load Firebase token', this.filename, error)
-      })
+
     } else {
       Logger.info('TODO: Firebase iOS', this.filename)
     }
 
-    // Init connections session ?? needed
-    if (!Session.getState().connections) {
-      Session.update({
-        connections: {
-          userConnectionRequests: {},
-          userConnections: {}
-        }
-      })
-    }
+  }
+
+  _initSession() {
+
   }
 
   /**
@@ -126,8 +115,11 @@ export default class Lifekeyrn extends Component {
    */
   _nativeEventTokenRefreshed(token) {
     Firebase.updateToken(token)
+    .then(() => {
+      Logger.info('Token updated')
+    })
     .catch(error => {
-      Logger.error('Firebase error updating token', this.filename, error)
+      Logger.firebase(error, this.filename)
     })
   }
 
@@ -161,15 +153,13 @@ export default class Lifekeyrn extends Component {
 
   componentDidMount() {
     Logger.react(this.filename, Lifecycle.COMPONENT_DID_MOUNT)
-
-    // Check if keystore exists
-    if (Platform.OS === 'android') {
-      ConsentUser.isRegistered()
-      .catch(error => Logger.error('Error detecting keystore', this.filename, error))
-    } else {
-      // TODO: iOS
-      Logger.info('TODO: iOS support for keystore', this.filename)
-    }
+    Firebase.getToken()
+    .then(token => {
+      Logger.firebase(`Token restored: ${token}`)
+    })
+    .catch(error => {
+      Logger.firebase('No stored Firebase token found', this.filename, error)
+    })
   }
 
   componentWillReceiveProps() {
