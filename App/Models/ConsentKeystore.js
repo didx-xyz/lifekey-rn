@@ -15,7 +15,6 @@ export default class ConsentKeystore {
       return Crypto.getKeyStoreIsLoaded()
       .then(_loaded => {
         if (_loaded) {
-          console.log('loaded: ' + _loaded)
           return Crypto.getKeyStoreList()
         } else {
           resolve(false)
