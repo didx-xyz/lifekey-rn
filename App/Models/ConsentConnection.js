@@ -12,14 +12,14 @@ class ConsentConnection {
 
   static storageKey = 'connections'
 
-  static add(id, to_id, from_id) {
+  static add(id, userId) {
 
     // Get the current connections
     const connections = Session.getState()[ConsentConnection.storageKey]
     if (connections) {
       // If some already exist, create an updated object
       const updatedConnections = connections.concat(connections, [{
-        id, from_id, to_id
+        id, userId
       }])
 
       // Update the session
@@ -27,7 +27,7 @@ class ConsentConnection {
       Session.update(update)
     } else {
       // Create and add first one
-      const update = {}[ConsentConnection.storageKey] = [{ id, from_id, to_id }]
+      const update = {}[ConsentConnection.storageKey] = [{ id, userId }]
       Session.update(update)
     }
   }
@@ -44,12 +44,27 @@ class ConsentConnection {
     }
   }
 
-  static get() {
-
+  static get(id) {
+    const connections = Session.getState()[ConsentConnection.storageKey]
+    if (connections) {
+      const connection = connections.find(connection => connection.id === id)
+      if (connection) {
+        return connection
+      } else {
+        throw `Connectiontion with id ${id} does not exist`
+      }
+    } else {
+      throw 'No connections exist yet'
+    }
   }
 
   static all() {
-
+    const connections = Session.getState()[ConsentConnection.storageKey]
+    if (connections) {
+      return connections
+    } else {
+      throw 'No connections exist yet'
+    }
   }
 }
 
