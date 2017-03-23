@@ -71,7 +71,7 @@ export default class ConsentUser {
     // Create the user's keypair
     .then(() => Crypto.addKeyPair(
       Crypto.KEYPAIR_RSA,
-      Config.keystore.name,
+      Config.keystore.keyName,
       2048,
       password,
       Config.keystore.pemCertificatePath
@@ -142,7 +142,7 @@ export default class ConsentUser {
     return ConsentKeystore.exists()
     .then(exists => {
       if (exists) {
-        Logger.info(`Keystore "${Config.keystore.name}" found. User not registered.`, this.filename)
+        Logger.info(`Keystore "${Config.keystore.name}" found. User is registered.`, this.filename)
         Session.update({ user: { registered: true } })
         return Promise.resolve(true)
       } else {
