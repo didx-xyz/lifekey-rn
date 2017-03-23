@@ -94,7 +94,8 @@ export default class Debug extends Scene {
             <Button key={1} iconName="md-globe" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugConnectionRequest)}>QR Connection Request</Button>,
             <Button key={2} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugViewConnectionRequests)}>Connection Requests</Button>,
             <Button key={3} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugViewConnections)}>Connections</Button>,
-            <Button key={4} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugShowQRCode)}>View QR Code</Button>
+            <Button key={4} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugListAllResources)}>User Resources</Button>,
+            <Button key={5} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugShowQRCode)}>View QR Code</Button>
           ]
           : null }
 

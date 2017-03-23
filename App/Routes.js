@@ -20,6 +20,8 @@ import DebugShowQRCode from './Scenes/DebugShowQRCode'
 import DebugPushNotifications from './Scenes/DebugPushNotifications'
 import DebugViewConnectionRequests from './Scenes/DebugViewConnectionRequests'
 import DebugViewConnections from './Scenes/DebugViewConnections'
+import DebugListAllResources from './Scenes/DebugListAllResources'
+
 // Main
 import BlankSceneTemplate from './Scenes/BlankSceneTemplate'
 import SplashScreen from './Scenes/Onboarding/SplashScreen'
@@ -27,6 +29,7 @@ import QRCodeScanner from './Scenes/Camera/QRCodeScanner'
 import Register from './Scenes/Onboarding/Register'
 import SetPin from './Scenes/Onboarding/SetPin'
 import Unlocked from './Scenes/Onboarding/Unlocked'
+import Me from './Scenes/Me'
 
 import Locked from './Scenes/Onboarding/Locked'
 import Unlock from './Scenes/Onboarding/Unlock'
@@ -36,6 +39,7 @@ export default {
   blankSceneTemplate: { title: 'Blank Scene Template', scene: BlankSceneTemplate },
   login: { title: 'Login', scene: Login },
   main: { title: 'Main', scene: Main },
+  me: { title: 'Main', scene: Me },
   scanQrCode: { title: 'Scan QR Code', scene: ScanQRCode },
   selfieCam: { title: 'Self-facing Camera', scene: SelfieCam },
   debugKeyStore: { title: 'Keypair Generator', scene: DebugKeyStore },
@@ -48,6 +52,8 @@ export default {
   debugPushNotifications: { title: "Push notifications", scene: DebugPushNotifications },
   debugViewConnectionRequests: { title: 'View Connection Requests', scene: DebugViewConnectionRequests },
   debugViewConnections: { title: 'Connections', scene: DebugViewConnections },
+  debugListAllResources: {title: 'List All Resources', scene: DebugListAllResources},
+
   // Main
   onboarding: {
     splashScreen: { scene: SplashScreen },

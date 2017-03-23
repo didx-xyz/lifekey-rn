@@ -4,6 +4,7 @@
   "private": true,
   "scripts": {
     "start": "node node_modules/react-native/local-cli/cli.js start",
+    "start_packager": "node_modules/react-native/packager/packager.sh",
     "test": "node node_modules/jest/bin/jest.js",
     "precommit": "node node_modules/eslint/bin/eslint.js eslint",
     "set_cfg": "./bin/set_cfg",
