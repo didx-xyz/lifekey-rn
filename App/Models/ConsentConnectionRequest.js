@@ -27,9 +27,45 @@ class ConsentConnectionRequest {
       Session.update(update)
     } else {
       // Create and add first one
-      Session.update({ connectionRequests: [{ id, from_id, from_did, from_nickname }] })
+      const update = {}[ConsentConnectionRequest] = [{ id, from_id, from_did, from_nickname }]
+      Session.update(update)
     }
   }
+
+  static remove(id) {
+    const connectionRequests = Session.getState()[ConsentConnectionRequest.storageKey]
+    if (connectionRequests) {
+      const updatedConnectionRequest = connectionRequests.filter(element => element.id === id)
+      const update = {}[ConsentConnectionRequest] = updatedConnectionRequest
+      Session.update(update)
+    } else {
+      throw 'No connectionRequests exist yet'
+    }
+  }
+
+  static get(id) {
+    const connectionRequests = Session.getState()[ConsentConnectionRequest.storageKey]
+    if (connectionRequests) {
+      const connectionRequest = connectionRequests.find(connectionRequest => connectionRequest.id === id)
+      if (connectionRequest) {
+        return connectionRequest
+      } else {
+        throw `No connectionRequest with id: ${id}`
+      }
+    } else {
+      throw 'No connectionRequest exist yet'
+    }
+  }
+
+  static all() {
+    const connectionRequest = Session.getState()[ConsentConnectionRequest.storageKey]
+    if (connectionRequest) {
+      return connectionRequest
+    } else {
+      throw 'No connectionRequest exist yet'
+    }
+  }
+
 }
 
 export default ConsentConnectionRequest
