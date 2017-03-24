@@ -46,7 +46,7 @@ export default class Lifekeyrn extends Component {
       viewableScreenWidth: null,
       viewableScreenHeight: null
     }
-    Logger.info(`${Config.APP_NAME}  ${Config.version}`, this.filename)
+    Logger.info(` === ${Config.APP_NAME}  v${Config.version} === `, this.filename)
 
     // Events
     if (Platform.OS === 'android') {
@@ -57,10 +57,6 @@ export default class Lifekeyrn extends Component {
     } else {
       Logger.info('TODO: Firebase iOS', this.filename)
     }
-
-  }
-
-  _initSession() {
 
   }
 
