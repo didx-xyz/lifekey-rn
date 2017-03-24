@@ -19,7 +19,7 @@ export default {
 
   // The full name of the application
   APP_NAME: APP_NAME,
-  
+
   // First scene to show
   initialRoute: BUILD_CONFIG.DEBUG ? Routes.main    // Quick access
                       : Routes.onboarding.splashScreen,
@@ -50,8 +50,6 @@ export default {
     baseUrl: 'http://' + BUILD_CONFIG.SERVER,
     headers: {
       'X-Requested-With': 'XMLHttpRequest',
-      'x-client-platform': `${APP_NAME} ${Platform.OS} v${NPM_PACKAGE.version}`,
-      'x-client-version': NPM_PACKAGE.version,
       'x-cnsnt-did': 'did',
       'x-cnsnt-signature': 'sig',
       'Content-Type': 'application/json'
@@ -65,7 +63,9 @@ export default {
   keystore: {
     name: APP_NAME.toLowerCase(),
     pemCertificatePath: 'rsa-example.pem',
-    keyName: APP_NAME.toLowerCase(),
+    keyName: APP_NAME.toLowerCase(), // TODO: Deprecate
+    privateKeyName: 'private' + APP_NAME.toLowerCase(), // Do not change this because it's hardcoded on the java side
+    publicKeyName: 'public' + APP_NAME.toLowerCase(),   // or this
     publicKeyAlgorithm: 'rsa'
   },
   // Google Analytics
