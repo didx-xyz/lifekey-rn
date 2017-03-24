@@ -73,12 +73,12 @@ export default class Firebase {
     .then(tokenFromPN => {
       if (tokenFromPN) {
         // Resolve if exists
-        Promise.resolve(tokenFromPN)
+        return Promise.resolve(tokenFromPN)
       } else {
         // Check session
         const userState = Session.getState().user
         if (userState && userState.firebaseToken) {
-          Promise.resolve(userState.firebaseToken)
+          return Promise.resolve(userState.firebaseToken)
         } else {
           // Storage is last chance
           return Storage.load(Config.storage.dbKey)
