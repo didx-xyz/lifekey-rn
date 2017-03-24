@@ -215,13 +215,25 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   }
 
   /**
+   * Check if a keystore is loaded
+   */
+  @ReactMethod
+  public void getKeyStoreIsLoaded(Promise promise) {
+    if(this.keyStore == null) {
+      promise.resolve(false);
+    } else {
+      promise.resolve(true);
+    }
+  }
+
+  /**
    * Get the alias of the currently loaded keystore
    */
   @ReactMethod
   public void getCurrentKeyStoreAlias(Promise promise) {
     try {
       if(this.keyStore == null || this.alias == null) {
-        throw new KeyStoreException("Keystore must first be loaded");
+        throw new KeyStoreException("Keystore must first be loaded before calling getCurrentKeyStoreAlias()");
       }
       promise.resolve(this.alias);
     } catch(KeyStoreException e) {
@@ -275,7 +287,7 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   public void getKeyAliases(Promise promise) {
     try {
       if(this.keyStore == null) {
-        throw new KeyStoreException("Keystore must first be loaded");
+        throw new KeyStoreException("Keystore must first be loaded before calling getKeyAliases()");
       }
       WritableNativeArray map = new WritableNativeArray();
       Enumeration<String> aliases = this.keyStore.aliases();
@@ -296,7 +308,7 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   public void containsKeyAlias(String keyAlias, Promise promise) {
     try {
       if(this.keyStore == null) {
-        throw new KeyStoreException("Keystore must first be loaded");
+        throw new KeyStoreException("Keystore must first be loaded before calling containsKeyAlias()");
       }
       boolean found = this.keyStore.containsAlias(keyAlias);
       promise.resolve(found);
@@ -313,7 +325,7 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   public void deleteKeyEntry(String keyAlias, Promise promise) {
     try {
       if(this.keyStore == null) {
-        throw new KeyStoreException("Keystore must first be loaded");
+        throw new KeyStoreException("Keystore must first be loaded before calling deleteKeyEntry()");
       }
       this.keyStore.deleteEntry(keyAlias);
       // this.keyStore.store();
@@ -332,7 +344,7 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   public void getKeyStoreCertificate(String certificateAlias, Promise promise) {
     try {
       if(this.keyStore == null) {
-        throw new KeyStoreException("Keystore must first be loaded");
+        throw new KeyStoreException("Keystore must first be loaded before calling getKeyStoreCertificate()");
       }
       Certificate certificate = this.keyStore.getCertificate(certificateAlias);
       promise.resolve(certificate.toString());
@@ -349,7 +361,7 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   public void keyStoreSize(Promise promise) {
     try {
       if(this.keyStore == null) {
-        throw new KeyStoreException("Keystore must first be loaded");
+        throw new KeyStoreException("Keystore must first be loaded before calling keyStoreSize()");
       }
       int size = this.keyStore.size();
       promise.resolve(size);
@@ -390,11 +402,11 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   }
 
   /**
- * Create a new keystore in the application directory
- * @param name The name of the keystore
- * @param password The password to lock/unlock the keystore
- * @return True on success
- */
+   * Create a new keystore in the application directory
+   * @param name The name of the keystore
+   * @param password The password to lock/unlock the keystore
+   * @return True on success
+   */
   @ReactMethod
   public void createKeyStore(String name, String password, Promise promise) throws IOException {
 
@@ -451,7 +463,7 @@ public class CryptoModule extends ReactContextBaseJavaModule {
     // Sign with keys
     try {
       if(this.keyStore == null) {
-        throw new KeyStoreException("Keystore must first be loaded");
+        throw new KeyStoreException("Keystore must first be loaded before calling sign()");
       }
       PrivateKey privateKey = (PrivateKey)this.keyStore.getKey(privateKeyAlias, privateKeyPassword.toCharArray());
       Signature sig = Signature.getInstance(algorithm);
@@ -480,7 +492,7 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   @ReactMethod
   public void verify(String signature, String publicKeyAlias, String publicKeyPassword, String algorithm, Promise promise) {
     if(this.keyStore == null) {
-      promise.reject(new KeyStoreException("Keystore must first be loaded"));
+      promise.reject(new KeyStoreException("Keystore must first be loaded before calling verify()"));
       return;
     }
     // Verify with keys
@@ -512,7 +524,7 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   public void getKeyAsPem(String keyAlias, String keyPassword, Promise promise) throws NoSuchAlgorithmException, UnrecoverableKeyException {
     try {
       if(this.keyStore == null) {
-        throw new KeyStoreException("Keystore must first be loaded");
+        throw new KeyStoreException("Keystore must first be loaded before calling getKeyAsPem()");
       }
       Key key = (Key)this.keyStore.getKey(keyAlias, keyPassword.toCharArray());
       if(key == null) {
@@ -534,7 +546,7 @@ public class CryptoModule extends ReactContextBaseJavaModule {
   public void getKeyAsHex(String keyAlias, String keyPassword, Promise promise) {
     try {
       if(this.keyStore == null) {
-        throw new KeyStoreException("Keystore must first be loaded");
+        throw new KeyStoreException("Keystore must first be loaded before calling getKeyAsHex()");
       }
       Key key = (Key)this.keyStore.getKey(keyAlias, keyPassword.toCharArray());
       promise.resolve(CryptoModule.bytesToHex(key.getEncoded()));
@@ -562,7 +574,7 @@ public class CryptoModule extends ReactContextBaseJavaModule {
 
     try (FileOutputStream fos = new FileOutputStream(this.absolutePath(this.alias))) {
       if(this.keyStore == null) {
-        throw new KeyStoreException("Keystore must first be loaded");
+        throw new KeyStoreException("Keystore must first be loaded before calling addKeyPair()");
       }
       // Check if already exists
       Enumeration<String> aliases = this.keyStore.aliases();
@@ -613,6 +625,18 @@ public class CryptoModule extends ReactContextBaseJavaModule {
     } catch(KeyStoreException e) {
       promise.reject(Byte.toString(E_KEYSTORE), e);
     }
+  }
+
+  /**
+   * Secure random from Java with <3
+   */
+  @ReactMethod
+  public void secureRandom(Promise promise) {
+    SecureRandom rand = this.newSecureRandom();
+    byte[] randBytes = new byte[32];
+    rand.nextBytes(randBytes);
+    String hexString = bytesToHex((randBytes));
+    promise.resolve(hexString);
   }
 
   // Private Methods

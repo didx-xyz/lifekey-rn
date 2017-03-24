@@ -19,13 +19,14 @@ export default {
 
   // The full name of the application
   APP_NAME: APP_NAME,
+
   // First scene to show
-  initialRoute: BUILD_CONFIG.DEBUG ? Routes.onboarding.setPin    // Quick access
+  initialRoute: BUILD_CONFIG.DEBUG ? Routes.main    // Quick access
                       : Routes.onboarding.splashScreen,
 
-  DEBUG: BUILD_CONFIG.DEBUG,                      // All logging on/off (MASTER)
+  DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
   debugNetwork: true,         // Log API requests and responses
-  debugReact: false,           // Log the React Lifecycle events
+  debugReact: false,          // Log the React Lifecycle events
   debugNavigator: false,      // Log the current stack of Navigator routes
   debugAsyncStorage: true,    // Log Storage (AsyncStorage) reads/writes
   debugFirebase: true,        // Log Firebase events
@@ -49,8 +50,6 @@ export default {
     baseUrl: 'http://' + BUILD_CONFIG.SERVER,
     headers: {
       'X-Requested-With': 'XMLHttpRequest',
-      'x-client-platform': `${APP_NAME} ${Platform.OS} v${NPM_PACKAGE.version}`,
-      'x-client-version': NPM_PACKAGE.version,
       'x-cnsnt-did': 'did',
       'x-cnsnt-signature': 'sig',
       'Content-Type': 'application/json'
@@ -61,8 +60,14 @@ export default {
   storage: {
     dbKey: 'cns_' + APP_NAME.toLowerCase() + '_storage'
   },
-  keyStoreName: APP_NAME.toLowerCase(),
-
+  keystore: {
+    name: APP_NAME.toLowerCase(),
+    pemCertificatePath: 'rsa-example.pem',
+    keyName: APP_NAME.toLowerCase(), // TODO: Deprecate
+    privateKeyName: 'private' + APP_NAME.toLowerCase(), // Do not change this because it's hardcoded on the java side
+    publicKeyName: 'public' + APP_NAME.toLowerCase(),   // or this
+    publicKeyAlgorithm: 'rsa'
+  },
   // Google Analytics
   googleAnalytics: {
     trackers: {

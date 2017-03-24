@@ -8,9 +8,9 @@
 import React from 'react'
 import Scene from '../Scene'
 import Crypto from '../Crypto'
-import PushNotifications from '../PushNotifications'
 import Session from '../Session'
 import Storage from '../Storage'
+import ConsentUser from '../Models/ConsentUser'
 import Logger from '../Logger'
 import Config from '../Config'
 import Firebase from '../Firebase'
@@ -18,8 +18,7 @@ import Api from '../Api'
 
 import {
   Text,
-  View,
-  NativeModules
+  View
 } from 'react-native'
 import { Button, Input, H1, H3 } from 'nachos-ui'
 
@@ -53,6 +52,20 @@ export default class DebugRegister extends Scene {
   }
 
   register() {
+    const email = this.state.email.trim()
+    const nickname = this.state.nickname.trim()
+    const password = this.state.password.trim()
+    ConsentUser.register(nickname, email, password)
+    .then(() => {
+      Logger.info("REGISTERED", 'DebugRegister')
+    })
+    .catch(error => {
+      Logger.error("REGISTERED", 'DebugRegister', error)
+    })
+
+  }
+
+  register2() {
     const email = this.state.email.trim()
     const nickname = this.state.nickname.trim()
     const password = this.state.password.trim()
@@ -119,7 +132,7 @@ export default class DebugRegister extends Scene {
         dbUserId: jsonData.id,
         userPassword: password // Not ideal
       })
-      Storage.store(Config.storage.dbKey, {
+      return Storage.store(Config.storage.dbKey, {
         userPassword: password,
         dbUserId: jsonData.id
       })

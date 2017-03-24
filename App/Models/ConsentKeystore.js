@@ -11,16 +11,16 @@ import Config from '../Config'
 export default class ConsentKeystore {
 
   static exists() {
-    return new Promise((resolve, reject) => {
-      return Crypto.getKeyStoreList()
-      .then(list => {
-        if (list.find(x => x === Config.keyStoreName)) {
-          resolve(true)
-        } else {
-          resolve(false)
-        }
-      })
+    return Crypto.getKeyStoreList()
+    .then(keystoreList => {
+      const exists = keystoreList.find(x => x === Config.keystore.name)
+      if (exists) {
+        return Promise.resolve(true)
+      } else {
+        return Promise.resolve(false)
+      }
     })
+
   }
 
   static create(password) {

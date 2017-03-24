@@ -19,32 +19,32 @@ export default class EventTimeline extends Component {
   constructor(props) {
     super(props)
     this.state = {
-      timelineEvents: []
+      timelineEvents: Session.getState().timelineEvents || []
     }
   }
 
   pushEvent(text) {
-    let events = Session.getState().timelineEvents || []
+    let events = this.state.timelineEvents || []
     events.push({
       text: text,
       timestamp: new Date()
     })
 
-    Session.update({
+    this.setState({
       timelineEvents: events
+    }, () => {
+      Session.update({
+        timelineEvents: events
+      })
     })
-    setTimeout(() => {
-      this._scrollView.scrollToEnd({ animated: true })
-    }, 100)
-    this.forceUpdate()
   }
 
   render() {
-    const timelineEvents = Session.getState().timelineEvents
+    const timelineEvents = this.state.timelineEvents
     return (
       <ScrollView
         showsVerticalScrollIndicator={false}
-        ref={scrollView => {this._scrollView = scrollView}}
+        ref={scrollView => this._scrollView = scrollView}
         style={{ flex: 1 }}
         contentContainerStyle={style.scrollView} >
           <View style={{ flexDirection: 'column' }}>
