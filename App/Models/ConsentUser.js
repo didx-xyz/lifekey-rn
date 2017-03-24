@@ -33,15 +33,21 @@ export default class ConsentUser {
 
   static login(password) {
     // load keys maybe?
-    const update = {}[ConsentUser.storageKey] = {
-      password: password,
-      loggedIn: true
-    }
-    Session.update(update)
+    return ConsentKeystore.load(password)
+    .then(name => {
+      const update = {}[ConsentUser.storageKey] = {
+        password: password,
+        loggedIn: true
+      }
+      Session.update(update)
+      return Promise.resolve()
+    })
   }
 
   static logout() {
     // YOU CAN NEVER LEAVE CONSENT
+    // Clear password from session
+    // maybe unload keystore?
   }
 
   static setDid(did) {
@@ -58,13 +64,13 @@ export default class ConsentUser {
     let publicKeyPem, firebaseToken, toSign
 
     // Check if already registered
-    return ConsentUser.isRegistered()
-    .then(registered => {
-      if (registered) {
-        return Promise.reject('Already registered')
+    return ConsentKeystore.exists()
+    .then(exists => {
+      if (exists) {
+        return Promise.reject('A ConsentKeystore already exists')
       } else {
         // create keystore first
-        return Crypto.createKeyStore(Config.keystore.name, password)
+        return ConsentKeystore.create(password)
       }
     })
 
@@ -119,11 +125,13 @@ export default class ConsentUser {
       const sessionUpdate = {}[ConsentUser.storageKey] = {
         dbId: jsonData.id,
         password: password,
-        email: email
+        email: email,
+        registered: true
       }
       const storageUpdate = {}[ConsentUser.storageKey] = {
         dbId: jsonData.id,
-        email: email
+        email: email,
+        registered: true
       }
       Session.update(sessionUpdate)
       return Storage.store(Config.storage.dbKey, storageUpdate)
@@ -135,7 +143,7 @@ export default class ConsentUser {
   }
 
   static isLoggedIn() {
-    return Session.getState().user.loggedIn
+    return Session.getState().user.password ? true : false
   }
 
   static isRegistered() {
@@ -143,11 +151,13 @@ export default class ConsentUser {
     .then(exists => {
       if (exists) {
         Logger.info(`Keystore "${Config.keystore.name}" found. User is registered.`, this.filename)
-        Session.update({ user: { registered: true } })
+        const update = {}[ConsentUser.storageKey] = { registered: true }
+        Session.update(update)
         return Promise.resolve(true)
       } else {
         Logger.info(`Keystore "${Config.keystore.name}" not found. User not registered.`, this.filename)
-        Session.update({ user: { registered: false } })
+        const update = {}[ConsentUser.storageKey] = { registered: false }
+        Session.update(update)
         return Promise.resolve(false)
       }
     })
