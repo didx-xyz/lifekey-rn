@@ -23,9 +23,10 @@ export default class Firebase {
     let toSign
 
     // Update persistent storage
-    return Storage.store(Config.storage.dbKey, {
-      firebaseToken: token
-    })
+    const update = {}
+    update[ConsentUser.storageKey] = { firebaseToken: token }
+
+    return Storage.store(Config.storage.dbKey, update)
 
     // update volatile storage
     .then(() => {
@@ -36,7 +37,7 @@ export default class Firebase {
       if (userState.password) {
         return Crypto.loadKeyStore(Config.keystore.name, userState.password)
       } else {
-        return Promise.reject('Not registered. Cannot notify server of token update.')
+        return Promise.reject('Not registered. Cannot notify server of token')
       }
     })
 
@@ -45,6 +46,7 @@ export default class Firebase {
 
     // sign
     .then(randomBytes => {
+      Logger.firebase('Signing........')
       toSign = randomBytes
       return Crypto.sign(
         toSign,
@@ -56,6 +58,7 @@ export default class Firebase {
 
     // Send to server
     .then(signature => {
+      Logger.firebase('Sending to server........')
       return Api.device({
         user_id: userState.user_id,
         plain: toSign,
@@ -67,36 +70,28 @@ export default class Firebase {
   }
 
   static getToken() {
-
-    // First check Java env
-    return PushNotifications.getToken()
-
-    .then(tokenFromPN => {
-      if (tokenFromPN) {
-        // Resolve if exists
-        Logger.firebase('Loading token from PushNotification ' + tokenFromPN)
-        return Promise.resolve(tokenFromPN)
+    return new Promise((resolve, reject) => {
+      const userState = Session.getState().user
+      if (!userState) {
+        Storage.load(Config.storage.dbKey)
+        .then(data => {
+          if (!data) {
+            reject('Storage was empty')
+          }
+          if (!data.user) {
+            reject('No user object in storage')
+          }
+          if (!data.user.firebaseToken) {
+            reject('No firebase token in storage')
+          } else {
+            resolve(data.user.firebaseToken)
+          }
+        })
       } else {
-        Logger.firebase('No token available from PushNotifications')
-        // Check session
-        const userState = Session.getState().user
-        try {
-          Logger.firebase('Loading token from Session ' + userState.firebaseToken)
-          return Promise.resolve(userState.firebaseToken)
-        } catch (error) {
-          // Check storage last
-          return Storage.load(Config.storage.dbKey)
+        if (userState.firebaseToken) {
+          Logger.firebase('Got token from state')
+          resolve(userState.firebaseToken)
         }
-      }
-    })
-    .then(storageData => {
-      // The token in storage is reolved
-      try {
-        Logger.firebase('Loaded token from Storage ' + storageData.user.firebaseToken)
-        return Promise.resolve(storageData.user.firebaseToken)
-      } catch (error) {
-        Logger.firebase('No token available')
-        return Promise.reject('No token available')
       }
     })
   }
