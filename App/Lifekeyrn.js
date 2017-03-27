@@ -111,11 +111,8 @@ export default class Lifekeyrn extends Component {
    */
   _nativeEventTokenRefreshed(token) {
     Firebase.updateToken(token)
-    .then(() => {
-      Logger.info('Token updated')
-    })
     .catch(error => {
-      Logger.firebase(error, this.filename)
+      Logger.firebase(error)
     })
   }
 
@@ -149,12 +146,12 @@ export default class Lifekeyrn extends Component {
 
   componentDidMount() {
     Logger.react(this.filename, Lifecycle.COMPONENT_DID_MOUNT)
-    Firebase.getToken()
-    .then(token => {
-      Logger.firebase(`Token restored: ${token}`)
+    ConsentUser.isRegistered()
+    .then(registered => {
+      Logger.info('Registere: ' + registered, this.filename)
     })
     .catch(error => {
-      Logger.firebase('No stored Firebase token found', this.filename, error)
+      Logger.error('Error', this.filename, error)
     })
   }
 
