@@ -59,18 +59,24 @@ export default class ConsentUser {
     })
   }
 
+  static getToken() {
+    return Firebase.getToken()
+  }
+
   static register(username, email, password) {
 
     let publicKeyPem, firebaseToken, toSign
+    Logger.info(`Registering as: ${username}, ${email}, ${password}`)
 
     // Check if already registered
-    return ConsentKeystore.exists()
-    .then(exists => {
+    return Crypto.getKeyStoreList()
+    .then(keystoreList => {
+      const exists = keystoreList.find(x => x === Config.keystore.name)
       if (exists) {
-        return Promise.reject('A ConsentKeystore already exists')
+        return Promise.reject(`The keystore ${Config.keystore.name} already exists`)
       } else {
-        // create keystore first
-        return ConsentKeystore.create(password)
+        Logger.info('Creating new keystore')
+        return Crypto.createKeyStore(Config.keyStoreName, password)
       }
     })
 
@@ -122,13 +128,15 @@ export default class ConsentUser {
     .then(response => {
       const jsonData = response.body
       // Store in session and persistent storage
-      const sessionUpdate = {}[ConsentUser.storageKey] = {
+      const sessionUpdate = {}
+      sessionUpdate[ConsentUser.storageKey] = {
         dbId: jsonData.id,
         password: password,
         email: email,
         registered: true
       }
-      const storageUpdate = {}[ConsentUser.storageKey] = {
+      const storageUpdate = {}
+      storageUpdate[ConsentUser.storageKey] = {
         dbId: jsonData.id,
         email: email,
         registered: true
@@ -147,18 +155,21 @@ export default class ConsentUser {
   }
 
   static isRegistered() {
-    return ConsentKeystore.exists()
-    .then(exists => {
-      if (exists) {
-        Logger.info(`Keystore "${Config.keystore.name}" found. User is registered.`, this.filename)
-        const update = {}[ConsentUser.storageKey] = { registered: true }
-        Session.update(update)
-        return Promise.resolve(true)
+    return new Promise((resolve, reject) => {
+      const userState = Session.getState().user
+      if (!userState || !userState.registered) {
+        // storage
+        Storage.load(Config.storage.dbKey)
+        .then(data => {
+          if (!data || !data.user) {
+            // reject
+            reject('Cannot determine user registration state')
+          } else {
+            resolve(data.user.registered ? true : false)
+          }
+        })
       } else {
-        Logger.info(`Keystore "${Config.keystore.name}" not found. User not registered.`, this.filename)
-        const update = {}[ConsentUser.storageKey] = { registered: false }
-        Session.update(update)
-        return Promise.resolve(false)
+        resolve(userState.registered)
       }
     })
   }
