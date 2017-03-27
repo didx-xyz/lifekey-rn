@@ -46,6 +46,23 @@ export default class Logger {
     }
   }
 
+  /**
+   * Log an Session action
+   * @param {string} message The message to log
+   * @returns {undefined}
+   */
+  static session = (message, action = 'UNKNOWN') => {
+    let prefix
+    if (action.toUpperCase() === 'UPDATE') {
+      prefix = `${ANSI.yellow.open}[SESSION.UPDATE]${ANSI.yellow.close} `
+    } else {
+      prefix = `${ANSI.magenta.open}[SESSION.GETSTATE]${ANSI.magenta.close} `
+    }
+    if (Config.DEBUG && Config.debugAsyncStorage) {
+      Logger._log(prefix, message, ANSI.blue)
+    }
+  }
+
    /**
    * Log an AsyncStorage action
    * @param {string} routeStack The route stack to log
@@ -115,9 +132,9 @@ export default class Logger {
   static error = (message, filename, error) => {
     const prefix = `${ANSI.bgRed.open}${ANSI.white.open}[ER]${ANSI.white.close}${ANSI.bgRed.close}`
     if (Config.DEBUG) {
-      console.log(`${prefix} ${filename} ${ANSI.red.open} ${message}${ANSI.red.close}`)
+      console.log(`${prefix} ${filename} ${ANSI.red.open} ${message}:${ANSI.red.close}`)
       if (error) {
-        console.log('ERROR', error)
+        console.log(error)
       }
     }
   }
