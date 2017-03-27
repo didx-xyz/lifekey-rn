@@ -18,7 +18,7 @@ import ConsentUser from './Models/ConsentUser'
 export default class Firebase {
 
   static updateToken(token) {
-
+    Logger.firebase(`Updating token: ${token}`)
     const userState = ConsentUser.get()
     let toSign
 
@@ -29,9 +29,10 @@ export default class Firebase {
 
     // update volatile storage
     .then(() => {
-      Logger.firebase(`Token updated: ${token}`)
+      Logger.firebase(`Token updated in Storage: ${token}`)
       const update = {}[ConsentUser.storageKey] = { firebaseToken: token }
       Session.update(update)
+      Logger.firebase(`Token updated in Session: ${token}`)
       if (userState.password) {
         return Crypto.loadKeyStore(Config.keystore.name, userState.password)
       } else {
@@ -73,21 +74,30 @@ export default class Firebase {
     .then(tokenFromPN => {
       if (tokenFromPN) {
         // Resolve if exists
+        Logger.firebase('Loading token from PushNotification ' + tokenFromPN)
         return Promise.resolve(tokenFromPN)
       } else {
+        Logger.firebase('No token available from PushNotifications')
         // Check session
         const userState = Session.getState().user
-        if (userState && userState.firebaseToken) {
+        try {
+          Logger.firebase('Loading token from Session ' + userState.firebaseToken)
           return Promise.resolve(userState.firebaseToken)
-        } else {
-          // Storage is last chance
+        } catch (error) {
+          // Check storage last
           return Storage.load(Config.storage.dbKey)
         }
       }
     })
     .then(storageData => {
       // The token in storage is reolved
-      Promise.resolve(storageData.user.firebaseToken)
+      try {
+        Logger.firebase('Loaded token from Storage ' + storageData.user.firebaseToken)
+        return Promise.resolve(storageData.user.firebaseToken)
+      } catch (error) {
+        Logger.firebase('No token available')
+        return Promise.reject('No token available')
+      }
     })
   }
 }
