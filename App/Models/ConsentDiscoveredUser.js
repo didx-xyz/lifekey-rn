@@ -15,11 +15,13 @@ class ConsentDiscoveredUser {
     const discoveredUsers = Session.getState()[ConsentDiscoveredUser.storageKey]
     if (discoveredUsers) {
       const updatedDiscoveredUsers = discoveredUsers.concat(discoveredUsers, [{ id, did, nickname }])
-      const update = {}[ConsentDiscoveredUser.storageKey] = updatedDiscoveredUsers
+      const update = {}
+      update[ConsentDiscoveredUser.storageKey] = updatedDiscoveredUsers
       Session.update(update)
     } else {
       // Create first record
-      const update = {}[ConsentDiscoveredUser.storageKey] = [{ id, did, nickname }]
+      const update = {}
+      update[ConsentDiscoveredUser.storageKey] = [{ id, did, nickname }]
       Session.update(update)
     }
   }
@@ -29,7 +31,8 @@ class ConsentDiscoveredUser {
     if (discoveredUsers) {
       // Remove element with matching ID
       const updatedDiscoveredUsers = discoveredUsers.filter(element => element.id !== id)
-      const update = {}[ConsentDiscoveredUser.storageKey] = updatedDiscoveredUsers
+      const update = {}
+      update[ConsentDiscoveredUser.storageKey] = updatedDiscoveredUsers
       Session.update(update)
     } else {
       throw 'No discoveredUsers exist yet'
