@@ -7,65 +7,80 @@
 import Session from '../Session'
 import Storage from '../Storage'
 import Config from '../Config'
+import { AsyncStorage } from 'react-native'
 
 class ConsentConnection {
 
   static storageKey = 'connections'
 
-  static add(id, userId) {
-
-    // Get the current connections
-    const connections = Session.getState()[ConsentConnection.storageKey]
-    if (connections) {
-      // If some already exist, create an updated object
-      const updatedConnections = connections.concat(connections, [{
-        id, userId
-      }])
-
-      // Update the session
-      const update = {}[ConsentConnection.storageKey] = updatedConnections
-      Session.update(update)
-    } else {
-      // Create and add first one
-      const update = {}[ConsentConnection.storageKey] = [{ id, userId }]
-      Session.update(update)
-    }
+  static add(id) {
+    return AsyncStorage.getItem(ConsentConnection.storageKey)
+    .then(itemJSON => {
+      if (itemJSON) {
+        const connections = JSON.parse(itemJSON)
+        if (connections.find(connection => connection.id === id)) {
+          // already exists
+          return Promise.reject(`Connections ${id} already exists`)
+        } else {
+          // merge new connection
+          const updatedConnections = connections.concat({ id })
+          return AsyncStorage.setItem(ConsentConnection.storageKey, JSON.stringify(updatedConnections))
+        }
+      } else {
+        // create from scratch
+        const connections = [{ id }]
+        return AsyncStorage.setItem(ConsentConnection.storageKey, JSON.stringify(connections))
+      }
+    })
   }
 
   static remove(id) {
-    const connections = Session.getState()[ConsentConnection.storageKey]
-    if (connections) {
-      // Create new array excluding the connection
-      const updatedConnections = connections.filter(element => element.id !== id)
-      const update = {}[ConsentConnection.storageKey] = updatedConnections
-      Session.update(update)
-    } else {
-      throw 'No connections exist yet'
-    }
+    return AsyncStorage.getItem(ConsentConnection.storageKey)
+    .then(itemJSON => {
+      if (itemJSON) {
+        const connections = JSON.parse(itemJSON)
+        const updatedConnections = connections.filter(connection => connection.id !== id)
+        return AsyncStorage.setItem(ConsentConnection.storageKey, JSON.stringify(updatedConnections))
+      } else {
+        return Promise.reject(`${ConsentConnection.storageKey} storage is empty. Nothing to remove`)
+      }
+    })
+  }
+
+  static purge() {
+    return AsyncStorage.removeItem(ConsentConnection.storageKey)
   }
 
   static get(id) {
-    const connections = Session.getState()[ConsentConnection.storageKey]
-    if (connections) {
-      const connection = connections.find(connection => connection.id === id)
-      if (connection) {
-        return connection
+    return AsyncStorage.getItem(ConsentConnection.storageKey)
+    .then(itemJSON => {
+      if (itemJSON) {
+        const connections = JSON.parse(itemJSON)
+        const connection = connections.find(connection => connection.id === id)
+        if (connection) {
+          return Promise.resolve(connection)
+        } else {
+          return Promise.reject(`${ConsentConnection.storageKey}.[id:${id}] does not exist`)
+        }
       } else {
-        throw `Connectiontion with id ${id} does not exist`
+        // none exist
+        return Promise.reject(`${ConsentConnection.storageKey} storage is empty. Nothing to get`)
       }
-    } else {
-      throw 'No connections exist yet'
-    }
+    })
   }
 
   static all() {
-    const connections = Session.getState()[ConsentConnection.storageKey]
-    if (connections) {
-      return connections
-    } else {
-      throw 'No connections exist yet'
-    }
+    return AsyncStorage.getItem(ConsentConnection.storageKey)
+    .then(itemJSON => {
+      if (itemJSON) {
+        const connections = JSON.parse(itemJSON)
+        return Promise.resolve(connections)
+      } else {
+        return Promise.reject(`${ConsentConnection.storageKey} storage is empty. Nothing to get`)
+      }
+    })
   }
+
 }
 
 export default ConsentConnection
