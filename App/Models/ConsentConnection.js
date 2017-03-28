@@ -13,7 +13,7 @@ class ConsentConnection {
 
   static storageKey = 'connections'
 
-  static add(id) {
+  static add(id, from_id) {
     return AsyncStorage.getItem(ConsentConnection.storageKey)
     .then(itemJSON => {
       if (itemJSON) {
@@ -23,12 +23,12 @@ class ConsentConnection {
           return Promise.reject(`Connections ${id} already exists`)
         } else {
           // merge new connection
-          const updatedConnections = connections.concat({ id })
+          const updatedConnections = connections.concat({ id, from_id })
           return AsyncStorage.setItem(ConsentConnection.storageKey, JSON.stringify(updatedConnections))
         }
       } else {
         // create from scratch
-        const connections = [{ id }]
+        const connections = [{ id, from_id }]
         return AsyncStorage.setItem(ConsentConnection.storageKey, JSON.stringify(connections))
       }
     })
@@ -75,11 +75,12 @@ class ConsentConnection {
   static all() {
     return AsyncStorage.getItem(ConsentConnection.storageKey)
     .then(itemJSON => {
+      console.log('CC: ',itemJSON)
       if (itemJSON) {
         const connections = JSON.parse(itemJSON)
         return Promise.resolve(connections)
       } else {
-        return Promise.reject(`${ConsentConnection.storageKey} storage is empty. Nothing to get`)
+        return Promise.resolve({})
       }
     })
   }
