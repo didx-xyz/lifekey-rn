@@ -23,56 +23,50 @@ import {
   Container,
   Content,
 } from 'native-base'
-import { Button, Input, H1, H5 } from 'nachos-ui'
+import { Button, Input, H1,H3, H5 } from 'nachos-ui'
 
 import BackButton from '../Components/BackButton'
-
+import ConsentConnection from '../Models/ConsentConnection'
+import ConsentConnectionRequest from '../Models/ConsentConnectionRequest'
+import ConsentDiscoveredUser from '../Models/ConsentDiscoveredUser'
 
 export default class Debug extends Scene {
 
   constructor(props) {
     super(props)
     this.state = {
-      keystoreFound: false,
-      storageDump: null
+      registered: false
     }
-  }
-
-  _checkForKeystore() {
-    Crypto.getKeyStoreList()
-    .then(list => {
-      if (list.find(x => x === "consent")) {
-        this.setState({ keystoreFound: true })
-        Session.update({ keyStoreExists: true })
-      } else {
-        this.setState({ keystoreFound: false })
-        Session.update({ keyStoreExists: false })
-      }
-    })
-    .catch(error => alert(error))
-  }
-
-  _readStorage() {
-    Storage.load(Config.storage.dbKey)
-    .then((data) => {
-      this.setState({ storageDump: JSON.stringify(data) })
-    })
-    .catch((err) => {
-      Logger.error(err, this._fileName)
-    })
   }
 
   componentWillMount() {
     super.componentWillMount()
-    this._checkForKeystore()
-    this._readStorage()
+    Promise.all([
+      ConsentConnection.all(),
+      ConsentConnectionRequest.all(),
+      ConsentDiscoveredUser.all()
+    ])
+    .then(results => {
+      this.setState({
+        connections: results[0],
+        connectionsRequests: results[1],
+        discoveredUsers: results[2],
+
+      })
+    })
+    .catch(error => {
+      Logger.error(error)
+    })
+  }
+
+  componentDidMount() {
+    super.componentDidMount()
   }
 
   componentWillFocus() {
     super.componentWillFocus()
-    this._checkForKeystore()
-    this._readStorage()
   }
+
 
   render() {
 
@@ -82,14 +76,13 @@ export default class Debug extends Scene {
           <BackButton navigator={this.navigator} />
           <View style={{ alignItems: 'center' }}>
             <H1>Developer Menu</H1>
-            <Text>{ this.state.keystoreFound ? "Keypair detected" : "No keypair detected" }</Text>
           </View>
 
           <Button iconName="md-key" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugKeyStore)}>Keystore Manager</Button>
           <Button iconName="md-reverse-camera" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.selfieCam)}>Self-facing Camera</Button>
-          <Button iconName="md-contact" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugRegister)}>{ this.state.keystoreFound ? "Unlock/Login" : "Register on Consent" }</Button>
+          <Button iconName="md-contact" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugRegister)}>{ this.state.registered ? "Unlock/Login" : "Register on Consent" }</Button>
 
-          { this.state.keystoreFound ?
+          { this.state.registered ?
           [
             <Button key={1} iconName="md-globe" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugConnectionRequest)}>QR Connection Request</Button>,
             <Button key={2} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugViewConnectionRequests)}>Connection Requests</Button>,
@@ -100,15 +93,34 @@ export default class Debug extends Scene {
           : null }
 
           <View>
-            <H5>Session</H5>
+            <H3>Session</H3>
             <Text>{JSON.stringify(Session.getState(), '\t', 2)}</Text>
-            <H5>Storage</H5>
-            <Text>{this.state.storageDump === null ? "No storage" : this.state.storageDump}</Text>
+            <H3>Storages</H3>
+            <H5>Connections</H5>
+            <Text>{JSON.stringify(this.state.connections)}</Text>
+            <H5>Connection Requests</H5>
+            <Text>{JSON.stringify(this.state.connectionsRequests)}</Text>
+            <H5>Discovered Users</H5>
+            <Text>{JSON.stringify(this.state.discoveredUsers)}</Text>
+
           </View>
         </Content>
       </Container>
     )
   }
+
+  _getConnections() {
+    ConsentConnection.all()
+    .then(connections => {
+      this.setState({
+        connections
+      })
+    })
+    .catch(error => {
+      console.log(error)
+    })
+  }
+
 }
 
 const styles = {
