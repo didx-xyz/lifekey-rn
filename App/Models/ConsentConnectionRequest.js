@@ -84,7 +84,7 @@ class ConsentConnectionRequest {
         const connectionRequests = JSON.parse(itemJSON)
         return Promise.resolve(connectionRequests)
       } else {
-        return Promise.reject(`${ConsentConnectionRequest.storageKey} storage is empty. Nothing to get`)
+        return Promise.resolve({})
       }
     })
   }
