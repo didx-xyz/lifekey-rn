@@ -6,60 +6,82 @@
  */
 
 import Session from '../Session'
+import { AsyncStorage } from 'react-native'
 
 class ConsentDiscoveredUser {
 
   static storageKey = 'discovered_users'
 
   static add(id, did, nickname) {
-    const discoveredUsers = Session.getState()[ConsentDiscoveredUser.storageKey]
-    if (discoveredUsers) {
-      const updatedDiscoveredUsers = discoveredUsers.concat(discoveredUsers, [{ id, did, nickname }])
-      const update = {}
-      update[ConsentDiscoveredUser.storageKey] = updatedDiscoveredUsers
-      Session.update(update)
-    } else {
-      // Create first record
-      const update = {}
-      update[ConsentDiscoveredUser.storageKey] = [{ id, did, nickname }]
-      Session.update(update)
-    }
+    return AsyncStorage.getItem(ConsentDiscoveredUser.storageKey)
+    .then(itemJSON => {
+      if (itemJSON) {
+        const discoveredUsers = JSON.parse(itemJSON)
+        if (discoveredUsers.find(discoveredUser => discoveredUser.id === id)) {
+          // already exists
+          return Promise.reject(`DiscoveredUser ${id} already exists`)
+        } else {
+          // merge new connection
+          const updatedDiscoveredUser = discoveredUsers.concat(
+            { id, did, nickname }
+          )
+          return AsyncStorage.setItem(
+            ConsentDiscoveredUser.storageKey,
+            JSON.stringify(updatedDiscoveredUser)
+          )
+        }
+      } else {
+        // create from scratch
+        const discoveredUsers = [{ id, did, nickname }]
+        return AsyncStorage.setItem(
+          ConsentDiscoveredUser.storageKey,
+          JSON.stringify(discoveredUsers)
+        )
+      }
+    })
   }
 
   static remove(id) {
-    const discoveredUsers = Session.getState()[ConsentDiscoveredUser.storageKey]
-    if (discoveredUsers) {
-      // Remove element with matching ID
-      const updatedDiscoveredUsers = discoveredUsers.filter(element => element.id !== id)
-      const update = {}
-      update[ConsentDiscoveredUser.storageKey] = updatedDiscoveredUsers
-      Session.update(update)
-    } else {
-      throw 'No discoveredUsers exist yet'
-    }
+    return AsyncStorage.getItem(ConsentDiscoveredUser.storageKey)
+    .then(itemJSON => {
+      if (itemJSON) {
+        const discoveredUsers = JSON.parse(itemJSON)
+        const updatedDiscoveredUsers = discoveredUsers.filter(discoveredUser => discoveredUser.id !== id)
+        return AsyncStorage.setItem(ConsentDiscoveredUser.storageKey, JSON.stringify(updatedDiscoveredUsers))
+      } else {
+        return Promise.reject(`${ConsentDiscoveredUser.storageKey} storage is empty. Nothing to remove`)
+      }
+    })
   }
 
   static get(id) {
-    const discoveredUsers = Session.getState()[ConsentDiscoveredUser.storageKey]
-    if (discoveredUsers) {
-      const user = discoveredUsers.find(user => user.id === id)
-      if (user) {
-        return user
+    return AsyncStorage.getItem(ConsentDiscoveredUser.storageKey)
+    .then(itemJSON => {
+      if (itemJSON) {
+        const discoveredUsers = JSON.parse(itemJSON)
+        const discoveredUser = discoveredUsers.find(discoveredUser => discoveredUser.id === id)
+        if (discoveredUser) {
+          return Promise.resolve(discoveredUser)
+        } else {
+          return Promise.reject(`${ConsentDiscoveredUser.storageKey}.[id:${id}] does not exist`)
+        }
       } else {
-        throw `No discovered user with id: ${id}`
+        // none exist
+        return Promise.reject(`${ConsentDiscoveredUser.storageKey} storage is empty. Nothing to get`)
       }
-    } else {
-      throw 'No discoveredUsers exist yet'
-    }
+    })
   }
 
   static all() {
-    const discoveredUsers = Session.getState()[ConsentDiscoveredUser.storageKey]
-    if (discoveredUsers) {
-      return discoveredUsers
-    } else {
-      throw 'No discoveredUsers exist yet'
-    }
+    return AsyncStorage.getItem(ConsentDiscoveredUser.storageKey)
+    .then(itemJSON => {
+      if (itemJSON) {
+        const discoveredUsers = JSON.parse(itemJSON)
+        return Promise.resolve(discoveredUsers)
+      } else {
+        return Promise.reject(`${ConsentDiscoveredUser.storageKey} storage is empty. Nothing to get`)
+      }
+    })
   }
 }
 

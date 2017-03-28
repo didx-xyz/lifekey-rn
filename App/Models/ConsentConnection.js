@@ -47,6 +47,9 @@ class ConsentConnection {
     })
   }
 
+  /**
+   * Trash the key
+   */
   static purge() {
     return AsyncStorage.removeItem(ConsentConnection.storageKey)
   }
