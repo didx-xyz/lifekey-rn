@@ -75,7 +75,6 @@ class ConsentConnection {
   static all() {
     return AsyncStorage.getItem(ConsentConnection.storageKey)
     .then(itemJSON => {
-      console.log('CC: ',itemJSON)
       if (itemJSON) {
         const connections = JSON.parse(itemJSON)
         return Promise.resolve(connections)
