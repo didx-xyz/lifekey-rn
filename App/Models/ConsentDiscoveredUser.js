@@ -79,7 +79,7 @@ class ConsentDiscoveredUser {
         const discoveredUsers = JSON.parse(itemJSON)
         return Promise.resolve(discoveredUsers)
       } else {
-        return Promise.reject(`${ConsentDiscoveredUser.storageKey} storage is empty. Nothing to get`)
+        return Promise.resolve({})
       }
     })
   }
