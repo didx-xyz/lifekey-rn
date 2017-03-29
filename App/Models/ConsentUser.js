@@ -52,15 +52,6 @@ export default class ConsentUser {
     // maybe unload keystore?
   }
 
-  static setDid(did) {
-    const update = {}[ConsentUser.storageKey] = { dbDid: did }
-    return Storage.store(Config.storage.dbKey, update)
-    .then(() => {
-      Session.update(update)
-      return Promise.resolve(did)
-    })
-  }
-
   static getToken() {
     return AsyncStorage.getItem(ConsentUser.storageKey)
     .then(userJSON => {
