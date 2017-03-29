@@ -9,6 +9,7 @@ import * as Lifecycle from './Lifecycle'
 import Logger from './Logger'
 import Palette from './Palette'
 import Session from './Session'
+import Routes from './Routes'
 import Config from './Config'
 import ConsentUser from './Models/ConsentUser'
 import ConsentConnection from './Models/ConsentConnection'
@@ -34,7 +35,7 @@ export default class Lifekeyrn extends Component {
     // Members
     this._className = this.constructor.name
     this.filename = this._className + '.js'
-    this._initialRoute = Config.initialRoute
+    this._initialRoute = this._getInitialRoute()
     this._navigationEventEmitter = new EventEmitter()
     this._orientationEventEmitter = new EventEmitter()
     this.state = {
@@ -203,7 +204,7 @@ export default class Lifekeyrn extends Component {
    * @param {Object} event
    * @returns {undefined} undefined
    */
-  onScreenUpdate(event) {
+  _onScreenUpdate(event) {
 
     const width = Math.round(event.nativeEvent.layout.width)
     const height = Math.round(event.nativeEvent.layout.height)
@@ -223,6 +224,18 @@ export default class Lifekeyrn extends Component {
     }
   }
 
+  _getInitialRoute() {
+    if (Config.DEBUG) {
+      return Config.initialRoute
+    } else {
+      if (this.state.registered) {
+        return Routes.main
+      } else {
+        return Routes.onboarding.splashScreen
+      }
+    }
+  }
+
   render() {
     return (
         <Navigator
@@ -233,7 +246,7 @@ export default class Lifekeyrn extends Component {
             Logger.routeStack(navigator.getCurrentRoutes())
             return (
               <View
-                onLayout={(event) => this.onScreenUpdate(event)}
+                onLayout={(event) => this._onScreenUpdate(event)}
                 style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}
               >
                 {React.createElement(
