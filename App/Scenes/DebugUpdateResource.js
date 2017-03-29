@@ -9,7 +9,6 @@
 import React from 'react'
 import Scene from '../Scene'
 import Session from '../Session'
-import Storage from '../Storage'
 import Config from '../Config'
 import Api from '../Api'
 
@@ -48,7 +47,7 @@ export default class DebugUpdateResource extends Scene {
     this.navigator.pop()
     return true
   }
-  
+
   componentDidMount() {
     super.componentDidMount()
     var resource = Session.state.resources[this.props.passProps.resource_key]

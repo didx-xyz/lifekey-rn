@@ -5,8 +5,6 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-import Config from './Config'
-import Storage from './Storage'
 import Logger from './Logger'
 import deepmerge from 'deepmerge'
 
@@ -38,16 +36,4 @@ export default class Session {
       throw 'Update only accepts objects'
     }
   }
-
-  static persist() {
-    return Storage.store(Config.session.dbKey, this.state)
-    .catch(error => {
-      Logger.error(error, 'Session')
-    })
-  }
-
-  static rehydrate() {
-    return Storage.load(Config.session.dbKey)
-  }
-
 }

@@ -6,7 +6,6 @@
  */
 import { Platform, AsyncStorage } from 'react-native'
 import Session from '../Session'
-import Storage from '../Storage'
 import Crypto from '../Crypto'
 import Logger from '../Logger'
 import Config from '../Config'

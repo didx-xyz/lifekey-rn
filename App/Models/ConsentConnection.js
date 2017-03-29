@@ -4,9 +4,7 @@
  * Civvals, 50 Seymour Street, London, England, W1H 7JG
  * @author Werner Roets <werner@io.co.za>
  */
-import Session from '../Session'
-import Storage from '../Storage'
-import Config from '../Config'
+
 import { AsyncStorage } from 'react-native'
 
 class ConsentConnection {
