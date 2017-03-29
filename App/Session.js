@@ -8,6 +8,7 @@
 import Config from './Config'
 import Storage from './Storage'
 import Logger from './Logger'
+import deepmerge from 'deepmerge'
 
 /**
  * A static class to store and retrieve a global state
@@ -20,7 +21,6 @@ export default class Session {
    * @returns {Object} data The current state held in the store
    */
   static getState() {
-    Logger.session(JSON.stringify(this.state))
     return this.state
   }
 
@@ -32,7 +32,7 @@ export default class Session {
    */
   static update(data) {
     if (typeof data === 'object') {
-      this.state = Object.assign(this.state, data)
+      this.state = deepmerge(this.state, data)
       Logger.session(JSON.stringify(this.state))
     } else {
       throw 'Update only accepts objects'
