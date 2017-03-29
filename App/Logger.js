@@ -51,15 +51,10 @@ export default class Logger {
    * @param {string} message The message to log
    * @returns {undefined}
    */
-  static session = (message, action = 'UNKNOWN') => {
-    let prefix
-    if (action.toUpperCase() === 'UPDATE') {
-      prefix = `${ANSI.yellow.open}[SESSION.UPDATE]${ANSI.yellow.close} `
-    } else {
-      prefix = `${ANSI.magenta.open}[SESSION.GETSTATE]${ANSI.magenta.close} `
-    }
+  static session = (message, action) => {
+    let prefix = `${ANSI.blue.open}[Session Updated]${ANSI.blue.close} `
     if (Config.DEBUG && Config.debugAsyncStorage) {
-      Logger._log(prefix, message, ANSI.blue)
+      Logger._log(prefix, message, ANSI.white)
     }
   }
 
@@ -145,8 +140,21 @@ export default class Logger {
    * @param {string} filename The filename to log
    * @returns {undefined}
    */
-  static info = (message, filename = 'Unknown') => {
-    const prefix = `${ANSI.bgGreen.open}${ANSI.white.open}[i.]${ANSI.white.close}${ANSI.bgGreen.close}`
+  static info = (message, filename = '?.js') => {
+    const prefix = `${ANSI.bgBlack.open}${ANSI.green.open}[info]${ANSI.green.close}${ANSI.bgBlack.close}`
+    if (Config.DEBUG) {
+      console.log(`${prefix} ${filename} ${ANSI.white.open} ${message}${ANSI.white.close}`)
+    }
+  }
+
+  /**
+   * Log a warn
+   * @param {string} message The message to log
+   * @param {string} filename The filename to log
+   * @returns {undefined}
+   */
+  static warn = (message, filename = '?.js') => {
+    const prefix = `${ANSI.bgBlack.open}${ANSI.yellow.open}[warn]${ANSI.yellow.close}${ANSI.bgBlack.close}`
     if (Config.DEBUG) {
       console.log(`${prefix} ${filename} ${ANSI.white.open} ${message}${ANSI.white.close}`)
     }
@@ -174,7 +182,7 @@ export default class Logger {
   static react = (filename, event) => {
 
     const prefix = `${ANSI.red.open}[LC]${ANSI.red.close} `
-    if(Config.DEBUG && Config.debugReact) {
+    if (Config.DEBUG && Config.debugReact) {
       switch (event) {
       case Lifecycle.CONSTRUCTOR:
         Logger._log(
