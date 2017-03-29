@@ -7,14 +7,9 @@
 
 import React from 'react'
 import Scene from '../Scene'
-import Crypto from '../Crypto'
 import Session from '../Session'
-import Storage from '../Storage'
 import ConsentUser from '../Models/ConsentUser'
 import Logger from '../Logger'
-import Config from '../Config'
-import Firebase from '../Firebase'
-import Api from '../Api'
 
 import {
   Text,
@@ -44,11 +39,8 @@ export default class DebugRegister extends Scene {
 
   componentDidMount() {
     super.componentDidMount()
-    if (Session.getState().userRegistered) {
-      this.setState({
-        registered: true
-      })
-    }
+    ConsentUser.isRegistered()
+    .then(registered => this.setState({ registered }))
   }
 
   register() {
@@ -56,17 +48,30 @@ export default class DebugRegister extends Scene {
     const nickname = this.state.nickname.trim()
     const password = this.state.password.trim()
     ConsentUser.register(nickname, email, password)
-    .then(() => {
+    .then(result => {
       Logger.info("REGISTERED", 'DebugRegister')
+      this.setState({
+        registered: true
+      })
     })
     .catch(error => {
-      Logger.error("REGISTERED", 'DebugRegister', error)
+      Logger.error("Not so much registered", 'DebugRegister', error)
     })
 
   }
 
   login() {
     alert("todo")
+  }
+
+  unregister() {
+    ConsentUser.unregister()
+    .then(result => {
+      alert(JSON.stringify(result))
+    })
+    .catch(error => {
+      Logger.error('Could not unregister', this._fileName, error)
+    })
   }
 
   render() {
@@ -100,7 +105,10 @@ export default class DebugRegister extends Scene {
           />
 
           { this.state.registered ?
-          <Button style={[styles.btn]} kind="squared" onPress={ () => this.login()}>Login</Button>
+          <View style={{ flex: 1 }}>
+            <Button style={[styles.btn]} kind="squared" onPress={ () => this.login()}>Login</Button>
+            <Button style={[styles.btn]} kind="squared" onPress={ () => this.unregister()}>Unregister</Button>
+          </View>
           :
           <Button style={[styles.btn]} kind="squared" onPress={ () => this.register()}>Register</Button>
           }

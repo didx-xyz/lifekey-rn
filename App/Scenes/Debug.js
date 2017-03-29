@@ -8,10 +8,8 @@
 import React from 'react'
 import Scene from '../Scene'
 import Routes from '../Routes'
-import Crypto from '../Crypto'
+import Api from '../Api'
 import Session from '../Session'
-import Storage from '../Storage'
-import Config from '../Config'
 import Logger from '../Logger'
 
 import {
@@ -29,30 +27,37 @@ import BackButton from '../Components/BackButton'
 import ConsentConnection from '../Models/ConsentConnection'
 import ConsentConnectionRequest from '../Models/ConsentConnectionRequest'
 import ConsentDiscoveredUser from '../Models/ConsentDiscoveredUser'
+import ConsentUser from '../Models/ConsentUser'
 
 export default class Debug extends Scene {
 
   constructor(props) {
     super(props)
     this.state = {
-      registered: false
+      connections: [],
+      connectionRequests: [],
+      discoveredUsers: [],
+      user: {}
     }
   }
 
   componentWillMount() {
     super.componentWillMount()
+
     Promise.all([
       ConsentConnection.all(),
       ConsentConnectionRequest.all(),
-      ConsentDiscoveredUser.all()
+      ConsentDiscoveredUser.all(),
+      ConsentUser.get()
     ])
     .then(results => {
-      this.setState({
+      let newState = {
         connections: results[0],
-        connectionsRequests: results[1],
+        connectionRequests: results[1],
         discoveredUsers: results[2],
-
-      })
+        user: results[3] || {}
+      }
+      this.setState(newState)
     })
     .catch(error => {
       Logger.error(error)
@@ -67,7 +72,6 @@ export default class Debug extends Scene {
     super.componentWillFocus()
   }
 
-
   render() {
 
     return (
@@ -80,9 +84,9 @@ export default class Debug extends Scene {
 
           <Button iconName="md-key" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugKeyStore)}>Keystore Manager</Button>
           <Button iconName="md-reverse-camera" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.selfieCam)}>Self-facing Camera</Button>
-          <Button iconName="md-contact" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugRegister)}>{ this.state.registered ? "Unlock/Login" : "Register on Consent" }</Button>
+          <Button iconName="md-contact" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugRegister)}>Consent User</Button>
 
-          { this.state.registered ?
+          { this.state.user.registered ?
           [
             <Button key={1} iconName="md-globe" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugConnectionRequest)}>QR Connection Request</Button>,
             <Button key={2} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugViewConnectionRequests)}>Connection Requests</Button>,
@@ -97,28 +101,17 @@ export default class Debug extends Scene {
             <Text>{JSON.stringify(Session.getState(), '\t', 2)}</Text>
             <H3>Storages</H3>
             <H5>Connections</H5>
-            <Text>{JSON.stringify(this.state.connections)}</Text>
+            <Text>{JSON.stringify(this.state.connections, '\t', 2)}</Text>
             <H5>Connection Requests</H5>
-            <Text>{JSON.stringify(this.state.connectionsRequests)}</Text>
+            <Text>{JSON.stringify(this.state.connectionRequests, '\t', 2)}</Text>
             <H5>Discovered Users</H5>
-            <Text>{JSON.stringify(this.state.discoveredUsers)}</Text>
-
+            <Text>{JSON.stringify(this.state.discoveredUsers, '\t', 2)}</Text>
+            <H5>User</H5>
+            <Text>{JSON.stringify(this.state.user, '\t', 2)}</Text>
           </View>
         </Content>
       </Container>
     )
-  }
-
-  _getConnections() {
-    ConsentConnection.all()
-    .then(connections => {
-      this.setState({
-        connections
-      })
-    })
-    .catch(error => {
-      console.log(error)
-    })
   }
 
 }

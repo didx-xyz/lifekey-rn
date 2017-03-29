@@ -277,15 +277,15 @@ export default class DebugKeyStore extends Scene {
           </View>
           <Text>Available Stores: { this.state.stores.map(x => x + ", ")}</Text>
           <Text>Loaded Store: { this.state.loadedStore || "None" }</Text>
-          <Button style={[styles.btn]} onPress={() => this.newKeystore()}> Create New KeyStore</Button>
-          <Button style={[styles.btn]} onPress={() => this.deleteKeystore()}> Delete KeyStore</Button>
-          <Button style={[styles.btn]} onPress={() => this.loadKeystore()}> Load KeyStore</Button>
+          <Button kind="squared" style={[styles.btn]} onPress={() => this.newKeystore()}> Create New KeyStore</Button>
+          <Button kind="squared" style={[styles.btn]} onPress={() => this.deleteKeystore()}> Delete KeyStore</Button>
+          <Button kind="squared" style={[styles.btn]} onPress={() => this.loadKeystore()}> Load KeyStore</Button>
           <View style={{ alignItems: 'center' }}>
             <H2>Keys</H2>
           </View>
           <Text>Keys in store: { this.state.loadedStoreKeys.map(x => x + ", ") || null}</Text>
-          <Button style={[styles.btn]} onPress={() => this.newKey()}> New Keypair</Button>
-          <Button style={[styles.btn]} onPress={() => this.deleteKeys()}>Delete Keys</Button>
+          <Button kind="squared" style={[styles.btn]} onPress={() => this.newKey()}> New Keypair</Button>
+          <Button kind="squared" style={[styles.btn]} onPress={() => this.deleteKeys()}>Delete Keys</Button>
         </Content>
       </Container>
     )
