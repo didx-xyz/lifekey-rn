@@ -17,7 +17,7 @@ export default class Storage {
       if ((typeof value !== 'object') || (typeof key !== 'string')) {
         reject('Key must be a string and value must be an object')
       }
-      resolve(AsyncStorage.mergeItem(key, JSON.stringify(value)))
+      resolve(AsyncStorage.setItem(key, JSON.stringify(value)))
     })
   }
 
