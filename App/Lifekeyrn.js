@@ -7,13 +7,9 @@
 
 import * as Lifecycle from './Lifecycle'
 import Logger from './Logger'
-import Crypto from './Crypto'
 import Palette from './Palette'
 import Session from './Session'
-import Storage from './Storage'
 import Config from './Config'
-import Firebase from './Firebase'
-// import ConsentKeystore from './Models/ConsentKeystore'
 import ConsentUser from './Models/ConsentUser'
 import ConsentConnection from './Models/ConsentConnection'
 import ConsentConnectionRequest from './Models/ConsentConnectionRequest'
@@ -44,7 +40,11 @@ export default class Lifekeyrn extends Component {
     this.state = {
       orientation: null,
       viewableScreenWidth: null,
-      viewableScreenHeight: null
+      viewableScreenHeight: null,
+      screenWidth: null,
+      screenHeight: null,
+      scale: null,
+      fontScale: null
     }
     Logger.info(` === ${Config.APP_NAME}  v${Config.version} === `, this.filename)
 
@@ -57,7 +57,28 @@ export default class Lifekeyrn extends Component {
     } else {
       Logger.info('TODO: Firebase iOS', this.filename)
     }
+    this._initSession()
+  }
 
+  _initSession() {
+    Logger.info('Initialising session', this.filename)
+    // We want to essentially look through storage
+    // to determine the starting point of global state
+    ConsentUser.get()
+    .then(results => {
+      const update = {}
+      update[ConsentUser.storageKey] = {
+        registered: results.registered || false,
+        loggedIn: results.loggedIn || false,
+        id: results.id,
+        email: results.email,
+        firebaseToken: results.firebaseToken
+      }
+      Session.update(update)
+    })
+    .catch(error => {
+      Logger.error('Error restoring session', this.filename, error)
+    })
   }
 
   /**
@@ -89,7 +110,6 @@ export default class Lifekeyrn extends Component {
       case 'user_connection_created':
         ConsentConnection.add(
           message.data.user_connection_id,
-          message.data.to_id,
           message.data.from_id
         )
         break
@@ -110,7 +130,7 @@ export default class Lifekeyrn extends Component {
    * @returns {undefined} undefined
    */
   _nativeEventTokenRefreshed(token) {
-    Firebase.updateToken(token)
+    ConsentUser.setToken(token)
     .catch(error => {
       Logger.firebase(error)
     })
@@ -124,12 +144,12 @@ export default class Lifekeyrn extends Component {
     const height = Math.round(Dimensions.get('window').height)
     const scale = Dimensions.get('window').scale
     const fontScale = Dimensions.get('window').fontScale
-    Logger.info(`Initial Dimensions: ${width} x ${height} ${width < height ? 'PORTRAIT' : 'LANDSCAPE'}`, this.filename)
+    Logger.info(`Screen Dimensions: ${width} x ${height} ${width < height ? 'PORTRAIT' : 'LANDSCAPE'}`, this.filename)
 
     // Set to state
     this.setState({
-      viewableScreenWidth: width,
-      viewableScreenHeight: height,
+      screenWidth: width,
+      screenHeight: height,
       orientation: width > height ? LANDSCAPE : PORTRAIT,
       scale: scale,
       fontScale: fontScale
@@ -146,13 +166,7 @@ export default class Lifekeyrn extends Component {
 
   componentDidMount() {
     Logger.react(this.filename, Lifecycle.COMPONENT_DID_MOUNT)
-    ConsentUser.isRegistered()
-    .then(registered => {
-      Logger.info('Registere: ' + registered, this.filename)
-    })
-    .catch(error => {
-      Logger.error('Error', this.filename, error)
-    })
+
   }
 
   componentWillReceiveProps() {
@@ -205,7 +219,7 @@ export default class Lifekeyrn extends Component {
         viewableScreenHeight: height,
         orientation: orientation
       })
-      Logger.info(`Screen redraw: ${width} x ${height} ${orientation}`, this.filename)
+      Logger.info(`Usable screen: ${width} x ${height} ${orientation}`, this.filename)
     }
   }
 
