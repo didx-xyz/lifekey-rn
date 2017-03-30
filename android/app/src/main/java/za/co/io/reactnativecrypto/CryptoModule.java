@@ -384,7 +384,6 @@ public class CryptoModule extends ReactContextBaseJavaModule {
       if(this.keyStore == null) {
         this.init();
       }
-      // this.loadedStoreFOS
       this.keyStore.load(fis, passwordCharacters);
       this.alias = name;
       promise.resolve(name);
@@ -399,6 +398,15 @@ public class CryptoModule extends ReactContextBaseJavaModule {
     } catch(IOException e) {
       promise.reject(Byte.toString(E_IO), e);
     }
+  }
+
+  /**
+   * Set the keystore to null
+   */
+  @ReactMethod
+  public void unloadKeyStore(Promise promise) {
+    this.keyStore = null;
+    promise.resolve(null);
   }
 
   /**

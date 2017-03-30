@@ -10,10 +10,7 @@ import Scene from '../Scene'
 import Crypto from '../Crypto'
 // import PushNotifications from '../PushNotifications'
 import Session from '../Session'
-import Storage from '../Storage'
-import Logger from '../Logger'
 import Config from '../Config'
-import DebugViewConnections from './DebugViewConnections'
 
 import {
   Text,

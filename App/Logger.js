@@ -46,6 +46,18 @@ export default class Logger {
     }
   }
 
+  /**
+   * Log an Session action
+   * @param {string} message The message to log
+   * @returns {undefined}
+   */
+  static session = (message, action) => {
+    let prefix = `${ANSI.blue.open}[Session Updated]${ANSI.blue.close} `
+    if (Config.DEBUG && Config.debugAsyncStorage) {
+      Logger._log(prefix, message, ANSI.white)
+    }
+  }
+
    /**
    * Log an AsyncStorage action
    * @param {string} routeStack The route stack to log
@@ -115,9 +127,9 @@ export default class Logger {
   static error = (message, filename, error) => {
     const prefix = `${ANSI.bgRed.open}${ANSI.white.open}[ER]${ANSI.white.close}${ANSI.bgRed.close}`
     if (Config.DEBUG) {
-      console.log(`${prefix} ${filename} ${ANSI.red.open} ${message}${ANSI.red.close}`)
+      console.log(`${prefix} ${filename} ${ANSI.red.open} ${message}:${ANSI.red.close}`)
       if (error) {
-        console.log('ERROR', error)
+        console.log(error)
       }
     }
   }
@@ -128,8 +140,21 @@ export default class Logger {
    * @param {string} filename The filename to log
    * @returns {undefined}
    */
-  static info = (message, filename = 'Unknown') => {
-    const prefix = `${ANSI.bgGreen.open}${ANSI.white.open}[i.]${ANSI.white.close}${ANSI.bgGreen.close}`
+  static info = (message, filename = '?.js') => {
+    const prefix = `${ANSI.bgBlack.open}${ANSI.green.open}[info]${ANSI.green.close}${ANSI.bgBlack.close}`
+    if (Config.DEBUG) {
+      console.log(`${prefix} ${filename} ${ANSI.white.open} ${message}${ANSI.white.close}`)
+    }
+  }
+
+  /**
+   * Log a warn
+   * @param {string} message The message to log
+   * @param {string} filename The filename to log
+   * @returns {undefined}
+   */
+  static warn = (message, filename = '?.js') => {
+    const prefix = `${ANSI.bgBlack.open}${ANSI.yellow.open}[warn]${ANSI.yellow.close}${ANSI.bgBlack.close}`
     if (Config.DEBUG) {
       console.log(`${prefix} ${filename} ${ANSI.white.open} ${message}${ANSI.white.close}`)
     }
@@ -157,7 +182,7 @@ export default class Logger {
   static react = (filename, event) => {
 
     const prefix = `${ANSI.red.open}[LC]${ANSI.red.close} `
-    if(Config.DEBUG && Config.debugReact) {
+    if (Config.DEBUG && Config.debugReact) {
       switch (event) {
       case Lifecycle.CONSTRUCTOR:
         Logger._log(

@@ -8,7 +8,6 @@
 import React from 'react'
 import Scene from '../Scene'
 import Session from '../Session'
-import Storage from '../Storage'
 import Config from '../Config'
 import Api from '../Api'
 
