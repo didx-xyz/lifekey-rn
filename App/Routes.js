@@ -15,6 +15,7 @@ import Main from './Scenes/Main'
 import Me from './Scenes/Me'
 import SetPin from './Scenes/Onboarding/SetPin'
 import Unlocked from './Scenes/Onboarding/Unlocked'
+import ConnectionDetails from './Scenes/ConnectionDetails'
 
 import Locked from './Scenes/Onboarding/Locked'
 import Unlock from './Scenes/Onboarding/Unlock'
@@ -31,6 +32,7 @@ export default {
   // Debug
   main: { scene: Main },
   me: { scene: Me },
+  connectionDetails: { title: 'Connection Details', scene: ConnectionDetails },
   debugKeyStore: { scene: DebugKeyStore },
   debugRegister: { scene: DebugRegister },
 
