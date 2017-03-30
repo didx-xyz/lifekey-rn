@@ -8,9 +8,6 @@
 import React from 'react'
 import Scene from '../Scene'
 import PushNotifications from '../PushNotifications'
-import Logger from '../Logger'
-import Config from '../Config'
-import Firebase from '../Firebase'
 
 import {
   Text,

@@ -7,14 +7,9 @@
 
 import React from 'react'
 import Scene from '../Scene'
-import Crypto from '../Crypto'
 import Session from '../Session'
-import Storage from '../Storage'
 import ConsentUser from '../Models/ConsentUser'
 import Logger from '../Logger'
-import Config from '../Config'
-import Firebase from '../Firebase'
-import Api from '../Api'
 
 import {
   Text,
@@ -44,11 +39,8 @@ export default class DebugRegister extends Scene {
 
   componentDidMount() {
     super.componentDidMount()
-    if (Session.getState().userRegistered) {
-      this.setState({
-        registered: true
-      })
-    }
+    ConsentUser.isRegistered()
+    .then(registered => this.setState({ registered }))
   }
 
   register() {
@@ -56,99 +48,30 @@ export default class DebugRegister extends Scene {
     const nickname = this.state.nickname.trim()
     const password = this.state.password.trim()
     ConsentUser.register(nickname, email, password)
-    .then(() => {
+    .then(result => {
       Logger.info("REGISTERED", 'DebugRegister')
-    })
-    .catch(error => {
-      Logger.error("REGISTERED", 'DebugRegister', error)
-    })
-
-  }
-
-  register2() {
-    const email = this.state.email.trim()
-    const nickname = this.state.nickname.trim()
-    const password = this.state.password.trim()
-    if (!email || !nickname || !password) {
-      alert("Please fill in all fields")
-      return
-    }
-
-    Logger.info("registering as " +
-                email + ", " +
-                nickname + ", " + password,
-                this._fileName)
-
-    var pemKey, firebaseToken, jsonData
-    const toSign = Date.now().toString()
-
-    Crypto.getKeyStoreList()
-    .then(list => {
-      if (list.find(x => x === "consent")) {
-        throw "Already registered"
-      } else {
-        return Crypto.createKeyStore("consent", password)
-      }
-    })
-    .then(() => Crypto.addKeyPair(
-      Crypto.KEYPAIR_RSA,
-      "_lifekey",
-      2048,
-      password,
-      "rsa-example.pem"
-    ))
-    .then(keys => Crypto.getKeyAsPem("public_lifekey", password))
-    .then(pem => {
-      pemKey = pem
-      return Firebase.getToken()
-    })
-
-    .then(_firebaseToken => {
-      return _firebaseToken ? (
-        Promise.all([
-          _firebaseToken,
-          Session.update({firebaseToken: _firebaseToken}),
-          Storage.store(Config.storage.dbKey, {firebaseToken: _firebaseToken})
-        ])
-      ) : Promise.all([Session.getState().firebaseToken])
-    })
-    .then(values => {
-      firebaseToken = values[0]
-      return Crypto.sign(toSign, "private_lifekey", password, Crypto.SIG_SHA256_WITH_RSA)
-    })
-    .then(signature => Api.register({
-      email: email,
-      nickname: nickname,
-      device_id: firebaseToken,
-      device_platform: "android",
-      public_key_algorithm: "rsa",
-      public_key: pemKey,
-      plaintext_proof: toSign,
-      signed_proof: signature
-    }))
-    .then(responseJson => {
-      jsonData = responseJson.body
-      Session.update({
-        dbUserId: jsonData.id,
-        userPassword: password // Not ideal
-      })
-      return Storage.store(Config.storage.dbKey, {
-        userPassword: password,
-        dbUserId: jsonData.id
+      this.setState({
+        registered: true
       })
     })
-    .then(_ => {
-      this.navigator.pop()
-    })
     .catch(error => {
-      // alert(error)
-      Logger.error(error, this._fileName)
-      this.navigator.pop()
+      Logger.error("Not so much registered", 'DebugRegister', error)
     })
+
   }
 
   login() {
     alert("todo")
+  }
+
+  unregister() {
+    ConsentUser.unregister()
+    .then(result => {
+      alert(JSON.stringify(result))
+    })
+    .catch(error => {
+      Logger.error('Could not unregister', this._fileName, error)
+    })
   }
 
   render() {
@@ -182,7 +105,10 @@ export default class DebugRegister extends Scene {
           />
 
           { this.state.registered ?
-          <Button style={[styles.btn]} kind="squared" onPress={ () => this.login()}>Login</Button>
+          <View style={{ flex: 1 }}>
+            <Button style={[styles.btn]} kind="squared" onPress={ () => this.login()}>Login</Button>
+            <Button style={[styles.btn]} kind="squared" onPress={ () => this.unregister()}>Unregister</Button>
+          </View>
           :
           <Button style={[styles.btn]} kind="squared" onPress={ () => this.register()}>Register</Button>
           }

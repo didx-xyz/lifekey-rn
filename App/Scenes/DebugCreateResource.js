@@ -9,7 +9,6 @@
 import React from 'react'
 import Scene from '../Scene'
 import Session from '../Session'
-import Storage from '../Storage'
 import Config from '../Config'
 import Api from '../Api'
 
@@ -87,7 +86,7 @@ export default class DebugCreateResource extends Scene {
   _setAttribute(attribute) {
     this.setState({attribute: attribute})
   }
-  
+
   _setAlias(alias) {
     this.setState({alias: alias})
   }
@@ -115,7 +114,7 @@ export default class DebugCreateResource extends Scene {
   _resetForm() {
     this.setState(INITIAL)
   }
-  
+
   _submitForm() {
     this._createResource()
   }

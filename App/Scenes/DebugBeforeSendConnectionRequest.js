@@ -8,7 +8,6 @@
 import React from 'react'
 import Scene from '../Scene'
 import Session from '../Session'
-import Storage from '../Storage'
 import Crypto from '../Crypto'
 import Config from '../Config'
 import Logger from '../Logger'
@@ -16,9 +15,7 @@ import Logger from '../Logger'
 import {
   Text,
   Dimensions,
-  View,
   StyleSheet,
-  Alert
 } from 'react-native'
 
 import {
