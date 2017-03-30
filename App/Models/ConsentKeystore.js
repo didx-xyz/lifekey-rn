@@ -26,4 +26,8 @@ export default class ConsentKeystore {
   static create(password) {
     return Crypto.createKeyStore(Config.keyStoreName, password)
   }
+
+  static load(password) {
+    return Crypto.loadKeyStore(Config.keyStoreName, password)
+  }
 }

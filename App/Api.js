@@ -8,7 +8,6 @@
 import Config from './Config'
 import Crypto from './Crypto'
 import Session from './Session'
-import Storage from './Storage'
 import Logger from './Logger'
 
 function request(route, opts) {
@@ -24,9 +23,7 @@ function request(route, opts) {
 
   return fetch(Config.http.baseUrl + route, options)
   .then((response) => {
-    if (Config.debug && Config.debugNetwork) {
-      Logger.networkResponse(response.status, new Date(), response._bodyText)
-    }
+    Logger.networkResponse(response.status, new Date(), response._bodyText)
     return response.json()
   })
   .then((json) => {
@@ -67,7 +64,7 @@ export default {
         method: method || 'get',
         headers: {
           "content-type": "application/json",
-          'x-cnsnt-id': Session.getState().dbUserId,
+          'x-cnsnt-id': Session.getState().user.id,
           'x-cnsnt-plain': toSign,
           'x-cnsnt-signed': signature.trim()
         }
@@ -81,6 +78,9 @@ export default {
       return {error: true, message: e.toString()}
     }
   },
+  // ##################
+  // ### MANAGEMENT ###
+  // ##################
 
   /* 0 POST /management/register
    * Register a user
@@ -140,7 +140,7 @@ export default {
       'target'
     ]
     if (containsRequired(requiredFields, data)) {
-      return request('/management/connections', {
+      return request('/management/connection', {
         body: JSON.stringify(data),
         method: 'POST'
       })
@@ -351,8 +351,30 @@ export default {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
+  },
+
+  // ##################
+  // ##### DEBUG ######
+  // ##################
+
+  /* 2 GET /debug/unregister/:user_id
+   * Delete a user
+   */
+  unregister: (data) => {
+    if (Config.DEBUG) {
+      const requiredFields = [
+        'user_id'
+      ]
+      if (containsRequired(requiredFields, data)) {
+        return request(`/debug/unregister/${data.user_id}`, {
+          method: 'GET',
+        })
+      } else {
+        return Promise.reject(getMissingFieldsMessage(requiredFields))
+      }
+    } else {
+      // fail silenty
+    }
   }
-
-
 
 }

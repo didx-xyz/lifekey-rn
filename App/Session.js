@@ -5,9 +5,8 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-import Config from './Config'
-import Storage from './Storage'
 import Logger from './Logger'
+import deepmerge from 'deepmerge'
 
 /**
  * A static class to store and retrieve a global state
@@ -31,21 +30,10 @@ export default class Session {
    */
   static update(data) {
     if (typeof data === 'object') {
-      this.state = Object.assign(this.state, data)
+      this.state = deepmerge(this.state, data)
+      Logger.session(JSON.stringify(this.state))
     } else {
       throw 'Update only accepts objects'
     }
   }
-
-  static persist() {
-    return Storage.store(Config.session.dbKey, this.state)
-    .catch(error => {
-      Logger.error(error, 'Session')
-    })
-  }
-
-  static rehydrate() {
-    return Storage.load(Config.session.dbKey)
-  }
-
 }
