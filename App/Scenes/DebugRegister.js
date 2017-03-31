@@ -7,6 +7,7 @@
 
 import React from 'react'
 import Scene from '../Scene'
+import Api from '../Api'
 import Session from '../Session'
 import ConsentUser from '../Models/ConsentUser'
 import Logger from '../Logger'
@@ -56,6 +57,7 @@ export default class DebugRegister extends Scene {
     })
     .catch(error => {
       Logger.error("Not so much registered", 'DebugRegister', error)
+      alert('Could not register ' + JSON.stringify(error))
     })
 
   }
@@ -66,12 +68,28 @@ export default class DebugRegister extends Scene {
 
   unregister() {
     ConsentUser.unregister()
-    .then(result => {
-      alert(JSON.stringify(result))
+    .then(() => {
+      alert('User unregistered')
+      Logger.info('User unregistered'. this._fileName)
     })
     .catch(error => {
       Logger.error('Could not unregister', this._fileName, error)
     })
+  }
+
+  deleteByEmail() {
+    if (this.state.email) {
+      Api.unregister({ email: this.state.email })
+      .then(result => {
+        alert(JSON.stringify(result))
+      })
+      .catch(error => {
+        alert(JSON.stringify(error))
+      })
+    } else {
+      alert('Please enter an email address to delete the user for')
+    }
+
   }
 
   render() {
@@ -110,7 +128,10 @@ export default class DebugRegister extends Scene {
             <Button style={[styles.btn]} kind="squared" onPress={ () => this.unregister()}>Unregister</Button>
           </View>
           :
-          <Button style={[styles.btn]} kind="squared" onPress={ () => this.register()}>Register</Button>
+          <View style={{ flex: 1}}>
+            <Button style={[styles.btn]} kind="squared" onPress={ () => this.register()}>Register</Button>
+            <Button style={[styles.btn]} kind="squared" onPress={ () => this.deleteByEmail()}>Delete by Email</Button>
+          </View>
           }
         </Content>
       </Container>
