@@ -3,8 +3,10 @@ import { Text, View, StyleSheet, TextInput, Keyboard, Animated, Platform, Image 
 import { Container, Content, Grid, Col, Row } from "native-base"
 
 import Scene from "../../Scene"
+import Logger from "../../Logger"
 import Routes from "../../Routes"
 import BackButton from "../../Components/BackButton"
+import ConsentUser from "../../Models/ConsentUser"
 import Touchable from "../../Components/Touchable"
 import Dots from "../../Components/Dots"
 
@@ -44,7 +46,18 @@ class Unlocked extends Scene {
   onSubmit() {
     if (!this.submitted) {
       this.submitted = true
-      this.navigator.push(Routes.onboarding.unlocked)
+      ConsentUser.login(this.state.characters)
+      .then(() => {
+        // logged in
+        this.navigator.push(Routes.onboarding.unlocked)
+      })
+      .catch(error => {
+        Logger.error('Could not log in', this._fileName, error)
+        alert('Wrong password')
+        this.setState({
+          characters: ''
+        })
+      })
     }
     Keyboard.dismiss()
   }
@@ -94,6 +107,11 @@ class Unlocked extends Scene {
     this.keyboardDidHideListener.remove()
   }
 
+  _goToDebug() {
+    Keyboard.dismiss()
+    this.navigator.push(Routes.debug)
+  }
+
   render() {
     return (
       <Container onTouchStart={this.onFocus} style={[style.container]}>
@@ -102,9 +120,11 @@ class Unlocked extends Scene {
           <Grid>
             <Col style={[style.col, {"height": this.state.screenHeight}]}>
               <Row style={[style.firstRow]}>
+              <Touchable onLongPress={() => this._goToDebug()}>
                 <Text style={[style.firstText]}>
                   Unlock
                 </Text>
+              </Touchable>
               </Row>
               <Row style={[style.secondRow]}>
                 <Text style={[style.secondText]}>
