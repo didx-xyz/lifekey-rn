@@ -102,9 +102,11 @@ export default class Logger {
 
     const codes = [
       { code: 200, color: ANSI.green },
+      { code: 201, color: ANSI.green },
       { code: 401, color: ANSI.yellow },
-      { code: 500, color: ANSI.red },
-      { code: 404, color: ANSI.yellow }
+      { code: 400, color: ANSI.yellow },
+      { code: 404, color: ANSI.yellow },
+      { code: 500, color: ANSI.red }
     ].find(item => status === item.code ? item.color : false) ||
     { code: status || 'unknown', color: ANSI.white }
 
