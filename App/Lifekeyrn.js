@@ -80,10 +80,12 @@ export default class Lifekeyrn extends Component {
         Session.update(update)
 
       } else {
-        Session.update({
+        const update = {}
+        update[ConsentUser.storageKey] = {
           registered: false,
-          loggedIn: false
-        })
+          loggedIn: false,
+        }
+        Session.update(update)
       }
     })
     .catch(error => {
