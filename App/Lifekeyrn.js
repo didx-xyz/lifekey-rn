@@ -10,6 +10,7 @@ import Logger from './Logger'
 import Palette from './Palette'
 import Session from './Session'
 import Routes from './Routes'
+import Crypto from './Crypto'
 import Config from './Config'
 import ConsentUser from './Models/ConsentUser'
 import ConsentConnection from './Models/ConsentConnection'
@@ -30,8 +31,8 @@ const LANDSCAPE = 1
 
 export default class Lifekeyrn extends Component {
 
-  constructor(...params) {
-    super(...params)
+  constructor(props) {
+    super(props)
     // Members
     this._className = this.constructor.name
     this.filename = this._className + '.js'
@@ -67,15 +68,23 @@ export default class Lifekeyrn extends Component {
     // to determine the starting point of global state
     ConsentUser.get()
     .then(results => {
-      const update = {}
-      update[ConsentUser.storageKey] = {
-        registered: results.registered || false,
-        loggedIn: results.loggedIn || false,
-        id: results.id,
-        email: results.email,
-        firebaseToken: results.firebaseToken
+      if (results) {
+        const update = {}
+        update[ConsentUser.storageKey] = {
+          registered: results.registered || false,
+          loggedIn: results.loggedIn || false,
+          id: results.id,
+          email: results.email,
+          firebaseToken: results.firebaseToken
+        }
+        Session.update(update)
+
+      } else {
+        Session.update({
+          registered: false,
+          loggedIn: false
+        })
       }
-      Session.update(update)
     })
     .catch(error => {
       Logger.error('Error restoring session', this.filename, error)
@@ -92,6 +101,12 @@ export default class Lifekeyrn extends Component {
 
       case 'received_did':
         ConsentUser.setDid(message.data.did_value)
+        .then(did => {
+          Logger.info(`DID set to ${did}`, this.filename)
+        })
+        .catch(error => {
+          Logger.error('Could not set DID', this.filename, error)
+        })
         break
 
       case 'user_connection_request':
@@ -114,13 +129,20 @@ export default class Lifekeyrn extends Component {
           message.data.from_id
         )
         break
+      default:
+        Logger.firebase(JSON.stringify(message))
+        if (message.notification) {
+          alert(message.notification.title + ' - ' + message.notification.body)
+        }
+        break
       }
+
     } else {
       // Just a normal notification
       if (message.notification) {
-        alert(message.notification.title + ' - ' + message.notification.body)
+        Logger.firebase(JSON.stringify(message))
       } else {
-        Logger.error('Unexpeted firebase message format')
+        Logger.error('Unexpected firebase message format')
       }
     }
   }
@@ -229,7 +251,7 @@ export default class Lifekeyrn extends Component {
       return Config.initialRoute
     } else {
       if (this.state.registered) {
-        return Routes.main
+        return Routes.onboarding.unlock
       } else {
         return Routes.onboarding.splashScreen
       }
