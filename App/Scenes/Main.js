@@ -110,6 +110,7 @@ export default class Main extends Scene {
         <View style={{ borderColor: Palette.consentGrayDark, height: 120 }}>
           <AndroidBackButton onPress={() => this._hardwareBack()} />
           <LifekeyHeader
+            onLongPressTopCenter={() => this.navigator.push(Routes.debug)}
             onPressBottomLeft={() => this.setTab(TAB_CONNECTED) }
             onPressBottomRight={() => this.setTab(TAB_SUGGESTED) }
             icons={[
