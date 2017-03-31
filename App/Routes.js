@@ -6,7 +6,6 @@
  */
 
 // Debug
-import Login from './Scenes/Login'
 import Main from './Scenes/Main'
 import ScanQRCode from './Scenes/ScanQRCode'
 import Debug from './Scenes/Debug'
@@ -14,7 +13,6 @@ import SelfieCam from './Scenes/SelfieCam'
 import DebugKeyStore from './Scenes/DebugKeyStore'
 import FormGenerator from './Scenes/FormGenerator'
 import DebugRegister from './Scenes/DebugRegister'
-import Animation from './Scenes/Animation'
 import DebugConnectionRequest from './Scenes/DebugConnectionRequest'
 import DebugShowQRCode from './Scenes/DebugShowQRCode'
 import DebugPushNotifications from './Scenes/DebugPushNotifications'
@@ -37,7 +35,6 @@ import Unlock from './Scenes/Onboarding/Unlock'
 export default {
   // Debug
   blankSceneTemplate: { title: 'Blank Scene Template', scene: BlankSceneTemplate },
-  login: { title: 'Login', scene: Login },
   main: { title: 'Main', scene: Main },
   me: { title: 'Main', scene: Me },
   scanQrCode: { title: 'Scan QR Code', scene: ScanQRCode },
@@ -46,7 +43,6 @@ export default {
   debug: { title: 'Debug', scene: Debug },
   formGenerator: { title: 'form generator', scene: FormGenerator },
   debugRegister: { title: 'register', scene: DebugRegister },
-  animation: { title: 'Animation', scene: Animation },
   debugConnectionRequest: { title: 'Connection request', scene: DebugConnectionRequest },
   debugShowQRCode: { title: "Show QR Code", scene: DebugShowQRCode },
   debugPushNotifications: { title: "Push notifications", scene: DebugPushNotifications },
