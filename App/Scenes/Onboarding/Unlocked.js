@@ -7,6 +7,7 @@
 
 import React from 'react'
 import Scene from '../../Scene'
+import Routes from '../../Routes'
 import Palette from '../../Palette'
 
 import {
@@ -33,6 +34,9 @@ export default class Unlocked extends Scene {
     setTimeout(() => {
       this._eventTimeline.pushEvent('Unlocked with numerical pin')
     }, 100)
+    setTimeout(() => {
+      this.navigator.push(Routes.main)
+    }, 2000)
   }
 
   render() {
