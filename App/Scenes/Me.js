@@ -50,6 +50,7 @@ export default class Me extends Scene {
         <View style={{ borderColor: Palette.consentGrayDark, borderBottomWidth: 3, height: 120 }}>
           <AndroidBackButton onPress={() => this._hardwareBack()} />
           <LifekeyHeader
+            onLongPressTopCenter={() => this.navigator.push(Routes.debug)}
             icons={[
               <Text>Test1</Text>,
               <Text>Test2</Text>,
