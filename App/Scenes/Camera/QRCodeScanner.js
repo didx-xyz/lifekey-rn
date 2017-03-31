@@ -33,8 +33,9 @@ export default class QRCodeScanner extends Scene {
     super(props)
     this.state = {
       showCamera: false,
-      scannerActive: true
+      readyToScan: true
     }
+    this.scannerActive = true
   }
   _onAttention() {
     StatusBar.setHidden(true)
@@ -67,18 +68,19 @@ export default class QRCodeScanner extends Scene {
 
   _onBarCodeRead(data) {
     // alert(data)
-    if (this.state.scannerActive) {
+    if (this.scannerActive) {
+      this.scannerActive = false
       Api.requestConnection({ target: data.data })
       .then(() => {
         alert('Request sent')
         this.setState({
-          scannerActive: false
+          readyToScan: false
         })
       })
       .catch(error => {
         alert(JSON.stringify(error))
         this.setState({
-          scannerActive: false
+          readyToScan: false
         })
       })
     }
@@ -86,7 +88,7 @@ export default class QRCodeScanner extends Scene {
 
   render() {
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: 'black' }}>
         <AndroidBackButton onPress={() => this._hardwareBackHandler()}/>
         { this.state.showCamera ?
         <Camera
@@ -98,9 +100,7 @@ export default class QRCodeScanner extends Scene {
           type={Camera.constants.Type.back}
           barCodeTypes={['qr']}
         >
-          { this.state.scannerActive ?
           <CameraCrosshair ref={(crosshair) => { this.crosshair = crosshair }} width={250} height={250} color={'white'}/>
-          : null }
         </Camera>
         :
         <View style={{ flex: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: 'black' }}>
@@ -122,16 +122,19 @@ export default class QRCodeScanner extends Scene {
               </TouchableNativeFeedback>
             </Col>
               <Col>
-                { this.state.scannerActive ?
+                { this.state.readyToScan ?
                 <View style={style.buttonView} />
                 :
                 <TouchableNativeFeedback
                 background={ TouchableNativeFeedback.Ripple(Palette.consentGrayLightest, false) }
-                onPress={() => this.setState({ scannerActive: true })}
+                onPress={() => {
+                  this.scannerActive = true
+                  this.setState({ readyToScan: true })
+                }}
                 delayPressIn={0}
                 >
                   <View style={style.buttonView} >
-                    <Text style={[style.buttonText]}>Scan</Text>
+                    <Text style={[style.buttonText]}>Scan again</Text>
                   </View>
                 </TouchableNativeFeedback>
                 }
