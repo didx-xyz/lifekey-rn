@@ -14,7 +14,6 @@ import DebugKeyStore from './Scenes/DebugKeyStore'
 import FormGenerator from './Scenes/FormGenerator'
 import DebugRegister from './Scenes/DebugRegister'
 import DebugConnectionRequest from './Scenes/DebugConnectionRequest'
-import DebugShowQRCode from './Scenes/DebugShowQRCode'
 import DebugPushNotifications from './Scenes/DebugPushNotifications'
 import DebugViewConnectionRequests from './Scenes/DebugViewConnectionRequests'
 import DebugViewConnections from './Scenes/DebugViewConnections'
@@ -44,7 +43,6 @@ export default {
   formGenerator: { title: 'form generator', scene: FormGenerator },
   debugRegister: { title: 'register', scene: DebugRegister },
   debugConnectionRequest: { title: 'Connection request', scene: DebugConnectionRequest },
-  debugShowQRCode: { title: "Show QR Code", scene: DebugShowQRCode },
   debugPushNotifications: { title: "Push notifications", scene: DebugPushNotifications },
   debugViewConnectionRequests: { title: 'View Connection Requests', scene: DebugViewConnectionRequests },
   debugViewConnections: { title: 'Connections', scene: DebugViewConnections },
