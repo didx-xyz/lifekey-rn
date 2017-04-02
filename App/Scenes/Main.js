@@ -7,10 +7,9 @@
 
 import React from 'react'
 import Scene from '../Scene'
-import Session from '../Session'
+import Api from '../Api'
 import Palette from '../Palette'
 import Routes from '../Routes'
-import Config from '../Config'
 import LifekeyHeader from '../Components/LifekeyHeader'
 import LifekeyFooter from '../Components/LifekeyFooter'
 import Touchable from '../Components/Touchable'
@@ -24,17 +23,10 @@ import {
 } from 'react-native'
 import {
   Container,
-  Header,
-  Title,
   Col,
-  Button,
   Footer,
-  Body,
-  FooterTab,
   ListItem,
   Content,
-  Row,
-  Item,
   Input,
 
 } from 'native-base'
@@ -56,29 +48,40 @@ export default class Main extends Scene {
   }
 
   componentWillMount() {
-    // DEBUG / DEMO data source
-    const connections = [
-      { name: 'Absa', icon: 'rocket' },
-      { name: 'Woolworths', icon: 'rocket' },
-      { name: 'ThisIsMe', icon: 'rocket' },
-      { name: 'Totally Me', icon: 'rocket' },
-      { name: 'ItCouldBeMe', icon: 'rocket' },
-      { name: 'SoTotesMe', icon: 'rocket' },
-      { name: 'NotMeThough', icon: 'rocket' },
-      { name: 'SomethingElse', icon: 'rocket' },
-      { name: 'OutOfIdeas', icon: 'rocket' },
-    ]
-
-    const suggestedConnections = [
-      { name: 'Telkom', icon: 'rocket' },
-      { name: 'Postbank', icon: 'rocket' },
-      { name: 'City of Cape Town', icon: 'rocket' },
-      { name: 'Investec', icon: 'rocket' }
-    ]
-    this.setState({
-      connections,
-      suggestedConnections
+    console.log('coasdasd')
+    Api.allConnections()
+    .then(connections => {
+      console.log('Api.allConnections()', connections)
+      this.setState({
+        connections: connections.body.enabled,
+        suggestedConnections: connections.body.unacked
+      })
     })
+    .catch(error => {
+      console.log(error)
+    })
+    // const connections = [
+    //   { name: 'Absa', icon: 'rocket' },
+    //   { name: 'Woolworths', icon: 'rocket' },
+    //   { name: 'ThisIsMe', icon: 'rocket' },
+    //   { name: 'Totally Me', icon: 'rocket' },
+    //   { name: 'ItCouldBeMe', icon: 'rocket' },
+    //   { name: 'SoTotesMe', icon: 'rocket' },
+    //   { name: 'NotMeThough', icon: 'rocket' },
+    //   { name: 'SomethingElse', icon: 'rocket' },
+    //   { name: 'OutOfIdeas', icon: 'rocket' },
+    // ]
+
+    // const suggestedConnections = [
+    //   { name: 'Telkom', icon: 'rocket' },
+    //   { name: 'Postbank', icon: 'rocket' },
+    //   { name: 'City of Cape Town', icon: 'rocket' },
+    //   { name: 'Investec', icon: 'rocket' }
+    // ]
+    // this.setState({
+    //   connections,
+    //   suggestedConnections
+    // })
   }
 
   setTab(tab) {
@@ -110,6 +113,7 @@ export default class Main extends Scene {
         <View style={{ borderColor: Palette.consentGrayDark, height: 120 }}>
           <AndroidBackButton onPress={() => this._hardwareBack()} />
           <LifekeyHeader
+            onLongPressTopCenter={() => this.navigator.push(Routes.debug.main)}
             onPressBottomLeft={() => this.setTab(TAB_CONNECTED) }
             onPressBottomRight={() => this.setTab(TAB_SUGGESTED) }
             icons={[

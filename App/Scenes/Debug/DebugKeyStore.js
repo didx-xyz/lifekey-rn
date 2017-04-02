@@ -6,7 +6,7 @@
  */
 
 import React from 'react'
-import Scene from '../Scene'
+import Scene from '../../Scene'
 
 import {
   Text,
@@ -18,8 +18,8 @@ import {
   Content,
 } from 'native-base'
 import { Button, H1, H2 } from 'nachos-ui'
-import Crypto from '../Crypto'
-import BackButton from '../Components/BackButton'
+import Crypto from '../../Crypto'
+import BackButton from '../../Components/BackButton'
 import DialogAndroid from 'react-native-dialogs'
 
 export default class DebugKeyStore extends Scene {

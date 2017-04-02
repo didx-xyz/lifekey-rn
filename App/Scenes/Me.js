@@ -16,19 +16,8 @@ import LifekeyCard from '../Components/LifekeyCard'
 import Touchable from '../Components/Touchable'
 import AndroidBackButton from 'react-native-android-back-button'
 
-import {
-  Text,
-  View,
-  StyleSheet,
-  Dimensions
-} from 'react-native'
-import {
-  Container,
-  Content,
-  Card,
-  CardItem,
-} from 'native-base'
-
+import { Text, View } from 'react-native'
+import { Container, Content } from 'native-base'
 
 export default class Me extends Scene {
 
@@ -50,6 +39,7 @@ export default class Me extends Scene {
         <View style={{ borderColor: Palette.consentGrayDark, borderBottomWidth: 3, height: 120 }}>
           <AndroidBackButton onPress={() => this._hardwareBack()} />
           <LifekeyHeader
+            onLongPressTopCenter={() => this.navigator.push(Routes.debug)}
             icons={[
               <Text>Test1</Text>,
               <Text>Test2</Text>,
