@@ -67,7 +67,7 @@ export default class QRCodeScanner extends Scene {
   }
 
   _onBarCodeRead(data) {
-    // alert(data)
+    // alert(JSON.stringify(data))
     if (this.scannerActive) {
       this.scannerActive = false
       Api.requestConnection({ target: data.data })
