@@ -5,7 +5,7 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-import { Platform, Navigator } from 'react-native'
+import { Navigator } from 'react-native'
 import Routes from './Routes'
 import Palette from './Palette'
 const NPM_PACKAGE = require('../package.json')
@@ -21,12 +21,12 @@ export default {
   APP_NAME: APP_NAME,
 
   // First scene to show
-  initialRoute: BUILD_CONFIG.DEBUG ? Routes.main    // Quick access
+  initialRoute: BUILD_CONFIG.DEBUG ? Routes.onboarding.unlock    // Quick access
                       : Routes.onboarding.splashScreen,
 
   DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
   debugNetwork: true,         // Log API requests and responses
-  debugReact: false,          // Log the React Lifecycle events
+  debugReact: true,          // Log the React Lifecycle events
   debugNavigator: false,      // Log the current stack of Navigator routes
   debugAsyncStorage: true,    // Log Storage (AsyncStorage) reads/writes
   debugFirebase: true,        // Log Firebase events

@@ -6,6 +6,7 @@
  */
 import React, { Component } from 'react'
 import Palette from '../Palette'
+import Config from '../Config'
 import Touchable from '../Components/Touchable'
 
 import {
@@ -48,16 +49,7 @@ class LifekeyHeader extends Component {
   }
 
   render() {
-    const leftButtonDynamicStyle = {
-      borderColor: this.state.activeTab === this.TAB_CONNECTED ? Palette.consentBlue :
-                                                                 Palette.consentGrayDark,
-      backgroundColor: DEBUG ? 'orange' : null
-    }
-    const rightButtonDynamicStyle = {
-      borderColor: this.state.activeTab === this.TAB_SUGGESTED ? Palette.consentBlue :
-                                                                 Palette.consentGrayDark,
-      backgroundColor: DEBUG ? 'purple' : null
-    }
+
     return (
       <View style={style.header}>
 
@@ -69,10 +61,19 @@ class LifekeyHeader extends Component {
             <Image source={require('../Images/torn_page.png')}/>
           </View>
 
-          { /* TOP CENTER */ }
+        { /* TOP CENTER */ }
+        { Config.DEBUG ?
+          <Touchable delayLongPress={500} onLongPress={() => this.props.onLongPressTopCenter()}>
+            <View style={style.topViewCenter}>
+              <Image source={require('../Images/blue_dots_static.png')}/>
+            </View>
+          </Touchable>
+
+          :
           <View style={style.topViewCenter}>
             <Image source={require('../Images/blue_dots_static.png')}/>
           </View>
+        }
 
           { /* TOP RIGHT */ }
           <View style={style.topViewRight}>

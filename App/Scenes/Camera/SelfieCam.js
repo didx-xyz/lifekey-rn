@@ -6,23 +6,16 @@
  */
 
 import React from 'react'
-import Scene from '../Scene'
-import Session from '../Session'
-import Config from '../Config'
-import Routes from '../Routes'
+import Scene from '../../Scene'
 import {
   Text,
   View,
   StyleSheet,
   Dimensions,
-  Alert
 } from 'react-native'
-import * as NB from 'native-base'
 import Camera from 'react-native-camera'
-import BackButton from '../Components/BackButton'
+import BackButton from '../../Components/BackButton'
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons'
-const t = require('tcomb-form-native')
-const Form = t.form.Form
 
 
 export default class SelfieCam extends Scene {

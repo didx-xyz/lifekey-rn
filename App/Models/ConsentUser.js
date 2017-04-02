@@ -10,7 +10,9 @@ import Crypto from '../Crypto'
 import Logger from '../Logger'
 import Config from '../Config'
 import Api from '../Api'
-import ConsentKeystore from './ConsentKeystore'
+import ConsentConnection from './ConsentConnection'
+import ConsentConnectionRequest from './ConsentConnectionRequest'
+import ConsentDiscoveredUser from './ConsentDiscoveredUser'
 
 export default class ConsentUser {
 
@@ -33,15 +35,22 @@ export default class ConsentUser {
   }
 
   static login(password) {
-    // load keys maybe?
-    return ConsentKeystore.load(password)
-    .then(name => {
-      const update = {}[ConsentUser.storageKey] = {
+    // load keys
+    // set password in state
+    // set loggedIn true in state
+    return Crypto.loadKeyStore(Config.keystore.name, password)
+    .then(loadedKeystore => {
+      Logger.info('Keystore loaded, user verified')
+      const update = {}
+      update[ConsentUser.storageKey] = {
         password: password,
         loggedIn: true
       }
       Session.update(update)
       return Promise.resolve()
+    })
+    .catch(error => {
+      return Promise.reject(error)
     })
   }
 
@@ -137,10 +146,40 @@ export default class ConsentUser {
   static getPassword() {
     const state = Session.getState()
     if (!state || !state.user || !state.user.password) {
-      return null // maybe throw here
+      throw 'No password set, user is not logged in'
     } else {
       return state.user.password
     }
+  }
+
+  /*
+   * We need this function because DIDs are received through their
+   * own channel and may only be received at a later time after registration
+   */
+  static setDid(did) {
+    return AsyncStorage.getItem(ConsentUser.storageKey)
+    .then(itemJSON => {
+      if (itemJSON) {
+        try {
+          const user = JSON.parse(itemJSON)
+          const userUpdate = Object.assign(user, { did })
+          return AsyncStorage.setItem(ConsentUser.storageKey, JSON.stringify(userUpdate))
+        } catch (error) {
+          return Promise.reject(error)
+        }
+
+      } else {
+        // create first record
+        return AsyncStorage.setItem(ConsentUser.storageKey, JSON.stringify({ did }))
+      }
+    })
+    .then(error => {
+      if (error) {
+        return Promise.reject(error)
+      } else {
+        return Promise.resolve(did)
+      }
+    })
   }
 
   static getId() {
@@ -153,14 +192,14 @@ export default class ConsentUser {
   }
 
   static unregister() {
-    return AsyncStorage.getItem()
+    return AsyncStorage.getItem(ConsentUser.storageKey)
     .then(itemJSON => {
       const user = JSON.parse(itemJSON)
       if (user) {
         if (user.id) {
-          return Api.unregister(user.id)
+          return Api.unregister({ id: user.id })
         } else if (user.email) {
-          return Api.unregister(user.email)
+          return Api.unregister({ email: user.email })
         } else {
           return Promise.reject('Nothing to delete by')
         }
@@ -168,9 +207,24 @@ export default class ConsentUser {
         return Promise.reject('Nothing to delete')
       }
     })
-    .then(response => {
-      alert(JSON.stringify(response))
-      return Promise.resolve()
+    .then(responseJson => {
+      return Promise.all([
+        Crypto.deleteKeyStore(Config.keystore.name),
+        AsyncStorage.multiRemove([
+          ConsentUser.storageKey,
+          ConsentConnection.storageKey,
+          ConsentConnectionRequest.storageKey,
+          ConsentDiscoveredUser.storageKey
+        ])
+      ])
+    })
+    .then(results => {
+      console.log('%%%%%%%%%', results)
+      if (results[1].error) {
+        Logger.error('Could not purge databases', this.filename, results[1].error)
+      } else {
+        Promise.resolve()
+      }
     })
   }
 
@@ -265,6 +319,8 @@ export default class ConsentUser {
       if (response.error === true) {
         // Server rejected registration
         // Remove keystore
+        Logger.info('Registration on server failed', this.filename)
+        Logger.info('Deleting keystore', this.filename)
         return Crypto.deleteKeyStore(Config.keystore.name)
         .then(() => {
           return Promise.reject(response.error)
@@ -289,7 +345,7 @@ export default class ConsentUser {
     .then(error => {
       if (error) {
         // If we couldn't write to database
-        Logger.error('Registration failed', this.filename, error)
+        Logger.error('Could not write to AsyncStorage', this.filename, error)
         return Promise.reject(error)
       } else {
         // Update state

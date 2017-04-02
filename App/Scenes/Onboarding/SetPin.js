@@ -1,21 +1,28 @@
-import React from "react"
-import { Text, View, StyleSheet, TextInput, Keyboard, Animated, Platform } from "react-native"
-import { Container, Content, Grid, Col, Row } from "native-base"
+import React from 'react'
+import {
+  Text,
+  View,
+  StyleSheet,
+  TextInput,
+  Keyboard,
+  Platform
+} from 'react-native'
+import { Container, Content, Grid, Col, Row } from 'native-base'
 
-import Scene from "../../Scene"
-import Routes from "../../Routes"
-import BackButton from "../../Components/BackButton"
-import Dots from "../../Components/Dots"
-import HexagonDots from "../../Components/HexagonDots"
+import Scene from '../../Scene'
+import Routes from '../../Routes'
+import BackButton from '../../Components/BackButton'
+import Dots from '../../Components/Dots'
+import HexagonDots from '../../Components/HexagonDots'
 
 class SetPin extends Scene {
   constructor(...params) {
     super(...params)
 
     this.state = {
-      "screenHeight": this.props.screenHeight,
-      "keyboardVisible": false,
-      "characters": ""
+      screenHeight: this.props.screenHeight,
+      keyboardVisible: false,
+      characters: ''
     }
 
     this.onFocus = this.onFocus.bind(this)
@@ -53,22 +60,22 @@ class SetPin extends Scene {
     const change = event.endCoordinates.height
 
     this.setState({
-      "screenHeight": this.props.screenHeight - change,
-      "keyboardVisible": true
+      screenHeight: this.props.screenHeight - change,
+      keyboardVisible: true
     })
   }
 
   onKeyboardDidHide(event) {
     this.setState({
-      "screenHeight": this.props.screenHeight,
-      "keyboardVisible": false
+      screenHeight: this.props.screenHeight,
+      keyboardVisible: false
     })
   }
 
   componentWillReceiveProps(props) {
     super.componentWillReceiveProps()
     this.setState({
-      "screenHeight": this.props.screenHeight
+      screenHeight: this.props.screenHeight
     })
   }
 
@@ -94,7 +101,7 @@ class SetPin extends Scene {
         <BackButton navigator={this.navigator} />
         <Content>
           <Grid>
-            <Col style={[style.col, {"height": this.state.screenHeight}]}>
+            <Col style={[style.col, { height: this.state.screenHeight }]}>
               <Row style={[style.firstRow]}>
                 <Text style={[style.firstText]}>
                   Create a 5-digit {"\n"} key PIN.
@@ -130,49 +137,49 @@ class SetPin extends Scene {
 }
 
 const textStyle = {
-  "textAlign": "center",
-  "fontFamily": Platform.select({
-    "ios": "Helvetica",
-    "android": "Arial"
+  textAlign: "center",
+  fontFamily: Platform.select({
+    ios: "Helvetica",
+    android: "Arial"
   }),
-  "fontWeight": "300"
+  fontWeight: "300"
 }
 
 const style = StyleSheet.create({
-  "container": {
-    "backgroundColor": "#f9fafa"
+  container: {
+    backgroundColor: "#f9fafa"
   },
-  "col": {
-    "flexDirection": "column"
+  col: {
+    flexDirection: "column"
   },
-  "firstRow": {
-    "alignItems": "center",
-    "justifyContent": "center",
-    "paddingTop": 40
+  firstRow: {
+    alignItems: "center",
+    justifyContent: "center",
+    paddingTop: 40
   },
-  "firstText": Object.assign(Object.create(textStyle), {
-    "color": "#4b5359",
-    "fontSize": 30
+  firstText: Object.assign(Object.create(textStyle), {
+    color: "#4b5359",
+    fontSize: 30
   }),
-  "secondRow": {
-    "alignItems": "center",
-    "justifyContent": "center"
+  secondRow: {
+    alignItems: "center",
+    justifyContent: "center"
   },
-  "secondText": Object.assign(Object.create(textStyle), {
-    "color": "#a2acb2",
-    "fontSize": 16
+  secondText: Object.assign(Object.create(textStyle), {
+    color: "#a2acb2",
+    fontSize: 16
   }),
-  "thirdRow": {
-    "alignItems": "center",
-    "justifyContent": "center"
+  thirdRow: {
+    alignItems: "center",
+    justifyContent: "center"
   },
-  "fourthRow": {
-    "alignItems": "center",
-    "justifyContent": "center"
+  fourthRow: {
+    alignItems: "center",
+    justifyContent: "center"
   },
-  "input": {
-    "position": "absolute",
-    "top": -1000
+  input: {
+    position: "absolute",
+    top: -1000
   }
 })
 

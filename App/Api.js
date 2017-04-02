@@ -9,30 +9,92 @@ import Config from './Config'
 import Crypto from './Crypto'
 import Session from './Session'
 import Logger from './Logger'
+import ConsentUser from './Models/ConsentUser'
 
-function request(route, opts) {
+function request(route, opts, signedRequest = true) {
 
-  const options = Object.assign({
-    method: 'GET',  // Default
-    headers: {
-      'content-type': 'application/json',
-    }
-  }, opts)
+  if (signedRequest) {
+    let userID, firebaseToken, secureRandom, signature
 
-  Logger.networkRequest(options.method, new Date(), Config.http.baseUrl + route)
+    return ConsentUser.get()
+    .then(results => {
+      if (!results || !results.firebaseToken || !results.registered) {
+        return Promise.reject('User not registered. Cannot send a signed request')
+      } else {
+        userID = results.id
+        firebaseToken = results.firebaseToken
+        return Crypto.getKeyStoreIsLoaded()
+        // return Crypto.secureRandom()
+      }
+    })
+    .then(keystoreLoaded => {
+      if (keystoreLoaded) {
+        return Crypto.secureRandom()
+      } else {
+        return Promise.reject('Keystore must first be loaded')
+      }
+    })
+    .then(_secureRandom => {
+      secureRandom = _secureRandom
+      return Crypto.sign(
+        secureRandom,
+        Config.keystore.privateKeyName,
+        ConsentUser.getPassword(),
+        Crypto.SIG_SHA256_WITH_RSA
+      )
+    })
+    .then(_signature => {
+      signature = _signature
 
-  return fetch(Config.http.baseUrl + route, options)
-  .then((response) => {
-    Logger.networkResponse(response.status, new Date(), response._bodyText)
-    return response.json()
-  })
-  .then((json) => {
-    if (json.error) {
-      return Promise.reject(json)
-    } else {
-      return Promise.resolve(json)
-    }
-  })
+      const options = Object.assign({
+        method: 'GET',  // Default
+        headers: {
+          'content-type': 'application/json',
+            'x-cnsnt-id': userID,
+            'x-cnsnt-plain': secureRandom,
+            'x-cnsnt-signed': signature
+        }
+      }, opts)
+      Logger.networkRequest(options.method, new Date(), Config.http.baseUrl + route)
+      return fetch(Config.http.baseUrl + route, options)
+    })
+    .then(response => {
+      Logger.networkResponse(response.status, new Date(), response._bodyText)
+      // TODO: check response code etc
+      return response.json()
+    })
+    .then(json => {
+      // TODO: check response body
+      if (json.error) {
+        return Promise.reject(json)
+      } else {
+        return Promise.resolve(json)
+      }
+    })
+
+  } else {
+    const options = Object.assign({
+      method: 'GET',  // Default
+      headers: {
+        'content-type': 'application/json',
+      }
+    }, opts)
+    Logger.networkRequest(options.method, new Date(), Config.http.baseUrl + route)
+    return fetch(Config.http.baseUrl + route, options)
+    .then(response => {
+      Logger.networkResponse(response.status, new Date(), response._bodyText)
+      // TODO: check response code etc
+      return response.json()
+    })
+    .then(json => {
+      // TODO: check response body
+      if (json.error) {
+        return Promise.reject(json)
+      } else {
+        return Promise.resolve(json)
+      }
+    })
+  }
 }
 
 function containsRequired(requiredFields, data) {
@@ -101,7 +163,7 @@ export default {
       return request('/management/register', {
         body: JSON.stringify(data),
         method: 'POST'
-      })
+      }, false)
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
@@ -141,7 +203,7 @@ export default {
     ]
     if (containsRequired(requiredFields, data)) {
       return request('/management/connection', {
-        body: JSON.stringify(data),
+        body: JSON.stringify({ target: data.target }),
         method: 'POST'
       })
     } else {
@@ -362,16 +424,22 @@ export default {
    */
   unregister: (data) => {
     if (Config.DEBUG) {
-      const requiredFields = [
-        'user_id'
-      ]
-      if (containsRequired(requiredFields, data)) {
-        return request(`/debug/unregister/${data.user_id}`, {
-          method: 'GET',
-        })
-      } else {
-        return Promise.reject(getMissingFieldsMessage(requiredFields))
+      if (!data.id && !data.email) {
+        return Promise.reject(`ID or email must be specified. id: ${data.id}, email: ${data.email}`)
       }
+      const route = data.id ? `/debug/unregister/?user_id=${data.id}`
+                                 : `/debug/unregister/?email=${data.email}`
+      const options = {
+        method: 'GET'
+      }
+      return request(route, options, false)
+      // .then(response => {
+      //   Logger.networkResponse(JSON.stringify(response))
+      //   return response.json()
+      // })
+      // .then(json => {
+      //   return Promise.resolve(json)
+      // })
     } else {
       // fail silenty
     }
