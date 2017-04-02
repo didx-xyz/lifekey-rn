@@ -23,17 +23,10 @@ import {
 } from 'react-native'
 import {
   Container,
-  Header,
-  Title,
   Col,
-  Button,
   Footer,
-  Body,
-  FooterTab,
   ListItem,
   Content,
-  Row,
-  Item,
   Input,
 
 } from 'native-base'
@@ -120,7 +113,7 @@ export default class Main extends Scene {
         <View style={{ borderColor: Palette.consentGrayDark, height: 120 }}>
           <AndroidBackButton onPress={() => this._hardwareBack()} />
           <LifekeyHeader
-            onLongPressTopCenter={() => this.navigator.push(Routes.debug)}
+            onLongPressTopCenter={() => this.navigator.push(Routes.debug.main)}
             onPressBottomLeft={() => this.setTab(TAB_CONNECTED) }
             onPressBottomRight={() => this.setTab(TAB_SUGGESTED) }
             icons={[

@@ -1,23 +1,31 @@
-import React from "react"
-import { Text, View, StyleSheet, TextInput, Keyboard, Animated, Platform, Image } from "react-native"
-import { Container, Content, Grid, Col, Row } from "native-base"
+import React from 'react'
+import {
+  Text,
+  View,
+  StyleSheet,
+  TextInput,
+  Keyboard,
+  Platform,
+  Image
+} from 'react-native'
+import { Container, Content, Grid, Col, Row } from 'native-base'
 
-import Scene from "../../Scene"
-import Logger from "../../Logger"
-import Routes from "../../Routes"
-import BackButton from "../../Components/BackButton"
-import ConsentUser from "../../Models/ConsentUser"
-import Touchable from "../../Components/Touchable"
-import Dots from "../../Components/Dots"
+import Scene from '../../Scene'
+import Logger from '../../Logger'
+import Routes from '../../Routes'
+import BackButton from '../../Components/BackButton'
+import ConsentUser from '../../Models/ConsentUser'
+import Touchable from '../../Components/Touchable'
+import Dots from '../../Components/Dots'
 
 class Unlocked extends Scene {
   constructor(...params) {
     super(...params)
 
     this.state = {
-      "screenHeight": this.props.screenHeight,
-      "keyboardVisible": false,
-      "characters": ""
+      screenHeight: this.props.screenHeight,
+      keyboardVisible: false,
+      characters: ''
     }
 
     this.onFocus = this.onFocus.bind(this)
@@ -66,20 +74,20 @@ class Unlocked extends Scene {
     const change = event.endCoordinates.height
 
     this.setState({
-      "screenHeight": this.props.screenHeight - change,
-      "keyboardVisible": true
+      screenHeight: this.props.screenHeight - change,
+      keyboardVisible: true
     })
   }
 
   onKeyboardDidHide(event) {
     this.setState({
-      "screenHeight": this.props.screenHeight,
-      "keyboardVisible": false
+      screenHeight: this.props.screenHeight,
+      keyboardVisible: false
     })
   }
 
   onPressForgot(event) {
-    alert("forgot")
+    alert('forgot')
 
     event.preventDefault()
     event.stopPropagation()
@@ -87,16 +95,16 @@ class Unlocked extends Scene {
 
   componentWillReceiveProps(props) {
     this.setState({
-      "screenHeight": this.props.screenHeight
+      screenHeight: this.props.screenHeight
     })
   }
 
   componentDidMount() {
     super.componentDidMount()
-    this.keyboardWillShowListener = Keyboard.addListener("keyboardWillShow", this.onKeyboardWithShow)
-    this.keyboardWillHideListener = Keyboard.addListener("keyboardWillHide", this.onKeyboardDidHide)
-    this.keyboardDidShowListener = Keyboard.addListener("keyboardDidShow", this.onKeyboardWithShow)
-    this.keyboardDidHideListener = Keyboard.addListener("keyboardDidHide", this.onKeyboardDidHide)
+    this.keyboardWillShowListener = Keyboard.addListener('keyboardWillShow', this.onKeyboardWithShow)
+    this.keyboardWillHideListener = Keyboard.addListener('keyboardWillHide', this.onKeyboardDidHide)
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.onKeyboardWithShow)
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this.onKeyboardDidHide)
   }
 
   componentWillUnmount() {
@@ -118,7 +126,7 @@ class Unlocked extends Scene {
         <BackButton navigator={this.navigator} />
         <Content>
           <Grid>
-            <Col style={[style.col, {"height": this.state.screenHeight}]}>
+            <Col style={[style.col, { height: this.state.screenHeight }]}>
               <Row style={[style.firstRow]}>
               <Touchable onLongPress={() => this._goToDebug()}>
                 <Text style={[style.firstText]}>
@@ -141,7 +149,7 @@ class Unlocked extends Scene {
                 </Touchable>
               </Row>
               <Row style={[style.fourthRow]}>
-                <Image style={{ height: 67, resizeMode: "contain" }} source={require('../../Images/grey_dots_1.png')} />
+                <Image style={{ height: 67, resizeMode: 'contain' }} source={require('../../Images/grey_dots_1.png')} />
               </Row>
               <Row style={[style.fifthRow]}>
                 <View>
@@ -170,53 +178,53 @@ class Unlocked extends Scene {
 }
 
 const textStyle = {
-  "textAlign": "center",
-  "fontFamily": Platform.select({
-    "ios": "Helvetica",
-    "android": "Arial"
+  textAlign: 'center',
+  fontFamily: Platform.select({
+    ios: 'Helvetica',
+    android: 'Arial'
   }),
-  "fontWeight": "300"
+  fontWeight: '300'
 }
 
 const style = StyleSheet.create({
-  "container": {
-    "backgroundColor": "#eceeee"
+  container: {
+    backgroundColor: '#eceeee'
   },
-  "col": {
-    "flexDirection": "column"
+  col: {
+    flexDirection: 'column'
   },
-  "firstRow": {
-    "alignItems": "center",
-    "justifyContent": "center",
-    "paddingTop": 40
+  firstRow: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingTop: 40
   },
-  "firstText": Object.assign(Object.create(textStyle), {
-    "color": "#4b5359",
-    "fontSize": 30
+  firstText: Object.assign(Object.create(textStyle), {
+    color: '#4b5359',
+    fontSize: 30
   }),
-  "secondRow": {
-    "alignItems": "center",
-    "justifyContent": "center"
+  secondRow: {
+    alignItems: 'center',
+    justifyContent: 'center'
   },
-  "secondText": Object.assign(Object.create(textStyle), {
-    "color": "#a2acb2",
-    "fontSize": 16
+  secondText: Object.assign(Object.create(textStyle), {
+    color: '#a2acb2',
+    fontSize: 16
   }),
-  "thirdRow": {
-    "alignItems": "center",
-    "justifyContent": "center"
+  thirdRow: {
+    alignItems: 'center',
+    justifyContent: 'center'
   },
-  "thirdText": Object.assign(Object.create(textStyle), {
-    "color": "#3f8efa",
-    "fontSize": 16
+  thirdText: Object.assign(Object.create(textStyle), {
+    color: '#3f8efa',
+    fontSize: 16
   }),
-  "input": {
-    "position": "absolute",
-    "top": -1000
+  input: {
+    position: 'absolute',
+    top: -1000
   },
-  "fourthRow": {
-    "alignItems": "center",
-    "justifyContent": "center"
+  fourthRow: {
+    alignItems: 'center',
+    justifyContent: 'center'
   }
 })
 

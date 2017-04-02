@@ -6,30 +6,23 @@
  */
 
 import React from 'react'
-import Scene from '../Scene'
-import Routes from '../Routes'
-import Api from '../Api'
-import Session from '../Session'
-import Logger from '../Logger'
+import Scene from '../../Scene'
+import Routes from '../../Routes'
+import Session from '../../Session'
+import Logger from '../../Logger'
 
-import {
-  Text,
-  View
-} from 'react-native'
+import { Text, View } from 'react-native'
 
-import {
-  Container,
-  Content,
-} from 'native-base'
-import { Button, Input, H1,H3, H5 } from 'nachos-ui'
+import { Container, Content } from 'native-base'
+import { Button, H1, H3, H5 } from 'nachos-ui'
 
-import BackButton from '../Components/BackButton'
-import ConsentConnection from '../Models/ConsentConnection'
-import ConsentConnectionRequest from '../Models/ConsentConnectionRequest'
-import ConsentDiscoveredUser from '../Models/ConsentDiscoveredUser'
-import ConsentUser from '../Models/ConsentUser'
+import BackButton from '../../Components/BackButton'
+import ConsentConnection from '../../Models/ConsentConnection'
+import ConsentConnectionRequest from '../../Models/ConsentConnectionRequest'
+import ConsentDiscoveredUser from '../../Models/ConsentDiscoveredUser'
+import ConsentUser from '../../Models/ConsentUser'
 
-export default class Debug extends Scene {
+export default class DebugMain extends Scene {
 
   constructor(props) {
     super(props)
@@ -86,14 +79,14 @@ export default class Debug extends Scene {
           <Button iconName="md-reverse-camera" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.selfieCam)}>Self-facing Camera</Button>
           <Button iconName="md-contact" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugRegister)}>Consent User</Button>
 
-          { this.state.user.registered ?
+          {/* this.state.user.registered ?
           [
             <Button key={1} iconName="md-globe" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugConnectionRequest)}>QR Connection Request</Button>,
             <Button key={2} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugViewConnectionRequests)}>Connection Requests</Button>,
             <Button key={3} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugViewConnections)}>Connections</Button>,
             <Button key={4} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugListAllResources)}>User Resources</Button>,
           ]
-          : null }
+          : null */}
 
           <View>
             <H3>Session</H3>

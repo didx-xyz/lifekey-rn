@@ -6,11 +6,10 @@
  */
 
 import React from 'react'
-import Scene from '../Scene'
-import Api from '../Api'
-import Session from '../Session'
-import ConsentUser from '../Models/ConsentUser'
-import Logger from '../Logger'
+import Scene from '../../Scene'
+import Api from '../../Api'
+import ConsentUser from '../../Models/ConsentUser'
+import Logger from '../../Logger'
 
 import {
   Text,
@@ -23,7 +22,7 @@ import {
   Content
 } from 'native-base'
 
-import BackButton from '../Components/BackButton'
+import BackButton from '../../Components/BackButton'
 
 export default class DebugRegister extends Scene {
 
