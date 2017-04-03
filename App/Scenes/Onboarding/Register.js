@@ -14,7 +14,6 @@ import {
   Text,
   View,
   StyleSheet,
-  Dimensions,
   StatusBar,
   TouchableWithoutFeedback,
   Keyboard,

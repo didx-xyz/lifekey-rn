@@ -8,7 +8,6 @@
 import React from 'react'
 import Scene from '../../Scene'
 import Routes from '../../Routes'
-import Palette from '../../Palette'
 import Config from '../../Config'
 import Touchable from '../../Components/Touchable'
 

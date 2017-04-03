@@ -8,6 +8,7 @@
 import React from 'react'
 import Scene from '../../Scene'
 import Palette from '../../Palette'
+import Api from '../../Api'
 import CameraCrosshair from '../../Components/CameraCrosshair'
 import {
   Text,
@@ -31,8 +32,10 @@ export default class QRCodeScanner extends Scene {
   constructor(props) {
     super(props)
     this.state = {
-      showCamera: false
+      showCamera: false,
+      readyToScan: true
     }
+    this.scannerActive = true
   }
   _onAttention() {
     StatusBar.setHidden(true)
@@ -63,9 +66,29 @@ export default class QRCodeScanner extends Scene {
     )
   }
 
+  _onBarCodeRead(data) {
+    // alert(JSON.stringify(data))
+    if (this.scannerActive) {
+      this.scannerActive = false
+      Api.requestConnection({ target: data.data })
+      .then(() => {
+        alert('Request sent')
+        this.setState({
+          readyToScan: false
+        })
+      })
+      .catch(error => {
+        alert(JSON.stringify(error))
+        this.setState({
+          readyToScan: false
+        })
+      })
+    }
+  }
+
   render() {
     return (
-      <View style={{ flex: 1 }}>
+      <View style={{ flex: 1, backgroundColor: 'black' }}>
         <AndroidBackButton onPress={() => this._hardwareBackHandler()}/>
         { this.state.showCamera ?
         <Camera
@@ -73,10 +96,7 @@ export default class QRCodeScanner extends Scene {
           style={style.camera}
           aspect={Camera.constants.Aspect.fill}
           orientation={Camera.constants.Orientation.portrait}
-          onBarCodeRead={(data) => {
-            alert(JSON.stringify(data))
-            this.setState({ showCamera: false })
-          }}
+          onBarCodeRead={(data) => this._onBarCodeRead(data)}
           type={Camera.constants.Type.back}
           barCodeTypes={['qr']}
         >
@@ -102,7 +122,22 @@ export default class QRCodeScanner extends Scene {
               </TouchableNativeFeedback>
             </Col>
               <Col>
+                { this.state.readyToScan ?
                 <View style={style.buttonView} />
+                :
+                <TouchableNativeFeedback
+                background={ TouchableNativeFeedback.Ripple(Palette.consentGrayLightest, false) }
+                onPress={() => {
+                  this.scannerActive = true
+                  this.setState({ readyToScan: true })
+                }}
+                delayPressIn={0}
+                >
+                  <View style={style.buttonView} >
+                    <Text style={[style.buttonText]}>Scan again</Text>
+                  </View>
+                </TouchableNativeFeedback>
+                }
               </Col>
             </Grid>
         </View>
