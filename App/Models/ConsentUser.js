@@ -40,7 +40,7 @@ export default class ConsentUser {
     // set loggedIn true in state
     return Crypto.loadKeyStore(Config.keystore.name, password)
     .then(loadedKeystore => {
-      Logger.info('Keystore loaded, user verified')
+      Logger.info('Keystore loaded, user verified', this.filename)
       const update = {}
       update[ConsentUser.storageKey] = {
         password: password,
@@ -219,9 +219,10 @@ export default class ConsentUser {
       ])
     })
     .then(results => {
-      console.log('%%%%%%%%%', results)
-      if (results[1].error) {
-        Logger.error('Could not purge databases', this.filename, results[1].error)
+      if (results[1]) {
+        if (results[1].error) {
+          Logger.error('Could not purge databases', this.filename, results[1].error)
+        }
       } else {
         Promise.resolve()
       }
