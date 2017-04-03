@@ -30,7 +30,9 @@ function multiSaveTestData() {
   ]
 }
 
-jest.mock('react-native', () => ({
+//jest.dontMock("react-native")
+
+jest.setMock('react-native', () => ({
   AsyncStorage: {
     setItem: jest.fn(() => {
       return new Promise((resolve, reject) => {
@@ -72,6 +74,7 @@ jest.mock('react-native', () => ({
 
 describe('store', () => {
   it('can store', () => {
+    console.log(require('react-native').AsyncStorage)
     const { AsyncStorage } = require('react-native')
     const key = 'the key'
     const value = { key1: 1, key2: 2, key3: 3 }
