@@ -10,6 +10,7 @@ import Scene from '../../Scene'
 import Palette from '../../Palette'
 // import Routes from '../../Routes'
 import Logger from '../../Logger'
+import ConsentUser from '../../Models/ConsentUser'
 
 import {
   Text,
@@ -78,6 +79,7 @@ export default class Register extends Scene {
       username: null,
       email: null,
       pin: '',
+      timelineExpanded: false,
       largeText: this._steps[0].largeText,
       smallText: this._steps[0].smallText,
       bottomText: this._steps[0].bottomText,
@@ -151,7 +153,6 @@ export default class Register extends Scene {
     InteractionManager.runAfterInteractions(() => {
       callback()
     })
-
   }
 
   _onKeyboardWillShow() {
@@ -209,11 +210,18 @@ export default class Register extends Scene {
     }
   }
 
-  _stepForward() {
-    const onStepTextInputValue = this.state.textInputValue
+  _stepForward(callback) {
+
+    // Preserve the input value
+    const onStepTextInputValue = this.state.textInputValue.toLowerCase().trim()
+
+    // Clear the text input value
+    this.setState({
+      textInputValue: ''
+    })
 
     switch (this.state.step) {
-    // username -> email
+    // USERNAME -> EMAIL
     case STEP_USERNAME:
 
       // If a username was entered
@@ -232,12 +240,8 @@ export default class Register extends Scene {
             // Update state to reflect we are on the 2nd step now
             this.setState({
               step: STEP_EMAIL,
-              username: onStepTextInputValue
-            }, () => {
-              // Clear TextInput value
-              this.setState({
-                textInputValue: ''
-              })
+              username: onStepTextInputValue,
+              textInputValue: ''
             })
           })
         })
@@ -260,7 +264,7 @@ export default class Register extends Scene {
       break
 
 
-    // email -> pin
+    // EMAIL -> PIN
     case STEP_EMAIL:
       Logger.info('stepping 1 - 2')
       if (onStepTextInputValue) {
@@ -269,28 +273,12 @@ export default class Register extends Scene {
         setTimeout(() => {
           this._eventTimeline.pushEvent(`Email saved as: ${onStepTextInputValue}`)
         }, 500)
-        // Update the state to show we are on the 3rd step
-        // this.setState({
-        //   step: 2,
-        //   email: onStepTextInputValue
-        // }, () => {
-        //   this.setState({
-        //     textInputValue: ''
-        //   }, () => {
-        //     this.pinInput.focus()
-        //   })
-        // })
         this._fadeTextOut(() => {
           this._fadeTextIn(() => {
             // Update state to reflect we are on the 2nd step now
             this.setState({
               step: STEP_PIN,
               email: onStepTextInputValue
-            }, () => {
-              // Clear TextInput value
-              this.setState({
-                textInputValue: ''
-              })
             })
           })
         })
@@ -309,7 +297,7 @@ export default class Register extends Scene {
         }
       }
       break
-    // pin - magic link
+    // PIN - MAGIC LINK
     case STEP_PIN:
       Logger.info('stepping 2 - 3')
       if (onStepTextInputValue) {
@@ -320,12 +308,8 @@ export default class Register extends Scene {
         // Update the state to show we are on the 3rd step
         this.setState({
           step: 3,
-          email: onStepTextInputValue
-        }, () => {
-          this.setState({
-            textInputValue: ''
-          })
-        })
+          pin: onStepTextInputValue
+        }, () => callback())
 
       } else {
         // Tell the user they must enter something
@@ -351,7 +335,33 @@ export default class Register extends Scene {
       textInputValue: text
     }, () => {
       if (text.length === 5) {
-        this._stepForward()
+        // TODO: inform user something is happening
+        alert('Please wait....')
+        this._requestMagicLink(() => { this._stepForward() })
+      }
+    })
+  }
+
+  _requestMagicLink(callback) {
+
+    ConsentUser.register(
+      this.state.username,
+      this.state.email,
+      this.state.pin
+    )
+    .then(result => {
+      Logger.info('Registration request sent successfully. Please check for magic link', this._fileName)
+      callback()
+
+    })
+    .catch(error => {
+      Logger.error('Not registered', this._fileName, error)
+      switch (error.status) {
+      case 400: // Validation error
+        if (error.body.validation_errors) {
+          alert(error.body.validation_errors.reduce((prev, cur) => `${prev}${cur.message} `, ''))
+        }
+        break
       }
     })
   }
@@ -377,8 +387,8 @@ export default class Register extends Scene {
     case STEP_PIN:
       return (<Touchable style={{ flex: 1 }} onPress={() => this.pinInput.focus()}>
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                  <Dots current={this.state.textInputValue.length} />
                   <HexagonDots current={this.state.textInputValue.length} />
+                  <Dots current={this.state.textInputValue.length} />
                   <TextInput
                     ref={(_ref) => this.pinInput = _ref }
                     autoFocus={true}
@@ -392,9 +402,17 @@ export default class Register extends Scene {
 
     case STEP_MAGIC_LINK:
       return (<View style={{ flex: 1 }}>
-                <Text>Magic link sent</Text>
+                <Text>Please check the inbox of {this.state.email} for a link to activate your account</Text>
               </View>)
     }
+  }
+
+  _toggleTimeline() {
+    this.setState({
+      timelineExpanded: !this.state.timelineExpanded
+    }, () => {
+      this.forceUpdate()
+    })
   }
 
   render() {
@@ -407,8 +425,8 @@ export default class Register extends Scene {
             <Grid>
               <Col style={[style.sceneColumn, { height: this.props.screenHeight }]}>
                 { /* Event timeline */}
-                <Touchable style={{ backgroundColor: 'red' }} onPress={() => alert('yes')}>
-                  <Row style={style.timelineRow}>
+                <Touchable style={{ backgroundColor: 'red' }} onPress={() => this._toggleTimeline()}>
+                  <Row style={[style.timelineRow, { flex: this.state.timelineExpanded ? 15 : 1 }]}>
                     <EventTimeline
                       ref={(eventTimeline) => this._eventTimeline = eventTimeline}
                     />
@@ -433,7 +451,7 @@ export default class Register extends Scene {
                       opacity: this.state.fadeTransitionValue,
                       flex: 1
                     }}>
-                      <Text style={{ fontSize: 18, textAlign: 'center' }}>{this._steps[this.state.step].smallText}</Text>
+                      <Text style={{ fontSize: 18, textAlign: 'justify' }}>{this._steps[this.state.step].smallText}</Text>
                     </Animated.View>
                   </Row>
 
@@ -485,7 +503,6 @@ const style = StyleSheet.create({
     paddingRight: 25
   },
   timelineRow: {
-    height: 8,
     flexDirection: 'column',
     backgroundColor: DEBUG ? 'green' : null,
     paddingLeft: 35,
@@ -504,7 +521,7 @@ const style = StyleSheet.create({
     justifyContent: 'space-between'
   },
   smallTextRow: {
-    flex: 1.5,
+    flex: 1,
     paddingTop: 5,
     backgroundColor: DEBUG ? 'orange' : null,
     paddingLeft: 35,
@@ -513,7 +530,7 @@ const style = StyleSheet.create({
     justifyContent: 'center'
   },
   largeTextRow: {
-    flex: 6,
+    flex: 4,
     flexDirection: 'column',
     justifyContent: 'flex-end',
     backgroundColor: DEBUG ? 'purple' : null,
