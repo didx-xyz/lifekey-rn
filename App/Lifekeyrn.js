@@ -130,10 +130,16 @@ export default class Lifekeyrn extends Component {
           message.data.from_id
         )
         break
+      case 'sent_activiation_email':
+        // do nothing
+        break
+      case 'app_activation_link_clicked':
+        this.navigator.replace(Routes.main)
+        break
       default:
         Logger.firebase(JSON.stringify(message))
         if (message.notification) {
-          alert(message.notification.title + ' - ' + message.notification.body)
+          Logger.info(message.notification.title + ' - ' + message.notification.body, this.filename)
         }
         break
       }
@@ -262,6 +268,7 @@ export default class Lifekeyrn extends Component {
   render() {
     return (
         <Navigator
+          ref={(_navigator) => this.navigator = _navigator}
           initialRoute={this._initialRoute}
           onWillFocus={(route) => this.onWillFocus(route)}
           onDidFocus={(route) => this.onDidFocus(route)}
