@@ -70,6 +70,8 @@ export default class ConsentUser {
         } else {
           return Promise.resolve(user.firebaseToken)
         }
+      } else {
+        return Promise.resolve(null)
       }
     })
   }
@@ -192,14 +194,17 @@ export default class ConsentUser {
   }
 
   static unregister() {
+    let firebaseToken
     return AsyncStorage.getItem(ConsentUser.storageKey)
     .then(itemJSON => {
       const user = JSON.parse(itemJSON)
       if (user) {
+        // Preserve firebase token
+        firebaseToken = user.firebaseToken
         if (user.id) {
           return Api.unregister({ id: user.id })
         } else if (user.email) {
-          return Api.unregister({ email: user.email })
+          return Api.unregister({ email: encodeURI(user.email) })
         } else {
           return Promise.reject('Nothing to delete by')
         }
@@ -224,7 +229,10 @@ export default class ConsentUser {
           Logger.error('Could not purge databases', this.filename, results[1].error)
         }
       } else {
-        Promise.resolve()
+        return AsyncStorage.setItem(ConsentUser.storageKey, {
+          user: { firebaseToken: firebaseToken }
+        })
+        // return Promise.resolve()
       }
     })
   }
