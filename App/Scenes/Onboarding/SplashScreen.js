@@ -9,13 +9,16 @@ import React from 'react'
 import Scene from '../../Scene'
 import Routes from '../../Routes'
 import Config from '../../Config'
+import Logger from '../../Logger'
 import Touchable from '../../Components/Touchable'
+import ConsentUser from '../../Models/ConsentUser'
 
 import {
   Text,
   View,
   StyleSheet,
   StatusBar,
+  Image
 } from 'react-native'
 
 import {
@@ -29,6 +32,13 @@ import {
 import BackButton from '../../Components/BackButton'
 
 export default class SplashScreen extends Scene {
+
+  constructor(props) {
+    super(props)
+    this.state = {
+      tokenAvailable: true
+    }
+  }
   _onAttention() {
     StatusBar.setHidden(true)
   }
@@ -41,6 +51,36 @@ export default class SplashScreen extends Scene {
   componentWillFocus() {
     super.componentWillFocus()
     this._onAttention()
+  }
+
+  componentDidMount() {
+    super.componentDidFocus()
+    // Give the token a fighting chance man
+    setTimeout(() => {
+      ConsentUser.getToken()
+      .then(result => {
+        if (result) {
+          this.setState({
+            tokenAvailable: true
+          })
+        } else {
+          this.setState({
+            tokenAvailable: false
+          })
+          Logger.info('False start. No App token', this._fileName)
+          alert('False start. No App token. Please reinstall Lifekey')
+          // throw 'False start'
+        }
+      })
+      .catch(error => {
+        this.setState({
+          tokenAvailable: false
+        })
+        Logger.info('False start. No App token', this._fileName)
+        alert('False start. No App token. Please reinstall Lifekey')
+      })
+    }, 1000)
+
   }
 
   render() {
@@ -71,9 +111,10 @@ export default class SplashScreen extends Scene {
           <Grid>
             <Col style={{ flex: 1, height: this.props.screenHeight }}>
               { Config.DEBUG ?
-                <Touchable style={{ flex: 1 }} delayLongPress={500} onLongPress={() => this.navigator.push(Routes.debug)}>
-                  <Row style={[style.firstRow]}>
-                    <Text>Splash Page</Text>
+                <Touchable style={{ flex: 1 }} delayLongPress={500} onLongPress={() => this.navigator.push(Routes.debug.main)}>
+                  <Row style={[style.firstRow, { backgroundColor: this.state.tokenAvailable ? null : 'red' }]}>
+                    {/* <Text>Splash Page</Text> */}
+                      <Image style={{ width: 150, height: 150 }} source={require('../../../App/Images/consent_logo.png')}/>
                   </Row>
                 </Touchable>
                 :
@@ -95,10 +136,10 @@ export default class SplashScreen extends Scene {
                   </View>
                 </Row>
               </Row>
-                <Row style={[style.thirdRow]}>
-                  <Text>Trusted Partner Logos</Text>
-                </Row>
-              <Row style={[style.trustedPartnersRow]}>
+              <Row style={[style.thirdRow]}>
+                <Text>Trusted Partner Logos</Text>
+              </Row>
+              <Row style={[style.buttonsRow]}>
                 <Col>
                   {scan}
                 </Col>
@@ -118,13 +159,13 @@ export default class SplashScreen extends Scene {
 const style = StyleSheet.create({
   firstRow: {
     backgroundColor: 'white',
-    flex: 11,
+    flex: 6,
     alignItems: 'center',
     justifyContent: 'center'
   },
   secondRow: {
     backgroundColor: '#F5F6F6',
-    flex: 12,
+    flex: 11,
     flexDirection: 'column',
     alignItems: 'center',
     justifyContent: 'center'
@@ -135,12 +176,11 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  trustedPartnersRow: {
+  buttonsRow: {
     backgroundColor: '#216BFF',
-    flex: 6,
+    flex: 7,
     alignItems: 'center',
-    justifyContent: 'center',
-    // fontSize: 16
+    justifyContent: 'center'
   },
   buttonView: {
     flex: 1,
