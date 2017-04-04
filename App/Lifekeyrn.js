@@ -22,7 +22,8 @@ import {
   Dimensions,
   Navigator,
   DeviceEventEmitter,
-  Platform
+  Platform,
+  StatusBar
 } from 'react-native'
 
 const PORTRAIT = 0
@@ -190,7 +191,6 @@ export default class Lifekeyrn extends Component {
 
   componentDidMount() {
     Logger.react(this.filename, Lifecycle.COMPONENT_DID_MOUNT)
-
   }
 
   componentWillReceiveProps() {
@@ -272,6 +272,7 @@ export default class Lifekeyrn extends Component {
                 onLayout={(event) => this._onScreenUpdate(event)}
                 style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}
               >
+                <StatusBar hidden={true} />
                 {React.createElement(
                   route.scene,
                   {

@@ -1,0 +1,15 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HexagonDots renders correctly, by default 1`] = `null`;
+
+exports[`HexagonDots renders correctly, when modified 1`] = `
+<Image
+  source={1}
+  style={
+    Object {
+      "height": 67,
+      "resizeMode": "contain",
+    }
+  }
+/>
+`;

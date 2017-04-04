@@ -1,0 +1,83 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Dots renders correctly, by default 1`] = `
+<Svg
+  height={30}
+  preserveAspectRatio="xMidYMid meet"
+  width={750}
+>
+  <Circle
+    cx={280}
+    cy={15}
+    fill="#f9fafa"
+    r={5}
+    stroke="#3c8dfc"
+    strokeWidth={1}
+  />
+  <Circle
+    cx={326}
+    cy={15}
+    fill="#f9fafa"
+    r={5}
+    stroke="#3c8dfc"
+    strokeWidth={1}
+  />
+  <Circle
+    cx={372}
+    cy={15}
+    fill="#f9fafa"
+    r={5}
+    stroke="#3c8dfc"
+    strokeWidth={1}
+  />
+  <Circle
+    cx={418}
+    cy={15}
+    fill="#f9fafa"
+    r={5}
+    stroke="#3c8dfc"
+    strokeWidth={1}
+  />
+  <Circle
+    cx={464}
+    cy={15}
+    fill="#f9fafa"
+    r={5}
+    stroke="#3c8dfc"
+    strokeWidth={1}
+  />
+</Svg>
+`;
+
+exports[`Dots renders correctly, when modified 1`] = `
+<Svg
+  height={50}
+  preserveAspectRatio="xMidYMid meet"
+  width={200}
+>
+  <Circle
+    cx={359.5}
+    cy={25}
+    fill="#000"
+    r={6}
+    stroke="#000"
+    strokeWidth={3}
+  />
+  <Circle
+    cx={370.5}
+    cy={25}
+    fill="#000"
+    r={6}
+    stroke="#000"
+    strokeWidth={3}
+  />
+  <Circle
+    cx={381.5}
+    cy={25}
+    fill="#000"
+    r={6}
+    stroke="#000"
+    strokeWidth={3}
+  />
+</Svg>
+`;
