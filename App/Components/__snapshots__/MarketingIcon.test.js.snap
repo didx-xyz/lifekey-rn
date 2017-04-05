@@ -1,0 +1,111 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`MarketingIcon renders correctly, by default 1`] = `
+<Svg
+  height={16}
+  preserveAspectRatio="xMidYMid meet"
+  viewBox="0 0 23.4 21.4"
+  width={16}
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <Line
+    fill="none"
+    stroke="#000"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    x1="22.9"
+    x2="0.5"
+    y1="7.4"
+    y2="7.4"
+  />
+  <Polygon
+    fill="none"
+    points="11.7,20.9 0.5,7.4 5.5,0.5 17.9,0.5 22.9,7.4 11.7,20.9"
+    stroke="#000"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+  <Polygon
+    fill="none"
+    points="7.4,7.4 11.7,0.5 16,7.4 11.7,20.9 7.4,7.4"
+    stroke="#000"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+  <Line
+    fill="none"
+    stroke="#000"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    x1="5.5"
+    x2="7.4"
+    y1="0.5"
+    y2="7.4"
+  />
+  <Line
+    fill="none"
+    stroke="#000"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    x1="17.9"
+    x2="16"
+    y1="0.5"
+    y2="7.4"
+  />
+</Svg>
+`;
+
+exports[`MarketingIcon renders correctly, when modified 1`] = `
+<Svg
+  height={32}
+  preserveAspectRatio="xMidYMid meet"
+  viewBox="0 0 23.4 21.4"
+  width={32}
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <Line
+    fill="none"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    x1="22.9"
+    x2="0.5"
+    y1="7.4"
+    y2="7.4"
+  />
+  <Polygon
+    fill="none"
+    points="11.7,20.9 0.5,7.4 5.5,0.5 17.9,0.5 22.9,7.4 11.7,20.9"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+  <Polygon
+    fill="none"
+    points="7.4,7.4 11.7,0.5 16,7.4 11.7,20.9 7.4,7.4"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+  <Line
+    fill="none"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    x1="5.5"
+    x2="7.4"
+    y1="0.5"
+    y2="7.4"
+  />
+  <Line
+    fill="none"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    x1="17.9"
+    x2="16"
+    y1="0.5"
+    y2="7.4"
+  />
+</Svg>
+`;

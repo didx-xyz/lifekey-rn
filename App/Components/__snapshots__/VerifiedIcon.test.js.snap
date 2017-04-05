@@ -1,0 +1,49 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`VerifiedIcon renders correctly, by default 1`] = `
+<Svg
+  height={16}
+  preserveAspectRatio="xMidYMid meet"
+  viewBox="0 0 22.2 26.84401"
+  width={16}
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <Path
+    d="M14.1,2,3.5,5.6v11c0,8.5,10.6,11.2,10.6,11.2s10.6-2.7,10.6-11.2V5.6Z"
+    fill="none"
+    stroke="#000"
+    strokeMiterlimit={10}
+    translate="-3 -1.47195"
+  />
+  <Polyline
+    fill="none"
+    points="4.9,12.828 8.9,16.828 17.3,8.328"
+    stroke="#000"
+    strokeMiterlimit={10}
+  />
+</Svg>
+`;
+
+exports[`VerifiedIcon renders correctly, when modified 1`] = `
+<Svg
+  height={32}
+  preserveAspectRatio="xMidYMid meet"
+  viewBox="0 0 22.2 26.84401"
+  width={32}
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <Path
+    d="M14.1,2,3.5,5.6v11c0,8.5,10.6,11.2,10.6,11.2s10.6-2.7,10.6-11.2V5.6Z"
+    fill="none"
+    stroke="#fff"
+    strokeMiterlimit={10}
+    translate="-3 -1.47195"
+  />
+  <Polyline
+    fill="none"
+    points="4.9,12.828 8.9,16.828 17.3,8.328"
+    stroke="#fff"
+    strokeMiterlimit={10}
+  />
+</Svg>
+`;
