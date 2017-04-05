@@ -72,9 +72,11 @@ export default class QRCodeScanner extends Scene {
       this.scannerActive = false
       Api.requestConnection({ target: data.data })
       .then(() => {
-        alert('Request sent')
+        alert('Connection requested')
         this.setState({
           readyToScan: false
+        }, () => {
+          this.navigator.pop()
         })
       })
       .catch(error => {

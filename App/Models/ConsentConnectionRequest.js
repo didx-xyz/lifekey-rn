@@ -84,7 +84,7 @@ class ConsentConnectionRequest {
         const connectionRequests = JSON.parse(itemJSON)
         return Promise.resolve(connectionRequests)
       } else {
-        return Promise.resolve({})
+        return Promise.resolve([])
       }
     })
   }

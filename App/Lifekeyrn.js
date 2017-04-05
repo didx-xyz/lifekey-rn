@@ -22,7 +22,8 @@ import {
   Dimensions,
   Navigator,
   DeviceEventEmitter,
-  Platform
+  Platform,
+  StatusBar
 } from 'react-native'
 
 const PORTRAIT = 0
@@ -97,10 +98,14 @@ export default class Lifekeyrn extends Component {
    * @param {string} message The firebase message
    */
   _nativeEventMessageReceived(message) {
+    Logger.info('Firebase message received', this.filename)
+    console.log(JSON.stringify(message))
+
     if (message.data && message.data.type) {
       switch (message.data.type) {
 
       case 'received_did':
+        Logger.firebase('received_did')
         ConsentUser.setDid(message.data.did_value)
         .then(did => {
           Logger.info(`DID set to ${did}`, this.filename)
@@ -111,29 +116,53 @@ export default class Lifekeyrn extends Component {
         break
 
       case 'user_connection_request':
+        Logger.firebase('user_connection_request')
         ConsentConnectionRequest.add(
           message.data.user_connection_request_id,
           message.data.from_id,
           message.data.from_did,
           message.data.from_nickname
         )
+        .then(connectionRequests => {
+          Logger.firebase('ConsentConnectionRequest updated')
+          console.log(connectionRequests)
+        })
+        .catch(error => {
+          Logger.error('Error writing to ConsentConnectionRequest', this.filename, error)
+        })
         ConsentDiscoveredUser.add(
           message.data.from_id,
           message.data.from_did,
           message.data.from_nickname
         )
+        .then(discoveredUsers => {
+          Logger.firebase("ConsentDiscoveredUser updated")
+          console.log(discoveredUsers)
+        })
+        .catch(error => {
+          Logger.error('Error writing to ConsentDiscoveredUser ')
+        })
         break
 
       case 'user_connection_created':
+        Logger.firebase('user_connection_created')
         ConsentConnection.add(
           message.data.user_connection_id,
           message.data.from_id
         )
         break
+      case 'sent_activiation_email':
+        Logger.firebase('sent_activiation_email')
+        // do nothing
+        break
+      case 'app_activation_link_clicked':
+        Logger.firebase('app_activation_link_clicked')
+        this.navigator.replace(Routes.main)
+        break
       default:
         Logger.firebase(JSON.stringify(message))
         if (message.notification) {
-          alert(message.notification.title + ' - ' + message.notification.body)
+          Logger.info(message.notification.title + ' - ' + message.notification.body, this.filename)
         }
         break
       }
@@ -190,7 +219,6 @@ export default class Lifekeyrn extends Component {
 
   componentDidMount() {
     Logger.react(this.filename, Lifecycle.COMPONENT_DID_MOUNT)
-
   }
 
   componentWillReceiveProps() {
@@ -251,10 +279,12 @@ export default class Lifekeyrn extends Component {
     if (Config.DEBUG) {
       return Config.initialRoute
     } else {
-      if (this.state.registered) {
-        return Routes.onboarding.unlock
-      } else {
+      const userState = Session.getState().user
+      if (!userState || !userState.registered) {
         return Routes.onboarding.splashScreen
+
+      } else{
+        return Routes.onboarding.unlock
       }
     }
   }
@@ -262,6 +292,7 @@ export default class Lifekeyrn extends Component {
   render() {
     return (
         <Navigator
+          ref={(_navigator) => this.navigator = _navigator}
           initialRoute={this._initialRoute}
           onWillFocus={(route) => this.onWillFocus(route)}
           onDidFocus={(route) => this.onDidFocus(route)}
@@ -272,6 +303,7 @@ export default class Lifekeyrn extends Component {
                 onLayout={(event) => this._onScreenUpdate(event)}
                 style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}
               >
+                <StatusBar hidden={true} />
                 {React.createElement(
                   route.scene,
                   {

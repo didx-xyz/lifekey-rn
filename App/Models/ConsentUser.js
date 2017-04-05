@@ -40,7 +40,7 @@ export default class ConsentUser {
     // set loggedIn true in state
     return Crypto.loadKeyStore(Config.keystore.name, password)
     .then(loadedKeystore => {
-      Logger.info('Keystore loaded, user verified')
+      Logger.info('Keystore loaded, user verified', this.filename)
       const update = {}
       update[ConsentUser.storageKey] = {
         password: password,
@@ -70,6 +70,8 @@ export default class ConsentUser {
         } else {
           return Promise.resolve(user.firebaseToken)
         }
+      } else {
+        return Promise.resolve(null)
       }
     })
   }
@@ -192,14 +194,17 @@ export default class ConsentUser {
   }
 
   static unregister() {
+    let firebaseToken
     return AsyncStorage.getItem(ConsentUser.storageKey)
     .then(itemJSON => {
       const user = JSON.parse(itemJSON)
       if (user) {
+        // Preserve firebase token
+        firebaseToken = user.firebaseToken
         if (user.id) {
           return Api.unregister({ id: user.id })
         } else if (user.email) {
-          return Api.unregister({ email: user.email })
+          return Api.unregister({ email: encodeURI(user.email) })
         } else {
           return Promise.reject('Nothing to delete by')
         }
@@ -219,11 +224,15 @@ export default class ConsentUser {
       ])
     })
     .then(results => {
-      console.log('%%%%%%%%%', results)
-      if (results[1].error) {
-        Logger.error('Could not purge databases', this.filename, results[1].error)
+      if (results[1]) {
+        if (results[1].error) {
+          Logger.error('Could not purge databases', this.filename, results[1].error)
+        }
       } else {
-        Promise.resolve()
+        return AsyncStorage.setItem(ConsentUser.storageKey, {
+          user: { firebaseToken: firebaseToken }
+        })
+        // return Promise.resolve()
       }
     })
   }
