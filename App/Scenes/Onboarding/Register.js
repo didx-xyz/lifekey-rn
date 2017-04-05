@@ -181,13 +181,10 @@ export default class Register extends Scene {
   }
 
   _hardwareBackHandler() {
-    Logger.info("Hardware back handler")
     if (this.state.step < 1) {
-      Logger.info("Navigatorpop")
       this.navigator.pop()
     } else {
       this._stepBack()
-      Logger.info("Step back")
     }
     return true
   }
@@ -208,6 +205,27 @@ export default class Register extends Scene {
         })
       })
     }
+  }
+
+  _resetRegistration() {
+    this.setState({
+      step: 0, // The beginning
+      textInputValue: '',
+      username: null,
+      email: null,
+      pin: '',
+      timelineExpanded: false,
+      largeText: this._steps[0].largeText,
+      smallText: this._steps[0].smallText,
+      bottomText: this._steps[0].bottomText,
+      moveTransitionValue: new Animated.Value(300),
+      fadeTransitionValue: new Animated.Value(0)
+    }, () => {
+    this._fadeTextIn(() => {
+      this._eventTimeline.pushEvent('Started registration (again)')
+    })
+
+    })
   }
 
   _stepForward(callback) {
@@ -266,7 +284,6 @@ export default class Register extends Scene {
 
     // EMAIL -> PIN
     case STEP_EMAIL:
-      Logger.info('stepping 1 - 2')
       if (onStepTextInputValue) {
         Keyboard.dismiss()
 
@@ -299,17 +316,18 @@ export default class Register extends Scene {
       break
     // PIN - MAGIC LINK
     case STEP_PIN:
-      Logger.info('stepping 2 - 3')
       if (onStepTextInputValue) {
         setTimeout(() => {
-          this._eventTimeline.pushEvent('Pin set')
+          this._eventTimeline.pushEvent(`Magic link sent to ${this.state.email}ma`)
         }, 1000)
 
         // Update the state to show we are on the 3rd step
         this.setState({
           step: 3,
           pin: onStepTextInputValue
-        }, () => callback())
+        }, () => {
+          if (callback) { callback() }
+        })
 
       } else {
         // Tell the user they must enter something
@@ -332,17 +350,18 @@ export default class Register extends Scene {
 
   _onPinChanged(text) {
     this.setState({
-      textInputValue: text
+      textInputValue: text,
+      pin: text
     }, () => {
       if (text.length === 5) {
         // TODO: inform user something is happening
         alert('Please wait....')
-        this._requestMagicLink(() => { this._stepForward() })
+        this._requestMagicLink()
       }
     })
   }
 
-  _requestMagicLink(callback) {
+  _requestMagicLink() {
 
     ConsentUser.register(
       this.state.username,
@@ -351,17 +370,15 @@ export default class Register extends Scene {
     )
     .then(result => {
       Logger.info('Registration request sent successfully. Please check for magic link', this._fileName)
-      callback()
+      this._stepForward()
 
     })
     .catch(error => {
       Logger.error('Not registered', this._fileName, error)
       switch (error.status) {
       case 400: // Validation error
-        if (error.body.validation_errors) {
-          alert(error.body.validation_errors.reduce((prev, cur) => `${prev}${cur.message} `, ''))
-        }
-        break
+        alert('The username or email already exists or is invalid')
+        this._resetRegistration()
       }
     })
   }
@@ -416,7 +433,6 @@ export default class Register extends Scene {
   }
 
   render() {
-    Logger.info('STEP: ', this.state.step)
     return (
       <Container>
         <Content keyboardShouldPersistTaps="always">
