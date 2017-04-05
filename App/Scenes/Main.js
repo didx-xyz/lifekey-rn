@@ -9,11 +9,13 @@ import React from 'react'
 import Scene from '../Scene'
 import Api from '../Api'
 import Palette from '../Palette'
+import Logger from '../Logger'
 import Routes from '../Routes'
 import LifekeyHeader from '../Components/LifekeyHeader'
 import LifekeyFooter from '../Components/LifekeyFooter'
 import Touchable from '../Components/Touchable'
 import AndroidBackButton from 'react-native-android-back-button'
+import ConsentConnectionRequest from '../Models/ConsentConnectionRequest'
 
 import {
   Text,
@@ -47,19 +49,40 @@ export default class Main extends Scene {
     }
   }
 
-  componentWillMount() {
-    console.log('coasdasd')
-    Api.allConnections()
-    .then(connections => {
-      console.log('Api.allConnections()', connections)
+  componentWillFocus() {
+    super.componentWillFocus()
+    this._onAttention()
+  }
+
+  _onAttention() {
+    ConsentConnectionRequest.all()
+    .then(result => {
+      console.log('RESULT###', result)
       this.setState({
-        connections: connections.body.enabled,
-        suggestedConnections: connections.body.unacked
+        connections: result
       })
+      console.log(result)
     })
     .catch(error => {
-      console.log(error)
+      Logger.error("Its a fuckup", this._fileName, error)
     })
+  }
+
+  componentWillMount() {
+    super.componentWillFocus()
+    this._onAttention()
+    // console.log('coasdasd')
+    // Api.allConnections()
+    // .then(connections => {
+    //   console.log('Api.allConnections()', connections)
+    //   this.setState({
+    //     connections: connections.body.enabled,
+    //     suggestedConnections: connections.body.unacked
+    //   })
+    // })
+    // .catch(error => {
+    //   console.log(error)
+    // })
     // const connections = [
     //   { name: 'Absa', icon: 'rocket' },
     //   { name: 'Woolworths', icon: 'rocket' },
@@ -108,6 +131,7 @@ export default class Main extends Scene {
   }
 
   render() {
+    console.log('CONNECTIONS', this.state.connections)
     return (
       <Container>
         <View style={{ borderColor: Palette.consentGrayDark, height: 120 }}>
@@ -158,6 +182,7 @@ export default class Main extends Scene {
 
                   {
                     this.state.connections.filter((connection) => {
+                      console.log('connections')
                       if (this.state.searchText !== '') {
                         const connectionSubUpper = connection.name.substr(0, this.state.searchText.length).toUpperCase()
                         const searchTextUpper = this.state.searchText.toUpperCase()
@@ -167,7 +192,7 @@ export default class Main extends Scene {
                       }
                     }).map((connection, i) => (
                       <ListItem key={i} style={style.listItem}>
-                        <Text>{connection.name}</Text>
+                        <Text>{connection.from_nickname}</Text>
                       </ListItem>
                     ))
                   }

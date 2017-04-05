@@ -56,17 +56,32 @@ function request(route, opts, signedRequest = true) {
         }
       }, opts)
       Logger.networkRequest(options.method, new Date(), Config.http.baseUrl + route)
+      console.log(opts)
       return fetch(Config.http.baseUrl + route, options)
     })
     .then(response => {
       Logger.networkResponse(response.status, new Date(), response._bodyText)
       // TODO: check response code etc
-      return response.json()
+      switch (response.status) {
+      case 500:
+        Logger.error('500 Internal server error', 'Api.js', response)
+        return Promise.reject('Internal server error')
+      case 502: // Bad gateway
+        Logger.error('502 Bad gateway', 'Api.js', response)
+        return Promise.reject('Bad gateway')
+      case 200: // Okay
+        Logger.info('200 Okay', 'Api.js')
+        return response.json()
+      case 201:
+        Logger.info('201 Created', 'Api.js')
+        return response.json()
+      default:
+        return response.json()
+      }
     })
     .then(json => {
-      // TODO: check response body
       if (json.error) {
-        return Promise.reject(json)
+        return Promise.reject(json.error)
       } else {
         return Promise.resolve(json)
       }
@@ -80,6 +95,7 @@ function request(route, opts, signedRequest = true) {
       }
     }, opts)
     Logger.networkRequest(options.method, new Date(), Config.http.baseUrl + route)
+    console.log(opts)
     return fetch(Config.http.baseUrl + route, options)
     .then(response => {
       Logger.networkResponse(response.status, new Date(), response._bodyText)
