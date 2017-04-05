@@ -2,19 +2,19 @@
 import React from "react"
 
 // internal dependencies
-import BackIcon from "./BackIcon"
+import HelpIcon from "./HelpIcon"
 
-test("BackIcon renders correctly, by default", () => {
+test("HelpIcon renders correctly, by default", function() {
   const tree = shallow(
-    <BackIcon width={16} height={16} />
+    <HelpIcon width={16} height={16} />
   )
 
   expect(tree).toMatchSnapshot()
 })
 
-test("BackIcon renders correctly, when modified", () => {
+test("HelpIcon renders correctly, when modified", function() {
   const tree = shallow(
-    <BackIcon width={32} height={32} stroke="#fff" />
+    <HelpIcon width={32} height={32} stroke="#fff" />
   )
 
   expect(tree).toMatchSnapshot()

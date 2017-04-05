@@ -4,7 +4,7 @@ import React from "react"
 // internal dependencies
 import Dots from "./Dots"
 
-test("Dots renders correctly, by default", () => {
+test("Dots renders correctly, by default", function() {
   const tree = shallow(
     <Dots />
   )
@@ -12,7 +12,7 @@ test("Dots renders correctly, by default", () => {
   expect(tree).toMatchSnapshot()
 })
 
-test("Dots renders correctly, when modified", () => {
+test("Dots renders correctly, when modified", function() {
   const tree = shallow(
     <Dots
       width={200}
