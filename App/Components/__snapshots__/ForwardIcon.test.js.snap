@@ -1,16 +1,15 @@
 // Jest Snapshot v1, https://goo.gl/fbAQLP
 
-exports[`BackIcon renders correctly, by default 1`] = `
+exports[`ForwardIcon renders correctly, by default 1`] = `
 <Svg
   height={16}
   preserveAspectRatio="xMidYMid meet"
   viewBox="0 0 9.4 17.7"
   width={16}
-  xmlns="http://www.w3.org/2000/svg"
 >
-  <Polyline
+  <polyline
     fill="none"
-    points="8.9,0.5 0.5,9 8.7,17.2"
+    points="0.5,17.2 8.9,8.7 0.7,0.5"
     stroke="#000"
     strokeLinecap="round"
     strokeLinejoin="round"
@@ -18,17 +17,16 @@ exports[`BackIcon renders correctly, by default 1`] = `
 </Svg>
 `;
 
-exports[`BackIcon renders correctly, when modified 1`] = `
+exports[`ForwardIcon renders correctly, when modified 1`] = `
 <Svg
   height={32}
   preserveAspectRatio="xMidYMid meet"
   viewBox="0 0 9.4 17.7"
   width={32}
-  xmlns="http://www.w3.org/2000/svg"
 >
-  <Polyline
+  <polyline
     fill="none"
-    points="8.9,0.5 0.5,9 8.7,17.2"
+    points="0.5,17.2 8.9,8.7 0.7,0.5"
     stroke="#fff"
     strokeLinecap="round"
     strokeLinejoin="round"

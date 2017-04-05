@@ -9,7 +9,7 @@ import LifekeyCard from "../Components/LifekeyCard"
 import Touchable from "../Components/Touchable"
 import BackButton from "../Components/BackButton"
 import BackIcon from "../Components/BackIcon"
-import HelpIcon from "../Components/HelpIcon"
+import InfoIcon from "../Components/InfoIcon"
 
 import {
   Text,
@@ -66,7 +66,7 @@ class ConnectionDetails extends Scene {
             </View>
             <Touchable onPress={this.onHelpPress}>
               <View style={[styles.help, styles.center]}>
-                  <HelpIcon width={24} height={24} stroke="#fff" />
+                  <InfoIcon width={24} height={24} stroke="#fff" />
               </View>
             </Touchable>
           </View>

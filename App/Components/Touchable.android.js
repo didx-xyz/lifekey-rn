@@ -1,12 +1,11 @@
-import React from 'react'
+// external dependencies
+import React from "react"
+import { TouchableNativeFeedback } from "react-native"
 
-import {
-  TouchableNativeFeedback
-} from 'react-native'
+// internal dependencies
+import Palette from "../Palette"
 
-import Palette from '../Palette'
-
-export default function(props) {
+const Touchable = function(props) {
   const background = TouchableNativeFeedback.Ripple(
     Palette.consentGrayLight, true
   )
@@ -21,3 +20,5 @@ export default function(props) {
     </TouchableNativeFeedback>
   )
 }
+
+export default Touchable
