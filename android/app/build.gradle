@@ -10,8 +10,8 @@ import com.android.build.OutputFile
 
 // react
 project.ext.react = [
-    bundleAssetName: "index.android.bundle",
-    entryFile: "index.android.js",
+    bundleAssetName: "index.bundle",
+    entryFile: "index.js",
     bundleInRelease: true,
     jsBundleDirRelease: "$buildDir/intermediates/assets/release",
     resourcesDirRelease: "$buildDir/intermediates/res/merged/release"
