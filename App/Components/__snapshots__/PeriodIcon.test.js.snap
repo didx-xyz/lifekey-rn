@@ -1,0 +1,175 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`PeriodIcon renders correctly, by default 1`] = `
+<Svg
+  height={16}
+  preserveAspectRatio="xMidYMid meet"
+  viewBox="0 0 23.4 23.4"
+  width={16}
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <Polyline
+    fill="none"
+    points="4.4,2.8 0.5,2.8 0.5,22.9 22.9,22.9 22.9,2.8 19,2.8"
+    stroke="#000"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+  <Rect
+    fill="none"
+    height="3.9"
+    rx={0}
+    ry={0}
+    stroke="#000"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    width="3.1"
+    x="4.4"
+    y="0.5"
+  />
+  <Rect
+    fill="none"
+    height="3.9"
+    rx={0}
+    ry={0}
+    stroke="#000"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    width="3.1"
+    x="15.9"
+    y="0.5"
+  />
+  <Line
+    fill="none"
+    stroke="#000"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    x1="7.5"
+    x2="15.9"
+    y1="2.8"
+    y2="2.8"
+  />
+  <Line
+    fill="none"
+    stroke="#000"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    x1="0.5"
+    x2="22.9"
+    y1="7.5"
+    y2="7.5"
+  />
+  <Polyline
+    fill="none"
+    points="5.9,13.2 8.5,11.2 8.5,19.1"
+    stroke="#000"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+  <Line
+    fill="none"
+    stroke="#000"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    x1="6.2"
+    x2="10.4"
+    y1="19.1"
+    y2="19.1"
+  />
+  <Path
+    d="M688.9,391.3h-5.1s2.9-2.9,3.8-3.9a3.10051,3.10051,0,0,0,.8-2.3,1.93719,1.93719,0,0,0-2.1-1.6c-1,0-1.9.2-2.5,1.9"
+    fill="none"
+    stroke="#000"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    translate="-671.4 -372.2"
+  />
+</Svg>
+`;
+
+exports[`PeriodIcon renders correctly, when modified 1`] = `
+<Svg
+  height={32}
+  preserveAspectRatio="xMidYMid meet"
+  viewBox="0 0 23.4 23.4"
+  width={32}
+  xmlns="http://www.w3.org/2000/svg"
+>
+  <Polyline
+    fill="none"
+    points="4.4,2.8 0.5,2.8 0.5,22.9 22.9,22.9 22.9,2.8 19,2.8"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+  <Rect
+    fill="none"
+    height="3.9"
+    rx={0}
+    ry={0}
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    width="3.1"
+    x="4.4"
+    y="0.5"
+  />
+  <Rect
+    fill="none"
+    height="3.9"
+    rx={0}
+    ry={0}
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    width="3.1"
+    x="15.9"
+    y="0.5"
+  />
+  <Line
+    fill="none"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    x1="7.5"
+    x2="15.9"
+    y1="2.8"
+    y2="2.8"
+  />
+  <Line
+    fill="none"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    x1="0.5"
+    x2="22.9"
+    y1="7.5"
+    y2="7.5"
+  />
+  <Polyline
+    fill="none"
+    points="5.9,13.2 8.5,11.2 8.5,19.1"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+  <Line
+    fill="none"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    x1="6.2"
+    x2="10.4"
+    y1="19.1"
+    y2="19.1"
+  />
+  <Path
+    d="M688.9,391.3h-5.1s2.9-2.9,3.8-3.9a3.10051,3.10051,0,0,0,.8-2.3,1.93719,1.93719,0,0,0-2.1-1.6c-1,0-1.9.2-2.5,1.9"
+    fill="none"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    translate="-671.4 -372.2"
+  />
+</Svg>
+`;

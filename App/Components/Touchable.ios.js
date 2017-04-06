@@ -1,10 +1,8 @@
-import React from 'react'
+// external dependencies
+import React from "react"
+import { TouchableWithoutFeedback } from "react-native"
 
-import {
-  TouchableWithoutFeedback
-} from 'react-native'
-
-export default function(props) {
+const Touchable = function(props) {
   return (
     <TouchableWithoutFeedback
       delayPressIn={0}
@@ -14,3 +12,5 @@ export default function(props) {
     </TouchableWithoutFeedback>
   )
 }
+
+export default Touchable

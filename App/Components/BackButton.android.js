@@ -1,12 +1,15 @@
-import AndroidBackButton from 'react-native-android-back-button'
-import React, { Component } from 'react'
+// external dependencies
+import React, { Component } from "react"
+import AndroidBackButton from "react-native-android-back-button"
+
 class BackButton extends Component {
   constructor(...params) {
     super(...params)
-    this._handlePress = this._handlePress.bind(this)
+
+    this.onPress = this.onPress.bind(this)
   }
 
-  _handlePress() {
+  onPress() {
     if (this.props.onPress) {
       return this.props.onPress()
     }
@@ -19,9 +22,13 @@ class BackButton extends Component {
 
   render() {
     return (
-      <AndroidBackButton onPress={this._handlePress} />
+      <AndroidBackButton onPress={this.onPress} />
     )
   }
+}
+
+BackButton.propTypes = {
+  "onPress": React.PropTypes.func
 }
 
 export default BackButton

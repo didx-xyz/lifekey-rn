@@ -1,0 +1,73 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`HexagonDots renders correctly, by default 1`] = `
+<Image
+  source={1}
+  style={
+    Object {
+      "height": 67,
+      "resizeMode": "contain",
+    }
+  }
+/>
+`;
+
+exports[`HexagonDots renders correctly, when modified 1`] = `
+<Image
+  source={1}
+  style={
+    Object {
+      "height": 67,
+      "resizeMode": "contain",
+    }
+  }
+/>
+`;
+
+exports[`HexagonDots renders correctly, when modified 2`] = `
+<Image
+  source={1}
+  style={
+    Object {
+      "height": 67,
+      "resizeMode": "contain",
+    }
+  }
+/>
+`;
+
+exports[`HexagonDots renders correctly, when modified 3`] = `
+<Image
+  source={1}
+  style={
+    Object {
+      "height": 67,
+      "resizeMode": "contain",
+    }
+  }
+/>
+`;
+
+exports[`HexagonDots renders correctly, when modified 4`] = `
+<Image
+  source={1}
+  style={
+    Object {
+      "height": 67,
+      "resizeMode": "contain",
+    }
+  }
+/>
+`;
+
+exports[`HexagonDots renders correctly, when modified 5`] = `
+<Image
+  source={1}
+  style={
+    Object {
+      "height": 67,
+      "resizeMode": "contain",
+    }
+  }
+/>
+`;

@@ -39,6 +39,40 @@ export default class EventTimeline extends Component {
     })
   }
 
+  removeEvent(id) {
+    const timelineEvents = this.state.timelineEvents
+    const newTimelineEvents = timelineEvents.slice(id)
+    this.setState({
+      timelineEvents: newTimelineEvents
+    }, () => {
+      Session.update({
+        timelineEvents: newTimelineEvents
+      })
+    })
+  }
+
+  removeLast(number) {
+    const timelineEvents = this.state.timelineEvents
+    const newTimelineEvents = timelineEvents.pop()
+    this.setState({
+      timelineEvents: newTimelineEvents
+    }, () => {
+      Session.update({
+        timelineEvents: newTimelineEvents
+      })
+    })
+  }
+
+  reset() {
+    this.setState({
+      timelineEvents: []
+    }, () => {
+      Session.update({
+        timelineEvents: []
+      })
+    })
+  }
+
   render() {
     const timelineEvents = this.state.timelineEvents
     return (

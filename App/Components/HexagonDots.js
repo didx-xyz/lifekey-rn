@@ -1,36 +1,33 @@
+// external dependencies
 import React from "react"
 import { Image } from "react-native"
 
-class HexagonDots extends React.Component {
-  render() {
-    const current = this.props.current
+const HexagonDots  = function(props) {
+  let image = null
 
-    if (current === 0) {
-      return <Image style={{ height: 67, resizeMode: "contain" }} source={require('../Images/blue_dots_1.png')} />
-    }
-
-    if (current === 1) {
-      return <Image style={{ height: 67, resizeMode: "contain" }} source={require('../Images/blue_dots_2.png')} />
-    }
-
-    if (current === 2) {
-      return <Image style={{ height: 67, resizeMode: "contain" }} source={require('../Images/blue_dots_3.png')} />
-    }
-
-    if (current === 3) {
-      return <Image style={{ height: 67, resizeMode: "contain" }} source={require('../Images/blue_dots_4.png')} />
-    }
-
-    if (current === 4 || current === 5) {
-      return <Image style={{ height: 67, resizeMode: "contain" }} source={require('../Images/blue_dots_5.png')} />
-    }
-
-    return null
+  switch (props.current) {
+    case 0:
+      image = require("../Images/blue_dots_1.png")
+      break
+    case 1:
+      image = require("../Images/blue_dots_2.png")
+      break
+    case 2:
+      image = require("../Images/blue_dots_3.png")
+      break
+    case 3:
+      image = require("../Images/blue_dots_4.png")
+      break
+    default:
+      image = require("../Images/blue_dots_5.png")
+      break
   }
+
+  return <Image style={{ height: 67, resizeMode: "contain" }} source={image} />
 }
 
 HexagonDots.propTypes = {
-  "current": React.PropTypes.number
+  "current": React.PropTypes.oneOf([0, 1, 2, 3, 4, 5]).isRequired
 }
 
 export default HexagonDots

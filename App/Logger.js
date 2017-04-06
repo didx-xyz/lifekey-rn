@@ -106,7 +106,8 @@ export default class Logger {
       { code: 401, color: ANSI.yellow },
       { code: 400, color: ANSI.yellow },
       { code: 404, color: ANSI.yellow },
-      { code: 500, color: ANSI.red }
+      { code: 500, color: ANSI.red },
+      { code: 502, color: ANSI.red }
     ].find(item => status === item.code ? item.color : false) ||
     { code: status || 'unknown', color: ANSI.white }
 
@@ -129,10 +130,13 @@ export default class Logger {
   static error = (message, filename, error) => {
     const prefix = `${ANSI.bgRed.open}${ANSI.white.open}[ER]${ANSI.white.close}${ANSI.bgRed.close}`
     if (Config.DEBUG) {
-      console.log(`${prefix} ${filename} ${ANSI.red.open} ${message}:${ANSI.red.close}`)
+      console.log(`${prefix} ${filename} ${ANSI.red.open} ${message}${ANSI.red.close}`)
       if (error) {
-        console.log(error)
+      console.log(ANSI.red.open)
+      console.log(error)
+      console.log(ANSI.red.close)
       }
+
     }
   }
 

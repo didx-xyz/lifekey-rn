@@ -69,7 +69,7 @@ export default class DebugRegister extends Scene {
     ConsentUser.unregister()
     .then(() => {
       alert('User unregistered')
-      Logger.info('User unregistered'. this._fileName)
+      Logger.info('User unregistered', this._fileName)
     })
     .catch(error => {
       Logger.error('Could not unregister', this._fileName, error)

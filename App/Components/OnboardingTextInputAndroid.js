@@ -92,9 +92,12 @@ export default class OnboardingTextInputAndroid extends Component {
           style={{
             width: 50,
             height: 50,
-            backgroundColor: 'green'
           }}
-          onPress={() => this.props.onSubmit()}
+          onPress={() => {
+            if (this.state.buttonVisible) {
+              this.props.onSubmit()
+            }
+          }}
         >
           <Animated.View
             style={{
