@@ -163,7 +163,7 @@ class Unlocked extends Scene {
                     ref="input"
                     autoFocus={true}
                     returnKeyType="done"
-                    keyboardType="numberic"
+                    keyboardType="numeric"
                     onChangeText={(text) => this.onChangeText(text)}
                     style={[style.input]}
                   />
