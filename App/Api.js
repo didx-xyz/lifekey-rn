@@ -347,15 +347,15 @@ export default {
     })
   },
 
-  /* 10 GET /management/isa/:isa_id
+  /* 10 GET /management/isa/:id
    * Get an ISA by id
    */
   getISA: (data) => {
     const requiredFields = [
-      'isa_id'
+      'id'
     ]
     if (containsRequired(requiredFields, data)) {
-      return request(`/management/isa/${data.isa_id}`, {
+      return request(`/management/isa/${data.id}`, {
         method: 'GET'
       })
     } else {

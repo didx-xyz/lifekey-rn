@@ -8,6 +8,29 @@
 import { AsyncStorage } from 'react-native'
 import Api from '../Api'
 import Logger from '../Logger'
+/*
+{
+  "notification": {
+    "color":null,
+    "clickAction":null,
+    "sound":null,
+    "tag":null,
+    "body":"New information sharing agreement",
+    "title":"New Information Sharing Agreement"
+  },
+  "data": {
+    "isar_id":"4",
+    "type":"information_sharing_agreement_request",
+    "from_id":"57"
+  },
+  "sendTime":"1491520483656",
+  "type":null,
+  "collapseKey":"com.lifekeyrn",
+  "to":null,
+  "from":"953467338291"
+}
+04-07 01:14:43.705  4582  4729 I ReactNativeJS: [FB] {"notification":{"color":null,"clickAction":null,"sound":null,"tag":null,"body":"New information sharing agreement","title":"New Information Sharing Agreement"},"data":{"isar_id":"4","type":"information_sharing_agreement_request","from_id":"57"},"sendTime":"1491520483656","type":null,"collapseKey":"com.lifekeyrn","to":null,"from":"953467338291"}
+*/
 
 class ConsentISA {
 
@@ -15,7 +38,7 @@ class ConsentISA {
 
   static add(id, from_id) {
     return Promise.all([
-      Api.profile({ id: from_id }),
+      Api.getISA({ id: from_id }),
       AsyncStorage.getItem(ConsentISA.storageKey)
     ])
     .then(result => {
@@ -28,14 +51,13 @@ class ConsentISA {
         return Promise.reject('Unexpected response from server')
       }
 
-      // Grab nickname from API response and capitalize first letter
-      const nickname = response.body.user.nickname.charAt(0).toUpperCase()
-                       + response.body.user.nickname.substring(1)
+      // Grab ISA THINGS
+      // SO MUCH WAS GRABBED
 
       // If entry does not exist, create from scratch
       if (!result[1]) {
         const isasItem = JSON.stringify([{
-          id, from_id, nickname
+          id, from_id
         }])
         return AsyncStorage.setItem(ConsentISA.storageKey, isasItem)
       }
@@ -49,7 +71,7 @@ class ConsentISA {
         return Promise.reject(`ISA ${id} already exists`)
       } else {
         // merge new data
-        const updatedIsaItem = JSON.stringify(isas.concat({ id, from_id, nickname }))
+        const updatedIsaItem = JSON.stringify(isas.concat({ id, from_id }))
         return AsyncStorage.setItem(ConsentISA.storageKey, updatedIsaItem)
       }
     })
