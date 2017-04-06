@@ -318,7 +318,7 @@ export default class Register extends Scene {
     case STEP_PIN:
       if (onStepTextInputValue) {
         setTimeout(() => {
-          this._eventTimeline.pushEvent(`Magic link sent to ${this.state.email}ma`)
+          this._eventTimeline.pushEvent(`Magic link sent to ${this.state.email}`)
         }, 1000)
 
         // Update the state to show we are on the 3rd step
