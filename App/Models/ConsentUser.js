@@ -311,8 +311,8 @@ export default class ConsentUser {
     .then(signature => {
       Logger.info('Sending details to server', this.filename)
       return Api.register({
-        email: email,
-        nickname: username,
+        email: email.trim(),
+        nickname: username.trim(),
         device_id: firebaseToken,
         device_platform: Platform.OS,
         public_key_algorithm: Config.keystore.publicKeyAlgorithm,
