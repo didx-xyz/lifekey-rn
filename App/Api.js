@@ -24,7 +24,6 @@ function request(route, opts, signedRequest = true) {
         userID = results.id
         firebaseToken = results.firebaseToken
         return Crypto.getKeyStoreIsLoaded()
-        // return Crypto.secureRandom()
       }
     })
     .then(keystoreLoaded => {
@@ -156,6 +155,23 @@ export default {
       return {error: true, message: e.toString()}
     }
   },
+
+  // ##################
+  // #### PROFILE #####
+  // ##################
+  profile: (data) => {
+    const requiredFields = [
+      'id'
+    ]
+    if (containsRequired(requiredFields, data)) {
+      return request(`/profile/${data.id}`, {
+        method: 'GET'
+      })
+    } else {
+      return Promise.reject(getMissingFieldsMessage(requiredFields))
+    }
+  },
+
   // ##################
   // ### MANAGEMENT ###
   // ##################
