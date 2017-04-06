@@ -8,6 +8,7 @@
 import * as Lifecycle from './Lifecycle'
 import Logger from './Logger'
 import Palette from './Palette'
+import Api from './Api'
 import Session from './Session'
 import Routes from './Routes'
 import Config from './Config'
@@ -146,10 +147,15 @@ export default class Lifekeyrn extends Component {
 
       case 'user_connection_created':
         Logger.firebase('user_connection_created')
-        ConsentConnection.add(
-          message.data.user_connection_id,
-          message.data.from_id
-        )
+        ConsentConnection.add(message.data.user_connection_id, message.data.from_id)
+        .then(result => {
+          if (result) {
+            Logger.info('Connection created')
+          }
+        })
+        .catch(error => {
+          Logger.error(error, this.filename, error)
+        })
         break
       case 'sent_activiation_email':
         Logger.firebase('sent_activiation_email')
