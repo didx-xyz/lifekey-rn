@@ -52,7 +52,7 @@ class ConnectionDetails extends Scene {
 
     return (
       <Container>
-        <BackButton />
+        <BackButton navigator={this.navigator} />
         <Content style={styles.content}>
           <View style={[styles.top, top]}>
             <View style={[styles.back, styles.center]}>
