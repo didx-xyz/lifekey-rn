@@ -100,7 +100,7 @@ export default class Logger {
   static networkResponse = (status, timestamp, data) => {
     const prefix = `${ANSI.blue.open}[NW]${ANSI.blue.close}`
 
-    const codes = [
+    const code = [
       { code: 200, color: ANSI.green },
       { code: 201, color: ANSI.green },
       { code: 401, color: ANSI.yellow },
@@ -113,7 +113,7 @@ export default class Logger {
 
     const timestampColor = `${ANSI.gray.open}${ANSI.underline.open}${timestamp}${ANSI.underline.close}${ANSI.gray.close}`
 
-    const statusColor = `${codes.color.open}${status}${codes.color.close}`
+    const statusColor = `${code.color.open}${status}${code.color.close}`
     if (Config.DEBUG && Config.debugNetwork) {
       console.log(`${prefix} ${statusColor} ${timestampColor}`)
       console.log(data)
