@@ -264,7 +264,6 @@ export default class ConsentUser {
           return Crypto.createKeyStore(Config.keystore.name, password)
 
         })
-        // return Promise.reject(`The keystore ${Config.keystore.name} already exists`)
       } else {
         Logger.info('Creating new keystore', this.filename)
         return Crypto.createKeyStore(Config.keystore.name, password)
