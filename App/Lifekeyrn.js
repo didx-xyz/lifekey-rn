@@ -103,6 +103,7 @@ export default class Lifekeyrn extends Component {
     console.log(JSON.stringify(message))
 
     if (message.data && message.data.type) {
+      alert(`${message.notification.title} - ${message.notification.body}`)
       switch (message.data.type) {
 
       case 'received_did':
