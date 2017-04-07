@@ -9,6 +9,7 @@
 import DebugMain from './Scenes/Debug/DebugMain'
 import DebugKeyStore from './Scenes/Debug/DebugKeyStore'
 import DebugRegister from './Scenes/Debug/DebugRegister'
+import DebugError from './Scenes/Debug/DebugError'
 
 // Main
 import Main from './Scenes/Main'
@@ -17,6 +18,8 @@ import SetPin from './Scenes/Onboarding/SetPin'
 import Unlocked from './Scenes/Onboarding/Unlocked'
 import ConnectionDetails from './Scenes/ConnectionDetails'
 import ConfirmInformationShare from './Scenes/ConfirmInformationShare'
+import Connection from './Scenes/Connection'
+import InformationRequest from './Scenes/InformationRequest'
 
 import Locked from './Scenes/Onboarding/Locked'
 import Unlock from './Scenes/Onboarding/Unlock'
@@ -30,15 +33,14 @@ import QRCodeScanner from './Scenes/Camera/QRCodeScanner'
 import SelfieCam from './Scenes/Camera/SelfieCam'
 
 export default {
-  // Debug
   main: { scene: Main },
   me: { scene: Me },
   connectionDetails: { scene: ConnectionDetails },
   confirmInformationShare: { scene: ConfirmInformationShare },
+  connection: { scene: Connection },
+  informationRequest: { scene: InformationRequest },
   debugKeyStore: { scene: DebugKeyStore },
   debugRegister: { scene: DebugRegister },
-
-  // Main
   onboarding: {
     splashScreen: { scene: SplashScreen },
     register: { scene: Register },
@@ -53,6 +55,7 @@ export default {
   },
   debug: {
     main: { scene: DebugMain },
-    register: { scene: DebugRegister }
+    register: { scene: DebugRegister },
+    error: { scene: DebugError }
   }
 }

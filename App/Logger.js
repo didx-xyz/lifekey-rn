@@ -80,13 +80,14 @@ export default class Logger {
    * @param {string} route The route to log
    * @returns {undefined}
    */
-  static networkRequest = (method, timestamp, route) => {
-    const prefix = `${ANSI.blue.open}[NW]${ANSI.blue.close}`
+  static networkRequest = (method, timestamp, route, opts) => {
+    const prefix = `${ANSI.blue.open}[NETWORK]${ANSI.blue.close}`
     const methodColor = `${ANSI.bold.open}${ANSI.green.open}${method}${ANSI.green.close}${ANSI.bold.close}`
     const timestampColor = `${ANSI.gray.open}${ANSI.underline.open}${timestamp}${ANSI.underline.close}${ANSI.gray.close}`
     const routeColor = `${ANSI.white.open}${route}${ANSI.white.close}`
     if (Config.DEBUG && Config.debugNetwork) {
       console.log(`${prefix} ${methodColor} ${Logger._asColumn(timestampColor, 64)} ${routeColor}`)
+      console.log(opts)
     }
   }
 
@@ -98,9 +99,9 @@ export default class Logger {
    * @returns {undefined}
    */
   static networkResponse = (status, timestamp, data) => {
-    const prefix = `${ANSI.blue.open}[NW]${ANSI.blue.close}`
+    const prefix = `${ANSI.green.open}[NETWORK]${ANSI.green.close}`
 
-    const codes = [
+    const code = [
       { code: 200, color: ANSI.green },
       { code: 201, color: ANSI.green },
       { code: 401, color: ANSI.yellow },
@@ -113,7 +114,7 @@ export default class Logger {
 
     const timestampColor = `${ANSI.gray.open}${ANSI.underline.open}${timestamp}${ANSI.underline.close}${ANSI.gray.close}`
 
-    const statusColor = `${codes.color.open}${status}${codes.color.close}`
+    const statusColor = `${code.color.open}${status}${code.color.close}`
     if (Config.DEBUG && Config.debugNetwork) {
       console.log(`${prefix} ${statusColor} ${timestampColor}`)
       console.log(data)
@@ -124,19 +125,13 @@ export default class Logger {
   /**
    * Log an error
    * @param {string} message The message to log
-   * @param {string} filename The filename to log
+   * @param {string} name The name of the error
    * @returns {undefined}
    */
-  static error = (message, filename, error) => {
-    const prefix = `${ANSI.bgRed.open}${ANSI.white.open}[ER]${ANSI.white.close}${ANSI.bgRed.close}`
+  static error = (message, code) => {
+    const prefix = `${ANSI.bgRed.open}${ANSI.white.open}[ERROR]${ANSI.white.close}${ANSI.bgRed.close}`
     if (Config.DEBUG) {
-      console.log(`${prefix} ${filename} ${ANSI.red.open} ${message}${ANSI.red.close}`)
-      if (error) {
-      console.log(ANSI.red.open)
-      console.log(error)
-      console.log(ANSI.red.close)
-      }
-
+      Logger._log(`[Error](${code.toString(16)})`, ` ${message}`, ANSI.red, ANSI.white, true)
     }
   }
 

@@ -6,28 +6,65 @@
  */
 
 import { AsyncStorage } from 'react-native'
+import Api from '../Api'
+import Logger from '../Logger'
+import ConsentError from '../ConsentError'
+
+const E_CONNECTION_ALREADY_EXISTS = 0x01
+const STORAGE_KEY = 'connections'
+
+class ConsentConnectionError extends ConsentError {
+  constructor(message, code) {
+    super(message)
+    this.name = this.constructor.name
+    this.code = code
+
+  }
+}
 
 class ConsentConnection {
 
   static storageKey = 'connections'
 
-  static add(id, from_id) {
-    return AsyncStorage.getItem(ConsentConnection.storageKey)
-    .then(itemJSON => {
-      if (itemJSON) {
-        const connections = JSON.parse(itemJSON)
-        if (connections.find(connection => connection.id === id)) {
-          // already exists
-          return Promise.reject(`Connections ${id} already exists`)
-        } else {
-          // merge new connection
-          const updatedConnections = connections.concat({ id, from_id })
-          return AsyncStorage.setItem(ConsentConnection.storageKey, JSON.stringify(updatedConnections))
-        }
+  static add(id, to_id) {
+    return Promise.all([
+      Api.profile({ id: to_id }),
+      AsyncStorage.getItem(ConsentConnection.storageKey)
+    ])
+    .then(result => {
+
+      // Rename for clarity and convenience
+      const response = result[0]
+
+      // Check response is as expected
+      if (!response || !response.body || response.status !== 200) {
+        // return Promise.reject('Unexpected response from server')
+        return Promise.reject(new Error('Unexpected response from server'))
+      }
+
+      // Grab nickname from API response and capitalize first letter
+      const nickname = response.body.user.nickname.charAt(0).toUpperCase()
+                       + response.body.user.nickname.substring(1)
+
+      // If entry does not exist, create from scratch
+      if (!result[1]) {
+        const connectionsItem = JSON.stringify([{ id, to: to_id, nickname }])
+        return AsyncStorage.setItem(ConsentConnection.storageKey, connectionsItem)
+      }
+
+      // Parse JSON to object
+      const connections = JSON.parse(result[1])
+
+      // Check if already connected
+      if (connections.find(connection => connection.to === to_id)) {
+        // Connection already exists
+        return Promise.reject(
+          new ConsentConnectionError(`Connection ${to_id} already exists`, E_CONNECTION_ALREADY_EXISTS)
+        )
       } else {
-        // create from scratch
-        const connections = [{ id, from_id }]
-        return AsyncStorage.setItem(ConsentConnection.storageKey, JSON.stringify(connections))
+        // merge new data
+        const updatedConnectionsItem = JSON.stringify(connections.concat({ id, to: to_id, nickname }))
+        return AsyncStorage.setItem(ConsentConnection.storageKey, updatedConnectionsItem)
       }
     })
   }

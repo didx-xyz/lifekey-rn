@@ -14,7 +14,15 @@ test("HexagonIcon renders correctly, by default", function() {
 
 test("HexagonIcon renders correctly, when modified", function() {
   const tree = shallow(
-    <HexagonIcon width={32} height={32} fill="#fff" />
+    <HexagonIcon
+      width={32}
+      height={32}
+      fill="#fff"
+      textSize={14}
+      textX={5}
+      textY={5}
+      text="Connect"
+    />
   )
 
   expect(tree).toMatchSnapshot()

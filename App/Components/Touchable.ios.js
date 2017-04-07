@@ -1,15 +1,15 @@
 // external dependencies
 import React from "react"
-import { TouchableWithoutFeedback } from "react-native"
+import { TouchableOpacity } from "react-native"
 
 const Touchable = function(props) {
   return (
-    <TouchableWithoutFeedback
+    <TouchableOpacity
       delayPressIn={0}
       {...props}
     >
       {props.children}
-    </TouchableWithoutFeedback>
+    </TouchableOpacity>
   )
 }
 
