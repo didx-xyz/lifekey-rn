@@ -8,6 +8,7 @@
 import * as Lifecycle from './Lifecycle'
 import Logger from './Logger'
 import Palette from './Palette'
+import Api from './Api'
 import Session from './Session'
 import Routes from './Routes'
 import Config from './Config'
@@ -15,6 +16,7 @@ import ConsentUser from './Models/ConsentUser'
 import ConsentConnection from './Models/ConsentConnection'
 import ConsentConnectionRequest from './Models/ConsentConnectionRequest'
 import ConsentDiscoveredUser from './Models/ConsentDiscoveredUser'
+import ConsentISA from './Models/ConsentISA'
 import EventEmitter from 'EventEmitter'
 import React, { Component } from 'react'
 import {
@@ -102,6 +104,7 @@ export default class Lifekeyrn extends Component {
     console.log(JSON.stringify(message))
 
     if (message.data && message.data.type) {
+      alert(`${message.notification.title} - ${message.notification.body}`)
       switch (message.data.type) {
 
       case 'received_did':
@@ -148,8 +151,16 @@ export default class Lifekeyrn extends Component {
         Logger.firebase('user_connection_created')
         ConsentConnection.add(
           message.data.user_connection_id,
-          message.data.from_id
+          message.data.to_id
         )
+        .then(() => {
+          Logger.info('Connection created')
+          this.forceUpdate()
+          Logger.info('Force update')
+        })
+        .catch(error => {
+          Logger.error(error, this.filename, error)
+        })
         break
       case 'sent_activiation_email':
         Logger.firebase('sent_activiation_email')
@@ -158,6 +169,19 @@ export default class Lifekeyrn extends Component {
       case 'app_activation_link_clicked':
         Logger.firebase('app_activation_link_clicked')
         this.navigator.replace(Routes.main)
+        break
+      case 'information_sharing_agreement_request':
+        Logger.firebase('information_sharing_agreement_request')
+        ConsentISA.add(
+          message.data.isar_id,
+          message.data.from_id
+        )
+        .then(() => {
+          Logger.info('ISA Added')
+        })
+        .catch(error => {
+          Logger.error(error, this.filename, error)
+        })
         break
       default:
         Logger.firebase(JSON.stringify(message))

@@ -1,27 +1,50 @@
 // external dependencies
 import React from "react"
-import Svg, { Path } from "react-native-svg"
+import Svg, { Path, Text } from "react-native-svg"
 
 const HexagonIcon = (props) => {
-  const dynamic = {
+  const dynamicPath = {
     "fill": props.fill
   }
 
+  const dynamicText = {
+    "fill": props.textColor,
+    "x": props.textX,
+    "y": props.textY,
+    "fontSize": props.textSize
+  }
+
   return (
-    <Svg width={props.width} height={props.height} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 89.8 100.025">
-      <Path {...dynamic} d="M676.9,432.3l-32.7-18.9a12.17786,12.17786,0,0,1-6.1-10.6V365a12.17787,12.17787,0,0,1,6.1-10.6l32.7-18.9a12.10076,12.10076,0,0,1,12.2,0l32.7,18.9a12.17786,12.17786,0,0,1,6.1,10.6v37.8a12.17787,12.17787,0,0,1-6.1,10.6l-32.7,18.9A12.60021,12.60021,0,0,1,676.9,432.3Z" translate="-638.1 -333.85"/>
+    <Svg width={props.width} height={props.height} version="1.1" xmlns="http://www.w3.org/2000/svg" xmlnsXlink="http://www.w3.org/1999/xlink" viewBox="0 0 110 110" xmlSpace="preserve">
+      <Path {...dynamicPath} d="M48.9,103.3L16.2,84.4c-3.8-2.2-6.1-6.2-6.1-10.6V36c0-4.4,2.3-8.4,6.1-10.6L48.9,6.5
+      	c3.8-2.2,8.4-2.2,12.2,0l32.7,18.9c3.8,2.2,6.1,6.2,6.1,10.6v37.8c0,4.4-2.3,8.4-6.1,10.6l-32.7,18.9
+      	C57.3,105.4,52.7,105.4,48.9,103.3z"/>
+      {props.text &&
+        <Text {...dynamicText}>
+          {props.text}
+        </Text>
+      }
     </Svg>
   )
 }
 
 HexagonIcon.defaultProps = {
-  "fill": "#1a7bff"
+  "fill": "#1a7bff",
+  "textColor": "#fff",
+  "textSize": 16,
+  "textX": 0,
+  "textY": 0
 }
 
 HexagonIcon.propTypes = {
   "width": React.PropTypes.number.isRequired,
   "height": React.PropTypes.number.isRequired,
-  "fill": React.PropTypes.string
+  "fill": React.PropTypes.string,
+  "textColor": React.PropTypes.string,
+  "textSize": React.PropTypes.number,
+  "textX": React.PropTypes.number,
+  "textY": React.PropTypes.number,
+  "text": React.PropTypes.string
 }
 
 export default HexagonIcon
