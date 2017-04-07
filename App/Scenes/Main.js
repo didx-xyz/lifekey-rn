@@ -15,7 +15,7 @@ import LifekeyHeader from '../Components/LifekeyHeader'
 import LifekeyFooter from '../Components/LifekeyFooter'
 import Touchable from '../Components/Touchable'
 import AndroidBackButton from 'react-native-android-back-button'
-import ConsentConnectionRequest from '../Models/ConsentConnectionRequest'
+import ConsentConnection from '../Models/ConsentConnection'
 
 import {
   Text,
@@ -55,56 +55,20 @@ export default class Main extends Scene {
   }
 
   _onAttention() {
-    ConsentConnectionRequest.all()
+    ConsentConnection.all()
     .then(result => {
-      console.log('RESULT###', result)
       this.setState({
         connections: result
       })
-      console.log(result)
     })
     .catch(error => {
-      Logger.error("Its a fuckup", this._fileName, error)
+      Logger.error("Its a ******", this._fileName, error)
     })
   }
 
   componentWillMount() {
     super.componentWillFocus()
     this._onAttention()
-    // console.log('coasdasd')
-    // Api.allConnections()
-    // .then(connections => {
-    //   console.log('Api.allConnections()', connections)
-    //   this.setState({
-    //     connections: connections.body.enabled,
-    //     suggestedConnections: connections.body.unacked
-    //   })
-    // })
-    // .catch(error => {
-    //   console.log(error)
-    // })
-    // const connections = [
-    //   { name: 'Absa', icon: 'rocket' },
-    //   { name: 'Woolworths', icon: 'rocket' },
-    //   { name: 'ThisIsMe', icon: 'rocket' },
-    //   { name: 'Totally Me', icon: 'rocket' },
-    //   { name: 'ItCouldBeMe', icon: 'rocket' },
-    //   { name: 'SoTotesMe', icon: 'rocket' },
-    //   { name: 'NotMeThough', icon: 'rocket' },
-    //   { name: 'SomethingElse', icon: 'rocket' },
-    //   { name: 'OutOfIdeas', icon: 'rocket' },
-    // ]
-
-    // const suggestedConnections = [
-    //   { name: 'Telkom', icon: 'rocket' },
-    //   { name: 'Postbank', icon: 'rocket' },
-    //   { name: 'City of Cape Town', icon: 'rocket' },
-    //   { name: 'Investec', icon: 'rocket' }
-    // ]
-    // this.setState({
-    //   connections,
-    //   suggestedConnections
-    // })
   }
 
   setTab(tab) {
@@ -131,7 +95,6 @@ export default class Main extends Scene {
   }
 
   render() {
-    console.log('CONNECTIONS', this.state.connections)
     return (
       <Container>
         <View style={{ borderColor: Palette.consentGrayDark, height: 120 }}>
@@ -171,42 +134,44 @@ export default class Main extends Scene {
                         ]}
                         placeholder="Search"
                       />
-                      { this.state.searchText !== '' ?
+                      { this.state.searchText !== '' &&
                         <Touchable onPress={() => this.clearSearch()}>
                           <Icon style={style.searchBoxCloseIcon} name="times-circle" size={25} color={Palette.consentGrayDark} />
                         </Touchable>
-                      :
-                        null
                       }
                   </View>
 
-                  {
-                    this.state.connections.filter((connection) => {
-                      console.log('connections')
-                      if (this.state.searchText !== '') {
-                        const connectionSubUpper = connection.name.substr(0, this.state.searchText.length).toUpperCase()
-                        const searchTextUpper = this.state.searchText.toUpperCase()
-                        return connectionSubUpper === searchTextUpper
-                      } else {
-                        return true
-                      }
-                    }).map((connection, i) => (
-                      <ListItem key={i} style={style.listItem}>
-                        <Text>{connection.from_nickname}</Text>
+                  {this.state.connections.filter((connection) => {
+                    if (this.state.searchText !== '') {
+                      const connectionSubUpper = connection.name.substr(0, this.state.searchText.length).toUpperCase()
+                      const searchTextUpper = this.state.searchText.toUpperCase()
+                      return connectionSubUpper === searchTextUpper
+                    } else {
+                      return true
+                    }
+                  }).map((connection, i) => (
+                      <ListItem
+                        key={i}
+                        style={style.listItem}
+                        onPress={() => this.navigator.push({ ...Routes.connectionDetails, connectionID: connection.id })}
+                      >
+                        <Text>{connection.nickname}</Text>
                       </ListItem>
-                    ))
-                  }
+                  ))}
 
                 </View>
                 :
                 /* SUGGESTED */
                 <View style={{ flex: 1 }}>
-                  { this.state.suggestedConnections.map((suggestedConnection, i) => (
-                      <ListItem key={i} style={style.listItem}>
-                        <Text>{suggestedConnection.name}</Text>
-                      </ListItem>
-                    ))
-                  }
+                  {this.state.suggestedConnections.map((suggestedConnection, i) => (
+                    <ListItem
+                      key={i}
+                      style={style.listItem}
+                      onPress={() => this.navigator.push({ ...Routes.connectionDetails, connectionID: suggestedConnection.id })}
+                    >
+                      <Text>{suggestedConnection.name}</Text>
+                    </ListItem>
+                    ))}
                 </View>
               }
             </View>
@@ -227,6 +192,7 @@ export default class Main extends Scene {
 
 const style = StyleSheet.create({
   listItem: {
+    flex: 1,
     paddingLeft: 20
   },
   listItemLabel: {
