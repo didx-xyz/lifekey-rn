@@ -13,7 +13,7 @@ class ConsentConnection {
 
   static storageKey = 'connections'
 
-  static add(id, from_id, to_id) {
+  static add(id, to_id) {
     return Promise.all([
       Api.profile({ id: to_id }),
       AsyncStorage.getItem(ConsentConnection.storageKey)
@@ -34,7 +34,7 @@ class ConsentConnection {
 
       // If entry does not exist, create from scratch
       if (!result[1]) {
-        const connectionsItem = JSON.stringify([{ id, from_id, nickname }])
+        const connectionsItem = JSON.stringify([{ id, to: to_id, nickname }])
         return AsyncStorage.setItem(ConsentConnection.storageKey, connectionsItem)
       }
 
@@ -42,12 +42,14 @@ class ConsentConnection {
       const connections = JSON.parse(result[1])
 
       // Check if already connected
-      if (connections.find(connection => connection.from_id === from_id)) {
+      if (connections.find(connection => connection.to === to_id)) {
         // Connection already exists
-        return Promise.reject(`Connections ${id} already exists`)
+        return Promise.reject({
+          message: `Connection to ${to_id} already exists`
+        })
       } else {
         // merge new data
-        const updatedConnectionsItem = JSON.stringify(connections.concat({ id, from_id, nickname }))
+        const updatedConnectionsItem = JSON.stringify(connections.concat({ id, to: to_id, nickname }))
         return AsyncStorage.setItem(ConsentConnection.storageKey, updatedConnectionsItem)
       }
     })
