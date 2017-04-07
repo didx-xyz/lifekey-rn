@@ -18,6 +18,7 @@ import Unlocked from './Scenes/Onboarding/Unlocked'
 import ConnectionDetails from './Scenes/ConnectionDetails'
 import ConfirmInformationShare from './Scenes/ConfirmInformationShare'
 import Connection from './Scenes/Connection'
+import InformationRequest from './Scenes/InformationRequest'
 
 import Locked from './Scenes/Onboarding/Locked'
 import Unlock from './Scenes/Onboarding/Unlock'
@@ -37,6 +38,7 @@ export default {
   connectionDetails: { scene: ConnectionDetails },
   confirmInformationShare: { scene: ConfirmInformationShare },
   connection: { scene: Connection },
+  informationRequest: { scene: InformationRequest },
   debugKeyStore: { scene: DebugKeyStore },
   debugRegister: { scene: DebugRegister },
 

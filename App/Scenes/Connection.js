@@ -1,7 +1,7 @@
 // external dependencies
 import React from "react"
 import { Text, View } from "react-native"
-import { Container, Content, Grid, Col, Row } from "native-base"
+import { Container } from "native-base"
 
 // internal dependencies
 import BackButton from "../Components/BackButton"
