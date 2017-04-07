@@ -7,7 +7,7 @@ import Config from "../Config"
 import LifekeyHeader from "../Components/LifekeyHeader"
 import LifekeyCard from "../Components/LifekeyCard"
 import Touchable from "../Components/Touchable"
-import BackButton from "../Components/BackButton"
+import AndroidBackButton from 'react-native-android-back-button'
 import BackIcon from "../Components/BackIcon"
 import InfoIcon from "../Components/InfoIcon"
 
@@ -41,6 +41,11 @@ class ConnectionDetails extends Scene {
     })
   }
 
+  onHardwareBack() {
+    this.navigator.pop()
+    return true
+  }
+
   render() {
     const top = {
       "backgroundColor": "#ff002c"
@@ -52,12 +57,14 @@ class ConnectionDetails extends Scene {
 
     return (
       <Container>
-        <BackButton />
         <Content style={styles.content}>
+          <AndroidBackButton onPress={() => this.onHardwareBack()} />
           <View style={[styles.top, top]}>
-            <View style={[styles.back, styles.center]}>
-              <BackIcon width={16} height={16} stroke="#fff" />
-            </View>
+            <Touchable onPress={() => this.navigator.pop()}>
+              <View style={[styles.back, styles.center]}>
+                  <BackIcon width={16} height={16} stroke="#fff" />
+              </View>
+            </Touchable>
             <View style={[styles.branding, styles.center]}>
               <Text style={text}>
                 {/* insert connection image */}

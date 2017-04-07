@@ -21,6 +21,7 @@ import ConsentConnection from '../../Models/ConsentConnection'
 import ConsentConnectionRequest from '../../Models/ConsentConnectionRequest'
 import ConsentDiscoveredUser from '../../Models/ConsentDiscoveredUser'
 import ConsentUser from '../../Models/ConsentUser'
+import ConsentISA from '../../Models/ConsentISA'
 
 export default class DebugMain extends Scene {
 
@@ -30,7 +31,8 @@ export default class DebugMain extends Scene {
       connections: [],
       connectionRequests: [],
       discoveredUsers: [],
-      user: {}
+      user: {},
+      isas: []
     }
   }
 
@@ -41,14 +43,16 @@ export default class DebugMain extends Scene {
       ConsentConnection.all(),
       ConsentConnectionRequest.all(),
       ConsentDiscoveredUser.all(),
-      ConsentUser.get()
+      ConsentUser.get(),
+      ConsentISA.all()
     ])
     .then(results => {
       let newState = {
-        connections: results[0],
-        connectionRequests: results[1],
-        discoveredUsers: results[2],
-        user: results[3] || {}
+        connections: results[0] || [],
+        connectionRequests: results[1] || [],
+        discoveredUsers: results[2] || [],
+        user: results[3] || {},
+        isas: results[4] || []
       }
       this.setState(newState)
     })
@@ -78,6 +82,7 @@ export default class DebugMain extends Scene {
           <Button iconName="md-key" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugKeyStore)}>Keystore Manager</Button>
           <Button iconName="md-reverse-camera" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.selfieCam)}>Self-facing Camera</Button>
           <Button iconName="md-contact" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugRegister)}>Consent User</Button>
+          <Button iconName="md-contact" kind="squared" type="danger" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugError)}>Error Tester</Button>
 
           {/* this.state.user.registered ?
           [
@@ -92,14 +97,16 @@ export default class DebugMain extends Scene {
             <H3>Session</H3>
             <Text>{JSON.stringify(Session.getState(), '\t', 2)}</Text>
             <H3>Storages</H3>
+            <H5>User</H5>
+            <Text>{JSON.stringify(this.state.user, '\t', 2)}</Text>
             <H5>Connections</H5>
             <Text>{JSON.stringify(this.state.connections, '\t', 2)}</Text>
             <H5>Connection Requests</H5>
             <Text>{JSON.stringify(this.state.connectionRequests, '\t', 2)}</Text>
+            <H5>Information Sharing Agreements</H5>
+            <Text>{JSON.stringify(this.state.isass, '\t', 2)}</Text>
             <H5>Discovered Users</H5>
             <Text>{JSON.stringify(this.state.discoveredUsers, '\t', 2)}</Text>
-            <H5>User</H5>
-            <Text>{JSON.stringify(this.state.user, '\t', 2)}</Text>
           </View>
         </Content>
       </Container>
