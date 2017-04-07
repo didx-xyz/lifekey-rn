@@ -10,11 +10,24 @@ import Crypto from './Crypto'
 import Session from './Session'
 import Logger from './Logger'
 import ConsentUser from './Models/ConsentUser'
+import ConsentError, { ErrorCode } from './ConsentError'
 
+function containsRequired(requiredFields, data) {
+  return (
+    JSON.stringify(requiredFields.sort()) ===
+    JSON.stringify(Object.keys(data).sort())
+  )
+}
+
+function getMissingFieldsMessage(missingFields) {
+  return 'Missing required fields. Required fields: ' . JSON.stringify(missingFields)
+}
+
+// Make an HTTP request
 function request(route, opts, signedRequest = true) {
 
   if (signedRequest) {
-    let userID, firebaseToken, secureRandom, signature
+    let userID, secureRandom, signature
 
     return ConsentUser.get()
     .then(results => {
@@ -22,7 +35,6 @@ function request(route, opts, signedRequest = true) {
         return Promise.reject('User not registered. Cannot send a signed request')
       } else {
         userID = results.id
-        firebaseToken = results.firebaseToken
         return Crypto.getKeyStoreIsLoaded()
       }
     })
@@ -30,7 +42,9 @@ function request(route, opts, signedRequest = true) {
       if (keystoreLoaded) {
         return Crypto.secureRandom()
       } else {
-        return Promise.reject('Keystore must first be loaded')
+        return Promise.reject(
+          new ConsentError('Keystore must first be loaded', ErrorCode.E_ACCESS_KEYSTORE_NOT_LOADED)
+        )
       }
     })
     .then(_secureRandom => {
@@ -49,13 +63,17 @@ function request(route, opts, signedRequest = true) {
         method: 'GET',  // Default
         headers: {
           'content-type': 'application/json',
-            'x-cnsnt-id': userID,
-            'x-cnsnt-plain': secureRandom,
-            'x-cnsnt-signed': signature
+          'x-cnsnt-id': userID,
+          'x-cnsnt-plain': secureRandom,
+          'x-cnsnt-signed': signature
         }
       }, opts)
-      Logger.networkRequest(options.method, new Date(), Config.http.baseUrl + route)
-      console.log(opts)
+      Logger.networkRequest(
+        options.method,
+        new Date(),
+        Config.http.baseUrl + route,
+        opts
+      )
       return fetch(Config.http.baseUrl + route, options)
     })
     .then(response => {
@@ -111,55 +129,11 @@ function request(route, opts, signedRequest = true) {
     })
   }
 }
+export default class Api {
 
-function containsRequired(requiredFields, data) {
-  return (
-    JSON.stringify(requiredFields.sort()) ===
-    JSON.stringify(Object.keys(data).sort())
-  )
-}
 
-function getMissingFieldsMessage(missingFields) {
-  return 'Missing required fields. Required fields: ' . JSON.stringify(missingFields)
-}
-
-/** API functions avaialble to the App */
-export default {
-
-  doAuthenticatedRequest: async function (uri, method, body) {
-    var toSign = Date.now().toString()
-    var caught = false
-    try {
-      var name = await Crypto.getCurrentKeyStoreAlias()
-    } catch (e) {
-      caught = true
-    }
-    try {
-      if (caught) name = await Crypto.loadKeyStore('consent', Session.state.userPassword)
-      var signature = await Crypto.sign(toSign, 'private_lifekey', Session.state.userPassword, Crypto.SIG_SHA256_WITH_RSA)
-      var opts = {
-        method: method || 'get',
-        headers: {
-          "content-type": "application/json",
-          'x-cnsnt-id': Session.getState().user.id,
-          'x-cnsnt-plain': toSign,
-          'x-cnsnt-signed': signature.trim()
-        }
-      }
-      if (typeof body === 'object' && body !== null) {
-        opts.body = JSON.stringify(body)
-      }
-      var response = await fetch(uri, opts)
-      return (await response.json())
-    } catch (e) {
-      return {error: true, message: e.toString()}
-    }
-  },
-
-  // ##################
-  // #### PROFILE #####
-  // ##################
-  profile: (data) => {
+  // Fetch a profile
+  static profile(data) {
     const requiredFields = [
       'id'
     ]
@@ -168,18 +142,14 @@ export default {
         method: 'GET'
       })
     } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
+      return Promise.reject(
+        new ConsentError(getMissingFieldsMessage(requiredFields), ErrorCode.E_API_ERROR)
+      )
     }
-  },
+  }
 
-  // ##################
-  // ### MANAGEMENT ###
-  // ##################
-
-  /* 0 POST /management/register
-   * Register a user
-   */
-  register: (data) => {
+  // Register a user
+  static register(data) {
     const requiredFields = [
       'email',
       'nickname',
@@ -200,12 +170,10 @@ export default {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
 
-  },
+  }
 
-  /* 1 POST /management/device
-   * Report device info
-   */
-  device: (data) => {
+  // Report device info
+  static device(data) {
     const requiredFields = [
       'device_id',
       'device_platform'
@@ -224,12 +192,10 @@ export default {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
-  },
+  }
 
-  /* 2 POST /management/connection
-   * Make a connection request with a target
-   */
-  requestConnection: (data) => {
+   // Make a connection request with a target
+  static requestConnection(data) {
     const requiredFields = [
       'target'
     ]
@@ -241,21 +207,17 @@ export default {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
-  },
+  }
 
-  /* 3 GET /management/connection
-   * Get all unacked and enabled connections
-  */
-  allConnections: () => {
+   // Get all unacked and enabled connections
+  static allConnections() {
     return request('/management/connection', {
       method: 'GET'
     })
-  },
+  }
 
-  /* 4 POST /management/connection/:user_connection_request_id
-   * Accept a connection request
-   */
-  respondConnectionRequest: (data) => {
+  // Accept a connection request
+  static respondConnectionRequest(data) {
     const requiredFields = [
       'user_connection_request_id',
       'accepted' // true/false (in body)
@@ -268,12 +230,10 @@ export default {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
-  },
+  }
 
-  /* 5 DELETE
-   * Delete a connection /management/connection/:user_connection_id
-   */
-  deleteConnection: (data) => {
+   // Delete a connection /management/connection/:user_connection_id
+  static deleteConnection(data) {
     const requiredFields = [
       'user_connection_id'
     ]
@@ -284,12 +244,10 @@ export default {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
-  },
+  }
 
-  /* 6 GET /management/activation/:activation_code
-   * Activate a newly created account
-   */
-  activate: (data) => {
+   // Activate a newly created account
+  static activate(data) {
     const requiredFields = [
       'activation_code'
     ]
@@ -300,12 +258,10 @@ export default {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
-  },
+  }
 
-  /* 7 POST /management/isa
-   * Request an ISA
-   */
-  requestISA: (data) => {
+   // Request an ISA
+  static requestISA(data) {
     const requiredFields = [
       'to',
       'requested_schemas',
@@ -319,12 +275,10 @@ export default {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
-  },
+  }
 
-  /* 8 POST /management/isa/:isar_id
-   * Respond to an ISA request
-   */
-  respondISA: (data) => {
+   // Respond to an ISA request
+  static respondISA(data) {
     const requiredFields = [
       'accepted',
       'permitted_resources'
@@ -336,21 +290,17 @@ export default {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
-  },
+  }
 
-  /* 9 GET /management/isa
-   * Get all ISAs
-   */
-  allISAs: () => {
+   // Get all ISAs
+  static allISAs() {
     return request('/management/isa', {
       method: 'GET'
     })
-  },
+  }
 
-  /* 10 GET /management/isa/:id
-   * Get an ISA by id
-   */
-  getISA: (data) => {
+   // Get an ISA by id
+  static getISA(data) {
     const requiredFields = [
       'id'
     ]
@@ -361,12 +311,10 @@ export default {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
-  },
+  }
 
-  /* 11 DELETE /management/isa/:isa_id
-   * Delete an ISA
-   */
-  deleteISA: (data) => {
+   // Delete an ISA
+  static deleteISA(data) {
     const requiredFields = [
       'isa_id'
     ]
@@ -377,12 +325,10 @@ export default {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
-  },
+  }
 
-  /* 12 GET /demo/qr/:user_id
-   * Demo QR code
-   */
-  qrCode: (data) => {
+   // Demo QR code
+  static qrCode(data) {
     const requiredFields = [
       'user_id'
     ]
@@ -393,12 +339,10 @@ export default {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
-  },
+  }
 
-  /* 13 PUT /management/isa/:isa_id
-   * Update an ISA by id
-   */
-  updateISA: (data) => {
+   // Update an ISA by id
+  static updateISA (data) {
     const requiredFields = [
       'isa_id',
       'permitted_resources'
@@ -411,12 +355,10 @@ export default {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
-  },
+  }
 
-  /* 14 GET /management/pull/:isa_id
-   * Pull an ISA
-   */
-  pullISA: (data) => {
+   // Pull an ISA
+  static pullISA(data) {
     const requiredFields = [
       'isa_id'
     ]
@@ -427,12 +369,10 @@ export default {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
-  },
+  }
 
-  /* 15 POST management/push/:isa_id
-   * Pull an ISA
-   */
-  pushISA: (data) => {
+   // Pull an ISA
+  static pushISA(data) {
     const requiredFields = [
       'isa_id',
       'resources'
@@ -445,16 +385,14 @@ export default {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
-  },
+  }
 
   // ##################
   // ##### DEBUG ######
   // ##################
 
-  /* 2 GET /debug/unregister/:user_id
-   * Delete a user
-   */
-  unregister: (data) => {
+   // Delete a user
+  static unregister(data) {
     if (Config.DEBUG) {
       if (!data.id && !data.email) {
         return Promise.reject(`ID or email must be specified. id: ${data.id}, email: ${data.email}`)
@@ -465,16 +403,8 @@ export default {
         method: 'GET'
       }
       return request(route, options, false)
-      // .then(response => {
-      //   Logger.networkResponse(JSON.stringify(response))
-      //   return response.json()
-      // })
-      // .then(json => {
-      //   return Promise.resolve(json)
-      // })
     } else {
       // fail silenty
     }
   }
-
 }

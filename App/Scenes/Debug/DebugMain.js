@@ -82,6 +82,7 @@ export default class DebugMain extends Scene {
           <Button iconName="md-key" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugKeyStore)}>Keystore Manager</Button>
           <Button iconName="md-reverse-camera" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.selfieCam)}>Self-facing Camera</Button>
           <Button iconName="md-contact" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugRegister)}>Consent User</Button>
+          <Button iconName="md-contact" kind="squared" type="danger" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugError)}>Error Tester</Button>
 
           {/* this.state.user.registered ?
           [

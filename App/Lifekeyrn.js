@@ -151,12 +151,12 @@ export default class Lifekeyrn extends Component {
         Logger.firebase('user_connection_created')
         ConsentConnection.add(
           message.data.user_connection_id,
-          message.data.from_id,
           message.data.to_id
         )
         .then(() => {
           Logger.info('Connection created')
           this.forceUpdate()
+          Logger.info('Force update')
         })
         .catch(error => {
           Logger.error(error, this.filename, error)

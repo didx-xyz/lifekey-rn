@@ -134,42 +134,44 @@ export default class Main extends Scene {
                         ]}
                         placeholder="Search"
                       />
-                      { this.state.searchText !== '' ?
+                      { this.state.searchText !== '' &&
                         <Touchable onPress={() => this.clearSearch()}>
                           <Icon style={style.searchBoxCloseIcon} name="times-circle" size={25} color={Palette.consentGrayDark} />
                         </Touchable>
-                      :
-                        null
                       }
                   </View>
 
-                  {
-                    this.state.connections.filter((connection) => {
-                      console.log('connections')
-                      if (this.state.searchText !== '') {
-                        const connectionSubUpper = connection.name.substr(0, this.state.searchText.length).toUpperCase()
-                        const searchTextUpper = this.state.searchText.toUpperCase()
-                        return connectionSubUpper === searchTextUpper
-                      } else {
-                        return true
-                      }
-                    }).map((connection, i) => (
-                      <ListItem key={i} style={style.listItem}>
+                  {this.state.connections.filter((connection) => {
+                    if (this.state.searchText !== '') {
+                      const connectionSubUpper = connection.name.substr(0, this.state.searchText.length).toUpperCase()
+                      const searchTextUpper = this.state.searchText.toUpperCase()
+                      return connectionSubUpper === searchTextUpper
+                    } else {
+                      return true
+                    }
+                  }).map((connection, i) => (
+                      <ListItem
+                        key={i}
+                        style={style.listItem}
+                        onPress={() => this.navigator.push({ ...Routes.connectionDetails, connectionID: connection.id })}
+                      >
                         <Text>{connection.nickname}</Text>
                       </ListItem>
-                    ))
-                  }
+                  ))}
 
                 </View>
                 :
                 /* SUGGESTED */
                 <View style={{ flex: 1 }}>
-                  { this.state.suggestedConnections.map((suggestedConnection, i) => (
-                      <ListItem key={i} style={style.listItem}>
-                        <Text>{suggestedConnection.name}</Text>
-                      </ListItem>
-                    ))
-                  }
+                  {this.state.suggestedConnections.map((suggestedConnection, i) => (
+                    <ListItem
+                      key={i}
+                      style={style.listItem}
+                      onPress={() => this.navigator.push({ ...Routes.connectionDetails, connectionID: suggestedConnection.id })}
+                    >
+                      <Text>{suggestedConnection.name}</Text>
+                    </ListItem>
+                    ))}
                 </View>
               }
             </View>
@@ -190,6 +192,7 @@ export default class Main extends Scene {
 
 const style = StyleSheet.create({
   listItem: {
+    flex: 1,
     paddingLeft: 20
   },
   listItemLabel: {

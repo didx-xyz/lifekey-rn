@@ -8,6 +8,19 @@
 import { AsyncStorage } from 'react-native'
 import Api from '../Api'
 import Logger from '../Logger'
+import ConsentError from '../ConsentError'
+
+const E_CONNECTION_ALREADY_EXISTS = 0x01
+const STORAGE_KEY = 'connections'
+
+class ConsentConnectionError extends ConsentError {
+  constructor(message, code) {
+    super(message)
+    this.name = this.constructor.name
+    this.code = code
+
+  }
+}
 
 class ConsentConnection {
 
@@ -25,7 +38,8 @@ class ConsentConnection {
 
       // Check response is as expected
       if (!response || !response.body || response.status !== 200) {
-        return Promise.reject('Unexpected response from server')
+        // return Promise.reject('Unexpected response from server')
+        return Promise.reject(new Error('Unexpected response from server'))
       }
 
       // Grab nickname from API response and capitalize first letter
@@ -44,9 +58,9 @@ class ConsentConnection {
       // Check if already connected
       if (connections.find(connection => connection.to === to_id)) {
         // Connection already exists
-        return Promise.reject({
-          message: `Connection to ${to_id} already exists`
-        })
+        return Promise.reject(
+          new ConsentConnectionError(`Connection ${to_id} already exists`, E_CONNECTION_ALREADY_EXISTS)
+        )
       } else {
         // merge new data
         const updatedConnectionsItem = JSON.stringify(connections.concat({ id, to: to_id, nickname }))
