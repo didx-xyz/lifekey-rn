@@ -156,6 +156,7 @@ export default class Lifekeyrn extends Component {
         )
         .then(() => {
           Logger.info('Connection created')
+          this.forceUpdate()
         })
         .catch(error => {
           Logger.error(error, this.filename, error)
