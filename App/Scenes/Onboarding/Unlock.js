@@ -8,7 +8,7 @@ import {
   Platform,
   Image
 } from 'react-native'
-import { Container, Content, Grid, Col, Row } from 'native-base'
+import { Container, Content, Grid, Col, Row } from 'native-base/backward'
 
 import Scene from '../../Scene'
 import Logger from '../../Logger'
@@ -122,36 +122,36 @@ class Unlocked extends Scene {
 
   render() {
     return (
-      <Container onTouchStart={this.onFocus} style={[style.container]}>
+      <Container onTouchStart={this.onFocus} style={style.container}>
         <BackButton navigator={this.navigator} />
         <Content>
           <Grid>
-            <Col style={[style.col, { height: this.state.screenHeight }]}>
-              <Row style={[style.firstRow]}>
+            <Col style={Object.assign(style.col, { height: this.state.screenHeight })}>
+              <Row style={style.firstRow}>
               <Touchable onLongPress={() => this._goToDebug()}>
-                <Text style={[style.firstText]}>
+                <Text style={style.firstText}>
                   Unlock
                 </Text>
               </Touchable>
               </Row>
-              <Row style={[style.secondRow]}>
-                <Text style={[style.secondText]}>
+              <Row style={style.secondRow}>
+                <Text style={style.secondText}>
                   Enter your 5-digit key PIN.
                 </Text>
               </Row>
-              <Row style={[style.thirdRow]}>
+              <Row style={style.thirdRow}>
                 <Touchable onPress={this.onPressForgot}>
                   <View>
-                    <Text style={[style.thirdText]}>
+                    <Text style={style.thirdText}>
                       I forgot
                     </Text>
                   </View>
                 </Touchable>
               </Row>
-              <Row style={[style.fourthRow]}>
+              <Row style={style.fourthRow}>
                 <Image style={{ height: 67, resizeMode: 'contain' }} source={require('../../Images/grey_dots_1.png')} />
               </Row>
-              <Row style={[style.fifthRow]}>
+              <Row style={style.fifthRow}>
                 <View>
                   <Dots
                     current={this.state.characters.length}
@@ -165,7 +165,7 @@ class Unlocked extends Scene {
                     returnKeyType="done"
                     keyboardType="numeric"
                     onChangeText={(text) => this.onChangeText(text)}
-                    style={[style.input]}
+                    style={style.input}
                   />
                 </View>
               </Row>
@@ -186,7 +186,7 @@ const textStyle = {
   fontWeight: '300'
 }
 
-const style = StyleSheet.create({
+const style = {
   container: {
     backgroundColor: '#eceeee'
   },
@@ -226,6 +226,6 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   }
-})
+}
 
 export default Unlocked
