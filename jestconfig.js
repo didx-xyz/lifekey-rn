@@ -1,3 +1,6 @@
+/* global global */
+/* eslint-disable no-console */
+
 import { shallow, render, mount } from "enzyme"
 
 global.shallow = shallow
