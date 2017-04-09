@@ -80,10 +80,10 @@
         }],
         "linebreak-style": ["error", "unix"],
         "max-len": ["warn", {
-            "code": 100,
+            "code": 90,
             "ignoreComments": true,
-            "ignoreStrings": true,
-            "ignoreTemplateLiterals": true
+            "ignoreStrings": false,
+            "ignoreTemplateLiterals": false
         }],
         "newline-per-chained-call": ["warn", {
             "ignoreChainWithDepth": 2
