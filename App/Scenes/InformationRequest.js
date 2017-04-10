@@ -17,10 +17,6 @@ class InformationRequest extends Scene {
   constructor(...params) {
     super(...params)
 
-    this.state = {
-
-    }
-
     this.onBoundPressDecline = this.onPressDecline.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
   }
