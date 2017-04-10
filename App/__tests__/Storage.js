@@ -5,7 +5,16 @@
  * @author Werner Roets <werner@io.co.za>
  */
 /* global test, describe */
+import React from "react"
 import Storage from '../Storage'
+import MockStorage from "./App/Components/MockStorage";
+
+jest.mock("react-native-camera")
+
+const cache = {}
+const AsyncStorage = new MockStorage(cache)
+
+jest.setMock("AsyncStorage", AsyncStorage)
 
 function getTestData() {
   return {
@@ -32,7 +41,7 @@ function multiSaveTestData() {
 
 //jest.dontMock("react-native")
 
-jest.setMock('react-native', () => ({
+jest.mock('react-native', () => ({
   AsyncStorage: {
     setItem: jest.fn(() => {
       return new Promise((resolve, reject) => {
@@ -74,12 +83,13 @@ jest.setMock('react-native', () => ({
 
 describe('store', () => {
   it('can store', () => {
-    console.log(require('react-native').AsyncStorage)
+    //console.log(require('react-native').AsyncStorage)
     const { AsyncStorage } = require('react-native')
+    //AsyncStorage.monk()
     const key = 'the key'
     const value = { key1: 1, key2: 2, key3: 3 }
 
-    return Storage.store(key, value)
+    return MockStorage.store(key, value)
     .then(error => {
       expect(error).toEqual(true)
       expect(AsyncStorage.mergeItem).toBeCalledWith(key, value)

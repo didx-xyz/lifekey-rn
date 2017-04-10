@@ -3,7 +3,7 @@ import React from 'react';
 import Lifekeyrn from '../Lifekeyrn';
 import renderer from 'react-test-renderer';
 
-test('renders correctly', () => {
+test('it renders correctly', () => {
   const tree = renderer.create(
   <Lifekeyrn />
   ).toJSON();
