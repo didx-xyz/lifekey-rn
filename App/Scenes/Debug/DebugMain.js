@@ -12,9 +12,8 @@ import Session from '../../Session'
 import Logger from '../../Logger'
 
 import { Text, View } from 'react-native'
-
-import { Container, Content } from 'native-base'
-import { Button, H1, H3, H5 } from 'nachos-ui'
+import * as Nachos from 'nachos-ui'
+import * as Base from 'native-base'
 
 import BackButton from '../../Components/BackButton'
 import ConsentConnection from '../../Models/ConsentConnection'
@@ -72,44 +71,45 @@ export default class DebugMain extends Scene {
   render() {
 
     return (
-      <Container>
-        <Content>
+      <Base.Container>
+        <Base.Content>
           <BackButton navigator={this.navigator} />
           <View style={{ alignItems: 'center' }}>
-            <H1>Developer Menu</H1>
+            <Nachos.H1>Developer Menu</Nachos.H1>
+          </View>
+          { /* Any state */}
+          <View style={{ marginLeft: 10, marginRight: 10 }}>
+            <Nachos.Button iconName="md-key" kind="squared" type="primary" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debug.keystore)}>Keystore</Nachos.Button>
+            <Nachos.Button iconName="md-contact" kind="squared" type="primary" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debug.register)}>Consent Account</Nachos.Button>
+            <Nachos.Button iconName="ios-settings" kind="squared" type="primary" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debug.configuration)}>Configuration</Nachos.Button>
+            <Nachos.Button iconName="md-reverse-camera" kind="squared" type="primary" style={[styles.btn]} onPress={() => this.navigator.push(Routes.selfieCam)}>Self-facing Camera</Nachos.Button>
+            <Nachos.Button iconName="md-contact" kind="squared" type="danger" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debug.error)}>Error Tester</Nachos.Button>
           </View>
 
-          <Button iconName="md-key" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugKeyStore)}>Keystore Manager</Button>
-          <Button iconName="md-reverse-camera" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.selfieCam)}>Self-facing Camera</Button>
-          <Button iconName="md-contact" kind="squared" type="success" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugRegister)}>Consent User</Button>
-          <Button iconName="md-contact" kind="squared" type="danger" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugError)}>Error Tester</Button>
-
-          {/* this.state.user.registered ?
-          [
-            <Button key={1} iconName="md-globe" kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugConnectionRequest)}>QR Connection Request</Button>,
-            <Button key={2} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugViewConnectionRequests)}>Connection Requests</Button>,
-            <Button key={3} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugViewConnections)}>Connections</Button>,
-            <Button key={4} kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debugListAllResources)}>User Resources</Button>,
-          ]
-          : null */}
+          { /* Logged in only */ }
+          {Session.getState().user && Session.getState().user.loggedIn &&
+            <View style={{ marginLeft: 10, marginRight: 10 }}>
+              <Nachos.Button kind="squared" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debug.connectionRequest)}>Connection Requests</Nachos.Button>
+            </View>
+          }
 
           <View>
-            <H3>Session</H3>
+            <Nachos.H3>Session</Nachos.H3>
             <Text>{JSON.stringify(Session.getState(), '\t', 2)}</Text>
-            <H3>Storages</H3>
-            <H5>User</H5>
+            <Nachos.H3>Storages</Nachos.H3>
+            <Nachos.H5>User</Nachos.H5>
             <Text>{JSON.stringify(this.state.user, '\t', 2)}</Text>
-            <H5>Connections</H5>
+            <Nachos.H5>Connections</Nachos.H5>
             <Text>{JSON.stringify(this.state.connections, '\t', 2)}</Text>
-            <H5>Connection Requests</H5>
+            <Nachos.H5>Connection Requests</Nachos.H5>
             <Text>{JSON.stringify(this.state.connectionRequests, '\t', 2)}</Text>
-            <H5>Information Sharing Agreements</H5>
+            <Nachos.H5>Information Sharing Agreements</Nachos.H5>
             <Text>{JSON.stringify(this.state.isass, '\t', 2)}</Text>
-            <H5>Discovered Users</H5>
+            <Nachos.H5>Discovered Users</Nachos.H5>
             <Text>{JSON.stringify(this.state.discoveredUsers, '\t', 2)}</Text>
           </View>
-        </Content>
-      </Container>
+        </Base.Content>
+      </Base.Container>
     )
   }
 

@@ -8,7 +8,7 @@ import {
   Platform,
   Image
 } from 'react-native'
-import { Container, Content, Grid, Col, Row } from 'native-base'
+import { Container, Content, Grid, Col, Row } from 'native-base/backward'
 
 import Scene from '../../Scene'
 import Logger from '../../Logger'
@@ -25,11 +25,11 @@ class Unlocked extends Scene {
     this.state = {
       screenHeight: this.props.screenHeight,
       keyboardVisible: false,
-      characters: ''
+      characters: '',
+      busy: false
     }
 
     this.onFocus = this.onFocus.bind(this)
-    this.onSubmit = this.onSubmit.bind(this)
     this.onKeyboardWithShow = this.onKeyboardWithShow.bind(this)
     this.onKeyboardDidHide = this.onKeyboardDidHide.bind(this)
     this.onPressForgot = this.onPressForgot.bind(this)
@@ -40,34 +40,38 @@ class Unlocked extends Scene {
   }
 
   onChangeText(text) {
-    this.setState({
-      characters: text
-    })
-
-    setTimeout(() => {
-      if (this.state.characters.length >= 5) {
-        this.onSubmit()
-      }
-    }, 250)
+    if (!this.state.busy) {
+      this.setState({
+        characters: text
+      }, () => {
+        if (this.state.characters.length === 5) {
+          setTimeout(() => {
+            this.submit(this.state.characters.slice(0, 5))
+          }, 250)
+        }
+      })
+    }
   }
 
-  onSubmit() {
-    if (!this.submitted) {
-      this.submitted = true
-      ConsentUser.login(this.state.characters)
+  submit(pin) {
+    Keyboard.dismiss()
+    this.setState({
+      busy: true
+    }, () => {
+      ConsentUser.login(pin)
       .then(() => {
         // logged in
-        this.navigator.push(Routes.onboarding.unlocked)
+        this.navigator.push(Routes.main)
       })
       .catch(error => {
         Logger.error('Could not log in', this._fileName, error)
         alert('Wrong password')
         this.setState({
+          busy: false,
           characters: ''
         })
       })
-    }
-    Keyboard.dismiss()
+    })
   }
 
   onKeyboardWithShow(event) {
@@ -122,36 +126,36 @@ class Unlocked extends Scene {
 
   render() {
     return (
-      <Container onTouchStart={this.onFocus} style={[style.container]}>
+      <Container onTouchStart={this.onFocus} style={style.container}>
         <BackButton navigator={this.navigator} />
         <Content>
           <Grid>
-            <Col style={[style.col, { height: this.state.screenHeight }]}>
-              <Row style={[style.firstRow]}>
+            <Col style={Object.assign(style.col, { height: this.state.screenHeight })}>
+              <Row style={style.firstRow}>
               <Touchable onLongPress={() => this._goToDebug()}>
-                <Text style={[style.firstText]}>
+                <Text style={style.firstText}>
                   Unlock
                 </Text>
               </Touchable>
               </Row>
-              <Row style={[style.secondRow]}>
-                <Text style={[style.secondText]}>
+              <Row style={style.secondRow}>
+                <Text style={style.secondText}>
                   Enter your 5-digit key PIN.
                 </Text>
               </Row>
-              <Row style={[style.thirdRow]}>
+              <Row style={style.thirdRow}>
                 <Touchable onPress={this.onPressForgot}>
                   <View>
-                    <Text style={[style.thirdText]}>
+                    <Text style={style.thirdText}>
                       I forgot
                     </Text>
                   </View>
                 </Touchable>
               </Row>
-              <Row style={[style.fourthRow]}>
+              <Row style={style.fourthRow}>
                 <Image style={{ height: 67, resizeMode: 'contain' }} source={require('../../Images/grey_dots_1.png')} />
               </Row>
-              <Row style={[style.fifthRow]}>
+              <Row style={style.fifthRow}>
                 <View>
                   <Dots
                     current={this.state.characters.length}
@@ -164,8 +168,9 @@ class Unlocked extends Scene {
                     autoFocus={true}
                     returnKeyType="done"
                     keyboardType="numeric"
+                    value={this.state.characters}
                     onChangeText={(text) => this.onChangeText(text)}
-                    style={[style.input]}
+                    style={style.input}
                   />
                 </View>
               </Row>
@@ -186,7 +191,7 @@ const textStyle = {
   fontWeight: '300'
 }
 
-const style = StyleSheet.create({
+const style = {
   container: {
     backgroundColor: '#eceeee'
   },
@@ -226,6 +231,6 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   }
-})
+}
 
 export default Unlocked
