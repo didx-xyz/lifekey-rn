@@ -355,7 +355,6 @@ export default class Register extends Scene {
     }, () => {
       if (text.length === 5) {
         // TODO: inform user something is happening
-        alert('Please wait....')
         this._requestMagicLink()
       }
     })
