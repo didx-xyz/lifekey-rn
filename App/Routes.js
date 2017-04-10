@@ -10,6 +10,8 @@ import DebugMain from './Scenes/Debug/DebugMain'
 import DebugKeyStore from './Scenes/Debug/DebugKeyStore'
 import DebugRegister from './Scenes/Debug/DebugRegister'
 import DebugError from './Scenes/Debug/DebugError'
+import DebugConfiguration from './Scenes/Debug/DebugConfiguration'
+import DebugConnectionRequest from './Scenes/Debug/DebugConnectionRequest'
 
 // Main
 import Main from './Scenes/Main'
@@ -35,8 +37,6 @@ export default {
   me: { scene: Me },
   connectionDetails: { scene: ConnectionDetails },
   confirmInformationShare: { scene: ConfirmInformationShare },
-  debugKeyStore: { scene: DebugKeyStore },
-  debugRegister: { scene: DebugRegister },
   onboarding: {
     splashScreen: { scene: SplashScreen },
     register: { scene: Register },
@@ -51,7 +51,10 @@ export default {
   },
   debug: {
     main: { scene: DebugMain },
+    keystore: { scene: DebugKeyStore },
     register: { scene: DebugRegister },
-    error: { scene: DebugError }
+    error: { scene: DebugError },
+    configuration: { scene: DebugConfiguration },
+    connectionRequest: { scene: DebugConnectionRequest }
   }
 }
