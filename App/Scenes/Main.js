@@ -7,7 +7,6 @@
 
 import React from 'react'
 import Scene from '../Scene'
-import Api from '../Api'
 import Palette from '../Palette'
 import Logger from '../Logger'
 import Routes from '../Routes'
@@ -62,7 +61,7 @@ export default class Main extends Scene {
       })
     })
     .catch(error => {
-      Logger.error("Its a ******", this._fileName, error)
+      Logger.error(error, this._fileName, error)
     })
   }
 
@@ -122,16 +121,21 @@ export default class Main extends Scene {
               { this.state.activeTab === 0 ?
                 /* CONNECTED */
                 <View style={{ flex: 1 }}>
+                { /* TODO: make into searchbox component */ }
                   <View style={style.searchBox}>
-                      <Icon style={style.searchBoxSearchIcon} name="search" size={20} color={Palette.consentGrayDark} />
+                      <Icon
+                        style={style.searchBoxSearchIcon}
+                        name="search" size={20}
+                        color={Palette.consentGrayDark}
+                      />
                       <Input
                         value={this.state.searchText}
                         onChangeText={(text) => this.updateSearch(text)}
-                        style={[
+                        style={Object.assign(
                           style.searchBoxInput,
                           { borderTopRightRadius: this.state.searchText ? null : 10,
                             borderBottomRightRadius: this.state.searchText ? null : 10 }
-                        ]}
+                        )}
                         placeholder="Search"
                       />
                       { this.state.searchText !== '' &&
@@ -153,9 +157,9 @@ export default class Main extends Scene {
                       <ListItem
                         key={i}
                         style={style.listItem}
-                        onPress={() => this.navigator.push({ ...Routes.connectionDetails, connectionID: connection.id })}
+                        onPress={() => this.navigator.push({ ...Routes.connectionDetails, connection_to: connection.to, connection_id: connection.id })}
                       >
-                        <Text>{connection.nickname}</Text>
+                        <Text>{connection.nickname + ' - ' + connection.id + ' - ' + connection.to}</Text>
                       </ListItem>
                   ))}
 
@@ -190,7 +194,7 @@ export default class Main extends Scene {
   }
 }
 
-const style = StyleSheet.create({
+const style = {
   listItem: {
     flex: 1,
     paddingLeft: 20
@@ -207,6 +211,7 @@ const style = StyleSheet.create({
     borderRadius: 10,
   },
   searchBoxInput: {
+    flex: 1,
     backgroundColor: 'white',
     fontSize: 17,
     padding: 2
@@ -232,4 +237,4 @@ const style = StyleSheet.create({
   footer: {
     height: Dimensions.get('window').height / 6
   }
-})
+}
