@@ -21,7 +21,7 @@ export default {
   APP_NAME: APP_NAME,
 
   // First scene to show
-  initialRoute: BUILD_CONFIG.DEBUG ? Routes.messages  // Quick access
+  initialRoute: BUILD_CONFIG.DEBUG ? Routes.badgeDetail  // Quick access
                       : Routes.onboarding.splashScreen,
 
   DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)

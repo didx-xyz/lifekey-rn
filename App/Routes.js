@@ -23,6 +23,7 @@ import InformationRequest from './Scenes/InformationRequest'
 import SelectResourceOfType from './Scenes/SelectResourceOfType'
 import Badges from './Scenes/Badges'
 import Messages from './Scenes/Messages'
+import BadgeDetail from './Scenes/BadgeDetail'
 
 import Locked from './Scenes/Onboarding/Locked'
 import Unlock from './Scenes/Onboarding/Unlock'
@@ -45,6 +46,7 @@ export default {
   selectResourceOfType: { scene: SelectResourceOfType },
   badges: { scene: Badges },
   messages: { scene: Messages },
+  badgeDetail: { scene: BadgeDetail },
   debugKeyStore: { scene: DebugKeyStore },
   debugRegister: { scene: DebugRegister },
   onboarding: {
