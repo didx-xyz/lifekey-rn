@@ -56,7 +56,7 @@ class LifekeyCard extends Component {
   }
 }
 
-const style = StyleSheet.create({
+const style = {
   card: {
     marginTop: 10,
     marginLeft: 15,
@@ -96,7 +96,7 @@ const style = StyleSheet.create({
     fontSize: 16,
     paddingRight: 10
   },
-})
+}
 
 LifekeyCard.defaultProps = {
   headingText: 'NOT_SET'

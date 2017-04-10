@@ -10,6 +10,8 @@ import Touchable from "../Components/Touchable"
 import AndroidBackButton from 'react-native-android-back-button'
 import BackIcon from "../Components/BackIcon"
 import InfoIcon from "../Components/InfoIcon"
+import Api from '../Api'
+import ConsentDiscoveredUser from '../Models/ConsentDiscoveredUser'
 
 import {
   Text,
@@ -28,11 +30,68 @@ class ConnectionDetails extends Scene {
   constructor(...params) {
     super(...params)
 
+    this.connection_to = this.props.route.connection_to
+    this.connection_id = this.props.route.connection_id
+
     this.state = {
-      "showHelp": false
+      "showHelp": false,
+      colour: null,
+      nickname: null,
+      user_id: null,
+      user_did: null
     }
 
     this.onHelpPress = this.onHelpPress.bind(this)
+  }
+
+  componentWillMount() {
+    super.componentWillMount()
+    ConsentDiscoveredUser.get(this.props.route.connection_to)
+    .then(discoveredUser => {
+      if (discoveredUser) {
+        this.setState({
+          colour: discoveredUser.colour,
+          nickname: discoveredUser.nickname,
+          user_id: discoveredUser.id
+        })
+        return new Promise.reject(null)
+      } else {
+        return Api.profile({ id: this.props.route.connection_to })
+      }
+
+    })
+    .then(response => {
+      this.setState({
+        id: response.body.user.id,
+        colour: response.body.user.colour,
+        nickname: response.body.user.nickname,
+        did: response.body.user.did,
+        image_uri: response.body.image_uri
+      })
+      return ConsentDiscoveredUser.add(
+        response.body.user.id,
+        response.body.user.did,
+        response.body.user.nickname,
+        response.body.user.colour
+      )
+    })
+    .catch(error => {
+      if (error !== null) {
+        alert(JSON.stringify(error))
+        console.error(error)
+        throw new Error(error.toString())
+      }
+    })
+    this.onAttention()
+  }
+
+  componentWillFocus() {
+    super.componentWillFocus()
+    this.onAttention()
+  }
+
+  onAttention() {
+
   }
 
   onHelpPress() {
@@ -48,7 +107,7 @@ class ConnectionDetails extends Scene {
 
   render() {
     const top = {
-      "backgroundColor": "#ff002c"
+      "backgroundColor": this.state.colour
     }
 
     const text = {

@@ -7,17 +7,9 @@
 
 import Config from './Config'
 import Crypto from './Crypto'
-import Session from './Session'
 import Logger from './Logger'
 import ConsentUser from './Models/ConsentUser'
 import ConsentError, { ErrorCode } from './ConsentError'
-
-function containsRequired(requiredFields, data) {
-  return (
-    JSON.stringify(requiredFields.sort()) ===
-    JSON.stringify(Object.keys(data).sort())
-  )
-}
 
 function getMissingFieldsMessage(missingFields) {
   return 'Missing required fields. Required fields: ' . JSON.stringify(missingFields)
@@ -52,7 +44,7 @@ function request(route, opts, signedRequest = true) {
       return Crypto.sign(
         secureRandom,
         Config.keystore.privateKeyName,
-        ConsentUser.getPassword(),
+        ConsentUser.getPasswordSync(),
         Crypto.SIG_SHA256_WITH_RSA
       )
     })
@@ -129,6 +121,59 @@ function request(route, opts, signedRequest = true) {
     })
   }
 }
+
+function checkParameters(requiredKeys, receivedObject) {
+
+  // It must be an object
+  if (typeof receivedObject !== 'object') {
+
+    throw new ConsentError(
+      `Expected 'object', received '${typeof receivedObject}'`,
+      ErrorCode.E_API_FATAL_ERROR
+    )
+  }
+
+  // Get the keys of the parameter object and sort them
+  const receivedObjectKeys = Object.keys(receivedObject)
+
+  // Maybe we can save CPU cycles (before we crash... )
+  if (receivedObjectKeys.length !== requiredKeys.length) {
+
+    const errorMessage = 'Expected an object containing the keys:\n'
+                        + requiredKeys.reduce((p, c) => `${p}, '${c}'`, '').slice(2)
+                        + '\nbut recieved an object containing:\n'
+                        + receivedObjectKeys.reduce((p, c) => `${p}, '${c}'`, '').slice(2)
+
+    throw new ConsentError(errorMessage, ErrorCode.E_API_FATAL_ERROR)
+  }
+
+  // We need these sorted, now
+  const recievedObjectKeysSorted = receivedObjectKeys.sort()
+  const requiredKeysSorted = requiredKeys.sort()
+
+  // kickn' it oldskool
+  for (let i = 0; i < requiredKeys.length; i++) {
+
+    // Compare one by one
+    if (recievedObjectKeysSorted[i] !== requiredKeysSorted[i]) {
+      const errorMessage = 'Expected an object containing the keys:\n'
+                        + requiredKeys.reduce((p, c) => `${p}, '${c}'`, '').slice(2)
+                        + '\nbut recieved an object containing:\n'
+                        + receivedObjectKeys.reduce((p, c) => `${p}, '${c}'`, '').slice(2)
+      throw new ConsentError(errorMessage, ErrorCode.E_API_ERROR)
+    }
+
+    // null is not allowed
+    if (receivedObject[i] === null) {
+      throw new ConsentError(`${receivedObject[i]} cannot be 'null'`, ErrorCode.E_API_FATAL_ERROR)
+    }
+  }
+
+  // We're good to go
+  return true
+
+}
+
 export default class Api {
 
 
@@ -137,15 +182,10 @@ export default class Api {
     const requiredFields = [
       'id'
     ]
-    if (containsRequired(requiredFields, data)) {
-      return request(`/profile/${data.id}`, {
-        method: 'GET'
-      })
-    } else {
-      return Promise.reject(
-        new ConsentError(getMissingFieldsMessage(requiredFields), ErrorCode.E_API_ERROR)
-      )
-    }
+    checkParameters(requiredFields, data)
+    return request(`/profile/${data.id}`, {
+      method: 'GET'
+    }, false)
   }
 
   // Register a user
@@ -161,7 +201,7 @@ export default class Api {
       'signed_proof'
     ]
 
-    if (containsRequired(requiredFields, data)) {
+    if (checkParameters(requiredFields, data)) {
       return request('/management/register', {
         body: JSON.stringify(data),
         method: 'POST'
@@ -178,7 +218,7 @@ export default class Api {
       'device_id',
       'device_platform'
     ]
-    if (containsRequired(requiredFields, data)) {
+    if (checkParameters(requiredFields, data)) {
       return request('/management/device', {
         body: JSON.stringify(data),
         method: 'POST',
@@ -199,7 +239,7 @@ export default class Api {
     const requiredFields = [
       'target'
     ]
-    if (containsRequired(requiredFields, data)) {
+    if (checkParameters(requiredFields, data)) {
       return request('/management/connection', {
         body: JSON.stringify({ target: data.target }),
         method: 'POST'
@@ -222,7 +262,7 @@ export default class Api {
       'user_connection_request_id',
       'accepted' // true/false (in body)
     ]
-    if (containsRequired(requiredFields, data)) {
+    if (checkParameters(requiredFields, data)) {
       return request(`/management/connection/${data.user_connection_request_id}`, {
         body: JSON.stringify({ accepted: data.accepted }),
         method: 'POST'
@@ -237,7 +277,7 @@ export default class Api {
     const requiredFields = [
       'user_connection_id'
     ]
-    if (containsRequired(requiredFields, data)) {
+    if (checkParameters(requiredFields, data)) {
       return request(`/management/connection/${data.user_connection_id}`, {
         method: 'DELETE'
       })
@@ -251,7 +291,7 @@ export default class Api {
     const requiredFields = [
       'activation_code'
     ]
-    if (containsRequired(requiredFields, data)) {
+    if (checkParameters(requiredFields, data)) {
       return request(`/management/activation/${data.activation_code}`, {
         method: 'GET'
       })
@@ -268,7 +308,7 @@ export default class Api {
       'purpose',
       'license'
     ]
-    if (containsRequired(requiredFields, data)) {
+    if (checkParameters(requiredFields, data)) {
       return request('/management/isa', {
         method: 'POST'
       })
@@ -283,7 +323,7 @@ export default class Api {
       'accepted',
       'permitted_resources'
     ]
-    if (containsRequired(requiredFields, data)) {
+    if (checkParameters(requiredFields, data)) {
       return request(`/management/isa/${data.isar_id}`, {
         method: 'POST'
       })
@@ -304,7 +344,7 @@ export default class Api {
     const requiredFields = [
       'id'
     ]
-    if (containsRequired(requiredFields, data)) {
+    if (checkParameters(requiredFields, data)) {
       return request(`/management/isa/${data.id}`, {
         method: 'GET'
       })
@@ -318,7 +358,7 @@ export default class Api {
     const requiredFields = [
       'isa_id'
     ]
-    if (containsRequired(requiredFields, data)) {
+    if (checkParameters(requiredFields, data)) {
       return request(`/management/isa/${data.isa_id}`, {
         method: 'DELETE'
       })
@@ -332,7 +372,7 @@ export default class Api {
     const requiredFields = [
       'user_id'
     ]
-    if (containsRequired(requiredFields, data)) {
+    if (checkParameters(requiredFields, data)) {
       return request(`/management/qr/${data.user_id}`, {
         method: 'GET'
       })
@@ -347,7 +387,7 @@ export default class Api {
       'isa_id',
       'permitted_resources'
     ]
-    if (containsRequired(requiredFields, data)) {
+    if (checkParameters(requiredFields, data)) {
       return request(`/management/isa/${data.isa_id}`, {
         method: 'PUT',
         body: JSON.stringify(data.permitted_resources)
@@ -362,7 +402,7 @@ export default class Api {
     const requiredFields = [
       'isa_id'
     ]
-    if (containsRequired(requiredFields, data)) {
+    if (checkParameters(requiredFields, data)) {
       return request(`/management/pull/${data.isa_id}`, {
         method: 'GET'
       })
@@ -377,7 +417,7 @@ export default class Api {
       'isa_id',
       'resources'
     ]
-    if (containsRequired(requiredFields, data)) {
+    if (checkParameters(requiredFields, data)) {
       return request(`/management/push/${data.isa_id}`, {
         method: 'POST',
         body: JSON.stringify({ resources: data.resources })

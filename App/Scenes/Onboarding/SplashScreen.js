@@ -10,6 +10,8 @@ import Scene from '../../Scene'
 import Routes from '../../Routes'
 import Config from '../../Config'
 import Logger from '../../Logger'
+import Session from '../../Session'
+import ConsentError from '../../ConsentError'
 import Touchable from '../../Components/Touchable'
 import ConsentUser from '../../Models/ConsentUser'
 
@@ -18,7 +20,8 @@ import {
   View,
   StyleSheet,
   StatusBar,
-  Image
+  Image,
+  Dimensions
 } from 'react-native'
 
 import {
@@ -26,7 +29,8 @@ import {
   Content,
   Grid,
   Row,
-  Col
+  Col,
+  Spinner
 } from 'native-base'
 
 import BackButton from '../../Components/BackButton'
@@ -35,22 +39,33 @@ export default class SplashScreen extends Scene {
 
   constructor(props) {
     super(props)
+    this.pushedRoute = false
     this.state = {
-      tokenAvailable: true
+      tokenAvailable: true,
+      ready: false
     }
-  }
-  _onAttention() {
     StatusBar.setHidden(true)
   }
 
-  componentWillMount() {
-    super.componentWillMount()
-    this._onAttention()
+  _readyUp() {
+    // Delay things so it doesn't look weird
+    setTimeout(() => {
+      this.setState({
+        ready: true
+      }, () => {
+        const userState = Session.getState().user
+        if (userState && userState.registered) {
+          this.navigator.push(Routes.onboarding.unlock)
+        }
+      })
+    }, 1000)
   }
 
-  componentWillFocus() {
-    super.componentWillFocus()
-    this._onAttention()
+  componentWillReceiveProps(nextProps) {
+    if (nextProps.booted && !this.pushedRoute) {
+      this.pushedRoute = true
+      this._readyUp()
+    }
   }
 
   componentDidMount() {
@@ -69,7 +84,9 @@ export default class SplashScreen extends Scene {
           })
           Logger.info('False start. No App token', this._fileName)
           alert('False start. No App token. Please reinstall Lifekey')
-          // throw 'False start'
+          setTimeout(() => {
+            throw new Error('Please reinstall Lifekey')
+          }, 6000)
         }
       })
       .catch(error => {
@@ -99,29 +116,28 @@ export default class SplashScreen extends Scene {
         onPress={() => this.navigator.push(Routes.onboarding.register)}
       >
         <View style={style.buttonView} >
-          <Text style={[style.buttonText]}>Let's start</Text>
+          <Text style={[style.buttonText]}>{ this.state.ready ? 'Let\'s start' : '' }</Text>
         </View>
       </Touchable>
     )
 
+    console.log(this.props.booted)
     return (
       <Container>
         <Content>
           <BackButton navigator={this.navigator} onPress={() => false} />
           <Grid>
-            <Col style={{ flex: 1, height: this.props.screenHeight }}>
-              { Config.DEBUG ?
-                <Touchable style={{ flex: 1 }} delayLongPress={500} onLongPress={() => this.navigator.push(Routes.debug.main)}>
-                  <Row style={[style.firstRow, { backgroundColor: this.state.tokenAvailable ? null : 'red' }]}>
-                    {/* <Text>Splash Page</Text> */}
-                      <Image style={{ width: 150, height: 150 }} source={require('../../../App/Images/consent_logo.png')}/>
-                  </Row>
-                </Touchable>
-                :
-                <Row style={[style.firstRow]}>
-                  <Text>Splash Page</Text>
+            <Col style={{ flex: 1, height: Dimensions.get('window').height }}>
+
+              <Touchable style={{ flex: 1 }} delayLongPress={500} onLongPress={() => this.navigator.push(Routes.debug.main)}>
+                <Row style={[style.firstRow, { backgroundColor: this.state.tokenAvailable ? null : 'red' }]}>
+                  { this.state.ready ?
+                    <Image style={{ width: 150, height: 150 }} source={require('../../../App/Images/consent_logo.png')}/>
+                    :
+                    <Spinner color="blue"/>
+                  }
                 </Row>
-              }
+              </Touchable>
 
 
               <Row style={[style.secondRow]}>
@@ -137,7 +153,11 @@ export default class SplashScreen extends Scene {
                 </Row>
               </Row>
               <Row style={[style.thirdRow]}>
-                <Text>Trusted Partner Logos</Text>
+                {this.state.ready ?
+                  <Text>Trusted Partner Logos</Text>
+                  :
+                  <Text>Connecting to Consent...</Text>
+                }
               </Row>
               <Row style={[style.buttonsRow]}>
                 <Col>
@@ -159,7 +179,7 @@ export default class SplashScreen extends Scene {
 const style = StyleSheet.create({
   firstRow: {
     backgroundColor: 'white',
-    flex: 6,
+    flex: 10,
     alignItems: 'center',
     justifyContent: 'center'
   },
@@ -178,7 +198,7 @@ const style = StyleSheet.create({
   },
   buttonsRow: {
     backgroundColor: '#216BFF',
-    flex: 7,
+    flex: 5,
     alignItems: 'center',
     justifyContent: 'center'
   },
