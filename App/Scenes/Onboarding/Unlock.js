@@ -17,6 +17,7 @@ import BackButton from '../../Components/BackButton'
 import ConsentUser from '../../Models/ConsentUser'
 import Touchable from '../../Components/Touchable'
 import Dots from '../../Components/Dots'
+import * as Nachos from 'nachos-ui'
 
 class Unlocked extends Scene {
   constructor(...params) {
@@ -163,7 +164,18 @@ class Unlocked extends Scene {
                     fullFill="#3f484e"
                     emptyFill="#eceeee"
                   />
+                  {/*
                   <TextInput
+                    ref="input"
+                    autoFocus={true}
+                    returnKeyType="done"
+                    keyboardType="numeric"
+                    value={this.state.characters}
+                    onChangeText={(text) => this.onChangeText(text)}
+                    style={style.input}
+                  />
+                */}
+                  <Nachos.Input
                     ref="input"
                     autoFocus={true}
                     returnKeyType="done"
