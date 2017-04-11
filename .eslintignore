@@ -1,1 +1,9 @@
-documentation/*
+node_modules
+documentation
+android
+ios
+bin
+__snapshots__
+__mocks__
+rn-android-docs
+coverage

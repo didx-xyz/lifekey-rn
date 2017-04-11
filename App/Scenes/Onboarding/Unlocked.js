@@ -36,7 +36,7 @@ export default class Unlocked extends Scene {
     }, 100)
     setTimeout(() => {
       this.navigator.push(Routes.main)
-    }, 2000)
+    }, 100)
   }
 
   render() {

@@ -21,8 +21,8 @@ export default {
   APP_NAME: APP_NAME,
 
   // First scene to show
-  initialRoute: BUILD_CONFIG.DEBUG ? Routes.onboarding.unlock  // Quick access
-                      : Routes.onboarding.splashScreen,
+  initialRouteFromConfig: false, // Must be true to use route below
+  initialRoute: Routes.debug.main,
 
   DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
   debugNetwork: true,         // Log API requests and responses
@@ -38,28 +38,16 @@ export default {
 
   // Android navigator transitions
   sceneConfig: Navigator.SceneConfigs.FloatFromRight,
-  sceneTransitionMinumumTime: 200,
 
   // Modal settings
   progressBarColor: Palette.consentBlue,
 
   // HTTP settings
   http: {
-    // tokenRefreshUrl: TOKEN_REFRESH_URL,
     server: BUILD_CONFIG.SERVER,
     baseUrl: 'http://' + BUILD_CONFIG.SERVER,
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest',
-      'x-cnsnt-did': 'did',
-      'x-cnsnt-signature': 'sig',
-      'Content-Type': 'application/json'
-    }
   },
 
-  // AsyncStorage
-  storage: {
-    dbKey: 'cns_' + APP_NAME.toLowerCase() + '_storage'
-  },
   keystore: {
     name: APP_NAME.toLowerCase(),
     pemCertificatePath: 'rsa-example.pem',
@@ -68,14 +56,15 @@ export default {
     publicKeyName: 'public' + APP_NAME.toLowerCase(),   // or this
     publicKeyAlgorithm: 'rsa'
   },
+
   // Google Analytics
-  googleAnalytics: {
-    trackers: {
-      tracker1: ''
-    },
-    dispatchInterval: 120,
-    samplingRate: 50,
-    anonymizeIp: false,
-    optOut: false
-  }
+  // googleAnalytics: {
+  //   trackers: {
+  //     tracker1: ''
+  //   },
+  //   dispatchInterval: 120,
+  //   samplingRate: 50,
+  //   anonymizeIp: false,
+  //   optOut: false
+  // }
 }

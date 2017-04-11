@@ -10,6 +10,8 @@ import DebugMain from './Scenes/Debug/DebugMain'
 import DebugKeyStore from './Scenes/Debug/DebugKeyStore'
 import DebugRegister from './Scenes/Debug/DebugRegister'
 import DebugError from './Scenes/Debug/DebugError'
+import DebugConfiguration from './Scenes/Debug/DebugConfiguration'
+import DebugConnectionRequest from './Scenes/Debug/DebugConnectionRequest'
 
 // Main
 import Main from './Scenes/Main'
@@ -20,6 +22,10 @@ import ConnectionDetails from './Scenes/ConnectionDetails'
 import ConfirmInformationShare from './Scenes/ConfirmInformationShare'
 import Connection from './Scenes/Connection'
 import InformationRequest from './Scenes/InformationRequest'
+import SelectResourceOfType from './Scenes/SelectResourceOfType'
+import Badges from './Scenes/Badges'
+import Messages from './Scenes/Messages'
+import BadgeDetail from './Scenes/BadgeDetail'
 
 import Locked from './Scenes/Onboarding/Locked'
 import Unlock from './Scenes/Onboarding/Unlock'
@@ -39,8 +45,10 @@ export default {
   confirmInformationShare: { scene: ConfirmInformationShare },
   connection: { scene: Connection },
   informationRequest: { scene: InformationRequest },
-  debugKeyStore: { scene: DebugKeyStore },
-  debugRegister: { scene: DebugRegister },
+  selectResourceOfType: { scene: SelectResourceOfType },
+  badges: { scene: Badges },
+  messages: { scene: Messages },
+  badgeDetail: { scene: BadgeDetail },
   onboarding: {
     splashScreen: { scene: SplashScreen },
     register: { scene: Register },
@@ -55,7 +63,10 @@ export default {
   },
   debug: {
     main: { scene: DebugMain },
+    keystore: { scene: DebugKeyStore },
     register: { scene: DebugRegister },
-    error: { scene: DebugError }
+    error: { scene: DebugError },
+    configuration: { scene: DebugConfiguration },
+    connectionRequest: { scene: DebugConnectionRequest }
   }
 }

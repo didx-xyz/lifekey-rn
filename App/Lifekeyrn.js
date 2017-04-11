@@ -38,10 +38,10 @@ export default class Lifekeyrn extends Component {
     // Members
     this._className = this.constructor.name
     this.filename = this._className + '.js'
-    this._initialRoute = this._getInitialRoute()
     this._navigationEventEmitter = new EventEmitter()
     this._orientationEventEmitter = new EventEmitter()
     this.state = {
+      booted: false,
       orientation: null,
       viewableScreenWidth: null,
       viewableScreenHeight: null,
@@ -62,6 +62,22 @@ export default class Lifekeyrn extends Component {
       Logger.info('TODO: Firebase iOS', this.filename)
     }
     this._initSession()
+    this._initialRoute = this._getInitialRoute()
+
+  }
+
+  _getInitialRoute() {
+    if (Config.initialRouteFromConfig) {
+      return Config.initialRoute
+    } else {
+      const userState = Session.getState().user
+
+      if (!userState || !userState.registered) {
+        return Routes.onboarding.splashScreen
+      } else {
+        return Routes.onboarding.unlock
+      }
+    }
   }
 
   _initSession() {
@@ -73,13 +89,19 @@ export default class Lifekeyrn extends Component {
       if (results) {
         const update = {}
         update[ConsentUser.storageKey] = {
+          id: results.id,
+          did: results.did,
           registered: results.registered || false,
           loggedIn: results.loggedIn || false,
-          id: results.id,
           email: results.email,
           firebaseToken: results.firebaseToken
         }
-        Session.update(update)
+        this.setState({
+          booted: true
+        }, () => {
+          Session.update(update)
+          this.forceUpdate()
+        })
 
       } else {
         const update = {}
@@ -87,7 +109,16 @@ export default class Lifekeyrn extends Component {
           registered: false,
           loggedIn: false,
         }
-        Session.update(update)
+
+        this.setState({
+          booted: true
+        }, () => {
+          Session.update(update)
+          console.log('BOOTED TRUE')
+          this.forceUpdate()
+
+        })
+
       }
     })
     .catch(error => {
@@ -104,7 +135,6 @@ export default class Lifekeyrn extends Component {
     console.log(JSON.stringify(message))
 
     if (message.data && message.data.type) {
-      alert(`${message.notification.title} - ${message.notification.body}`)
       switch (message.data.type) {
 
       case 'received_did':
@@ -164,7 +194,7 @@ export default class Lifekeyrn extends Component {
         break
       case 'sent_activiation_email':
         Logger.firebase('sent_activiation_email')
-        // do nothing
+        alert(`${message.notification.title} - ${message.notification.body}`)
         break
       case 'app_activation_link_clicked':
         Logger.firebase('app_activation_link_clicked')
@@ -299,19 +329,6 @@ export default class Lifekeyrn extends Component {
     }
   }
 
-  _getInitialRoute() {
-    if (Config.DEBUG) {
-      return Config.initialRoute
-    } else {
-      const userState = Session.getState().user
-      if (!userState || !userState.registered) {
-        return Routes.onboarding.splashScreen
-
-      } else{
-        return Routes.onboarding.unlock
-      }
-    }
-  }
 
   render() {
     return (
@@ -331,6 +348,7 @@ export default class Lifekeyrn extends Component {
                 {React.createElement(
                   route.scene,
                   {
+                    booted: this.state.booted,
                     screenWidth: this.state.viewableScreenWidth,
                     screenHeight: this.state.viewableScreenHeight,
                     screenOrientation: this.state.screenOrientation,
