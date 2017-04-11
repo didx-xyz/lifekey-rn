@@ -21,8 +21,8 @@ export default {
   APP_NAME: APP_NAME,
 
   // First scene to show
-  initialRouteFromConfig: true, // Must be true to use route below
-  initialRoute: Routes.me,
+  initialRouteFromConfig: false, // Must be true to use route below
+  initialRoute: Routes.main,
 
   DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
   debugNetwork: true,         // Log API requests and responses
