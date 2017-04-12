@@ -16,7 +16,7 @@ import ConsentUser from './Models/ConsentUser'
 import PushNotifications from './PushNotifications'
 import EventEmitter from 'EventEmitter'
 import React, { Component } from 'react'
-import firebase from 'react-native-firebase'
+import Firebase from 'react-native-firebase'
 import {
   View,
   Dimensions,
@@ -31,12 +31,13 @@ const LANDSCAPE = 1
 
 export default class Lifekeyrn extends Component {
 
-  async constructor(props) {
+  constructor(props) {
     super(props)
     // Members
     this._className = this.constructor.name
     this.filename = this._className + '.js'
-    this._firebase = firebase.messaging()
+    this._firebase = new Firebase
+    this._messaging = this._firebase.messaging()
     this._navigationEventEmitter = new EventEmitter()
     this._orientationEventEmitter = new EventEmitter()
     this.state = {
@@ -53,34 +54,33 @@ export default class Lifekeyrn extends Component {
 
     // Events
     if (Platform.OS === 'android') {
-      this._firebase.onTokenRefresh(this._nativeEventTokenRefreshed)
-      this._firebase.onMessage(this._nativeEventMessageReceived)
+      this._messaging.onTokenRefresh(this._nativeEventTokenRefreshed)
+      this._messaging.onMessage(this._nativeEventMessageReceived)
     } else {
       Logger.info('TODO: Firebase iOS', this.filename)
     }
-    this._initSession()
-    await this._getInitialRoute()
-  }
-
-  _getInitialRoute() {
-    return this._firebase.getInitialNotification().then(notification => {
+    
+    this._messaging.getInitialNotification().then(notification => {
       if (notification) {
         // TODO check the structure of `notification`
         // and decide which scene to dispatch
         // this._initialRoute = something
-      } else if (Config.initialRouteFromConfig) {
-        this._initialRoute = Config.initialRoute
-      } else {
-        const userState = Session.getState().user
-        this._initialRoute = (
-          (userState && userState.registered) ?
-          Routes.onboarding.unlock :
-          Routes.onboarding.splashScreen
-        )
       }
-    }).catch(function(err) {
-      this._initialRoute = Routes.onboarding.splashScreen // i guess?
-    })
+      return Promise.resolve()
+    }).then(_ => {
+      this._initialRoute = this._getInitialRoute()
+      this._initSession()
+    }).catch(console.log)
+  }
+
+  _getInitialRoute() {
+    if (Config.initialRouteFromConfig) return Config.initialRoute
+    const userState = Session.getState().user
+    return (
+      userState && userState.registered ?
+      Routes.onboarding.unlock :
+      Routes.onboarding.splashScreen
+    )
   }
 
   _initSession() {
@@ -105,23 +105,19 @@ export default class Lifekeyrn extends Component {
           Session.update(update)
           this.forceUpdate()
         })
-
       } else {
         const update = {}
         update[ConsentUser.storageKey] = {
           registered: false,
           loggedIn: false,
         }
-
         this.setState({
           booted: true
         }, () => {
           Session.update(update)
           console.log('BOOTED TRUE')
           this.forceUpdate()
-
         })
-
       }
     })
     .catch(error => {
@@ -144,15 +140,16 @@ export default class Lifekeyrn extends Component {
       }
       return
     }
-
-    var message_handler_ptr = Object.keys(
-      PushNotifications.handlers
-    ).indexOf(
-      message.data.type
-    )
-
-    if (message_handler_ptr === -1) PushNotifications.error.call(this, message)
-    else PushNotifications.handlers[message.data.type].call(this, message)
+    
+    (
+      Object.keys(
+        PushNotifications.handlers
+      ).indexOf(
+        message.data.type
+      ) === -1 ?
+      PushNotifications.error :
+      PushNotifications.handlers[message.data.type]
+    ).call(this, message)
   }
 
   /**
