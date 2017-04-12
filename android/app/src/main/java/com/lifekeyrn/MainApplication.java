@@ -13,6 +13,7 @@ import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
 import com.lifekeyrn.pushnotification.PushNotificationPackage;
 import com.lwansbrough.RCTCamera.RCTCameraPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
+import io.invertase.firebase.RNFirebasePackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -37,12 +38,13 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
               new MainReactPackage(),
-            new SvgPackage(),
+              new SvgPackage(),
               new RCTCameraPackage(),
               new VectorIconsPackage(),
               new GoogleAnalyticsBridgePackage(),
               new CryptoPackage(),
-              new PushNotificationPackage(),
+              // new PushNotificationPackage(),
+              new RNFirebasePackage(),
               new ReactNativeDialogsPackage()
       );
     }
