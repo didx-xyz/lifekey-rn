@@ -9,7 +9,7 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
-import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
+// import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
 import com.lwansbrough.RCTCamera.RCTCameraPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import io.invertase.firebase.RNFirebasePackage;
@@ -40,7 +40,7 @@ public class MainApplication extends Application implements ReactApplication {
               new SvgPackage(),
               new RCTCameraPackage(),
               new VectorIconsPackage(),
-              new GoogleAnalyticsBridgePackage(),
+              // new GoogleAnalyticsBridgePackage(),
               new CryptoPackage(),
               new RNFirebasePackage(),
               new ReactNativeDialogsPackage()
