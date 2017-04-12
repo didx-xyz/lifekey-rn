@@ -94,13 +94,13 @@ export default class Lifekeyrn extends Component {
           registered: results.registered || false,
           loggedIn: results.loggedIn || false,
           email: results.email,
-          firebaseToken: results.firebaseToken
+          firebaseToken: results.firebaseToken,
         }
         this.setState({
           booted: true
         }, () => {
           Session.update(update)
-          this.forceUpdate()
+          // this.forceUpdate()
         })
 
       } else {
@@ -181,12 +181,11 @@ export default class Lifekeyrn extends Component {
         Logger.firebase('user_connection_created')
         ConsentConnection.add(
           message.data.user_connection_id,
-          message.data.to_id
+          message.data.to_did
         )
         .then(() => {
           Logger.info('Connection created')
-          this.forceUpdate()
-          Logger.info('Force update')
+          this.navigator.push(Routes.main)
         })
         .catch(error => {
           Logger.error(error, this.filename, error)
@@ -198,16 +197,19 @@ export default class Lifekeyrn extends Component {
         break
       case 'app_activation_link_clicked':
         Logger.firebase('app_activation_link_clicked')
-        this.navigator.replace(Routes.main)
+        this.navigator.push(Routes.main)
         break
       case 'information_sharing_agreement_request':
         Logger.firebase('information_sharing_agreement_request')
+        // Would you like to accept?
+        // if yes:§
         ConsentISA.add(
           message.data.isar_id,
-          message.data.from_id
+          message.data.from_did
         )
         .then(() => {
           Logger.info('ISA Added')
+          // respond
         })
         .catch(error => {
           Logger.error(error, this.filename, error)
