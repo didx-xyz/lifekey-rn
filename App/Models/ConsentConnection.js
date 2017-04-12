@@ -30,9 +30,9 @@ class ConsentConnection {
    *                 E_CONNECTION_ALREADY_EXISTS
    *                 E_COULD_NOT_SET_ITEM
    */
-  static add(id, to_id) {
+  static add(id, to_did) {
     return Promise.all([
-      Api.profile({ id: parseInt(to_id) }),
+      Api.profile({ did: to_did }),
       AsyncStorage.getItem(STORAGE_KEY)
     ])
     .then(result => {
@@ -51,14 +51,18 @@ class ConsentConnection {
           )
         )
       }
-
-      // Grab nickname from API response and capitalize first letter
-      const nickname = response.body.user.nickname.charAt(0).toUpperCase()
-                       + response.body.user.nickname.substring(1)
+      let display_name = null
+      // Grab display_name from API response and capitalize first letter
+      if (response.body.user.display_name) {
+        display_name = response.body.user.display_name
+      } else {
+        display_name = 'Mystery User'
+      }
+      // const nickname = (response.body.user.display_name.charAt(0).toUpperCase()
+      //                  + response.body.user.display_name.substring(1))
 
       // Keep these for later
       const image_uri = response.body.user.image_uri
-      const did = response.body.user.did
       const user_id = response.body.user_id
       const colour = response.body.colour
 
@@ -66,13 +70,12 @@ class ConsentConnection {
       if (!connectionsItem) {
         const connectionsItemJSON = JSON.stringify([{
           id: parseInt(id),
-          to_id: parseInt(to_id),
-          to_did: did,
-          nickname: nickname
+          to_did: to_did,
+          display_name: display_name
         }])
         return Promise.all([
           AsyncStorage.setItem(STORAGE_KEY, connectionsItemJSON),
-          ConsentDiscoveredUser.add(user_id, did, nickname, colour)
+          ConsentDiscoveredUser.add(user_id, to_did, display_name, colour)
         ])
       }
 
@@ -80,11 +83,11 @@ class ConsentConnection {
       const connections = JSON.parse(connectionsItem)
 
       // Check if already connected
-      if (connections.find(connection => connection.to === to_id)) {
+      if (connections.find(connection => connection.to_did === to_did)) {
         // Connection already exists
         return Promise.reject(
           new ConsentError(
-            `Connection ${to_id} already exists`,
+            `Connection ${to_did} already exists`,
             E_CONNECTION_ALREADY_EXISTS
           )
         )
@@ -92,12 +95,12 @@ class ConsentConnection {
         // merge new data
         const updatedConnectionsItem = JSON.stringify(connections.concat({
           id: parseInt(id),
-          to: parseInt(to_id),
+          to: parseInt(to_did),
           nickname: nickname
         }))
         return Promise.all([
           AsyncStorage.setItem(STORAGE_KEY, updatedConnectionsItem),
-          ConsentDiscoveredUser.add(user_id, did, nickname, colour, image_uri)
+          ConsentDiscoveredUser.add(user_id, to_did, nickname, colour, image_uri)
         ])
       }
     })
