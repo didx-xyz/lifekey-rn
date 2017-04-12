@@ -221,9 +221,9 @@ export default class Register extends Scene {
       moveTransitionValue: new Animated.Value(300),
       fadeTransitionValue: new Animated.Value(0)
     }, () => {
-    this._fadeTextIn(() => {
-      this._eventTimeline.pushEvent('Started registration (again)')
-    })
+      this._fadeTextIn(() => {
+        this._eventTimeline.pushEvent('Started registration (again)')
+      })
 
     })
   }
@@ -233,10 +233,10 @@ export default class Register extends Scene {
     // Preserve the input value
     const onStepTextInputValue = this.state.textInputValue.toLowerCase().trim()
 
-    // Clear the text input value
-    this.setState({
-      textInputValue: ''
-    })
+    // // Clear the text input value
+    // this.setState({
+    //   textInputValue: ''
+    // })
 
     switch (this.state.step) {
     // USERNAME -> EMAIL
@@ -295,7 +295,8 @@ export default class Register extends Scene {
             // Update state to reflect we are on the 2nd step now
             this.setState({
               step: STEP_PIN,
-              email: onStepTextInputValue
+              email: onStepTextInputValue,
+              textInputValue: ''
             })
           })
         })
@@ -403,7 +404,9 @@ export default class Register extends Scene {
     case STEP_PIN:
       return (<Touchable style={{ flex: 1 }} onPress={() => this.pinInput.focus()}>
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                  <HexagonDots current={this.state.textInputValue.length} />
+                  <HexagonDots
+                    current={this.state.textInputValue.length < 5 ? this.state.textInputValue.length : 4}
+                  />
                   <Dots current={this.state.textInputValue.length} />
                   <TextInput
                     ref={(_ref) => this.pinInput = _ref }
