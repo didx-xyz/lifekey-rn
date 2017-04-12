@@ -1,6 +1,6 @@
 // external dependencies
 import React from "react"
-import { Text, View } from "react-native"
+import { Text, View, Dimensions } from "react-native"
 import { Container } from "native-base"
 
 // internal dependencies
@@ -37,6 +37,9 @@ class Connection extends Scene {
   }
 
   render() {
+    const screenWidth = Dimensions.get('window').width
+    const iconSize = screenWidth / 25
+
     return (
       <Container>
         <BackButton navigator={this.navigator} />
@@ -47,14 +50,33 @@ class Connection extends Scene {
           <View style={styles.name}>
             <Text style={styles.nameText}>Absa Bank</Text>
           </View>
+
           {this.state.isVerified &&
-            <View style={styles.verified}>
-              <Text style={styles.verifiedText}>
-                <VerifiedIcon width={10} height={10} />
-                {" "/*what a hack!*/}Verified
-              </Text>
+            <View style={[styles.verified, {
+              position: 'relative',
+            }]}>
+              <View style={{
+                position: 'absolute',
+                flexDirection: 'row',
+                width: 76,
+                marginLeft: screenWidth / 2 - 38
+              }}>
+
+                <View style={{
+                  flexDirection: 'column',
+                  justifyContent: 'center',
+                  alignItems: 'center'
+                }}>
+                  <VerifiedIcon width={iconSize} height={iconSize} />
+                </View>
+
+                <Text style={[styles.verifiedText, { flex: 1, textAlign: 'center' }]}>Verified</Text>
+              </View>
+
+
             </View>
           }
+
           <View style={styles.connected}>
             <Text style={styles.connectedText}>Connected to 3,421 people.</Text>
           </View>
@@ -112,12 +134,10 @@ const styles = {
     "textAlign": "center"
   },
   "verified": {
-    "height": "3%",
-    "justifyContent": "center",
-    "alignItems": "center"
+    "height": "3%"
   },
   "verifiedText": {
-    "color": "#666"
+    "color": "#666",
   },
   "connected": {
     "height": "3%",
