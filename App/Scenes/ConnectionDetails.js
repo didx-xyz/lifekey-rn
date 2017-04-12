@@ -64,14 +64,14 @@ class ConnectionDetails extends Scene {
       this.setState({
         id: response.body.user.id,
         colour: response.body.user.colour,
-        nickname: response.body.user.nickname,
+        nickname: response.body.user.display_name,
         did: response.body.user.did,
         image_uri: response.body.image_uri
       })
       return ConsentDiscoveredUser.add(
         response.body.user.id,
         response.body.user.did,
-        response.body.user.nickname,
+        response.body.user.display_name,
         response.body.user.colour,
         response.body.image_uri
       )
