@@ -10,7 +10,6 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
-import com.lifekeyrn.pushnotification.PushNotificationPackage;
 import com.lwansbrough.RCTCamera.RCTCameraPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import io.invertase.firebase.RNFirebasePackage;
@@ -43,7 +42,6 @@ public class MainApplication extends Application implements ReactApplication {
               new VectorIconsPackage(),
               new GoogleAnalyticsBridgePackage(),
               new CryptoPackage(),
-              // new PushNotificationPackage(),
               new RNFirebasePackage(),
               new ReactNativeDialogsPackage()
       );
