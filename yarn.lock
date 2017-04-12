@@ -3781,6 +3781,12 @@ react-native-cli@^2.0.1:
     prompt "^0.2.14"
     semver "^5.0.3"
 
+react-native-datepicker@^1.4.6:
+  version "1.4.6"
+  resolved "https://registry.yarnpkg.com/react-native-datepicker/-/react-native-datepicker-1.4.6.tgz#56fbfdbac6c03aaece0df6223d4ff11778950aac"
+  dependencies:
+    moment "2.x.x"
+
 react-native-dialogs@0.0.19:
   version "0.0.19"
   resolved "https://registry.yarnpkg.com/react-native-dialogs/-/react-native-dialogs-0.0.19.tgz#5fce60fa4f14779377598a10ab76ba274623f1f5"

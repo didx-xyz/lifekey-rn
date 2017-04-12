@@ -26,6 +26,7 @@
     "react-native-android-back-button": "^0.3.0",
     "react-native-camera": "^0.6.0",
     "react-native-cli": "^2.0.1",
+    "react-native-datepicker": "^1.4.6",
     "react-native-dialogs": "0.0.19",
     "react-native-google-analytics-bridge": "^5.0.0",
     "react-native-modal-picker": "^0.0.16",

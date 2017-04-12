@@ -3,6 +3,7 @@ import React from "react"
 import { Picker, Text, TextInput, View, ScrollView } from "react-native"
 import { Container } from "native-base"
 import ModalPicker from "react-native-modal-picker"
+import DatePicker from "react-native-datepicker"
 
 // internal dependencies
 import BackButton from "../Components/BackButton"
@@ -45,7 +46,7 @@ class EditResource extends Scene {
 
     data.entities.forEach((entity) => {
       state[entity.name + "__shown"] = false
-      state[entity.name + "__label"] = "pick one!"
+      state[entity.name + "__label"] = "Select a country"
     })
 
     this.setState(state)
@@ -88,6 +89,10 @@ class EditResource extends Scene {
       return this.renderCountryInput(entity, i)
     }
 
+    if (entity.type === "date") {
+      return this.renderDateInput(entity, i)
+    }
+
     return (
       <Text>unknown type</Text>
     )
@@ -99,6 +104,9 @@ class EditResource extends Scene {
         style={styles.textInput}
         value={this.state[entity.name]}
         onChangeText={text => this.setState({[entity.name]: text})}
+        autoCapitalize="none"
+        autoCorrect={false}
+        returnKeyType="done"
       />
     )
   }
@@ -130,6 +138,24 @@ class EditResource extends Scene {
             value={this.state[entity.name + "__label"]}
           />
       </ModalPicker>
+    )
+  }
+
+  renderDateInput(entity, i) {
+    return (
+      <DatePicker
+        date={this.state[entity.name]}
+        mode="date"
+        placeholder="Select a date"
+        format="YYYY-MM-DD"
+        minDate="1916-01-01"
+        maxDate="2017-01-01"
+        confirmBtnText="Confirm"
+        cancelBtnText="Cancel"
+        showIcon={false}
+        customStyles={styles.dateInput}
+        onDateChange={date => {this.setState({[entity.name]: date})}}
+      />
     )
   }
 
@@ -172,7 +198,7 @@ EditResource.propTypes = {
 }
 
 EditResource.defaultProps = {
-  "form": "http://schema.cnsnt.io/address_form"
+  "form": "http://schema.cnsnt.io/person_form"
 }
 
 const styles = {
@@ -224,6 +250,29 @@ const styles = {
     "paddingTop": 10,
     "paddingBottom": 10,
     "fontSize": 14
+  },
+  "dateInput": {
+    "dateTouchBody": {
+      "width": "100%",
+      "height": "100%"
+    },
+    "dateInput": {
+      "borderWidth": 0,
+      "alignItems": "flex-start",
+      "justifyContent": "center",
+      "padding": 0,
+      "height": null
+    },
+    "dateText": {
+      "color": "#666",
+      "fontWeight": "100",
+      "fontSize": 14
+    },
+    "placeholderText": {
+      "color": "#666",
+      "fontWeight": "100",
+      "fontSize": 14
+    }
   },
   "buttons": {
     "height": "10%",
