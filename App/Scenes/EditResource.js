@@ -10,6 +10,7 @@ import BackButton from "../Components/BackButton"
 import Scene from "../Scene"
 import Touchable from "../Components/Touchable"
 import Countries from "../Countries"
+import Languages from "../Languages"
 
 class EditResource extends Scene {
   constructor(...params) {
@@ -45,8 +46,15 @@ class EditResource extends Scene {
     }
 
     data.entities.forEach((entity) => {
-      state[entity.name + "__shown"] = false
-      state[entity.name + "__label"] = "Select a country"
+      if (entity.type === "country") {
+        state[entity.name + "__shown"] = false
+        state[entity.name + "__label"] = "Select a country"
+      }
+
+      if (entity.type === "language") {
+        state[entity.name + "__shown"] = false
+        state[entity.name + "__label"] = "Select a language"
+      }
     })
 
     this.setState(state)
@@ -91,6 +99,10 @@ class EditResource extends Scene {
 
     if (entity.type === "date") {
       return this.renderDateInput(entity, i)
+    }
+
+    if (entity.type === "language") {
+      return this.renderLanguageInput(entity, i)
     }
 
     return (
@@ -156,6 +168,36 @@ class EditResource extends Scene {
         customStyles={styles.dateInput}
         onDateChange={date => {this.setState({[entity.name]: date})}}
       />
+    )
+  }
+
+  renderLanguageInput(entity, i) {
+    const data = Languages.map((country) => {
+      return {
+        "key": country["alpha-3-b"],
+        "label": country["English"],
+        "selected": this.state[entity.name] === country["alpha-3-b"]
+      }
+    })
+
+    return (
+      <ModalPicker
+          data={data}
+          initValue="Select a language"
+          onChange={(option) => {
+            this.setState({
+              [entity.name + "__label"]: option.label,
+              [entity.name]: option.value
+            })
+          }}
+        >
+          <TextInput
+            style={styles.languageLabel}
+            editable={false}
+            placeholder="Select a language"
+            value={this.state[entity.name + "__label"]}
+          />
+      </ModalPicker>
     )
   }
 
@@ -273,6 +315,14 @@ const styles = {
       "fontWeight": "100",
       "fontSize": 14
     }
+  },
+  "languageLabel": {
+    "color": "#666",
+    "fontWeight": "100",
+    "height": 20,
+    "paddingTop": 10,
+    "paddingBottom": 10,
+    "fontSize": 14
   },
   "buttons": {
     "height": "10%",
