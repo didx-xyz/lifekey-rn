@@ -2,7 +2,7 @@
 import React from "react"
 import { Text, View, Dimensions } from "react-native"
 import { Container } from "native-base"
-
+import * as Nachos from 'nachos-ui'
 // internal dependencies
 import BackButton from "../Components/BackButton"
 import HelpIcon from "../Components/HelpIcon"
@@ -11,12 +11,15 @@ import Scene from "../Scene"
 import Touchable from "../Components/Touchable"
 import VerifiedIcon from "../Components/VerifiedIcon"
 
+import Api from '../Api'
+
 class Connection extends Scene {
   constructor(...params) {
     super(...params)
 
     this.state = {
-      "isVerified": true
+      "isVerified": true,
+      connecting: false
     }
 
     this.onBoundPressConnect = this.onPressConnect.bind(this)
@@ -25,7 +28,24 @@ class Connection extends Scene {
   }
 
   onPressConnect() {
-    alert("connect")
+    this.setState({
+      connecting: true
+    }, () => {
+      Api.requestConnection({ target: this.props.route.did })
+      .then(() => {
+        this.setState({
+          connecting: false
+        }, () => {
+          this.navigator.pop()
+        })
+      })
+      .catch(error => {
+        alert(JSON.stringify(error))
+        this.setState({
+          connecting: false
+        })
+      })
+    })
   }
 
   onPressHelp() {
@@ -33,7 +53,7 @@ class Connection extends Scene {
   }
 
   onPressDecline() {
-    alert("decline")
+    this.navigator.pop()
   }
 
   render() {
@@ -48,7 +68,7 @@ class Connection extends Scene {
             {/* logo goes here */}
           </View>
           <View style={styles.name}>
-            <Text style={styles.nameText}>Absa Bank</Text>
+            <Text style={styles.nameText}>{this.props.route.display_name}</Text>
           </View>
 
           {this.state.isVerified &&
@@ -89,11 +109,15 @@ class Connection extends Scene {
             <Text style={styles.actionsText}>• Open a Bitcoin Wallet.</Text>
           </View>
           <View style={styles.connect}>
-            <Touchable onPress={this.onBoundPressConnect}>
-              <View>
-                <HexagonIcon width={100} height={100} textSize={19} textX={18} textY={39} text="Connect" />
-              </View>
-            </Touchable>
+            { this.state.connecting ?
+              <Nachos.Spinner color="blue"/>
+            :
+              <Touchable onPress={this.onBoundPressConnect}>
+                <View>
+                  <HexagonIcon width={100} height={100} textSize={19} textX={18} textY={39} text="Connect" />
+                </View>
+              </Touchable>
+            }
           </View>
           <View style={styles.footer}>
             <View style={styles.help}>
