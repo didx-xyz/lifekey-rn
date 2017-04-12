@@ -27,6 +27,7 @@
     "react-native-camera": "^0.6.0",
     "react-native-cli": "^2.0.1",
     "react-native-dialogs": "0.0.19",
+    "react-native-firebase": "^1.0.0-alpha12",
     "react-native-google-analytics-bridge": "^5.0.0",
     "react-native-qrcode": "^0.2.3",
     "react-native-svg": "^5.1.5",
