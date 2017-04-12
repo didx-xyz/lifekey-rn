@@ -172,6 +172,18 @@ class Unlocked extends Scene {
                     onChangeText={(text) => this.onChangeText(text)}
                     style={style.input}
                   />
+                {/*
+                <Nachos.Input
+                    ref="input" // ERROR SOURCE
+                    autoFocus={true}
+                    returnKeyType="done"
+                    keyboardType="numeric"
+                    value={this.state.characters}
+                    onChangeText={(text) => this.onChangeText(text)}
+                    style={style.input}
+                  />
+                */}
+
                 </View>
               </Row>
             </Col>

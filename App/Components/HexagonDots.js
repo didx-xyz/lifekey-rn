@@ -27,7 +27,7 @@ const HexagonDots  = function(props) {
 }
 
 HexagonDots.propTypes = {
-  "current": React.PropTypes.oneOf([0, 1, 2, 3, 4, 5]).isRequired
+  "current": React.PropTypes.oneOf([0, 1, 2, 3, 4]).isRequired
 }
 
 export default HexagonDots

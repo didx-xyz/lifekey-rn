@@ -64,15 +64,16 @@ class ConnectionDetails extends Scene {
       this.setState({
         id: response.body.user.id,
         colour: response.body.user.colour,
-        nickname: response.body.user.nickname,
+        nickname: response.body.user.display_name,
         did: response.body.user.did,
         image_uri: response.body.image_uri
       })
       return ConsentDiscoveredUser.add(
         response.body.user.id,
         response.body.user.did,
-        response.body.user.nickname,
-        response.body.user.colour
+        response.body.user.display_name,
+        response.body.user.colour,
+        response.body.image_uri
       )
     })
     .catch(error => {
@@ -118,20 +119,20 @@ class ConnectionDetails extends Scene {
       <Container>
         <Content style={styles.content}>
           <AndroidBackButton onPress={() => this.onHardwareBack()} />
-          <View style={[styles.top, top]}>
+          <View style={Object.assign(styles.top, top)}>
             <Touchable onPress={() => this.navigator.pop()}>
-              <View style={[styles.back, styles.center]}>
+              <View style={Object.assign(styles.back, styles.center)}>
                   <BackIcon width={16} height={16} stroke="#fff" />
               </View>
             </Touchable>
-            <View style={[styles.branding, styles.center]}>
+            <View style={Object.assign(styles.branding, styles.center)}>
               <Text style={text}>
                 {/* insert connection image */}
                 ABSA Bank
               </Text>
             </View>
             <Touchable onPress={this.onHelpPress}>
-              <View style={[styles.help, styles.center]}>
+              <View style={Object.assign(styles.help, styles.center)}>
                   <InfoIcon width={24} height={24} stroke="#fff" />
               </View>
             </Touchable>
@@ -183,7 +184,7 @@ class ConnectionDetails extends Scene {
   }
 }
 
-const styles = StyleSheet.create({
+const styles = {
   "content": {
     "backgroundColor": Palette.consentGrayMedium
   },
@@ -271,6 +272,6 @@ const styles = StyleSheet.create({
     "borderRadius": 5,
     "padding": 10
   }
-})
+}
 
 export default ConnectionDetails
