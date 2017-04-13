@@ -61,7 +61,7 @@ class Unlocked extends Scene {
       ConsentUser.login(pin)
       .then(() => {
         // logged in
-        this.navigator.push(Routes.main)
+        this.navigator.resetTo(Routes.main)
       })
       .catch(error => {
         Logger.error('Could not log in', this._fileName, error)
