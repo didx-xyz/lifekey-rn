@@ -5,6 +5,7 @@ import { Container } from "native-base"
 import ModalPicker from "react-native-modal-picker"
 import DatePicker from "react-native-datepicker"
 import PropTypes from "prop-types"
+import ImagePicker from "react-native-image-picker"
 
 // internal dependencies
 import BackButton from "../Components/BackButton"
@@ -37,6 +38,30 @@ class EditResource extends Scene {
     fetch(this.props.form)
       .then(response => response.json())
       .then(data => this.handleData(data))
+
+    ImagePicker.showImagePicker({}, (response) => {
+      console.log('Response = ', response);
+
+      // if (response.didCancel) {
+      //   console.log('User cancelled image picker');
+      // }
+      // else if (response.error) {
+      //   console.log('ImagePicker Error: ', response.error);
+      // }
+      // else if (response.customButton) {
+      //   console.log('User tapped custom button: ', response.customButton);
+      // }
+      // else {
+      //   let source = { uri: response.uri };
+      //
+      //   // You can also display the image using data:
+      //   // let source = { uri: 'data:image/jpeg;base64,' + response.data };
+      //
+      //   this.setState({
+      //     avatarSource: source
+      //   });
+      // }
+    })
   }
 
   handleData(data) {

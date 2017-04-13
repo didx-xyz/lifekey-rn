@@ -30,6 +30,7 @@
     "react-native-datepicker": "^1.4.6",
     "react-native-dialogs": "0.0.19",
     "react-native-google-analytics-bridge": "^5.0.0",
+    "react-native-image-picker": "^0.26.3",
     "react-native-modal-picker": "^0.0.16",
     "react-native-qrcode": "^0.2.3",
     "react-native-svg": "^5.1.5",
