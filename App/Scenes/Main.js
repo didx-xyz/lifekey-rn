@@ -48,7 +48,9 @@ export default class Main extends Scene {
       suggestedConnections: Config.suggestedConnections
     }
   }
-
+[
+  { did: 'adskfo23ob23bfb', to_did: 12, display_name: 'sphe'}
+]
   componentWillFocus() {
     super.componentWillFocus()
     this._onAttention()
@@ -95,7 +97,6 @@ export default class Main extends Scene {
   }
 
   connect(connection) {
-    console.log(connection)
     this.navigator.push({
       ...Routes.connection,
       did: connection.did,
@@ -150,7 +151,12 @@ export default class Main extends Scene {
                       />
                       { this.state.searchText !== '' &&
                         <Touchable onPress={() => this.clearSearch()}>
-                          <Icon style={style.searchBoxCloseIcon} name="times-circle" size={25} color={Palette.consentGrayDark} />
+                          <Icon
+                            style={style.searchBoxCloseIcon}
+                            name="times-circle"
+                            size={25}
+                            color={Palette.consentGrayDark}
+                          />
                         </Touchable>
                       }
                   </View>
@@ -167,9 +173,16 @@ export default class Main extends Scene {
                       <ListItem
                         key={i}
                         style={style.listItem}
-                        onPress={() => this.navigator.push({ ...Routes.connectionDetails, connection_to: connection.to, connection_id: connection.id })}
+                        onPress={() => this.navigator.push({
+                          ...Routes.connectionDetails,
+                          connection_to: connection.to_did,
+                          connection_id: connection.id,
+                          display_name: connection.display_name
+                        })}
                       >
-                        <Text>{connection.nickname + ' - ' + connection.id + ' - ' + connection.to}</Text>
+                        <Text>
+                          {`${connection.display_name} - ${connection.to_did} - ${connection.id}`}
+                        </Text>
                       </ListItem>
                   ))}
 
