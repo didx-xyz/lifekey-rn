@@ -31,7 +31,36 @@ class EditResource extends Scene {
   }
 
   onPressSave() {
-    alert("save")
+    const keys = this.state.entities.map(entity => entity.name)
+    const values = keys.map(key => this.state[key] || null)
+
+    const data = {
+      "value": {},
+      "entity": "test_" + Date.now(),
+      "attribute": "test_" + Date.now(),
+      "alias": "test_" + Date.now()
+    }
+
+    keys.forEach((key, i) => data.value[key] = values[i])
+
+    data.value = JSON.stringify(data.value)
+
+    const options = {
+      "method": "POST",
+      "headers": {
+        "x-cnsnt-id": "2",
+        "x-cnsnt-plain": "example",
+        "x-cnsnt-signed": "example",
+        "content-type": "application/json"
+      },
+      "body": JSON.stringify(data)
+    }
+
+    console.log(options)
+
+    fetch("http://staging.api.lifekey.cnsnt.io/resource", options)
+      .then(response => response.json())
+      .then(data => console.log(data))
   }
 
   componentDidMount() {
@@ -149,7 +178,7 @@ class EditResource extends Scene {
         onChange={(option) => {
           this.setState({
             [entity.name + "__label"]: option.label,
-            [entity.name]: option.value
+            [entity.name]: option.key
           })
         }}
       >
@@ -184,9 +213,9 @@ class EditResource extends Scene {
   renderLanguageInput(entity, i) {
     const data = Languages.map((country) => {
       return {
-        "key": country["alpha-3-b"],
+        "key": country["alpha3-b"],
         "label": country["English"],
-        "selected": this.state[entity.name] === country["alpha-3-b"]
+        "selected": this.state[entity.name] === country["alpha3-b"]
       }
     })
 
@@ -197,7 +226,7 @@ class EditResource extends Scene {
         onChange={(option) => {
           this.setState({
             [entity.name + "__label"]: option.label,
-            [entity.name]: option.value
+            [entity.name]: option.key
           })
         }}
       >
@@ -214,7 +243,7 @@ class EditResource extends Scene {
   renderPhotographInput(entity, i) {
     const pick = () => {
       ImagePicker.showImagePicker({}, (response) => {
-        if (response.fileSize > 1024 /* b → kb */ * 1024 /* kb → mb */ * 10) {
+        if (response.fileSize > 1024 /* b → kb */ * 1024 /* kb → mb */ * 7.5) {
           alert("file is too big")
           return
         }
