@@ -21,7 +21,7 @@ import Logger from '../Logger'
   "data": {
     "isar_id":"4",
     "type":"information_sharing_agreement_request",
-    "from_id":"57"
+    "from_did":"57"
   },
   "sendTime":"1491520483656",
   "type":null,
@@ -29,16 +29,16 @@ import Logger from '../Logger'
   "to":null,
   "from":"953467338291"
 }
-04-07 01:14:43.705  4582  4729 I ReactNativeJS: [FB] {"notification":{"color":null,"clickAction":null,"sound":null,"tag":null,"body":"New information sharing agreement","title":"New Information Sharing Agreement"},"data":{"isar_id":"4","type":"information_sharing_agreement_request","from_id":"57"},"sendTime":"1491520483656","type":null,"collapseKey":"com.lifekeyrn","to":null,"from":"953467338291"}
+04-07 01:14:43.705  4582  4729 I ReactNativeJS: [FB] {"notification":{"color":null,"clickAction":null,"sound":null,"tag":null,"body":"New information sharing agreement","title":"New Information Sharing Agreement"},"data":{"isar_id":"4","type":"information_sharing_agreement_request","from_did":"57"},"sendTime":"1491520483656","type":null,"collapseKey":"com.lifekeyrn","to":null,"from":"953467338291"}
 */
 
 class ConsentISA {
 
   static storageKey = 'isas'
 
-  static add(id, from_id) {
+  static add(id, from_did) {
     return Promise.all([
-      Api.getISA({ id: from_id }),
+      Api.respondISA({ id: id }),
       AsyncStorage.getItem(ConsentISA.storageKey)
     ])
     .then(result => {
@@ -57,7 +57,7 @@ class ConsentISA {
       // If entry does not exist, create from scratch
       if (!result[1]) {
         const isasItem = JSON.stringify([{
-          id, from_id
+          id, from_did
         }])
         return AsyncStorage.setItem(ConsentISA.storageKey, isasItem)
       }
@@ -71,7 +71,7 @@ class ConsentISA {
         return Promise.reject(`ISA ${id} already exists`)
       } else {
         // merge new data
-        const updatedIsaItem = JSON.stringify(isas.concat({ id, from_id }))
+        const updatedIsaItem = JSON.stringify(isas.concat({ id, from_did }))
         return AsyncStorage.setItem(ConsentISA.storageKey, updatedIsaItem)
       }
     })

@@ -22,14 +22,27 @@ export default {
 
   // First scene to show
   initialRouteFromConfig: true, // Must be true to use route below
-  initialRoute: Routes.me,
+  initialRoute: Routes.editResource,
 
+  // Debug
   DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
   debugNetwork: true,         // Log API requests and responses
   debugReact: true,           // Log the React Lifecycle events
   debugNavigator: false,      // Log the current stack of Navigator routes
   debugAsyncStorage: true,    // Log Storage (AsyncStorage) reads/writes
   debugFirebase: true,        // Log Firebase events
+
+  suggestedConnections: [
+    {
+      icon: null,
+      display_name: 'ID Bot',
+      did: ''
+    },
+    {
+      icon: null,
+      display_name: 'Trustbank Bot',
+      did: 'ac4d20fc92a5f1ebb00d9bdf2bba01095fc00bdc6e2867f6f1490d2e5f7a02d2' }
+  ],
 
   version: NPM_PACKAGE.version, // App version
 
@@ -55,16 +68,6 @@ export default {
     privateKeyName: 'private' + APP_NAME.toLowerCase(), // Do not change this because it's hardcoded on the java side
     publicKeyName: 'public' + APP_NAME.toLowerCase(),   // or this
     publicKeyAlgorithm: 'rsa'
-  },
+  }
 
-  // Google Analytics
-  // googleAnalytics: {
-  //   trackers: {
-  //     tracker1: ''
-  //   },
-  //   dispatchInterval: 120,
-  //   samplingRate: 50,
-  //   anonymizeIp: false,
-  //   optOut: false
-  // }
 }
