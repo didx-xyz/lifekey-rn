@@ -97,7 +97,6 @@ export default class ConsentUser {
 
         // Unlocked keystore with password
         Logger.info('Keystore loaded, password verified', LOGTAG)
-
         // Check if user exists on the other side
         return Api.profile({ did: user.did })
 
@@ -268,6 +267,17 @@ export default class ConsentUser {
         return Promise.resolve('Server notified of token update')
       }
     })
+  }
+
+  static getDisplayNameSync() {
+    const state = Session.getState()
+    if(! state || !state.user || !state.user.display_name) {
+      throw new ConsentError(
+        'No display name set for current user'
+      )
+    } else {
+      return state.user.display_name
+    }
   }
 
   /**
@@ -516,6 +526,7 @@ export default class ConsentUser {
       return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
         id: userID,
         did: null, // will receive via firebase later
+        display_name: username,
         email: email,
         firebaseToken: firebaseToken,
         registered: true  // We will get this later
@@ -534,6 +545,7 @@ export default class ConsentUser {
           user: {
             id: userID,
             did: null,
+            display_name: username,
             password: password,
             email: email,
             registered: true,
