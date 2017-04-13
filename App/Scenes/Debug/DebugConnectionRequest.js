@@ -3,24 +3,26 @@ import Scene from '../../Scene'
 import Api from '../../Api'
 import * as Base from 'native-base'
 import * as Nachos from 'nachos-ui'
-import { View } from 'react-native'
+import { View, Text } from 'react-native'
+import ConsentConnection from '../../Models/ConsentConnection'
 
 class DebugConnectionRequest extends Scene {
 
   constructor(props) {
     super(props)
+    this.state = {
+      connections: []
+    }
   }
 
-  componentWillMount() {
-    Api.allConnections()
-    .then(response => {
-      if (response.status === 400) {
-        alert('not yet activated')
-      }
-      alert(JSON.stringify(response))
-    })
-    .catch(error => {
-      alert(JSON.stringify(error))
+  componentDidMount() {
+    ConsentConnection.all()
+    .then(connections => {
+      this.setState({
+        connections: connections
+      }, () => {
+        console.log('no connections', connections)
+      })
     })
   }
 
@@ -33,11 +35,11 @@ class DebugConnectionRequest extends Scene {
             <Base.Row>
               <View style={{ flex: 1 }}>
                 <Nachos.H2>Delete</Nachos.H2>
-                <Nachos.Input/>
-                <Nachos.Input/>
-                <Nachos.Input/>
-                <Nachos.Input/>
-                <Nachos.Input/>
+                <Text>Hello</Text>
+                <Text>Hello</Text>
+                <Text>Hello</Text>
+                <Text>Hello</Text>
+                <Text>Hello</Text>
               </View>
             </Base.Row>
           </Base.Grid>
