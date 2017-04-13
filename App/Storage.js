@@ -17,8 +17,17 @@ export default class Storage {
         reject('Key must be a string and value must be an object')
       }
       return AsyncStorage.mergeItem(key, JSON.stringify(value))
+      .then(result => {
+        if (result) {
+          resolve(JSON.parse(result))
+        } else {
+          reject(`AsyncStorage Key "${key}" and "${value}"does not exist`)
+        }
+      })
       .catch(error => {
+        console.log(error)
         Logger.error(error, 'Storage')
+
         reject(error)
       })
     })

@@ -4,21 +4,22 @@
  * Civvals, 50 Seymour Street, London, England, W1H 7JG
  * @author Siphesande Malgas <sphe@io.co.za>
  */
-/* global test, describe */
+
+import 'react-native';
 
 import Api from '../Api'
-import 'isomorphic-fetch';
-import MockStorage from "../../App/Components/MockStorage";
+import 'isomorphic-fetch'
+import MockStorage from "../../App/Components/MockStorage"
 
 const cache = {}
 const AsyncStorage = new MockStorage(cache)
 
 jest.setMock("AsyncStorage", AsyncStorage)
 
-
+/* global test, describe */
 describe('#profile()', () => {
   it('Testing for async errors using `catch`, GET/profile/${data.id} Fetch a profile', async () => {
-    const response = 'User not registered. Cannot send a signed request';
+    const response = {"body": null, "error": true, "message": "user record not found", "status": 404};
     const data = await Api.profile({id:1})
     .catch(error => expect(error).toEqual(response));
 
