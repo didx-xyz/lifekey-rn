@@ -2,6 +2,7 @@
 import React, { Component } from "react"
 import { View, Text } from "react-native"
 import { Card } from "native-base"
+import PropTypes from "prop-types"
 
 // internal dependencies
 import Palette from "../Palette"
@@ -112,10 +113,10 @@ InformationRequestResource.defaultProps = {
 }
 
 InformationRequestResource.propTypes = {
-  "title": React.PropTypes.string,
-  "meta": React.PropTypes.string,
-  "action": React.PropTypes.oneOf(["edit", "add"]),
-  "onAction": React.PropTypes.func
+  "title": PropTypes.string,
+  "meta": PropTypes.string,
+  "action": PropTypes.oneOf(["edit", "add"]),
+  "onAction": PropTypes.func
 }
 
 export default InformationRequestResource

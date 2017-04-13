@@ -4,6 +4,7 @@ import { Picker, Text, TextInput, View, ScrollView } from "react-native"
 import { Container } from "native-base"
 import ModalPicker from "react-native-modal-picker"
 import DatePicker from "react-native-datepicker"
+import PropTypes from "prop-types"
 
 // internal dependencies
 import BackButton from "../Components/BackButton"
@@ -236,7 +237,7 @@ class EditResource extends Scene {
 }
 
 EditResource.propTypes = {
-  "form": React.PropTypes.string
+  "form": PropTypes.string
 }
 
 EditResource.defaultProps = {

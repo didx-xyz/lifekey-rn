@@ -21,6 +21,7 @@
     "moment": "^2.17.1",
     "nachos-ui": "^0.1.0",
     "native-base": "~2.0.0",
+    "prop-types": "^15.5.8",
     "react": "^15.4.2",
     "react-native": "^0.42.0",
     "react-native-android-back-button": "^0.3.0",
