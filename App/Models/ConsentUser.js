@@ -25,6 +25,8 @@ export const E_NO_FIREBASE_TOKEN = 0x06
 export const E_COULD_NOT_SET_ITEM = 0x07
 export const E_SERVER_ERROR = 0x08
 export const E_MUST_BE_LOGGED_IN = 0x09
+export const E_NOTHING_TO_DELETE_BY = 0x0a
+export const E_NOTHING_TO_DELETE = 0x0b
 
 const STORAGE_KEY = 'user'
 const LOGTAG = 'ConsentUser'
@@ -97,7 +99,7 @@ export default class ConsentUser {
         Logger.info('Keystore loaded, password verified', LOGTAG)
 
         // Check if user exists on the other side
-        return Api.profile({ id: user.id })
+        return Api.profile({ did: user.did })
 
       } else {
 
@@ -221,7 +223,7 @@ export default class ConsentUser {
         Logger.firebase('Notifying server of token update')
         return Crypto.loadKeyStore(Config.keystore.name, ConsentUser.getPasswordSync())
       } else {
-        return Promise.rejecet(
+        return Promise.reject(
           new ConsentError(
             'Must be registered to notify server of token update',
             E_MUST_BE_REGISTERED
@@ -250,6 +252,7 @@ export default class ConsentUser {
       Logger.firebase('Sending to server...')
       return Api.device({
         user_id: ConsentUser.getIdSync(),
+        user_did: ConsentUser.getDidSync(),
         plain: toSign,
         signature: signature,
         device_id: firebaseToken,
@@ -259,7 +262,7 @@ export default class ConsentUser {
     .then(response => {
       if (response.error) {
         return Promise.reject(
-          new ConsentError('Server responded with error',E_SERVER_ERROR)
+          new ConsentError('Server responded with error', E_SERVER_ERROR)
         )
       } else {
         return Promise.resolve('Server notified of token update')
@@ -326,12 +329,29 @@ export default class ConsentUser {
     })
   }
 
+  /**
+   * Get the ID of the user
+   * @returns {string} id The Id of the user
+   */
   static getIdSync() {
     const state = Session.getState()
     if (!state || !state.user || !state.user.id) {
       return null
     } else {
       return state.user.id
+    }
+  }
+
+  /**
+   * Get the DID of the user
+   * @returns {string} did The DID of the user
+   */
+  static getDidSync() {
+    const state = Session.getState()
+    if (!state || !state.user || !state.user.did) {
+      return null
+    } else {
+      return state.user.did
     }
   }
 
@@ -343,15 +363,25 @@ export default class ConsentUser {
       if (user) {
         // Preserve firebase token
         firebaseToken = user.firebaseToken
-        if (user.id) {
-          return Api.unregister({ id: user.id })
+        if (user.did) {
+          return Api.unregister({ did: user.did })
         } else if (user.email) {
           return Api.unregister({ email: encodeURI(user.email) })
         } else {
-          return Promise.reject('Nothing to delete by')
+          return Promise.reject(
+            new ConsentError(
+              `Nothing to unregister ${user.did} by`,
+              E_NOTHING_TO_DELETE_BY
+            )
+          )
         }
       } else {
-        return Promise.reject('Nothing to delete')
+        return Promise.reject(
+          new ConsentError(
+            `Nothing to delete`,
+            E_NOTHING_TO_DELETE
+          )
+        )
       }
     })
     .then(responseJson => {
@@ -485,7 +515,7 @@ export default class ConsentUser {
       // See what's currently in the DB
       return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
         id: userID,
-        did: null,
+        did: null, // will receive via firebase later
         email: email,
         firebaseToken: firebaseToken,
         registered: true  // We will get this later
@@ -539,7 +569,7 @@ export default class ConsentUser {
         return Promise.resolve(false)
       } else {
         const consentUser = JSON.parse(itemJSON)
-        if (!consentUser || !consentUser.email || !consentUser.id) {
+        if (!consentUser || !consentUser.email || !consentUser.did) {
           return Promise.resolve(false)
         } else {
           return Promise.resolve(true)

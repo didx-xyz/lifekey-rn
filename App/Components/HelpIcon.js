@@ -1,6 +1,7 @@
 // external dependencies
 import React from "react"
 import Svg, { Circle, Path } from "react-native-svg"
+import PropTypes from "prop-types"
 
 const HelpIcon = (props) => {
   const dynamic = {
@@ -23,9 +24,9 @@ HelpIcon.defaultProps = {
 }
 
 HelpIcon.propTypes = {
-  "width": React.PropTypes.number.isRequired,
-  "height": React.PropTypes.number.isRequired,
-  "stroke": React.PropTypes.string
+  "width": PropTypes.number.isRequired,
+  "height": PropTypes.number.isRequired,
+  "stroke": PropTypes.string
 }
 
 const styles = {

@@ -1,6 +1,7 @@
 // external dependencies
 import React from "react"
 import Svg, { Path, Text } from "react-native-svg"
+import PropTypes from "prop-types"
 
 const HexagonIcon = (props) => {
   const dynamicPath = {
@@ -37,14 +38,14 @@ HexagonIcon.defaultProps = {
 }
 
 HexagonIcon.propTypes = {
-  "width": React.PropTypes.number.isRequired,
-  "height": React.PropTypes.number.isRequired,
-  "fill": React.PropTypes.string,
-  "textColor": React.PropTypes.string,
-  "textSize": React.PropTypes.number,
-  "textX": React.PropTypes.number,
-  "textY": React.PropTypes.number,
-  "text": React.PropTypes.string
+  "width": PropTypes.number.isRequired,
+  "height": PropTypes.number.isRequired,
+  "fill": PropTypes.string,
+  "textColor": PropTypes.string,
+  "textSize": PropTypes.number,
+  "textX": PropTypes.number,
+  "textY": PropTypes.number,
+  "text": PropTypes.string
 }
 
 export default HexagonIcon

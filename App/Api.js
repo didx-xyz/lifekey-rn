@@ -12,7 +12,7 @@ import ConsentUser from './Models/ConsentUser'
 import ConsentError, { ErrorCode } from './ConsentError'
 
 function getMissingFieldsMessage(missingFields) {
-  return 'Missing required fields. Required fields: ' . JSON.stringify(missingFields)
+  return 'Missing required fields. Required fields: ' + JSON.stringify(missingFields)
 }
 
 // Make an HTTP request
@@ -70,14 +70,18 @@ function request(route, opts, signedRequest = true) {
     })
     .then(response => {
       Logger.networkResponse(response.status, new Date(), response._bodyText)
-      // TODO: check response code etc
+
       switch (response.status) {
       case 500:
         Logger.error('500 Internal server error', 'Api.js', response)
         return Promise.reject('Internal server error')
+      case 400:
+        return Promise.reject(JSON.parse(response._bodyText))
       case 502: // Bad gateway
         Logger.error('502 Bad gateway', 'Api.js', response)
-        return Promise.reject('Bad gateway')
+        return Promise.reject(new ConsentError(
+          '502 Bad Gateway from server'
+        ))
       case 200: // Okay
         Logger.info('200 Okay', 'Api.js')
         return response.json()
@@ -85,14 +89,7 @@ function request(route, opts, signedRequest = true) {
         Logger.info('201 Created', 'Api.js')
         return response.json()
       default:
-        return response.json()
-      }
-    })
-    .then(json => {
-      if (json.error) {
-        return Promise.reject(json.error)
-      } else {
-        return Promise.resolve(json)
+        return Promise.reject(JSON.stringify(response))
       }
     })
 
@@ -180,10 +177,10 @@ export default class Api {
   // Fetch a profile
   static profile(data) {
     const requiredFields = [
-      'id'
+      'did'
     ]
     checkParameters(requiredFields, data)
-    return request(`/profile/${data.id}`, {
+    return request(`/profile/${data.did}`, {
       method: 'GET'
     }, false)
   }

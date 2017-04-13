@@ -11,6 +11,7 @@ import Palette from "../Palette"
 import { Container } from "native-base"
 import Touchable from '../Components/Touchable'
 import BackIcon from '../Components/BackIcon'
+import PropTypes from "prop-types"
 
 import {
   Text,
@@ -141,11 +142,11 @@ const style = StyleSheet.create({
 })
 
 LifekeyHeader.propTypes = {
-  "bottomLeftText": React.PropTypes.string,
-  "onPressBottomLeft": React.PropTypes.func,
-  "bottomRightText": React.PropTypes.string,
-  "onPressBottomRight": React.PropTypes.func,
-  "activeTab": React.PropTypes.number
+  bottomLeftText: PropTypes.string,
+  onPressBottomLeft: PropTypes.func,
+  bottomRightText: PropTypes.string,
+  onPressBottomRight: PropTypes.func,
+  activeTab: PropTypes.number
 }
 
 LifekeyHeader.defaultProps = {

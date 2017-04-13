@@ -19,6 +19,7 @@ import Icon from 'react-native-vector-icons/FontAwesome'
 import Design from "../DesignParameters"
 import Palette from '../Palette'
 import Touchable from '../Components/Touchable'
+import PropTypes from "prop-types"
 
 class LifekeyCard extends Component {
 
@@ -141,7 +142,7 @@ LifekeyCard.defaultProps = {
 }
 
 LifekeyCard.propTypes = {
-  headingText: React.PropTypes.string
+  headingText: PropTypes.string
 }
 
 export default LifekeyCard
