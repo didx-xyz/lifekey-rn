@@ -22,7 +22,7 @@ export default {
 
   // First scene to show
   initialRouteFromConfig: true, // Must be true to use route below
-  initialRoute: Routes.me,
+  initialRoute: Routes.meConnect,
 
   DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
   debugNetwork: true,         // Log API requests and responses
