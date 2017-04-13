@@ -95,12 +95,12 @@ export default class Lifekeyrn extends Component {
           loggedIn: results.loggedIn || false,
           email: results.email,
           firebaseToken: results.firebaseToken,
+          display_name: results.display_name
         }
         this.setState({
           booted: true
         }, () => {
           Session.update(update)
-          // this.forceUpdate()
         })
 
       } else {
@@ -185,7 +185,9 @@ export default class Lifekeyrn extends Component {
         )
         .then(() => {
           Logger.info('Connection created')
-          this.navigator.push(Routes.main)
+          // this.navigator.pop()
+          this.navigator.push(Routes.connectionDetails)
+
         })
         .catch(error => {
           Logger.error(error, this.filename, error)
@@ -202,7 +204,7 @@ export default class Lifekeyrn extends Component {
       case 'information_sharing_agreement_request':
         Logger.firebase('information_sharing_agreement_request')
         // Would you like to accept?
-        // if yes:§
+        // if yes:
         ConsentISA.add(
           message.data.isar_id,
           message.data.from_did
