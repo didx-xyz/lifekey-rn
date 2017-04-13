@@ -5,9 +5,10 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-import React from 'react'
+import React, { Component } from 'react'
 import Scene from '../Scene'
 import Palette from '../Palette'
+import Config from '../Config'
 import Logger from '../Logger'
 import Routes from '../Routes'
 import LifekeyHeader from '../Components/LifekeyHeader'
@@ -44,7 +45,7 @@ export default class Main extends Scene {
       activeTab: TAB_CONNECTED,
       searchText: '',
       connections: [],
-      suggestedConnections: []
+      suggestedConnections: Config.suggestedConnections
     }
   }
 
@@ -91,6 +92,15 @@ export default class Main extends Scene {
   _hardwareBack() {
     // Quit
     return false
+  }
+
+  connect(connection) {
+    console.log(connection)
+    this.navigator.push({
+      ...Routes.connection,
+      did: connection.did,
+      display_name: connection.display_name
+    })
   }
 
   render() {
@@ -171,9 +181,9 @@ export default class Main extends Scene {
                     <ListItem
                       key={i}
                       style={style.listItem}
-                      onPress={() => this.navigator.push({ ...Routes.connectionDetails, connectionID: suggestedConnection.id })}
+                      onPress={() => this.connect(this.state.suggestedConnections[i])}
                     >
-                      <Text>{suggestedConnection.name}</Text>
+                      <Text>{suggestedConnection.display_name}</Text>
                     </ListItem>
                     ))}
                 </View>
