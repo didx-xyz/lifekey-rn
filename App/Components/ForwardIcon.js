@@ -1,6 +1,7 @@
 // external dependencies
 import React from "react"
 import Svg, { Polyline } from "react-native-svg"
+import PropTypes from "prop-types"
 
 const ForwardIcon = (props) => {
   const dynamic = {
@@ -19,9 +20,9 @@ ForwardIcon.defaultProps = {
 }
 
 ForwardIcon.propTypes = {
-  "width": React.PropTypes.number.isRequired,
-  "height": React.PropTypes.number.isRequired,
-  "stroke": React.PropTypes.string
+  "width": PropTypes.number.isRequired,
+  "height": PropTypes.number.isRequired,
+  "stroke": PropTypes.string
 }
 
 const styles = {

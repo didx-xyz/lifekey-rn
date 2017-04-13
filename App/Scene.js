@@ -8,6 +8,7 @@
 import React, { Component } from 'react'
 import Logger from './Logger'
 import * as Lifecycle from './Lifecycle'
+import PropTypes from "prop-types"
 
 /**
  * Scene Component - A component that extends the functionality of React.Component
@@ -75,8 +76,8 @@ export default class Scene extends Component {
 }
 
 Scene.propTypes = {
-  navigator: React.PropTypes.object,
-  _navigationEventEmitter: React.PropTypes.object,
-  _gaTrackers: React.PropTypes.object,
-  _modalEventEmitter: React.PropTypes.object
+  navigator: PropTypes.object,
+  _navigationEventEmitter: PropTypes.object,
+  _gaTrackers: PropTypes.object,
+  _modalEventEmitter: PropTypes.object
 }
