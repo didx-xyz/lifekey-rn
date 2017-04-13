@@ -38,30 +38,6 @@ class EditResource extends Scene {
     fetch(this.props.form)
       .then(response => response.json())
       .then(data => this.handleData(data))
-
-    ImagePicker.showImagePicker({}, (response) => {
-      console.log('Response = ', response);
-
-      // if (response.didCancel) {
-      //   console.log('User cancelled image picker');
-      // }
-      // else if (response.error) {
-      //   console.log('ImagePicker Error: ', response.error);
-      // }
-      // else if (response.customButton) {
-      //   console.log('User tapped custom button: ', response.customButton);
-      // }
-      // else {
-      //   let source = { uri: response.uri };
-      //
-      //   // You can also display the image using data:
-      //   // let source = { uri: 'data:image/jpeg;base64,' + response.data };
-      //
-      //   this.setState({
-      //     avatarSource: source
-      //   });
-      // }
-    })
   }
 
   handleData(data) {
@@ -80,6 +56,10 @@ class EditResource extends Scene {
       if (entity.type === "language") {
         state[entity.name + "__shown"] = false
         state[entity.name + "__label"] = "Select a language"
+      }
+
+      if (entity.type === "photograph") {
+        state[entity.name + "__label"] = "Select a photograph"
       }
     })
 
@@ -131,6 +111,10 @@ class EditResource extends Scene {
       return this.renderLanguageInput(entity, i)
     }
 
+    if (entity.type === "photograph") {
+      return this.renderPhotographInput(entity, i)
+    }
+
     return (
       <Text>unknown type</Text>
     )
@@ -160,21 +144,21 @@ class EditResource extends Scene {
 
     return (
       <ModalPicker
-          data={data}
-          initValue="Select a country"
-          onChange={(option) => {
-            this.setState({
-              [entity.name + "__label"]: option.label,
-              [entity.name]: option.value
-            })
-          }}
-        >
-          <TextInput
-            style={styles.countryLabel}
-            editable={false}
-            placeholder="Select a country"
-            value={this.state[entity.name + "__label"]}
-          />
+        data={data}
+        initValue="Select a country"
+        onChange={(option) => {
+          this.setState({
+            [entity.name + "__label"]: option.label,
+            [entity.name]: option.value
+          })
+        }}
+      >
+        <TextInput
+          style={styles.countryLabel}
+          editable={false}
+          placeholder="Select a country"
+          value={this.state[entity.name + "__label"]}
+        />
       </ModalPicker>
     )
   }
@@ -208,22 +192,49 @@ class EditResource extends Scene {
 
     return (
       <ModalPicker
-          data={data}
-          initValue="Select a language"
-          onChange={(option) => {
-            this.setState({
-              [entity.name + "__label"]: option.label,
-              [entity.name]: option.value
-            })
-          }}
-        >
-          <TextInput
-            style={styles.languageLabel}
-            editable={false}
-            placeholder="Select a language"
-            value={this.state[entity.name + "__label"]}
-          />
+        data={data}
+        initValue="Select a language"
+        onChange={(option) => {
+          this.setState({
+            [entity.name + "__label"]: option.label,
+            [entity.name]: option.value
+          })
+        }}
+      >
+        <TextInput
+          style={styles.languageLabel}
+          editable={false}
+          placeholder="Select a language"
+          value={this.state[entity.name + "__label"]}
+        />
       </ModalPicker>
+    )
+  }
+
+  renderPhotographInput(entity, i) {
+    const pick = () => {
+      ImagePicker.showImagePicker({}, (response) => {
+        if (response.fileSize > 1024 /* b → kb */ * 1024 /* kb → mb */ * 10) {
+          alert("file is too big")
+          return
+        }
+
+        this.setState({
+          [entity.name + "__label"]: response.fileName,
+          [entity.name]: response.data
+        })
+      })
+    }
+
+
+    return (
+      <Touchable onPress={pick}>
+        <View style={styles.photographLabel}>
+          <Text style={styles.photographLabelText}>
+            {this.state[entity.name + "__label"]}
+          </Text>
+        </View>
+      </Touchable>
     )
   }
 
@@ -348,6 +359,15 @@ const styles = {
     "height": 20,
     "paddingTop": 10,
     "paddingBottom": 10,
+    "fontSize": 14
+  },
+  "photographLabel": {
+    "height": 20,
+    "justifyContent": "center"
+  },
+  "photographLabelText": {
+    "fontWeight": "100",
+    "color": "#666",
     "fontSize": 14
   },
   "buttons": {
