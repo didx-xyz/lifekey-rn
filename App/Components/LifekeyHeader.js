@@ -2,12 +2,15 @@
  * Lifekey App
  * @copyright 2017 Global Consent Ltd
  * Civvals, 50 Seymour Street, London, England, W1H 7JG
- * @author Werner Roets <werner@io.co.za>
+ * @author Hein <hein@io.co.za>
  */
 import React, { Component } from 'react'
-import Palette from '../Palette'
 import Config from '../Config'
+import Design from "../DesignParameters"
+import Palette from "../Palette"
+import { Container } from "native-base"
 import Touchable from '../Components/Touchable'
+import BackIcon from '../Components/BackIcon'
 
 import {
   Text,
@@ -15,8 +18,6 @@ import {
   StyleSheet,
   Image
 } from 'react-native'
-
-const DEBUG = false
 
 class LifekeyHeader extends Component {
 
@@ -42,7 +43,6 @@ class LifekeyHeader extends Component {
   }
 
   onPressBottomRightButton() {
-    this.props.onPressBottomRight()
     this.setState({
       activeTab: this.TAB_SUGGESTED
     })
@@ -51,113 +51,107 @@ class LifekeyHeader extends Component {
   render() {
 
     return (
-      <View style={style.header}>
+      <Container>
+        <View style={style.header}>
 
-        { /* TOP SECTION */ }
-        <View style={style.topView}>
+          { /* TOP SECTION */ }
+          <View style={style.navigationContainer}>
 
-          { /* TOP LEFT */ }
-          <View style={style.topViewLeft}>
-            <Image source={require('../Images/torn_page.png')}/>
-          </View>
-
-        { /* TOP CENTER */ }
-        { Config.DEBUG ?
-          <Touchable delayLongPress={500} onLongPress={() => this.props.onLongPressTopCenter()}>
-            <View style={style.topViewCenter}>
-              <Image source={require('../Images/blue_dots_static.png')}/>
-            </View>
-          </Touchable>
-
-          :
-          <View style={style.topViewCenter}>
-            <Image source={require('../Images/blue_dots_static.png')}/>
-          </View>
-        }
-
-          { /* TOP RIGHT */ }
-          <View style={style.topViewRight}>
-            <Image source={require('../Images/smiley_speech_bubble.png')}/>
-          </View>
-
-        </View>
-
-        { /* BOTTOM SECTION */ }
-        <View style={style.bottomView}>
-
-          { this.props.tabs.map((tab, i) =>
-            <Touchable key={i} onPress={() => tab.onPress()}>
-              <View style={[
-                style.bottomButton,
-                { borderColor: tab.active ? Palette.consentBlue : Palette.consentGrayDark }
-              ]}>
-                <Text style={{ fontSize: 16 }}>{tab.text}</Text>
+            <View style={style.navigation}>
+              <View >
+                <Touchable onPress={this.onPressBottomLeftButton}>
+                  <BackIcon { ...Design.backIcon } />
+                </Touchable>
               </View>
-            </Touchable>
-          )}
-        </View>
+              <View style={style.profileImageContainer}>
+                {/* image here */}
+                <Image source={require('../Images/smiley_speech_bubble.png')}/>
+              </View>
+              <View>
+                <Touchable onPress={this.onPressBottomRightButton}>
+                  <Text>+</Text>
+                </Touchable>
+              </View>
+            </View>
+          </View>
 
-      </View>
+          { /* BOTTOM SECTION */ }
+          <View style={ style.tabs }>
+
+            { /* The key for this map is the index. Which is a bad idea. */ }
+            { this.props.tabs.map((tab, i) => {
+
+                { /* https://facebook.github.io/react-native/docs/stylesheet.html#flatten */ }
+                const tabStyle = tab.active ? StyleSheet.flatten([ style.tab, { borderBottomWidth: 2, borderColor: Palette.consentBlue } ]) : style.tab
+                const tabTextStyle = tab.active ? StyleSheet.flatten([ style.tabText, { color: Palette.consentBlue } ]) : style.tabText
+
+                return (
+                  <Touchable key={i} onPress={this.onBoundPressBottomRightButton}>
+                    <View style={ tabStyle }>
+                      <Text style={ tabTextStyle }>{tab.text.toUpperCase()}</Text>
+                    </View>
+                  </Touchable>
+                )
+              }
+            )}
+          </View>
+        </View>
+      </Container>
     )
   }
 }
 
 const style = StyleSheet.create({
-  header: {
-    backgroundColor: 'white',
-    flex: 1
+  "header": {
+    "backgroundColor": "white",
+    "flex": 1
   },
-  topView: {
-    flex: 3,
-    flexDirection: 'row'
+  "navigationContainer": {
+    "flex": 2
   },
-  topViewLeft: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: DEBUG ? 'green' : null
+  "navigation": {
+    "width": "100%",
+    "paddingRight": Design.paddingRight,
+    "paddingLeft": Design.paddingLeft,
+    "flexDirection": "row",
+    "justifyContent": "space-between",
+    "alignItems": "center"
   },
-  topViewCenter: {
-    flex: 3,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: DEBUG ? 'red' : null
+  "profileImageContainer":{
+    "height": "100%",
+    "marginRight": Design.paddingRight,
+    "justifyContent": "space-around",
+    "alignItems": "center"
   },
-  topViewRight: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: DEBUG ? 'green' : null
+  "tabs": {
+    "flex": 1,
+    "flexDirection": "row",
+    "justifyContent": "space-around"
   },
-  bottomView: {
-    flex: 2,
-    flexDirection: 'row',
+  "tab": {
+    "flex": 1,
+    "justifyContent": "center",
+    "alignItems": "center"
   },
-  bottomGap: {
-    flex: 2,
-
-  },
-  bottomButton: {
-    flex: 4,
-    borderColor: Palette.consentBlue,
-    borderBottomWidth: 2,
-    justifyContent: 'center',
-    alignItems: 'center'
+  "tabText": {
+    "fontSize": Design.navigationTabFontSize,
+    "color": Palette.consentGray,
+    "fontWeight": "bold"
   }
 })
 
 LifekeyHeader.propTypes = {
-  bottomLeftText: React.PropTypes.string,
-  onPressBottomLeft: React.PropTypes.func,
-  bottomRightText: React.PropTypes.string,
-  onPressBottomRight: React.PropTypes.func,
-  activeTab: React.PropTypes.number
+  "bottomLeftText": React.PropTypes.string,
+  "onPressBottomLeft": React.PropTypes.func,
+  "bottomRightText": React.PropTypes.string,
+  "onPressBottomRight": React.PropTypes.func,
+  "activeTab": React.PropTypes.number
 }
 
 LifekeyHeader.defaultProps = {
-  bottomLeftText: 'Connected',
-  bottomRightText: 'Suggested',
-  activeTab: LifekeyHeader.TAB_CONNECTED,
+  "bottomLeftText": 'Connected',
+  "bottomRightText": 'Suggested',
+  "activeTab": LifekeyHeader.TAB_CONNECTED,
   onPressBottomLeft: () => ({}),
   onPressBottomRight: () => ({})
 }

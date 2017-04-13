@@ -2,7 +2,7 @@
  * Lifekey App
  * @copyright 2017 Global Consent Ltd
  * Civvals, 50 Seymour Street, London, England, W1H 7JG
- * @author Werner Roets <werner@io.co.za>
+ * @author Hein <hein@io.co.za>
  */
 
 import React, { Component } from 'react'
@@ -16,6 +16,7 @@ import {
   CardItem
 } from 'native-base'
 import Icon from 'react-native-vector-icons/FontAwesome'
+import Design from "../DesignParameters"
 import Palette from '../Palette'
 import Touchable from '../Components/Touchable'
 
@@ -23,79 +24,116 @@ class LifekeyCard extends Component {
 
   constructor(props) {
     super(props)
+
+    this.state = {
+      expanded: false
+    }
+
+    this.onBoundPressSwitchExpand = this.onPressSwitchExpand.bind(this)
+  }
+
+  onPressSwitchExpand (event) {
+    this.setState({ expanded: !this.state.expanded })
   }
 
   render() {
-    return (
-      <Card style={style.card}>
-        <CardItem>
-          <View style={style.heading}>
-            <Text style={style.headingText}>{this.props.headingText.toUpperCase()}</Text>
-            <Icon style={style.headingIcon} name="angle-down" size={40} color={Palette.consentGrayDark} />
-          </View>
-          <View style={style.children}>
-            {this.props.children}
-          </View>
-        </CardItem>
-        <CardItem>
-          <View style={style.footer}>
-            <View style={style.footerLeftView}>
+
+    var childrenWithExpandedProp = React.Children.map(this.props.children, (child) => React.cloneElement(child, { expanded: this.state.expanded }));
+
+    if(this.state.expanded)
+      return (
+        <Card style={style.card}>
+          <CardItem>
+            <View style={style.cardHeader}>
+              <Text style={style.cardHeadingText}>{this.props.headingText.toUpperCase()}</Text>
+              <Touchable onPress={this.onBoundPressSwitchExpand}>
+                <Icon style={Object.assign({}, style.cardHeadingIcon, style.cardHeadingIconLarge)} name="angle-down"  />
+              </Touchable>
+            </View>
+          </CardItem>
+          <CardItem style={style.cardBody}>
+            { childrenWithExpandedProp }
+          </CardItem>
+          <CardItem>
+            <View style={style.cardFooter}>
               <Touchable onPress={() => this.props.onPressEdit()}>
-                <Text style={style.footerLeftText}>EDIT</Text>
+                <Text style={Object.assign({}, style.cardFooterText, style.cardFooterLeftText)}>EDIT</Text>
               </Touchable>
-            </View>
-            <View style={style.footerRightView}>
               <Touchable onPress={() => this.props.onPressShare()}>
-                <Text style={style.footerRightText}>SHARE</Text>
+                <Text style={Object.assign({}, style.cardFooterText, style.cardFooterRightText)}>SHARE</Text>
               </Touchable>
             </View>
-          </View>
-        </CardItem>
-      </Card>
-    )
+          </CardItem>
+        </Card>
+      )
+    else
+      return(
+        <Card style={style.card}>
+          <CardItem>
+            <View style={style.cardHeader}>
+              <Text style={style.cardHeadingText}>{this.props.headingText.toUpperCase()}</Text>
+              <Touchable onPress={this.onBoundPressSwitchExpand}>
+                <Icon style={Object.assign({}, style.cardHeadingIcon, style.cardHeadingIconSmall)}  name="angle-right"  />
+              </Touchable>
+            </View>
+          </CardItem>
+          <CardItem style={style.cardBody}>
+            { childrenWithExpandedProp }
+          </CardItem>
+        </Card>
+      )
   }
 }
 
 const style = {
   card: {
-    marginTop: 10,
-    marginLeft: 15,
-    marginRight: 15
+    marginTop: Design.paddingLeft / 2,
+    marginLeft: Design.paddingLeft / 2,
+    marginRight: Design.paddingRight / 2
   },
-  heading: {
+  cardHeader: {
+    flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between'
   },
-  headingText: {
+  cardHeadingText: {
+    "fontSize": 10,
     fontWeight: 'bold'
   },
-  headingIcon: {
-    marginTop: -10
+  cardHeadingIcon: {
+    marginTop: -10,
+    color: Palette.consentGrayDark
   },
-  footer: {
+  cardHeadingIconSmall: {
+    fontSize: 30
+  },
+  cardHeadingIconLarge: {
+    fontSize: 32
+  },
+  cardBody: {
+    "flex": 1,
+    "paddingTop": 0,
+    "marginTop": -10
+  },
+  cardFooter: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    "paddingTop": Design.paddingTop,
+    "borderTopWidth": 1,
+    "borderColor": Palette.consentGrayLightest
   },
-  footerLeftView: {
-    flex: 1
-  },
-  footerLeftText: {
-    color: Palette.consentGrayDark,
+  cardFooterText: {
     fontWeight: 'bold',
-    fontSize: 16,
-    paddingLeft: 10
+    fontSize: 12
   },
-  footerRightView: {
-    flex: 1,
-    alignItems: 'flex-end',
+  cardFooterLeftText: {
+    color: Palette.consentGrayDark
   },
-  footerRightText: {
-    color: Palette.consentBlue,
-    fontWeight: 'bold',
-    fontSize: 16,
-    paddingRight: 10
+  cardFooterRightText: {
+    color: Palette.consentBlue
   },
+
 }
 
 LifekeyCard.defaultProps = {
