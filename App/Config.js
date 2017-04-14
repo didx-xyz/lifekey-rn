@@ -27,9 +27,8 @@ export default {
   // Debug
   DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
   debugNetwork: true,         // Log API requests and responses
-  debugReact: true,           // Log the React Lifecycle events
+  debugReact: false,           // Log the React Lifecycle events
   debugNavigator: false,      // Log the current stack of Navigator routes
-  debugAsyncStorage: true,    // Log Storage (AsyncStorage) reads/writes
   debugFirebase: true,        // Log Firebase events
 
   suggestedConnections: [
@@ -41,7 +40,13 @@ export default {
     {
       icon: null,
       display_name: 'Trustbank Bot',
-      did: 'ac4d20fc92a5f1ebb00d9bdf2bba01095fc00bdc6e2867f6f1490d2e5f7a02d2' }
+      did: 'ac4d20fc92a5f1ebb00d9bdf2bba01095fc00bdc6e2867f6f1490d2e5f7a02d2'
+    },
+    {
+      icon: null,
+      display_name: 'skibas_bot',
+      did: 'abd4935fd184c5f8a4bbbec7b712137637b436388462786d1caa5412e1ab9888'
+    }
   ],
 
   version: NPM_PACKAGE.version, // App version
