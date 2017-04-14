@@ -21,6 +21,8 @@ import LcHomeAddress from '../Components/lc-HomeAddress'
 import LcContactDetails from '../Components/lc-ContactDetails'
 import LcAddCategoryButton from '../Components/lc-AddCategoryButton'
 import Touchable from '../Components/Touchable'
+import AndroidBackButton from 'react-native-android-back-button'
+import BackIcon from '../Components/BackIcon'
 
 import { Text, View } from 'react-native'
 import { Container, Content } from 'native-base'
@@ -81,9 +83,46 @@ export default class Me extends Scene {
 
   render() {
     return (
-      
-      <MvTemplate tabName={this.state.tabName}>
-        
+
+      <MvTemplate
+        tabName={this.state.tabName}
+        header={
+          () => <LifekeyHeader
+            icons={[
+              {
+                icon: <BackIcon width={15} height={15}/>,
+                onPress: () => this.navigator.pop()
+              },
+              {
+                icon: <Text>:)</Text>,
+                onPress: () => alert('test')
+              },
+              {
+                icon: <Text>+</Text>,
+                onPress: () => alert('test')
+              }
+            ]}
+            tabs={[
+              {
+                text: 'Connect',
+                onPress: () => this.setTab(0),
+                active: this.state.activeTab === 0
+              },
+              {
+                text: 'My Data',
+                onPress: () => this.setTab(1),
+                active: this.state.activeTab === 1
+              },
+              {
+                text: 'Badges',
+                onPress: () => this.setTab(2),
+                active: this.state.activeTab === 1
+              }
+            ]}
+          />
+        }
+      >
+        <AndroidBackButton onPress={() => this._hardwareBack()} />
         <Content>
           { /* This probably also needs to be generated more dynamically but a little unsure of the schema to implement that currently - hein */ }
           <LifekeyCard headingText="Legal Identity" onPressEdit={() => alert('EDIT')} onPressShare={() => alert('SHARE')} >
@@ -96,10 +135,10 @@ export default class Me extends Scene {
 
           <LifekeyCard headingText="Contact Details" onPressEdit={() => alert('EDIT')} onPressShare={() => alert('SHARE')} >
             <LcContactDetails contactDetails={person.contactDetails} />
-          </LifekeyCard> 
+          </LifekeyCard>
 
           <View>
-            { 
+            {
               categoriesToAdd
                .map((cat, i) => <LcAddCategoryButton key={i} headingText={cat} />)
             }
@@ -107,7 +146,7 @@ export default class Me extends Scene {
 
         </Content>
 
-      </MvTemplate> 
+      </MvTemplate>
     )
   }
 }
