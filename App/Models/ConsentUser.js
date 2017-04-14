@@ -113,7 +113,7 @@ export default class ConsentUser {
       }
     })
     .then(response => {
-      if (parseInt(response.status) === 200) {
+      if (parseInt(response.status, 10) === 200) {
 
         // profile exists too, seems legit, log them in
         const update = {}
