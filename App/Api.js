@@ -1,5 +1,5 @@
 /**
- * Early Childhood Development App
+ * Lifekey App
  * @copyright 2016 Global Consent Ltd
  * Civvals, 50 Seymour Street, London, England, W1H 7JG
  * @author Werner Roets <werner@io.co.za>
@@ -71,7 +71,7 @@ function request(route, opts, signedRequest = true) {
     .then(response => {
       Logger.networkResponse(response.status, new Date(), response._bodyText)
 
-      switch (parseInt(response.status)) {
+      switch (parseInt(response.status, 10)) {
       case 500:
         Logger.error('500 Internal server error', 'Api.js', response)
         return Promise.reject('Internal server error')
