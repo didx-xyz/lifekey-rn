@@ -22,31 +22,9 @@ import {
 
 class LifekeyHeader extends Component {
 
-  TAB_CONNECTED = 0
-  TAB_SUGGESTED = 1
-
   constructor(props) {
-
     super(props)
-    this.state = {
-      activeTab: this.TAB_CONNECTED,
-      bottomLeftText: props.bottomLeftText,
-      bottomRightText: props.bottomRightText,
-      tabs: props.tabs
-    }
-  }
-
-  onPressBottomLeftButton() {
-    this.props.onPressBottomLeft()
-    this.setState({
-      activeTab: this.TAB_CONNECTED
-    })
-  }
-
-  onPressBottomRightButton() {
-    this.setState({
-      activeTab: this.TAB_SUGGESTED
-    })
+    this.state = {}
   }
 
   render() {
@@ -59,20 +37,17 @@ class LifekeyHeader extends Component {
           <View style={style.navigationContainer}>
 
             <View style={style.navigation}>
-              <View >
-                <Touchable onPress={this.onPressBottomLeftButton}>
-                  <BackIcon { ...Design.backIcon } />
-                </Touchable>
-              </View>
-              <View style={style.profileImageContainer}>
-                {/* image here */}
-                <Image source={require('../Images/smiley_speech_bubble.png')}/>
-              </View>
-              <View>
-                <Touchable onPress={this.onPressBottomRightButton}>
-                  <Text>+</Text>
-                </Touchable>
-              </View>
+
+              { this.props.icons.map((icon, i) =>
+                <View key={i}>
+                  <Touchable
+                    onLongPress={() => icon.onLongPress()}
+                    onPress={() => icon.onPress()}>
+                    <View>{icon.icon}</View>
+                  </Touchable>
+                </View>
+              )}
+
             </View>
           </View>
 
@@ -82,19 +57,30 @@ class LifekeyHeader extends Component {
             { /* The key for this map is the index. Which is a bad idea. */ }
             { this.props.tabs.map((tab, i) => {
 
-                { /* https://facebook.github.io/react-native/docs/stylesheet.html#flatten */ }
-                const tabStyle = tab.active ? StyleSheet.flatten([ style.tab, { borderBottomWidth: 2, borderColor: Palette.consentBlue } ]) : style.tab
-                const tabTextStyle = tab.active ? StyleSheet.flatten([ style.tabText, { color: Palette.consentBlue } ]) : style.tabText
+              { /* https://facebook.github.io/react-native/docs/stylesheet.html#flatten */ }
+              const tabStyle = tab.active ?
+                StyleSheet.flatten([
+                  style.tab,
+                  { borderBottomWidth: 2, borderColor: Palette.consentBlue }
+                ])
+              :
+                style.tab
 
-                return (
-                  <Touchable key={i} onPress={this.onBoundPressBottomRightButton}>
-                    <View style={ tabStyle }>
-                      <Text style={ tabTextStyle }>{tab.text.toUpperCase()}</Text>
-                    </View>
-                  </Touchable>
-                )
-              }
-            )}
+              const tabTextStyle = tab.active ?
+                  StyleSheet.flatten([
+                    style.tabText, { color: Palette.consentBlue }
+                  ])
+                :
+                  style.tabText
+
+              return (
+                <Touchable key={i} onPress={() => tab.onPress()}>
+                  <View style={ tabStyle }>
+                    <Text style={ tabTextStyle }>{tab.text.toUpperCase()}</Text>
+                  </View>
+                </Touchable>
+              )
+            })}
           </View>
         </View>
       </Container>
