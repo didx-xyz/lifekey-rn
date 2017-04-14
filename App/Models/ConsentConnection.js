@@ -67,7 +67,7 @@ class ConsentConnection {
       // If entry does not exist, create from scratch
       if (!connectionsItem) {
         const connectionsItemJSON = JSON.stringify([{
-          id: parseInt(id),
+          id: parseInt(id, 10),
           to_did: to_did,
           display_name: display_name
         }])
@@ -92,7 +92,7 @@ class ConsentConnection {
       } else {
         // merge new data
         const updatedConnectionsItem = JSON.stringify(connections.concat({
-          id: parseInt(id),
+          id: parseInt(id, 10),
           to: parseInt(to_did),
           display_name: display_name
         }))
