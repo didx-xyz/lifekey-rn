@@ -156,20 +156,20 @@ export default class Register extends Scene {
   }
 
   _onKeyboardWillShow() {
-    Logger.info('KeyboardWillShow', this._fileName)
+    Logger.info('KeyboardWillShow', this._filename)
   }
 
   _onKeybordWillHide() {
-    Logger.info('KeyboardWillHide', this._fileName)
+    Logger.info('KeyboardWillHide', this._filename)
 
   }
 
   _onKeyboardDidShow() {
-    Logger.info('KeyboardDidShow', this._fileName)
+    Logger.info('KeyboardDidShow', this._filename)
   }
 
   _onKeyboardDidHide() {
-    Logger.info('KeyboardDidHide', this._fileName)
+    Logger.info('KeyboardDidHide', this._filename)
   }
 
   componentWillUnmount() {
@@ -369,12 +369,12 @@ export default class Register extends Scene {
       this.state.pin
     )
     .then(result => {
-      Logger.info('Registration request sent successfully. Please check for magic link', this._fileName)
+      Logger.info('Registration request sent successfully. Please check for magic link', this._filename)
       this._stepForward()
 
     })
     .catch(error => {
-      Logger.error('Not registered', this._fileName, error)
+      Logger.error('Not registered', this._filename, error)
       switch (error.status) {
       case 400: // Validation error
         alert('The username or email already exists or is invalid')
