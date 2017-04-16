@@ -1,5 +1,5 @@
 /**
- * Early Childhood Development App
+ * Lifekey App
  * @copyright 2016 Global Consent Ltd
  * Civvals, 50 Seymour Street, London, England, W1H 7JG
  * @author Werner Roets <werner@io.co.za>
@@ -71,7 +71,7 @@ function request(route, opts, signedRequest = true) {
     .then(response => {
       Logger.networkResponse(response.status, new Date(), response._bodyText)
 
-      switch (response.status) {
+      switch (parseInt(response.status, 10)) {
       case 500:
         Logger.error('500 Internal server error', 'Api.js', response)
         return Promise.reject('Internal server error')
@@ -120,7 +120,6 @@ function request(route, opts, signedRequest = true) {
 }
 
 function checkParameters(requiredKeys, receivedObject) {
-
   // It must be an object
   if (typeof receivedObject !== 'object') {
 
@@ -161,8 +160,10 @@ function checkParameters(requiredKeys, receivedObject) {
     }
 
     // null is not allowed
-   if (receivedObject[requiredKeys[i]] === null || typeof receivedObject[requiredKeys[i]] === 'undefined') {
-      throw new ConsentError(`${receivedObject[i]} cannot be 'null'`, ErrorCode.E_API_FATAL_ERROR)
+
+    if (receivedObject[requiredKeys[i]] === null || typeof receivedObject[requiredKeys[i]] === 'undefined') {
+      throw new ConsentError(`${receivedObject[requiredKeys[i]]} cannot be 'null' or 'undefined'`, ErrorCode.E_API_FATAL_ERROR)
+
     }
   }
 
@@ -379,7 +380,7 @@ export default class Api {
   }
 
    // Update an ISA by id
-  static updateISA (data) {
+  static updateISA(data) {
     const requiredFields = [
       'isa_id',
       'permitted_resources'
@@ -418,6 +419,28 @@ export default class Api {
       return request(`/management/push/${data.isa_id}`, {
         method: 'POST',
         body: JSON.stringify({ resources: data.resources })
+      })
+    } else {
+      return Promise.reject(getMissingFieldsMessage(requiredFields))
+    }
+  }
+
+  // ##################
+  // #### RESOURCE ####
+  // ##################
+
+  static resource(data) {
+    const requiredFields = [
+      'value',
+      'entity',
+      'attribute',
+      'alias'
+    ]
+
+    if (checkParameters(requiredFields, data)) {
+      return request('/resource', {
+        method: 'POST',
+        body: JSON.stringify(data)
       })
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))

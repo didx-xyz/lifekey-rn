@@ -8,9 +8,12 @@ import BackButton from "../Components/BackButton"
 import HelpIcon from "../Components/HelpIcon"
 import HexagonIcon from "../Components/HexagonIcon"
 import Scene from "../Scene"
+import Util from "../Util"
+import Session from "../Session"
+import Routes from "../Routes"
 import Touchable from "../Components/Touchable"
 import VerifiedIcon from "../Components/VerifiedIcon"
-
+import ConsentUser from '../Models/ConsentUser'
 import Api from '../Api'
 
 class Connection extends Scene {
@@ -33,11 +36,13 @@ class Connection extends Scene {
     }, () => {
       Api.requestConnection({ target: this.props.route.did })
       .then(() => {
-        this.setState({
-          connecting: false
-        }, () => {
-          this.navigator.pop()
-        })
+        setTimeout(() => {
+          this.setState({
+            connecting: false
+          }, () => {
+            alert(`Could not connect to ${this.props.route.display_name}`)
+          })
+        }, 10000) // Wait max 10 seconds
       })
       .catch(error => {
         alert(JSON.stringify(error))
@@ -68,7 +73,7 @@ class Connection extends Scene {
             {/* logo goes here */}
           </View>
           <View style={styles.name}>
-            <Text style={styles.nameText}>{this.props.route.display_name}</Text>
+            <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text>
           </View>
 
           {this.state.isVerified &&
@@ -101,7 +106,8 @@ class Connection extends Scene {
             <Text style={styles.connectedText}>Connected to 3,421 people.</Text>
           </View>
           <View style={styles.greeting}>
-            <Text style={styles.greetingText}>Hi there Meghan. Connecting with Absa Bank will allow you to:</Text>
+            <Text
+              style={styles.greetingText}>Hi there {Util.ucfirst(ConsentUser.getDisplayNameSync())}. Connecting with {Util.ucfirst(this.props.route.display_name)} will allow you to:</Text>
           </View>
           <View style={styles.actions}>
             <Text style={styles.actionsText}>• Connect your existing accounts.</Text>

@@ -1,6 +1,8 @@
+// external dependencies
 import React from "react"
 import { Dimensions } from "react-native"
 import Svg, { Path, Circle, Rect } from "react-native-svg"
+import PropTypes from "prop-types"
 
 const Dots  = function(props) {
   const { width } = Dimensions.get("window")
@@ -46,14 +48,14 @@ Dots.defaultProps = {
 }
 
 Dots.propTypes = {
-  "max": React.PropTypes.number,
-  "height": React.PropTypes.number,
-  "radius": React.PropTypes.number,
-  "space": React.PropTypes.number,
-  "emptyFill": React.PropTypes.string,
-  "fullFill": React.PropTypes.string,
-  "strokeWidth": React.PropTypes.number,
-  "strokeColor": React.PropTypes.string
+  "max": PropTypes.number,
+  "height": PropTypes.number,
+  "radius": PropTypes.number,
+  "space": PropTypes.number,
+  "emptyFill": PropTypes.string,
+  "fullFill": PropTypes.string,
+  "strokeWidth": PropTypes.number,
+  "strokeColor": PropTypes.string
 }
 
 export default Dots

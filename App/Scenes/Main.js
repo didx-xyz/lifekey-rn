@@ -16,11 +16,12 @@ import LifekeyFooter from '../Components/LifekeyFooter'
 import Touchable from '../Components/Touchable'
 import AndroidBackButton from 'react-native-android-back-button'
 import ConsentConnection from '../Models/ConsentConnection'
+import Design from '../DesignParameters'
+import HexagonIcon from '../Components/HexagonIcon'
 
 import {
   Text,
   View,
-  StyleSheet,
   Dimensions
 } from 'react-native'
 import {
@@ -30,7 +31,7 @@ import {
   ListItem,
   Content,
   Input,
-
+  Image
 } from 'native-base'
 import Icon from 'react-native-vector-icons/FontAwesome'
 
@@ -62,7 +63,7 @@ export default class Main extends Scene {
       })
     })
     .catch(error => {
-      Logger.error(error, this._fileName, error)
+      Logger.error(error, this._filename, error)
     })
   }
 
@@ -95,7 +96,6 @@ export default class Main extends Scene {
   }
 
   connect(connection) {
-    console.log(connection)
     this.navigator.push({
       ...Routes.connection,
       did: connection.did,
@@ -106,20 +106,39 @@ export default class Main extends Scene {
   render() {
     return (
       <Container>
-        <View style={{ borderColor: Palette.consentGrayDark, height: 120 }}>
+        <View style={{ borderColor: Palette.consentGrayDark, height: 89 }}>
           <AndroidBackButton onPress={() => this._hardwareBack()} />
           <LifekeyHeader
-            onLongPressTopCenter={() => this.navigator.push(Routes.debug.main)}
-            onPressBottomLeft={() => this.setTab(TAB_CONNECTED) }
-            onPressBottomRight={() => this.setTab(TAB_SUGGESTED) }
             icons={[
-              <Text>Test1</Text>,
-              <Text>Test2</Text>,
-              <Text>Test3</Text>
+              {
+                icon: <Text>+</Text>,
+                onPress: () => alert('test')
+              },
+              {
+                icon: <HexagonIcon/>,
+                onPress: () => alert('test'),
+                onLongPress: () => {
+                  if (Config.DEBUG) {
+                    this.navigator.push(Routes.debug.main)
+                  }
+                }
+              },
+              {
+                icon: <Text>+</Text>,
+                onPress: () => alert('test')
+              }
             ]}
             tabs={[
-              { text: 'Connected', onPress: () => this.setTab(TAB_CONNECTED), active: this.state.activeTab === 0 },
-              { text: 'Suggested', onPress: () => this.setTab(TAB_SUGGESTED), active: this.state.activeTab === 1 }
+              {
+                text: 'Connected',
+                onPress: () => this.setTab(TAB_CONNECTED),
+                active: this.state.activeTab === 0
+              },
+              {
+                text: 'Suggested',
+                onPress: () => this.setTab(TAB_SUGGESTED),
+                active: this.state.activeTab === 1
+              }
             ]}
           />
 
@@ -150,7 +169,12 @@ export default class Main extends Scene {
                       />
                       { this.state.searchText !== '' &&
                         <Touchable onPress={() => this.clearSearch()}>
-                          <Icon style={style.searchBoxCloseIcon} name="times-circle" size={25} color={Palette.consentGrayDark} />
+                          <Icon
+                            style={style.searchBoxCloseIcon}
+                            name="times-circle"
+                            size={25}
+                            color={Palette.consentGrayDark}
+                          />
                         </Touchable>
                       }
                   </View>
@@ -167,9 +191,16 @@ export default class Main extends Scene {
                       <ListItem
                         key={i}
                         style={style.listItem}
-                        onPress={() => this.navigator.push({ ...Routes.connectionDetails, connection_to: connection.to, connection_id: connection.id })}
+                        onPress={() => this.navigator.push({
+                          ...Routes.connectionDetails,
+                          connection_to: connection.to_did,
+                          connection_id: connection.id,
+                          display_name: connection.display_name
+                        })}
                       >
-                        <Text>{connection.nickname + ' - ' + connection.id + ' - ' + connection.to}</Text>
+                        <Text>
+                          {`${connection.display_name} - ${connection.to_did} - ${connection.id}`}
+                        </Text>
                       </ListItem>
                   ))}
 
