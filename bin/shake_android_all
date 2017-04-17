@@ -1,0 +1,2 @@
+#!/usr/bin/env bash
+for d in $(adb devices -l | sed '1d' | sed '$d' |  awk '{print $1}'); do adb -s $d shell input keyevent 82; done
