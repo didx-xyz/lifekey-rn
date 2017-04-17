@@ -9,8 +9,6 @@ import HelpIcon from "../Components/HelpIcon"
 import HexagonIcon from "../Components/HexagonIcon"
 import Scene from "../Scene"
 import Util from "../Util"
-import Session from "../Session"
-import Routes from "../Routes"
 import Touchable from "../Components/Touchable"
 import VerifiedIcon from "../Components/VerifiedIcon"
 import ConsentUser from '../Models/ConsentUser'
