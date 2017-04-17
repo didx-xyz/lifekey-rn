@@ -82,7 +82,7 @@ export default class SplashScreen extends Scene {
           this.setState({
             tokenAvailable: false
           })
-          Logger.info('False start. No App token', this._fileName)
+          Logger.info('False start. No App token', this.filename)
           alert('False start. No App token. Please reinstall Lifekey')
           setTimeout(() => {
             throw new Error('Please reinstall Lifekey')
@@ -93,7 +93,7 @@ export default class SplashScreen extends Scene {
         this.setState({
           tokenAvailable: false
         })
-        Logger.info('False start. No App token', this._fileName)
+        Logger.info('False start. No App token', this.filename)
         alert('False start. No App token. Please reinstall Lifekey')
       })
     }, 1000)
@@ -101,7 +101,7 @@ export default class SplashScreen extends Scene {
   }
 
   render() {
-    let scan = (
+    const scan = (
       <Touchable
         onPress={() => this.navigator.push(Routes.camera.qrCodeScanner)}
       >
@@ -111,7 +111,7 @@ export default class SplashScreen extends Scene {
       </Touchable>
     )
 
-    let start = (
+    const start = (
       <Touchable
         onPress={() => this.navigator.push(Routes.onboarding.register)}
       >
@@ -121,7 +121,6 @@ export default class SplashScreen extends Scene {
       </Touchable>
     )
 
-    console.log(this.props.booted)
     return (
       <Container>
         <Content>
@@ -129,15 +128,24 @@ export default class SplashScreen extends Scene {
           <Grid>
             <Col style={{ flex: 1, height: Dimensions.get('window').height }}>
 
-              <Touchable style={{ flex: 1 }} delayLongPress={500} onLongPress={() => this.navigator.push(Routes.debug.main)}>
-                <Row style={[style.firstRow, { backgroundColor: this.state.tokenAvailable ? null : 'red' }]}>
+                <Row
+                  style={[style.firstRow, { backgroundColor: this.state.tokenAvailable ? null : 'red' }]}
+                >
                   { this.state.ready ?
-                    <Image style={{ width: 150, height: 150 }} source={require('../../../App/Images/consent_logo.png')}/>
+                    <Touchable
+                      style={{ flex: 1 }}
+                      delayLongPress={500}
+                      onLongPress={() => this.navigator.push(Routes.debug.main)}
+                    >
+                      <Image
+                        style={{ width: 150, height: 150 }}
+                        source={require('../../../App/Images/consent_logo.png')}
+                      />
+                    </Touchable>
                     :
                     <Spinner color="blue"/>
                   }
                 </Row>
-              </Touchable>
 
 
               <Row style={[style.secondRow]}>
