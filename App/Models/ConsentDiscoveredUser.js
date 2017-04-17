@@ -8,6 +8,8 @@
 import Logger from '../Logger'
 import { AsyncStorage } from 'react-native'
 import ConsentError from '../ConsentError'
+import _ from 'lodash'
+import Util from '../Util'
 
 export const E_USER_ALREADY_EXISTS = 0x01
 export const E_USER_DOES_NOT_EXIST = 0x02
@@ -16,6 +18,43 @@ const STORAGE_KEY = 'discovered_users'
 const LOGTAG = 'DiscoveredUser'
 
 class ConsentDiscoveredUser {
+  // update
+
+  static async update(data) {
+    Logger.asyncStorage(STORAGE_KEY, data)
+    // Util.checkParameters(['did'], data)
+    const discoveredUsersJSON = await AsyncStorage.getItem(STORAGE_KEY)
+    if (discoveredUsersJSON) {
+
+      // storage exists
+      const discoveredUsers = JSON.parse(discoveredUsersJSON)
+      if (!discoveredUsers || typeof discoveredUsers !== 'object') {
+        throw new Error('Could not parse JSON')
+      }
+
+      const discoveredUser = _.find(discoveredUsers, { did: data.did })
+
+
+      if (!discoveredUser) {
+        // key does not exist
+        const newDiscoveredUsers = discoveredUsers.push(data)
+        return await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newDiscoveredUsers))
+      } else {
+
+        const newDiscoveredUser = _.merge({}, discoveredUser, data)
+
+
+        const newDiscoveredUsers = _.merge([], discoveredUsers, [newDiscoveredUser])
+
+        return await AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(newDiscoveredUsers))
+      }
+    } else {
+      // first item in storage_key
+      return await AsyncStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify([data]))
+    }
+  }
 
   /**
    * Add a discovered user
@@ -47,12 +86,8 @@ class ConsentDiscoveredUser {
         const discoveredUsers = JSON.parse(itemJSON)
         if (discoveredUsers.find(discoveredUser => discoveredUser.id === id)) {
           // already exists
-          return Promise.reject(
-            new ConsentError(
-              `DiscoveredUser ${id} already exists`,
-              E_USER_ALREADY_EXISTS
-            )
-          )
+          Logger.info(`DiscoveredUser ${id} already exists`)
+          return Promise.resolve(false)
         } else {
           // merge new connection
           const updatedDiscoveredUser = discoveredUsers.concat(newDiscoveredUser)
@@ -104,7 +139,7 @@ class ConsentDiscoveredUser {
    * @returns {object} discoveredUser The discovered user
    * @throws {Error} E_USER_DOES_NOT_EXIST
    */
-  static get(id) {
+  static get(did) {
     return AsyncStorage.getItem(STORAGE_KEY)
     .then(itemJSON => {
       if (itemJSON) {
@@ -114,19 +149,15 @@ class ConsentDiscoveredUser {
 
         // Find record
         const discoveredUser = discoveredUsers.find(
-          discoveredUser => discoveredUser.id === id
+          discoveredUser => discoveredUser.did === did
         )
 
         if (discoveredUser) {
           // Return data
           return Promise.resolve(discoveredUser)
         } else {
-          return Promise.reject(
-            new ConsentError(
-              `${STORAGE_KEY}.id::${id} does not exist`,
-              E_USER_DOES_NOT_EXIST
-            )
-          )
+          Logger.info(`${STORAGE_KEY}.did::${did} does not exist`)
+          return Promise.resolve(null)
         }
       } else {
         // none exist
