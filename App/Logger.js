@@ -8,6 +8,7 @@
 import ANSI from 'ansi-styles'
 import * as Lifecycle from './Lifecycle'
 import Config from './Config'
+import { ErrorCode } from './ConsentError'
 
 export default class Logger {
 
@@ -39,10 +40,11 @@ export default class Logger {
    * @param {string} message The message to log
    * @returns {undefined}
    */
-  static async = message => {
+  static asyncStorage(storage_key, data) {
     const prefix = `${ANSI.cyan.open}[AS]${ANSI.cyan.close} `
     if (Config.DEBUG && Config.debugAsyncStorage) {
-      Logger._log(prefix, message, ANSI.yellow)
+      Logger._log(prefix, storage_key, ANSI.yellow)
+      console.log(data)
     }
   }
 
@@ -76,18 +78,21 @@ export default class Logger {
   /**
    * Log a network request
    * @param {string} method The HTTP method
-   * @param {string} timestamp The timestamp
    * @param {string} route The route to log
+   * @param {?object} options The options
    * @returns {undefined}
    */
-  static networkRequest = (method, timestamp, route, opts) => {
+  static networkRequest = (method, route, opts = null) => {
+    const timestamp = new Date()
     const prefix = `${ANSI.blue.open}[NETWORK]${ANSI.blue.close}`
     const methodColor = `${ANSI.bold.open}${ANSI.green.open}${method}${ANSI.green.close}${ANSI.bold.close}`
     const timestampColor = `${ANSI.gray.open}${ANSI.underline.open}${timestamp}${ANSI.underline.close}${ANSI.gray.close}`
     const routeColor = `${ANSI.white.open}${route}${ANSI.white.close}`
     if (Config.DEBUG && Config.debugNetwork) {
       console.log(`${prefix} ${methodColor} ${Logger._asColumn(timestampColor, 64)} ${routeColor}`)
-      console.log(opts)
+      if (opts) {
+        console.log(opts)
+      }
     }
   }
 
@@ -125,26 +130,29 @@ export default class Logger {
   /**
    * Log an error
    * @param {string} message The message to log
-   * @param {string} name The name of the error
+   * @param {?string} data The data to log
    * @returns {undefined}
    */
-  static error = (message, code) => {
+  static error = (message, data = null) => {
     const prefix = `${ANSI.bgRed.open}${ANSI.white.open}[ERROR]${ANSI.white.close}${ANSI.bgRed.close}`
     if (Config.DEBUG) {
-      Logger._log(`[Error](${code.toString(16)})`, ` ${message}`, ANSI.red, ANSI.white, true)
+      Logger._log(`[Error] ${message}`, ANSI.red, ANSI.white, true)
     }
   }
 
   /**
    * Log an info
    * @param {string} message The message to log
-   * @param {string} filename The filename to log
+   * @param {?string} data The data to log
    * @returns {undefined}
    */
-  static info = (message, filename = '?.js') => {
+  static info = (message, data = null) => {
     const prefix = `${ANSI.bgBlack.open}${ANSI.green.open}[info]${ANSI.green.close}${ANSI.bgBlack.close}`
     if (Config.DEBUG) {
-      console.log(`${prefix} ${filename} ${ANSI.white.open} ${message}${ANSI.white.close}`)
+      console.log(`${prefix} ${ANSI.white.open} ${message}${ANSI.white.close}`)
+      if (data) {
+        console.log(data)
+      }
     }
   }
 
@@ -154,10 +162,13 @@ export default class Logger {
    * @param {string} filename The filename to log
    * @returns {undefined}
    */
-  static warn = (message, filename = '?.js') => {
+  static warn = (message, data = null) => {
     const prefix = `${ANSI.bgBlack.open}${ANSI.yellow.open}[warn]${ANSI.yellow.close}${ANSI.bgBlack.close}`
     if (Config.DEBUG) {
-      console.log(`${prefix} ${filename} ${ANSI.white.open} ${message}${ANSI.white.close}`)
+      console.log(`${prefix} ${ANSI.white.open} ${message}${ANSI.white.close}`)
+      if (data) {
+        console.log(data)
+      }
     }
   }
 
@@ -167,10 +178,13 @@ export default class Logger {
    * @param {string} filename The filename to log
    * @returns {undefined}
    */
-  static firebase = (message) => {
-    const prefix = `${ANSI.bgBlack.open}${ANSI.red.open}[FB]${ANSI.red.close}${ANSI.bgBlack.close}`
+  static firebase = (message, firebaseData = null) => {
+    const prefix = `${ANSI.bgBlack.open}${ANSI.red.open}[Firebase]${ANSI.red.close}${ANSI.bgBlack.close}`
     if (Config.DEBUG && Config.debugFirebase) {
       console.log(`${prefix}${ANSI.white.open} ${message}${ANSI.white.close}`)
+      if (firebaseData) {
+        console.log(firebaseData)
+      }
     }
   }
 
@@ -182,7 +196,7 @@ export default class Logger {
    */
   static react = (filename, event) => {
 
-    const prefix = `${ANSI.red.open}[LC]${ANSI.red.close} `
+    const prefix = `${ANSI.red.open}[React]${ANSI.red.close} `
     if (Config.DEBUG && Config.debugReact) {
       switch (event) {
       case Lifecycle.CONSTRUCTOR:
