@@ -40,6 +40,7 @@ import EventTimeline from '../../Components/EventTimeline'
 import Touchable from '../../Components/Touchable'
 import DialogAndroid from 'react-native-dialogs'
 import AndroidBackButton from 'react-native-android-back-button'
+import * as Nachos from 'nachos-ui'
 
 const DEBUG = false
 const STEP_USERNAME = 0
@@ -84,7 +85,8 @@ export default class Register extends Scene {
       smallText: this._steps[0].smallText,
       bottomText: this._steps[0].bottomText,
       moveTransitionValue: new Animated.Value(300),
-      fadeTransitionValue: new Animated.Value(0)
+      fadeTransitionValue: new Animated.Value(0),
+      magicLinkRequested: false
     }
   }
 
@@ -156,20 +158,20 @@ export default class Register extends Scene {
   }
 
   _onKeyboardWillShow() {
-    Logger.info('KeyboardWillShow', this._filename)
+    Logger.info('KeyboardWillShow', this.filename)
   }
 
   _onKeybordWillHide() {
-    Logger.info('KeyboardWillHide', this._filename)
+    Logger.info('KeyboardWillHide', this.filename)
 
   }
 
   _onKeyboardDidShow() {
-    Logger.info('KeyboardDidShow', this._filename)
+    Logger.info('KeyboardDidShow', this.filename)
   }
 
   _onKeyboardDidHide() {
-    Logger.info('KeyboardDidHide', this._filename)
+    Logger.info('KeyboardDidHide', this.filename)
   }
 
   componentWillUnmount() {
@@ -181,10 +183,12 @@ export default class Register extends Scene {
   }
 
   _hardwareBackHandler() {
-    if (this.state.step < 1) {
+    if (this.state.step < STEP_EMAIL) {
       this.navigator.pop()
     } else {
-      this._stepBack()
+      if (!this.state.step === STEP_MAGIC_LINK) {
+        this._stepBack()
+      }
     }
     return true
   }
@@ -352,11 +356,14 @@ export default class Register extends Scene {
   _onPinChanged(text) {
     this.setState({
       textInputValue: text,
-      pin: text
+      pin: text,
     }, () => {
       if (text.length === 5) {
-        // TODO: inform user something is happening
+        this.setState({
+          magicLinkRequested: true
+        })
         this._requestMagicLink()
+        Keyboard.dismiss()
       }
     })
   }
@@ -369,12 +376,12 @@ export default class Register extends Scene {
       this.state.pin
     )
     .then(result => {
-      Logger.info('Registration request sent successfully. Please check for magic link', this._filename)
+      Logger.info('Registration request sent successfully. Please check for magic link', this.filename)
       this._stepForward()
 
     })
     .catch(error => {
-      Logger.error('Not registered', this._filename, error)
+      Logger.error('Not registered', this.filename, error)
       switch (error.status) {
       case 400: // Validation error
         alert('The username or email already exists or is invalid')
@@ -404,9 +411,13 @@ export default class Register extends Scene {
     case STEP_PIN:
       return (<Touchable style={{ flex: 1 }} onPress={() => this.pinInput.focus()}>
                 <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                  <HexagonDots
-                    current={this.state.textInputValue.length < 5 ? this.state.textInputValue.length : 4}
-                  />
+                  {!this.state.magicLinkRequested ?
+                    <HexagonDots
+                      current={this.state.textInputValue.length < 5 ? this.state.textInputValue.length : 4}
+                    />
+                  :
+                    <Nachos.Spinner color='blue'/>
+                  }
                   <Dots current={this.state.textInputValue.length} />
                   <TextInput
                     ref={(_ref) => this.pinInput = _ref }
