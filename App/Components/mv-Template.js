@@ -57,7 +57,7 @@ const MvTemplate = React.createClass({
             ]}
             tabs={[
               { text: 'Connect', onPress: () => ({}), active: tabName === 'Connect' },
-              { text: tabName, onPress: () => ({}), active: tabName === 'My Data' },
+              { text: 'My Data', onPress: () => ({}), active: tabName === 'My Data' },
               { text: 'Badges', onPress: () => ({}), active: tabName === 'Badges' }
             ]}
           />
