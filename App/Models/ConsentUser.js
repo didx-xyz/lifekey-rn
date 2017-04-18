@@ -97,7 +97,6 @@ export default class ConsentUser {
 
         // Unlocked keystore with password
         Logger.info('Keystore loaded, password verified', LOGTAG)
-
         // Check if user exists on the other side
         return Api.profile({ did: user.did })
 
@@ -114,7 +113,7 @@ export default class ConsentUser {
       }
     })
     .then(response => {
-      if (parseInt(response.status) === 200) {
+      if (parseInt(response.status, 10) === 200) {
 
         // profile exists too, seems legit, log them in
         const update = {}
@@ -223,12 +222,7 @@ export default class ConsentUser {
         Logger.firebase('Notifying server of token update')
         return Crypto.loadKeyStore(Config.keystore.name, ConsentUser.getPasswordSync())
       } else {
-        return Promise.reject(
-          new ConsentError(
-            'Must be registered to notify server of token update',
-            E_MUST_BE_REGISTERED
-          )
-        )
+        return Promise.reject(new Error('Must be registered to notify server of token update'))
       }
     })
     // Get secure random
@@ -268,6 +262,17 @@ export default class ConsentUser {
         return Promise.resolve('Server notified of token update')
       }
     })
+  }
+
+  static getDisplayNameSync() {
+    const state = Session.getState()
+    if(! state || !state.user || !state.user.display_name) {
+      throw new ConsentError(
+        'No display name set for current user'
+      )
+    } else {
+      return state.user.display_name
+    }
   }
 
   /**
@@ -516,6 +521,7 @@ export default class ConsentUser {
       return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
         id: userID,
         did: null, // will receive via firebase later
+        display_name: username,
         email: email,
         firebaseToken: firebaseToken,
         registered: true  // We will get this later
@@ -534,6 +540,7 @@ export default class ConsentUser {
           user: {
             id: userID,
             did: null,
+            display_name: username,
             password: password,
             email: email,
             registered: true,

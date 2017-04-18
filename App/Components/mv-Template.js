@@ -25,7 +25,7 @@ import { Container, Content } from 'native-base'
 import Design from "../DesignParameters"
 
 const MvTemplate = React.createClass({
-  
+
   propTypes : {
     tabName: string
   },
@@ -37,7 +37,7 @@ const MvTemplate = React.createClass({
       },
       "headerContainer": {
         height: `${Design.navigationContainerHeight}%`,
-        borderColor: Palette.consentGrayLightest, 
+        borderColor: Palette.consentGrayLightest,
         borderBottomWidth: 1
       }
     }
@@ -48,22 +48,10 @@ const MvTemplate = React.createClass({
       <Container style={styles.container}>
         <View style={ styles.headerContainer }>
           <BackButton navigator={this.navigator} />
-          <LifekeyHeader
-            onLongPressTopCenter={() => this.navigator.push(Routes.debug)}
-            icons={[
-              <Text>Test1</Text>,
-              <Text>Test2</Text>,
-              <Text>Test3</Text>
-            ]}
-            tabs={[
-              { text: 'Connect', onPress: () => ({}), active: tabName === 'Connect' },
-              { text: 'My Data', onPress: () => ({}), active: tabName === 'My Data' },
-              { text: 'Badges', onPress: () => ({}), active: tabName === 'Badges' }
-            ]}
-          />
+          { this.props.header ? this.props.header() : null }
         </View>
 
-        {this.props.children} 
+        {this.props.children}
 
       </Container>
     )
