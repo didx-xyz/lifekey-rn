@@ -8,7 +8,6 @@
 import ANSI from 'ansi-styles'
 import * as Lifecycle from './Lifecycle'
 import Config from './Config'
-import { ErrorCode } from './ConsentError'
 
 export default class Logger {
 
@@ -133,10 +132,13 @@ export default class Logger {
    * @param {?string} data The data to log
    * @returns {undefined}
    */
-  static error = (message, data = null) => {
+  static error = (error, data = null) => {
     const prefix = `${ANSI.bgRed.open}${ANSI.white.open}[ERROR]${ANSI.white.close}${ANSI.bgRed.close}`
     if (Config.DEBUG) {
-      Logger._log(`[Error] ${message}`, ANSI.red, ANSI.white, true)
+      Logger._log(`${prefix} ${error}`, ANSI.red, ANSI.white, true)
+      if (error.stack) {
+        console.log(error.stack)
+      }
     }
   }
 
