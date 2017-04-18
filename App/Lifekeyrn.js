@@ -23,11 +23,22 @@ import {
   Platform,
   StatusBar
 } from 'react-native'
+import PropTypes from "prop-types"
 
 const PORTRAIT = 0
 const LANDSCAPE = 1
 
-export default class Lifekeyrn extends Component {
+class Lifekeyrn extends Component {
+  getChildContext() {
+    return {
+      // behavior
+      "onEditResource": this.onBoundEditResource,
+
+      // state
+      "editResourceForm": () => this.editResourceForm,
+      "editResourceId": () => this.editResourceId
+    }
+  }
 
   constructor(props) {
     super(props)
@@ -64,6 +75,8 @@ export default class Lifekeyrn extends Component {
     this._initSession()
     this._initialRoute = this._getInitialRoute()
     this.initFirebaseInternal()
+
+    this.onBoundEditResource = this.onEditResource.bind(this)
   }
 
   initFirebaseInternal() {
@@ -75,6 +88,13 @@ export default class Lifekeyrn extends Component {
       'app_activation_link_clicked',
       () => this.navigator.push(Routes.main)
     )
+  }
+
+  onEditResource(form, id) {
+    this.editResourceForm = form
+    this.editResourceId = id
+
+    this.navigator.push(Routes.editResource)
   }
 
   _getInitialRoute() {
@@ -278,3 +298,14 @@ export default class Lifekeyrn extends Component {
     );
   }
 }
+
+Lifekeyrn.childContextTypes = {
+  // behavior
+  "onEditResource": PropTypes.func,
+
+  // state
+  "editResourceForm": PropTypes.func,
+  "editResourceId": PropTypes.func
+}
+
+export default Lifekeyrn

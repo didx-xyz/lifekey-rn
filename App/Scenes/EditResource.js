@@ -13,6 +13,7 @@ import Scene from "../Scene"
 import Touchable from "../Components/Touchable"
 import Countries from "../Countries"
 import Languages from "../Languages"
+import Routes from "../Routes"
 
 class EditResource extends Scene {
   constructor(...params) {
@@ -27,7 +28,7 @@ class EditResource extends Scene {
   }
 
   onPressCancel() {
-    alert("cancel")
+    this.navigator.pop()
   }
 
   onPressSave() {
@@ -36,9 +37,10 @@ class EditResource extends Scene {
 
     const data = {
       "value": {},
-      "entity": "test_" + Date.now(),
-      "attribute": "test_" + Date.now(),
-      "alias": "test_" + Date.now()
+      "entity": this.state.label,
+      "attribute": this.state.label,
+      "alias": this.state.label,
+      "error": ""
     }
 
     keys.forEach((key, i) => data.value[key] = values[i])
@@ -56,25 +58,53 @@ class EditResource extends Scene {
       "body": JSON.stringify(data)
     }
 
-    console.log(options)
+    let temp = null
 
     fetch("http://staging.api.lifekey.cnsnt.io/resource", options)
-      .then(response => response.json())
-      .then(data => console.log(data))
+      .then(response => {
+        temp = response
+        temp.json()
+      })
+      .then(data => this.onResponse(temp, data))
+  }
+
+  onResponse(response, data) {
+    if (response.status === 400) {
+
+      // there is built-in support for
+      // displaying the error in the scene:
+      //
+      // this.setState({
+      //   "error": "Error saving resource"
+      // })
+
+      alert("Error saving resource")
+    } else {
+      alert("Resource saved")
+
+      this.navigator.pop()
+    }
   }
 
   componentDidMount() {
-    fetch(this.props.form)
+    const form = this.context.editResourceForm()
+
+    fetch(form)
       .then(response => response.json())
-      .then(data => this.handleData(data))
+      .then(data => this.onEntities(data))
   }
 
-  handleData(data) {
+  onEntities(data) {
     // TODO: handle error conditions
 
     let state = {
-      "entities": data.entities
+      "entities": [
+        {"label": "Label", "name": "label", "type": "string"},
+        ...data.entities
+      ]
     }
+
+    console.log(state)
 
     data.entities.forEach((entity) => {
       if (entity.type === "country") {
@@ -275,6 +305,13 @@ class EditResource extends Scene {
           <View style={styles.fields}>
             <ScrollView style={styles.scroll}>
               <View style={styles.card}>
+                {this.state.error !== "" &&
+                  <View style={styles.error}>
+                    <Text style={styles.errorText}>
+                      {this.state.error}
+                    </Text>
+                  </View>
+                }
                 {this.state.entities.map((entity, i) => this.renderEntity(entity, i))}
               </View>
             </ScrollView>
@@ -302,11 +339,11 @@ class EditResource extends Scene {
 }
 
 EditResource.propTypes = {
-  "form": PropTypes.string
+  "onEditResource": PropTypes.func
 }
 
-EditResource.defaultProps = {
-  "form": "http://schema.cnsnt.io/person_form"
+EditResource.contextTypes = {
+  "editResourceForm": PropTypes.func
 }
 
 const styles = {
@@ -425,6 +462,13 @@ const styles = {
     "color": "#fff",
     "fontSize": 16,
     "textAlign": "right"
+  },
+  "error": {
+    "flex": 1
+  },
+  "errorText": {
+    "textAlign": "center",
+    "color": "red"
   }
 }
 
