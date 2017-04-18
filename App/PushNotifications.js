@@ -9,23 +9,23 @@ import ConsentISA from './Models/ConsentISA'
 
 export default {
   handlers: {
-    received_did: function(msg) {
+    received_did: function(message) {
       Logger.firebase('received_did')
       ConsentUser.setDid(
-        msg.data.did_value
+        message.data.did_value
       ).then(did => {
         Logger.info(`DID set to ${did}`, this.filename)
       }).catch(error => {
         Logger.error('Could not set DID', this.filename, error)
       })
     },
-    user_connection_request: function(msg) {
+    user_connection_request: function(message) {
       Logger.firebase('user_connection_request')
       ConsentConnectionRequest.add(
-        msg.data.user_connection_request_id,
-        msg.data.from_id,
-        msg.data.from_did,
-        msg.data.from_nickname
+        message.data.user_connection_request_id,
+        message.data.from_id,
+        message.data.from_did,
+        message.data.from_nickname
       ).then(connectionRequests => {
         Logger.firebase('ConsentConnectionRequest updated')
         console.log(connectionRequests)
@@ -33,9 +33,9 @@ export default {
         Logger.error('Error writing to ConsentConnectionRequest', this.filename, error)
       })
       ConsentDiscoveredUser.add(
-        msg.data.from_id,
-        msg.data.from_did,
-        msg.data.from_nickname
+        message.data.from_id,
+        message.data.from_did,
+        message.data.from_nickname
       ).then(discoveredUsers => {
         Logger.firebase("ConsentDiscoveredUser updated")
         console.log(discoveredUsers)
@@ -43,43 +43,45 @@ export default {
         Logger.error('Error writing to ConsentDiscoveredUser ')
       })
     },
-    user_connection_created: function(msg) {
+    user_connection_created: function(message) {
       Logger.firebase('user_connection_created')
       ConsentConnection.add(
-        msg.data.user_connection_id,
-        msg.data.to_id
+        message.data.user_connection_id,
+        message.data.to_did
       ).then(() => {
         Logger.info('Connection created')
-        this.forceUpdate()
-        Logger.info('Force update')
+        this.navigator.push(Routes.main)
       }).catch(error => {
         Logger.error(error, this.filename, error)
       })
     },
-    sent_activation_email: function(msg) {
+    sent_activation_email: function(message) {
       Logger.firebase('sent_activiation_email')
-      alert(`${msg.notification.title} - ${msg.notification.body}`)
+      alert(`${message.notification.title} - ${message.notification.body}`)
     },
-    app_activation_link_clicked: function(msg) {
+    app_activation_link_clicked: function(message) {
       Logger.firebase('app_activation_link_clicked')
-      this.navigator.replace(Routes.main)
+      this.navigator.push(Routes.main)
     },
-    information_sharing_agreement_request: function(msg) {
+    information_sharing_agreement_request: function(message) {
       Logger.firebase('information_sharing_agreement_request')
+      // Would you like to accept?
+      // if yes:§
       ConsentISA.add(
-        msg.data.isar_id,
-        msg.data.from_id
-      ).then(_ => {
+        message.data.isar_id,
+        message.data.from_did
+      ).then(() => {
         Logger.info('ISA Added')
+        // respond
       }).catch(error => {
         Logger.error(error, this.filename, error)
       })
     }
   },
-  error: function(msg) {
-    Logger.firebase(JSON.stringify(msg))
-    if (msg.notification) {
-      Logger.info(msg.notification.title + ' - ' + msg.notification.body, this.filename)
+  error: function(message) {
+    Logger.firebase(JSON.stringify(message))
+    if (message.notification) {
+      Logger.info(message.notification.title + ' - ' + message.notification.body, this.filename)
     }
   }
 }
