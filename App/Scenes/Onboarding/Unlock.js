@@ -2,7 +2,6 @@ import React from 'react'
 import {
   Text,
   View,
-  StyleSheet,
   TextInput,
   Keyboard,
   Platform,
@@ -12,6 +11,7 @@ import { Container, Content, Grid, Col, Row } from 'native-base/backward'
 
 import Scene from '../../Scene'
 import Logger from '../../Logger'
+import Config from '../../Config'
 import Routes from '../../Routes'
 import BackButton from '../../Components/BackButton'
 import ConsentUser from '../../Models/ConsentUser'
@@ -64,12 +64,7 @@ class Unlocked extends Scene {
         this.navigator.resetTo(Routes.main)
       })
       .catch(error => {
-        Logger.error('Could not log in', this._fileName, error)
-        alert('Wrong password')
-        this.setState({
-          busy: false,
-          characters: ''
-        })
+        Logger.error(error)
       })
     })
   }
@@ -105,6 +100,11 @@ class Unlocked extends Scene {
 
   componentDidMount() {
     super.componentDidMount()
+    if (Config.DEBUG && Config.debugAutoLogin) {
+      setTimeout(() => {
+        this.submit(Config.debugAutoLoginPassword)
+      }, 100)
+    }
     this.keyboardWillShowListener = Keyboard.addListener('keyboardWillShow', this.onKeyboardWithShow)
     this.keyboardWillHideListener = Keyboard.addListener('keyboardWillHide', this.onKeyboardDidHide)
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this.onKeyboardWithShow)

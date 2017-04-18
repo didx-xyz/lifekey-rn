@@ -222,12 +222,7 @@ export default class ConsentUser {
         Logger.firebase('Notifying server of token update')
         return Crypto.loadKeyStore(Config.keystore.name, ConsentUser.getPasswordSync())
       } else {
-        return Promise.reject(
-          new ConsentError(
-            'Must be registered to notify server of token update',
-            E_MUST_BE_REGISTERED
-          )
-        )
+        return Promise.reject(new Error('Must be registered to notify server of token update'))
       }
     })
     // Get secure random

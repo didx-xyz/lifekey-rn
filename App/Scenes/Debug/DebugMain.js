@@ -21,6 +21,7 @@ import ConsentConnectionRequest from '../../Models/ConsentConnectionRequest'
 import ConsentDiscoveredUser from '../../Models/ConsentDiscoveredUser'
 import ConsentUser from '../../Models/ConsentUser'
 import ConsentISA from '../../Models/ConsentISA'
+import DebugButton from '../../Components/DebugButton'
 
 export default class DebugMain extends Scene {
 
@@ -73,17 +74,32 @@ export default class DebugMain extends Scene {
     return (
       <Base.Container>
         <Base.Content>
+
           <BackButton navigator={this.navigator} />
+
           <View style={{ alignItems: 'center' }}>
             <Nachos.H1>Developer Menu</Nachos.H1>
           </View>
+
           { /* Any state */}
           <View style={{ marginLeft: 10, marginRight: 10 }}>
-            <Nachos.Button iconName="md-key" kind="squared" type="primary" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debug.keystore)}>Keystore</Nachos.Button>
-            <Nachos.Button iconName="md-contact" kind="squared" type="primary" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debug.register)}>Consent Account</Nachos.Button>
-            <Nachos.Button iconName="ios-settings" kind="squared" type="primary" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debug.configuration)}>Configuration</Nachos.Button>
-            <Nachos.Button iconName="md-reverse-camera" kind="squared" type="primary" style={[styles.btn]} onPress={() => this.navigator.push(Routes.selfieCam)}>Self-facing Camera</Nachos.Button>
-            <Nachos.Button iconName="md-contact" kind="squared" type="danger" style={[styles.btn]} onPress={() => this.navigator.push(Routes.debug.error)}>Error Tester</Nachos.Button>
+
+            <DebugButton text="Keystore" iconName="md-key"
+              onPress={() => this.navigator.push(Routes.debug.keystore)}
+            />
+
+            <DebugButton text="Consent Account" iconName="md-contact"
+              onPress={() => this.navigator.push(Routes.debug.register)}
+            />
+
+            <DebugButton text="View Config" iconName="ios-settings"
+              onPress={() => this.navigator.push(Routes.debug.configuration)}
+            />
+
+            <DebugButton text="Async Storage" iconName="ios-settings"
+              onPress={() => this.navigator.push(Routes.debug.asyncStorage)}
+            />
+
           </View>
 
           { /* Logged in only */ }

@@ -38,7 +38,11 @@ class ConsentISA {
 
   static add(id, from_did) {
     return Promise.all([
-      Api.respondISA({ id: id }),
+      Api.respondISA({
+        isa_id: id,
+        accepted: true,
+        permitted_resources: 'dunno'
+      }),
       AsyncStorage.getItem(ConsentISA.storageKey)
     ])
     .then(result => {
