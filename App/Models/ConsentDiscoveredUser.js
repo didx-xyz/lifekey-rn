@@ -84,7 +84,7 @@ class ConsentDiscoveredUser {
     .then(itemJSON => {
       if (itemJSON) {
         const discoveredUsers = JSON.parse(itemJSON)
-        if (discoveredUsers.find(discoveredUser => discoveredUser.id === id)) {
+        if (discoveredUsers.find(discoveredUser => discoveredUser.did === did)) {
           // already exists
           Logger.info(`DiscoveredUser ${id} already exists`)
           return Promise.resolve(false)
@@ -149,7 +149,7 @@ class ConsentDiscoveredUser {
 
         // Find record
         const discoveredUser = discoveredUsers.find(
-          discoveredUser => discoveredUser.did === did
+          user => user.did === did
         )
 
         if (discoveredUser) {
@@ -162,10 +162,7 @@ class ConsentDiscoveredUser {
       } else {
         // none exist
         return Promise.reject(
-          new ConsentError(
-            `${STORAGE_KEY} storage is empty. Nothing to get`,
-            E_USER_DOES_NOT_EXIST
-          )
+          new Error(`${STORAGE_KEY} storage is empty. Nothing to get`)
         )
       }
     })
