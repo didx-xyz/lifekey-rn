@@ -21,9 +21,8 @@ export default {
   APP_NAME: APP_NAME,
 
   // First scene to show
-  initialRouteFromConfig: true, // Must be true to use route below
-  initialRoute: Routes.meConnect,
-  initialRoute: Routes.editResource,
+  initialRouteFromConfig: false, // Must be true to use route below
+  initialRoute: Routes.onboarding.splashScreen,
 
   // Debug
   DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
