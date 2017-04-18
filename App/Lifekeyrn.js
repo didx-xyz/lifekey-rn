@@ -59,17 +59,14 @@ export default class Lifekeyrn extends Component {
     } else {
       Logger.info('TODO: Firebase iOS', this.filename)
     }
+
+    this._initSession()
+    this._initialRoute = this._getInitialRoute()
     
     this._messaging.getInitialNotification().then(notification => {
-      if (notification) {
-        // TODO check the structure of `notification`
-        // and decide which scene to dispatch
-        // this._initialRoute = something
-      }
-      return Promise.resolve()
-    }).then(_ => {
-      this._initialRoute = this._getInitialRoute()
-      this._initSession()
+      if (!notification) return
+      // TODO check the structure of `notification`
+      // and decide which scene to dispatch
     }).catch(console.log)
   }
 
@@ -157,10 +154,11 @@ export default class Lifekeyrn extends Component {
    * @returns {undefined} undefined
    */
   _nativeEventTokenRefreshed(token) {
-    ConsentUser.setToken(token)
-    .catch(error => {
-      Logger.firebase(error)
-    })
+    ConsentUser.setToken(
+      token
+    ).catch(
+      Logger.firebase
+    )
   }
 
   componentWillMount() {
