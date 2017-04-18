@@ -36,7 +36,9 @@ class EditResource extends Scene {
     const values = keys.map(key => this.state[key] || null)
 
     const data = {
-      "value": {},
+      "value": {
+        "form": this.context.editResourceForm()
+      },
       "entity": this.state.label,
       "attribute": this.state.label,
       "alias": this.state.label,
@@ -48,7 +50,7 @@ class EditResource extends Scene {
     data.value = JSON.stringify(data.value)
 
     const options = {
-      "method": "POST",
+      "method": this.state.id ? "PUT" : "POST",
       "headers": {
         "x-cnsnt-id": "2",
         "x-cnsnt-plain": "example",
@@ -58,14 +60,19 @@ class EditResource extends Scene {
       "body": JSON.stringify(data)
     }
 
-    let temp = null
+    let url = "http://staging.api.lifekey.cnsnt.io/resource"
+    let response = null
 
-    fetch("http://staging.api.lifekey.cnsnt.io/resource", options)
-      .then(response => {
-        temp = response
-        temp.json()
+    if (this.state.id) {
+      url = "http://staging.api.lifekey.cnsnt.io/resource/" + this.state.id
+    }
+
+    fetch(url, options)
+      .then(next => {
+        response = next
+        response.json()
       })
-      .then(data => this.onResponse(temp, data))
+      .then(data => this.onResponse(response, data))
   }
 
   onResponse(response, data) {
@@ -81,7 +88,7 @@ class EditResource extends Scene {
       alert("Error saving resource")
     } else {
       alert("Resource saved")
-
+      this.context.onSaveResource()
       this.navigator.pop()
     }
   }
@@ -92,6 +99,38 @@ class EditResource extends Scene {
     fetch(form)
       .then(response => response.json())
       .then(data => this.onEntities(data))
+
+    const options = {
+      "headers": {
+        "x-cnsnt-id": "2",
+        "x-cnsnt-plain": "example",
+        "x-cnsnt-signed": "example",
+        "content-type": "application/json"
+      }
+    }
+
+    this.listener = this.props._navigationEventEmitter.addListener("onDidFocusEditResource", () => {
+      const resourceId = this.context.editResourceId()
+
+      if (resourceId) {
+        fetch("http://staging.api.lifekey.cnsnt.io/resource/" + resourceId, options)
+          .then(response => response.json())
+          .then(data => this.onResource(data))
+      }
+    })
+  }
+
+  onResource(data) {
+    const state = {
+      "id": data.body.id,
+      ...JSON.parse(data.body.value)
+    }
+
+    this.setState(state)
+  }
+
+  componentWillUnmount() {
+    this.listener.remove()
   }
 
   onEntities(data) {
@@ -103,8 +142,6 @@ class EditResource extends Scene {
         ...data.entities
       ]
     }
-
-    console.log(state)
 
     data.entities.forEach((entity) => {
       if (entity.type === "country") {
@@ -343,7 +380,9 @@ EditResource.propTypes = {
 }
 
 EditResource.contextTypes = {
-  "editResourceForm": PropTypes.func
+  "onSaveResource": PropTypes.func,
+  "editResourceForm": PropTypes.func,
+  "editResourceId": PropTypes.func
 }
 
 const styles = {

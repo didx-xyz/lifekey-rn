@@ -62,15 +62,53 @@ class Me extends Scene {
 
     this.state = {
       "tabName":  "My Data",
-      "resources": [],
+      "resources": {},
       "resourceTypes": []
     }
+
+    this.onBoundJson = this.onJson.bind(this)
+    this.onBoundResourceTypes = this.onResourceTypes.bind(this)
+    this.onBoundResources = this.onResources.bind(this)
+    this.onBoundResource = this.onResource.bind(this)
   }
 
   componentDidMount() {
     fetch("http://schema.cnsnt.io/resources")
-      .then(response => response.json())
-      .then(data => this.onResourceTypes(data))
+      .then(this.onBoundJson)
+      .then(this.onBoundResourceTypes)
+
+    this.listener = this.props._navigationEventEmitter.addListener("onDidFocusMe", () => {
+      if (this.context.clearResourceCache()) {
+        this.onClearCache()
+      }
+    })
+  }
+
+  onClearCache() {
+    this.setState({
+      "resources": {}
+    })
+
+    const options = {
+      "headers": {
+        "x-cnsnt-id": "2",
+        "x-cnsnt-plain": "example",
+        "x-cnsnt-signed": "example",
+        "content-type": "application/json"
+      }
+    }
+
+    fetch("http://staging.api.lifekey.cnsnt.io/resource", options)
+      .then(this.onBoundJson)
+      .then(this.onBoundResources)
+  }
+
+  onJson(response) {
+    return response.json()
+  }
+
+  componentWillUnmount() {
+    this.listener.remove()
   }
 
   onResourceTypes(data) {
@@ -81,6 +119,77 @@ class Me extends Scene {
     this.setState({
       "resourceTypes": data.resources
     })
+  }
+
+  onResources(data) {
+    const resources = {}
+
+    const options = {
+      "headers": {
+        "x-cnsnt-id": "2",
+        "x-cnsnt-plain": "example",
+        "x-cnsnt-signed": "example",
+        "content-type": "application/json"
+      }
+    }
+
+    data.body.forEach((resource) => {
+      if (resource.id == null) {
+        return
+      }
+
+      resources["_" + resource.id] = null
+
+      fetch("http://staging.api.lifekey.cnsnt.io/resource/" + resource.id, options)
+        .then(this.onBoundJson)
+        .then(this.onBoundResource)
+    })
+
+    this.setState({
+      resources
+    })
+  }
+
+  onResource(data) {
+    if (data.body == null) {
+      return
+    }
+
+    const resources = this.state.resources
+
+    resources["_" + data.body.id] = {
+      "id": data.body.id,
+      ...JSON.parse(data.body.value)
+    }
+
+    this.setState({
+      resources
+    })
+  }
+
+  onPressDelete(id) {
+    const options = {
+      "method": "DELETE",
+      "headers": {
+        "x-cnsnt-id": "2",
+        "x-cnsnt-plain": "example",
+        "x-cnsnt-signed": "example",
+        "content-type": "application/json"
+      }
+    }
+
+    fetch("http://staging.api.lifekey.cnsnt.io/resource/" + id, options)
+
+    // refresh the list
+
+    this.context.onSaveResource()
+    this.onClearCache()
+  }
+
+  onPressEdit(form, id = null) {
+    console.log("press edit resource", form, id)
+
+    this.context.onEditResource(form, id)
   }
 
   render() {
@@ -126,8 +235,27 @@ class Me extends Scene {
         <BackButton navigator={this.navigator} />
         <Content>
 
-          { /* This probably also needs to be generated more dynamically but a little unsure of the schema to implement that currently - hein */ }
-          <LifekeyCard headingText="Legal Identity" onPressEdit={() => alert('EDIT')} onPressShare={() => alert('SHARE')} >
+          {Object.values(this.state.resources).map((resource, i) => {
+            if (resource === null) {
+              return
+            }
+
+            if (resource.form == null) {
+              return (
+                <LifekeyCard key={i} headingText={"resource " + resource.id} onPressEdit={() => this.onPressDelete(resource.id)}>
+                  <Text>delete {resource.id} (malformed)</Text>
+                </LifekeyCard>
+              )
+            }
+
+            return (
+              <LifekeyCard key={i} headingText={"resource " + resource.id} onPressEdit={() => this.onPressEdit(resource.form, resource.id)}>
+                <Text key={i}>{resource.id}</Text>
+              </LifekeyCard>
+            )
+          })}
+
+          {/*<LifekeyCard headingText="Legal Identity" onPressEdit={() => alert('EDIT')} onPressShare={() => alert('SHARE')} >
             <LcLegalIdentity {...person} />
           </LifekeyCard>
 
@@ -137,14 +265,14 @@ class Me extends Scene {
 
           <LifekeyCard headingText="Contact Details" onPressEdit={() => alert('EDIT')} onPressShare={() => alert('SHARE')} >
             <LcContactDetails contactDetails={person.contactDetails} />
-          </LifekeyCard>
+          </LifekeyCard>*/}
 
           <View>
             {this.state.resourceTypes.map((resourceType, i) => {
-                return (
-                  <LcAddCategoryButton key={i} name={resourceType.name} form={resourceType.url + "_form"} onEditResource={this.context.onEditResource} />
-                )
-              })}
+              return (
+                <LcAddCategoryButton key={i} name={resourceType.name} form={resourceType.url + "_form"} onEditResource={this.context.onEditResource} />
+              )
+            })}
           </View>
         </Content>
       </MvTemplate>
@@ -153,7 +281,9 @@ class Me extends Scene {
 }
 
 Me.contextTypes = {
-  "onEditResource": PropTypes.func
+  "onEditResource": PropTypes.func,
+  "onSaveResource": PropTypes.func,
+  "clearResourceCache": PropTypes.func
 }
 
 export default Me

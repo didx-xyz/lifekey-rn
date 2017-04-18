@@ -33,10 +33,19 @@ class Lifekeyrn extends Component {
     return {
       // behavior
       "onEditResource": this.onBoundEditResource,
+      "onSaveResource": this.onBoundSaveResource,
 
       // state
       "editResourceForm": () => this.editResourceForm,
-      "editResourceId": () => this.editResourceId
+      "editResourceId": () => this.editResourceId,
+      "clearResourceCache": () => {
+        if (this.clearResourceCache) {
+          this.clearResourceCache = false
+          return true
+        }
+
+        return false
+      }
     }
   }
 
@@ -76,7 +85,12 @@ class Lifekeyrn extends Component {
     this._initialRoute = this._getInitialRoute()
     this.initFirebaseInternal()
 
+    // context behavior
     this.onBoundEditResource = this.onEditResource.bind(this)
+    this.onBoundSaveResource = this.onSaveResource.bind(this)
+
+    // context state
+    this.clearResourceCache = true
   }
 
   initFirebaseInternal() {
@@ -95,6 +109,10 @@ class Lifekeyrn extends Component {
     this.editResourceId = id
 
     this.navigator.push(Routes.editResource)
+  }
+
+  onSaveResource() {
+    this.clearResourceCache = true
   }
 
   _getInitialRoute() {
@@ -302,10 +320,12 @@ class Lifekeyrn extends Component {
 Lifekeyrn.childContextTypes = {
   // behavior
   "onEditResource": PropTypes.func,
+  "onSaveResource": PropTypes.func,
 
   // state
   "editResourceForm": PropTypes.func,
-  "editResourceId": PropTypes.func
+  "editResourceId": PropTypes.func,
+  "clearResourceCache": PropTypes.func
 }
 
 export default Lifekeyrn
