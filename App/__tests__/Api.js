@@ -18,39 +18,38 @@ jest.setMock("AsyncStorage", AsyncStorage)
 
 /* global test, describe */
 describe('#profile()', () => {
-  it('Testing for async errors using `catch`, GET/profile/${data.id} Fetch a profile', async () => {
-     const response = {"body": null, "error": true, "message": "user record not found", "status": 404};
-    const data = await Api.profile({did:1})
-    .catch(error => expect(error).toEqual(response));
-  })
 
-  it('rejects incorrect values that are null', async () => {
-    const response = "undefined cannot be 'null'";
+ it('rejects incorrect params', async () => {
+   const response =  "user record not found";
+   const data = await Api.profile({did:1})
+    .catch(error => expect(error.message).toEqual(response));
+ })
 
+ it('rejects incorrect null values ', async () => {
+    const response = "null cannot be 'null' or 'undefined'";
     try {
       const {data} = await Api.profile({did:null})
-
-
+      return Promise.reject(new Error('should not be called'))
     } catch (e) {
-       console.log(e)
-        expect(e).toEqual(response);
-     }
+        expect(e.message).toEqual(response);
+        return Promise.resolve()
+    }
   });
 
-it('rejects incorrect values that are not objects', async () => {
-  const response = `[Expected 'object', received 'number': Expected 'object', received 'number']`;
-  try {
-  const data = await Api.profile(2)
-
-   } catch (e) {
-    expect(e).toEqual(response);
-  }
- });
+  it('rejects incorrect values that are not objects', async () => {
+    const number = 2
+    const response = `Expected 'object', received 'number'`;
+    try {
+      const data = await Api.profile(number)
+    } catch (e) {
+     expect(e.message).toEqual(response);
+   }
+  })
 });
 
 describe('#register()', () => {
-  it('Testing for async errors using `catch`, Register a user', async () => {
-    const response = {"body": null, "error": true, "message": "unsupported key algorithm", "status": 400};
+  it('rejects incorrect params', async () => {
+    const response =  "unsupported key algorithm";
     const data = await Api.register({email:"sphe@io.co.za",
                                      nickname: "sphe",
                                      device_id:'PI',
@@ -58,69 +57,105 @@ describe('#register()', () => {
                                      public_key_algorithm:"addsfgggggg",
                                      public_key:"23444",
                                      plaintext_proof:"fgfg",
-                                     signed_proof:"ggf"})
-    .catch(error => expect(error).toEqual(response));
-    //expect(data).not.toBe(null);
-    it('rejects incorrect values that are null', async () => {
-      const response = "undefined cannot be 'null'";
-
+                                     signed_proof:"ggf"
+                                   })
+    .catch(error => expect(error.message).toEqual(response));
+  })
+  it('rejects incorrect null and undefined values', async () => {
+    const response = "null cannot be 'null' or 'undefined'";
       try {
-        const {data} = await Api.register({did:null})
-
-
-      } catch (e) {
-         console.log(e)
-          expect(e).toEqual(response);
+        const {data} = await Api.register({email:null,
+                                         nickname: null,
+                                         device_id:'PI',
+                                         device_platform:"Android",
+                                         public_key_algorithm:"addsfgggggg",
+                                         public_key:"23444",
+                                         plaintext_proof:"fgfg",
+                                         signed_proof:"ggf"
+                                       })
+     } catch (e) {
+          expect(e.message).toEqual(response);
        }
     });
 
-  it('rejects incorrect values that are not objects', async () => {
-    const response = `[Expected 'object', received 'number': Expected 'object', received 'number']`;
+  it('rejects incorrect  params', async () => {
+    const response = `Expected 'object', received 'number'`;
     try {
-    const data = await Api.register(2)
+      const data = await Api.register(2)
 
      } catch (e) {
-      expect(e).toEqual(response);
+      expect(e.message).toEqual(response);
     }
-   });
-
-
   });
-
 });
 
 describe('#device()', () => {
-  it('Testing for async errors using `catch`, POST /management/device', async () => {
+  it('rejects incorrect params', async () => {
     const response = 'User not registered. Cannot send a signed request';
-    const data = await Api.device({device_id:2,
-                                  device_platform:"ios"})
+    const data = await Api.device({device_id:2, device_platform:"ios"})
     .catch(error => expect(error).toEqual(response));
     expect(data).not.toBe(null);
-    //expect(data).toBeDefined()
+
   });
 
+  it('rejects incorrect null and undefined values', async () => {
+    const response = "null cannot be 'null' or 'undefined'";
+    try {
+      const {data} = await Api.device({device_id:null, device_platform:null })
+       }catch (e) {
+         expect(e.message).toEqual(response);
+       }
+  });
+
+  it('rejects incorrect values that are not objects', async () => {
+  const response = `Expected 'object', received 'number'`;
+  try {
+    const data = await Api.device(2)
+
+  } catch (e) {
+    expect(e.message).toEqual(response);
+  }
+  });
 });
 
 
 describe('#requestConnection()', () => {
-  it('Testing for async errors using `catch`, Make a connection request with a target user_connection_request_id', async () => {
+  it('rejects incorrect params', async () => {
     const response = 'User not registered. Cannot send a signed request';
     const data = await Api.requestConnection({target:'eewrr'})
     .catch(error => expect(error).toEqual(response));
     expect(data).not.toBe(null);
     //expect(data).toBeDefined()
   });
+  it('rejects incorrect null and undefined values', async () => {
+    const response = "null cannot be 'null' or 'undefined'";
 
+    try {
+      const {data} = await Api.requestConnection({ target : null})
+       } catch (e) {
+       expect(e.message).toEqual(response);
+     }
+  });
+
+it('rejects incorrect  params values (that are not objects)', async () => {
+  const response = `Expected 'object', received 'number'`;
+  try {
+    const data = await Api.requestConnection(2)
+
+     } catch (e) {
+       expect(e.message).toEqual(response);
+     }
+  });
 });
+
+
 describe('#allConnections()', () => {
-  it('Testing for async errors using `catch`, GET /management/connection, Get all unacked and enabled connections', async () => {
+  it('rejects incorrect params', async () => {
     const response = "User not registered. Cannot send a signed request";
     const data = await Api.allConnections()
     .catch(error => expect(error).toEqual(response));
     expect(data).not.toBe(null);
-    //expect(data).toBeDefined()
   });
-
 });
 
 describe('#respondConnectionRequest()', () =>{
@@ -129,19 +164,53 @@ describe('#respondConnectionRequest()', () =>{
     const data = await Api.respondConnectionRequest({user_connection_request_id:1, accepted:'weee'})
     .catch(error => expect(error).toEqual(response));
      expect(data).not.toBe(null);
-    //expect(data).toBeDefined()
 
+  });
+
+  it('rejects incorrect null and undefined values', async () => {
+    const response = "null cannot be 'null' or 'undefined'";
+
+    try {
+      const {data} = await Api.respondConnectionRequest({user_connection_request_id:null, accepted:null})
+       } catch (e) {
+       expect(e.message).toEqual(response);
+     }
+  });
+
+  it('rejects incorrect  params values (that are not objects)', async () => {
+    const response = `Expected 'object', received 'number'`;
+    try {
+      const data = await Api.respondConnectionRequest(12332)
+    } catch (e) {
+       expect(e.message).toEqual(response);
+     }
   });
 });
 
 describe('#deleteConnection()', () =>{
-  it('Testing for async errors using `catch`, Delete a connection /management/connection/:user_connection_id', async () => {
+  it('rejects incorrect params', async () => {
     const response = 'User not registered. Cannot send a signed request';
     const data = await Api.deleteConnection({user_connection_id:1})
     .catch(error => expect(error).toEqual(response));
     expect(data).not.toBe(null);
-    //expect(data).toBeDefined()
+  });
+  it('rejects incorrect null and undefined values', async () => {
+    const response = "null cannot be 'null' or 'undefined'";
 
+    try {
+      const {data} = await Api.deleteConnection({user_connection_id:null})
+       } catch (e) {
+         expect(e.message).toEqual(response);
+      }
+  });
+
+ it('rejects incorrect  params values (that are not objects)', async () => {
+   const response = `Expected 'object', received 'number'`;
+   try {
+     const data = await Api.deleteConnection(3334)
+   } catch (e) {
+       expect(e.message).toEqual(response);
+     }
   });
 });
 describe('#activate()', () =>{
@@ -150,8 +219,24 @@ describe('#activate()', () =>{
     const data = await Api.activate({activation_code:1234455})
     .catch(error => expect(error).toEqual(response));
      expect(data).not.toBe(null);
-    //expect(data).toBeDefined()
+  });
+  it('rejects incorrect null and undefined values', async () => {
+    const response = "null cannot be 'null' or 'undefined'";
 
+    try {
+      const {data} = await Api.activate({activation_code:null})
+       } catch (e) {
+       expect(e.message).toEqual(response);
+     }
+  });
+
+ it('rejects incorrect  params values (that are not objects)', async () => {
+   const response = `Expected 'object', received 'number'`;
+   try {
+    const data = await Api.activate(2)
+   } catch (e) {
+       expect(e.message).toEqual(response);
+     }
   });
 })
 describe('#requestISA()', () =>{
@@ -163,111 +248,260 @@ describe('#requestISA()', () =>{
                                        license:"gggg"})
     .catch(error => expect(error).toEqual(response));
     expect(data).not.toBe(null);
-    //expect(data).toBeDefined()
 
   });
+  it('rejects incorrect null and undefined values', async () => {
+    const response = "null cannot be 'null' or 'undefined'";
+    try {
+      const {data} = await Api.requestISA({to:null,
+                                         requested_schemas:null,
+                                         purpose:"weee",
+                                         license:"gggg"})
+      return Promise.reject(new Error('should not be called'))
+      }catch (e) {
+      expect(e.message).toEqual(response);
+      return Promise.resolve()
+     }
+  });
+
+  it('rejects incorrect values that are not objects', async () => {
+    const number = 2
+    const response = `Expected 'object', received 'number'`;
+    try {
+      const data = await Api.profile(number)
+
+    } catch (e) {
+      expect(e.message).toEqual(response);
+    }
+  });
 })
+
+
 describe('#respondISA()', () =>{
-  it('Testing for async errors using `catch`, POST /management/isa/${data.isar_id} , Respond to an ISA request', async () => {
+  it('rejects incorrect params', async () => {
     const response = 'User not registered. Cannot send a signed request';
     const data = await Api.respondISA({accepted:1,permitted_resources:'qwerrr'})
     .catch(error => expect(error).toEqual(response));
     expect(data).not.toBe(null);
-    //expect(data).toBeDefined()
+  });
 
+  it('rejects incorrect null and undefined values', async () => {
+    const response = "null cannot be 'null' or 'undefined'";
+
+    try {
+      const {data} = await Api.respondISA({accepted:null,permitted_resources:null})
+   } catch (e) {
+        expect(e.message).toEqual(response);
+     }
+  });
+
+  it('rejects incorrect values that are not objects', async () => {
+    const response = `Expected 'object', received 'number'`;
+    try {
+     const data = await Api.respondISA(2)
+
+    } catch (e) {
+    expect(e.message).toEqual(response);
+   }
   });
 })
 
 
 describe('#allISAs()', () =>{
-  it('Testing for async errors can be done using `catch`, GET/management/isa , Get all ISAs', async () => {
+  it('rejects incorrect params', async () => {
     const response = 'User not registered. Cannot send a signed request';
     const data = await Api.allISAs()
     .catch(error => expect(error).toEqual(response));
     expect(data).not.toBe(null);
-    //expect(data).toBeDefined()
-
-  });
+    });
 })
 describe('#getISA', () =>{
-  it('Testing for async errors using `catch`, Get an ISA by id', async () => {
+  it('rejects incorrect params', async () => {
     const response = 'User not registered. Cannot send a signed request';
     const data = await Api.getISA({id:2})
     .catch(error => expect(error).toEqual(response));
     expect(data).not.toBe(null);
-    //expect(data).toBeDefined()
+  });
+  it('rejects incorrect null and undefined values', async () => {
+    const response = "null cannot be 'null' or 'undefined'";
+
+    try {
+      const {data} = await Api.getISA({id:null})
+   } catch (e) {
+        expect(e.message).toEqual(response);
+     }
+  });
+
+  it('rejects incorrect values that are not objects', async () => {
+    const response = `Expected 'object', received 'number'`;
+    try {
+      const data = await Api.getISA(2)
+
+    } catch (e) {
+     expect(e.message).toEqual(response);
+    }
 
   });
 })
 
 describe('#deleteISA', () =>{
-  it('Testing for async errors using `catch`, Delete an ISA', async () => {
+  it('rejects incorrect params', async () => {
     const response = 'User not registered. Cannot send a signed request';
     const data = await Api.deleteISA({isa_id:2})
     .catch(error => expect(error).toEqual(response));
-    //expect(data).toBeDefined()
     expect(data).not.toBe(null);
 
   });
+  it('rejects incorrect null and undefined values', async () => {
+    const response = "null cannot be 'null' or 'undefined'";
+
+    try {
+      const {data} = await Api.deleteISA({isa_id:null})
+   } catch (e) {
+        expect(e.message).toEqual(response);
+     }
+  });
+
+  it('rejects incorrect values that are not objects', async () => {
+    const response = `Expected 'object', received 'number'`;
+    try {
+      const data = await Api.register(2)
+
+    }catch (e) {
+      expect(e.message).toEqual(response);
+    }
+  });
+
 })
 describe('#qrCode', () =>{
-  it('Testing for async errors using `catch`, Demo QR code', async () => {
+  it('rejects incorrect params', async () => {
     const response = 'User not registered. Cannot send a signed request';
     const data = await Api.qrCode({user_id:2})
     .catch(error => expect(error).toEqual(response));
-    //expect(data).toBeDefined()
     expect(data).not.toBe(null);
 
   });
+  it('rejects incorrect values that are null', async () => {
+    const response = "null cannot be 'null' or 'undefined'";
+
+    try {
+      const {data} = await Api.qrCode({user_id:null})
+   } catch (e) {
+        expect(e.message).toEqual(response);
+     }
+  });
+
+  it('rejects incorrect values that are not objects', async () => {
+  const response = `Expected 'object', received 'number'`;
+  try {
+    const data = await Api.qrCode(3)
+
+   } catch (e) {
+    expect(e.message).toEqual(response);
+  }
+});
+
 })
 
 describe('#updateISA', () =>{
-  it('Testing for async errors using `catch`, Update an ISA by id', async () => {
+  it('rejects incorrect params', async () => {
     const response = 'User not registered. Cannot send a signed request';
     const data = await Api.updateISA({isa_id:2, permitted_resources:"weerr"})
     .catch(error => expect(error).toEqual(response));
-    //expect(data).toBeDefined()
     expect(data).not.toBe(null);
-
   });
+
+  it('rejects incorrect values that are null', async () => {
+    const response = "null cannot be 'null' or 'undefined'";
+
+    try {
+      const {data} = await Api.updateISA({isa_id:null, permitted_resources:null})
+   } catch (e) {
+      expect(e.message).toEqual(response);
+     }
+  });
+
+ it('rejects incorrect values that are not objects', async () => {
+   const response = `Expected 'object', received 'number'`;
+   try {
+     const data = await Api.updateISA(4)
+   } catch(e) {
+     expect(e.message).toEqual(response);
+   }
+
+});
+
 })
 describe('#pullISA()', () =>{
-  it('Testing for async errors using `catch`, Pull an ISA', async () => {
+  it('rejects incorrect params', async () => {
     const response = 'User not registered. Cannot send a signed request';
     const data = await Api.pullISA({isa_id:1})
     .catch(error => expect(error).toEqual(response));
     expect(data).not.toBe(null);
-    //expect(data).toBeDefined()
+   });
+   it('rejects incorrect values that are null', async () => {
+     const response = "null cannot be 'null' or 'undefined'";
 
-  });
+     try {
+       const {data} = await Api.pullISA({isa_id:null})
+    } catch (e) {
+         expect(e.message).toEqual(response);
+      }
+   });
+
+ it('rejects incorrect values that are not objects', async () => {
+   const response = `Expected 'object', received 'number'`;
+   try {
+   const data = await Api.pullISA(3)
+
+    } catch (e) {
+     expect(e.message).toEqual(response);
+   }
+ });
 })
+
 describe('#pushISA()', () =>{
-  it('Testing for async errors using `catch`, Push an ISA', async () => {
+  it('rejects incorrect params', async () => {
     const response = 'User not registered. Cannot send a signed request';
     const data = await Api.pushISA({isa_id:2, resources:'jfjffjfj'})
     .catch(error => expect(error).toEqual(response));
     expect(data).not.toBe(null);
-    //expect(data).toBeDefined()
+    });
+  it('rejects incorrect values that are null', async () => {
+      const response = "null cannot be 'null' or 'undefined'";
 
+      try {
+        const {data} = await Api.pushISA({isa_id:null, resources:null})
+     } catch (e) {
+          expect(e.message).toEqual(response);
+       }
+    });
+
+  it('rejects incorrect values that are not objects', async () => {
+    const response = `Expected 'object', received 'number'`;
+    try {
+    const data = await Api.register(2)
+
+     } catch (e) {
+      expect(e.message).toEqual(response);
+    }
   });
+
 })
 describe('#unregister()', () =>{
-  it('Testing for async errors using `catch`, Delete a user', async () => {
-    const response = {"body": null, "error": true, "message": "user record not found", "status": 404};
+  it('rejects incorrect params', async () => {
+    const response =  "user record not found";
     const data = await Api.unregister({id:1, email:'sphe@io.co.za'})
-    .catch(error => expect(error).toEqual(response));
+    .catch(error => expect(error.message).toEqual(response));
     expect(data).not.toBe(null);
-    //expect(data).toBeDefined();
-
   });
- })
+})
 
- describe('request', () => {
-   it('fetch correctly', async () => {
-
-     const response = await fetch('http://staging.api.lifekey.cnsnt.io')
-     const data = await response.text();
-     expect(data).toBeDefined();
-     expect(data).not.toBe(null);
-   });
- });
+describe('request', () => {
+  it('fetch correctly', async () => {
+    const response = await fetch('http://staging.api.lifekey.cnsnt.io')
+    const data = await response.text();
+    expect(data).toBeDefined();
+    expect(data).not.toBe(null);
+  });
+});
