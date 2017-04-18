@@ -173,7 +173,7 @@ export default class Lifekeyrn extends Component {
   }
 
   onDidFocus(route) {
-    this._navigationEventEmitter.emit('onDidfocus' + route.scene.name)
+    this._navigationEventEmitter.emit('onDidFocus' + route.scene.name)
   }
 
   componentDidMount() {
