@@ -17,6 +17,8 @@ import DebugAsyncStorage from './Scenes/Debug/DebugAsyncStorage'
 import Main from './Scenes/Main'
 import Me from './Scenes/Me'
 import MeConnect from './Scenes/MeConnect'
+import FaceMatch from './Scenes/FaceMatch'
+import FaceMatchResult from './Scenes/FaceMatchResult'
 import SetPin from './Scenes/Onboarding/SetPin'
 import Unlocked from './Scenes/Onboarding/Unlocked'
 import ConnectionDetails from './Scenes/ConnectionDetails'
@@ -44,6 +46,8 @@ export default {
   main: { scene: Main },
   me: { scene: Me },
   meConnect: { scene: MeConnect },
+  faceMatch: { scene: FaceMatch },
+  faceMatchResult: { scene: FaceMatchResult },
   connectionDetails: { scene: ConnectionDetails },
   confirmInformationShare: { scene: ConfirmInformationShare },
   connection: { scene: Connection },

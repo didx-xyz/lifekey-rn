@@ -26,6 +26,21 @@ const LcContactDetail = React.createClass({
     "listCardSecondaryDetails": array,
     "listImageUrl": string
   },
+  mobileIcon (listCardHeading) {
+    switch (listCardHeading) {
+      case "Mobile":
+        return (<MobileIcon width={22} height={30} stroke="#666" />)
+        break;
+      case "Home":
+        return (<LandlineIcon width={28} height={18} stroke="#666" />)
+        break;
+      case "Email":
+        return (<EnvelopeIcon width={28} height={18} stroke="#666" />)
+        break;
+      default:
+        return (<EnvelopeIcon width={28} height={18} stroke="#666" />)
+    } 
+  },
   render () {
     
     const styles = {
@@ -90,20 +105,11 @@ const LcContactDetail = React.createClass({
       
         <View style={styles.listCard}>
           <View style={styles.listImageContainer}>
-            <MobileIcon width={22} height={30} stroke="#666" />
-            { /* 
-              switch (listCardHeading) {
-                case "Mobile":
-                  return <MobileIcon width={22} height={30} stroke="#666" />
-                  break;
-                case "Home":
-                  return <LandlineIcon width={22} height={30} stroke="#666" />
-                  break;
-                case "Email":
-                  return <EnvelopeIcon width={22} height={30} stroke="#666" />
-                  break;
-              } 
-             */ }
+            
+          
+           { this.mobileIcon(listCardHeading) }
+          
+             
           </View>
           <View style={styles.listBody}>
             <Text style={styles.listBodySubtitle}> {listCardHeading} </Text>
