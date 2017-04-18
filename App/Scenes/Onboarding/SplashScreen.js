@@ -8,10 +8,8 @@
 import React from 'react'
 import Scene from '../../Scene'
 import Routes from '../../Routes'
-import Config from '../../Config'
 import Logger from '../../Logger'
 import Session from '../../Session'
-import ConsentError from '../../ConsentError'
 import Touchable from '../../Components/Touchable'
 import ConsentUser from '../../Models/ConsentUser'
 
