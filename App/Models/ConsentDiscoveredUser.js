@@ -27,7 +27,20 @@ class ConsentDiscoveredUser {
    * @throws {Error} E_USER_ALREADY_EXISTS
    * @returns {boolean} success true on success
    */
-  static add(id, did, nickname, colour, image_uri) {
+  static add(id, did, nickname, colour, image_uri, display_name, address, tel, email) {
+
+    const newDiscoveredUser = {
+      id,
+      did,
+      nickname,
+      colour,
+      image_uri,
+      display_name,
+      address,
+      tel,
+      email
+    }
+
     return AsyncStorage.getItem(STORAGE_KEY)
     .then(itemJSON => {
       if (itemJSON) {
@@ -42,9 +55,7 @@ class ConsentDiscoveredUser {
           )
         } else {
           // merge new connection
-          const updatedDiscoveredUser = discoveredUsers.concat(
-            { id, did, nickname, colour, image_uri }
-          )
+          const updatedDiscoveredUser = discoveredUsers.concat(newDiscoveredUser)
           return AsyncStorage.setItem(
             STORAGE_KEY,
             JSON.stringify(updatedDiscoveredUser)
@@ -52,7 +63,7 @@ class ConsentDiscoveredUser {
         }
       } else {
         // create from scratch
-        const discoveredUsers = [{ id, did, nickname, colour, image_uri }]
+        const discoveredUsers = [newDiscoveredUser]
         return AsyncStorage.setItem(
           STORAGE_KEY,
           JSON.stringify(discoveredUsers)

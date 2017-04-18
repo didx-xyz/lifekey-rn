@@ -97,13 +97,13 @@ export default class Lifekeyrn extends Component {
           registered: results.registered || false,
           loggedIn: results.loggedIn || false,
           email: results.email,
-          firebaseToken: results.firebaseToken
+          firebaseToken: results.firebaseToken,
         }
         this.setState({
           booted: true
         }, () => {
           Session.update(update)
-          this.forceUpdate()
+          // this.forceUpdate()
         })
       } else {
         const update = {}
@@ -131,7 +131,6 @@ export default class Lifekeyrn extends Component {
    */
   _nativeEventMessageReceived(message) {
     Logger.info('Firebase message received', this.filename)
-    
     if (!(message.data && message.data.type)) {
       if (message.notification) {
         Logger.firebase(JSON.stringify(message))

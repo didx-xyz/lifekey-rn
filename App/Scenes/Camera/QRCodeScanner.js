@@ -7,6 +7,7 @@
 
 import React from 'react'
 import Scene from '../../Scene'
+import Routes from '../../Routes'
 import Palette from '../../Palette'
 import Api from '../../Api'
 import CameraCrosshair from '../../Components/CameraCrosshair'
@@ -66,25 +67,19 @@ export default class QRCodeScanner extends Scene {
     )
   }
 
+  connect(data) {
+    this.navigator.push({
+      ...Routes.connection,
+      did: data.data,
+      display_name: null // can either be in QR code or fetched http
+    })
+  }
+
   _onBarCodeRead(data) {
     // alert(JSON.stringify(data))
     if (this.scannerActive) {
       this.scannerActive = false
-      Api.requestConnection({ target: data.data })
-      .then(() => {
-        alert('Connection requested')
-        this.setState({
-          readyToScan: false
-        }, () => {
-          this.navigator.pop()
-        })
-      })
-      .catch(error => {
-        alert(JSON.stringify(error))
-        this.setState({
-          readyToScan: false
-        })
-      })
+      this.connect(data)
     }
   }
 
