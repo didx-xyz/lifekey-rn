@@ -9,13 +9,16 @@
 import DebugMain from './Scenes/Debug/DebugMain'
 import DebugKeyStore from './Scenes/Debug/DebugKeyStore'
 import DebugRegister from './Scenes/Debug/DebugRegister'
-import DebugError from './Scenes/Debug/DebugError'
 import DebugConfiguration from './Scenes/Debug/DebugConfiguration'
 import DebugConnectionRequest from './Scenes/Debug/DebugConnectionRequest'
+import DebugAsyncStorage from './Scenes/Debug/DebugAsyncStorage'
 
 // Main
 import Main from './Scenes/Main'
 import Me from './Scenes/Me'
+import MeConnect from './Scenes/MeConnect'
+import FaceMatch from './Scenes/FaceMatch'
+import FaceMatchResult from './Scenes/FaceMatchResult'
 import SetPin from './Scenes/Onboarding/SetPin'
 import Unlocked from './Scenes/Onboarding/Unlocked'
 import ConnectionDetails from './Scenes/ConnectionDetails'
@@ -26,6 +29,7 @@ import SelectResourceOfType from './Scenes/SelectResourceOfType'
 import Badges from './Scenes/Badges'
 import Messages from './Scenes/Messages'
 import BadgeDetail from './Scenes/BadgeDetail'
+import EditResource from './Scenes/EditResource'
 
 import Locked from './Scenes/Onboarding/Locked'
 import Unlock from './Scenes/Onboarding/Unlock'
@@ -41,6 +45,9 @@ import SelfieCam from './Scenes/Camera/SelfieCam'
 export default {
   main: { scene: Main },
   me: { scene: Me },
+  meConnect: { scene: MeConnect },
+  faceMatch: { scene: FaceMatch },
+  faceMatchResult: { scene: FaceMatchResult },
   connectionDetails: { scene: ConnectionDetails },
   confirmInformationShare: { scene: ConfirmInformationShare },
   connection: { scene: Connection },
@@ -49,6 +56,7 @@ export default {
   badges: { scene: Badges },
   messages: { scene: Messages },
   badgeDetail: { scene: BadgeDetail },
+  editResource: { scene: EditResource },
   onboarding: {
     splashScreen: { scene: SplashScreen },
     register: { scene: Register },
@@ -65,8 +73,8 @@ export default {
     main: { scene: DebugMain },
     keystore: { scene: DebugKeyStore },
     register: { scene: DebugRegister },
-    error: { scene: DebugError },
     configuration: { scene: DebugConfiguration },
-    connectionRequest: { scene: DebugConnectionRequest }
+    connectionRequest: { scene: DebugConnectionRequest },
+    asyncStorage: { scene: DebugAsyncStorage }
   }
 }

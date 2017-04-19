@@ -8,6 +8,7 @@
 import React, { Component } from 'react'
 import Scene from '../Scene'
 import Palette from '../Palette'
+import Api from '../Api'
 import Config from '../Config'
 import Logger from '../Logger'
 import Routes from '../Routes'
@@ -16,11 +17,14 @@ import LifekeyFooter from '../Components/LifekeyFooter'
 import Touchable from '../Components/Touchable'
 import AndroidBackButton from 'react-native-android-back-button'
 import ConsentConnection from '../Models/ConsentConnection'
+import Design from '../DesignParameters'
+import HexagonIcon from '../Components/HexagonIcon'
+import ConsentUser from '../Models/ConsentUser'
+import SearchBox from '../Components/SearchBox'
 
 import {
   Text,
   View,
-  StyleSheet,
   Dimensions
 } from 'react-native'
 import {
@@ -29,10 +33,7 @@ import {
   Footer,
   ListItem,
   Content,
-  Input,
-
 } from 'native-base'
-import Icon from 'react-native-vector-icons/FontAwesome'
 
 const TAB_CONNECTED = 0
 const TAB_SUGGESTED = 1
@@ -47,6 +48,7 @@ export default class Main extends Scene {
       connections: [],
       suggestedConnections: Config.suggestedConnections
     }
+    this.fetchingData = false;
   }
 
   componentWillFocus() {
@@ -55,19 +57,29 @@ export default class Main extends Scene {
   }
 
   _onAttention() {
-    ConsentConnection.all()
-    .then(result => {
-      this.setState({
-        connections: result
+    if (!this.fetchingData) {
+      this.fetchingData = true
+      Promise.all([
+        Api.getActiveBots(),
+        ConsentConnection.all()
+      ])
+      .then(result => {
+        this.setState({
+          suggestedConnections: JSON.parse(result[0]._bodyText),
+          connections: result[1]
+        }, () => {
+          this.fetchingData = false
+        })
       })
-    })
-    .catch(error => {
-      Logger.error(error, this._fileName, error)
-    })
+      .catch(error => {
+        Logger.error(error)
+      })
+
+    }
   }
 
   componentWillMount() {
-    super.componentWillFocus()
+    super.componentWillMount()
     this._onAttention()
   }
 
@@ -95,7 +107,6 @@ export default class Main extends Scene {
   }
 
   connect(connection) {
-    console.log(connection)
     this.navigator.push({
       ...Routes.connection,
       did: connection.did,
@@ -106,78 +117,95 @@ export default class Main extends Scene {
   render() {
     return (
       <Container>
-        <View style={{ borderColor: Palette.consentGrayDark, height: 120 }}>
+        <View style={style.headerWrapper}>
           <AndroidBackButton onPress={() => this._hardwareBack()} />
           <LifekeyHeader
-            onLongPressTopCenter={() => this.navigator.push(Routes.debug.main)}
-            onPressBottomLeft={() => this.setTab(TAB_CONNECTED) }
-            onPressBottomRight={() => this.setTab(TAB_SUGGESTED) }
             icons={[
-              <Text>Test1</Text>,
-              <Text>Test2</Text>,
-              <Text>Test3</Text>
+              {
+                icon: <Text>+</Text>,
+                onPress: () => alert('test')
+              },
+              {
+                icon: <HexagonIcon fill={ ConsentUser.getDidSync() ? Palette.consentBlue : 'red' }/>,
+                onPress: () => alert('test'),
+                onLongPress: () => {
+                  if (Config.DEBUG) {
+                    this.navigator.push(Routes.debug.main)
+                  }
+                }
+              },
+              {
+                icon: <Text>+</Text>,
+                onPress: () => alert('test')
+              }
             ]}
             tabs={[
-              { text: 'Connected', onPress: () => this.setTab(TAB_CONNECTED), active: this.state.activeTab === 0 },
-              { text: 'Suggested', onPress: () => this.setTab(TAB_SUGGESTED), active: this.state.activeTab === 1 }
+              {
+                text: 'Connected',
+                onPress: () => this.setTab(TAB_CONNECTED),
+                active: this.state.activeTab === 0
+              },
+              {
+                text: 'Suggested',
+                onPress: () => this.setTab(TAB_SUGGESTED),
+                active: this.state.activeTab === 1
+              }
             ]}
           />
 
         </View>
         <Content>
           <Col style={{ flex: 1 }}>
-
             <View style={{ flex: 10, backgroundColor: Palette.consentGrayLightest }}>
               { this.state.activeTab === 0 ?
-                /* CONNECTED */
-                <View style={{ flex: 1 }}>
-                { /* TODO: make into searchbox component */ }
-                  <View style={style.searchBox}>
-                      <Icon
-                        style={style.searchBoxSearchIcon}
-                        name="search" size={20}
-                        color={Palette.consentGrayDark}
-                      />
-                      <Input
-                        value={this.state.searchText}
-                        onChangeText={(text) => this.updateSearch(text)}
-                        style={Object.assign(
-                          style.searchBoxInput,
-                          { borderTopRightRadius: this.state.searchText ? null : 10,
-                            borderBottomRightRadius: this.state.searchText ? null : 10 }
-                        )}
-                        placeholder="Search"
-                      />
-                      { this.state.searchText !== '' &&
-                        <Touchable onPress={() => this.clearSearch()}>
-                          <Icon style={style.searchBoxCloseIcon} name="times-circle" size={25} color={Palette.consentGrayDark} />
-                        </Touchable>
-                      }
-                  </View>
 
+                /* CONNECTED TAB */
+
+                <View style={{ flex: 1 }}>
+
+                  <SearchBox
+                    text={this.state.searchText}
+                    onChangeText={(text) => this.updateSearch(text)}
+                  />
+
+                  { /* LIST OF CONNECTIONS */ }
                   {this.state.connections.filter((connection) => {
+                    // If not empty
                     if (this.state.searchText !== '') {
-                      const connectionSubUpper = connection.name.substr(0, this.state.searchText.length).toUpperCase()
+                      // uppercase connection name and substring name to search text length
+                      const connectionSubUpper = connection.display_name
+                                                 .substr(0, this.state.searchText.length)
+                                                 .toUpperCase()
+                      // uppsercase search text
                       const searchTextUpper = this.state.searchText.toUpperCase()
+                      // compare
                       return connectionSubUpper === searchTextUpper
                     } else {
+                      // match because no search text
                       return true
                     }
                   }).map((connection, i) => (
                       <ListItem
                         key={i}
                         style={style.listItem}
-                        onPress={() => this.navigator.push({ ...Routes.connectionDetails, connection_to: connection.to, connection_id: connection.id })}
+                        onPress={() => this.navigator.push({
+                          ...Routes.connectionDetails,
+                          user_did: connection.to_did,
+                          id: connection.id,
+                          display_name: connection.display_name
+                        })}
                       >
-                        <Text>{connection.nickname + ' - ' + connection.id + ' - ' + connection.to}</Text>
+                        <Text>
+                          {`${connection.display_name}`}
+                        </Text>
                       </ListItem>
                   ))}
 
                 </View>
                 :
-                /* SUGGESTED */
+                /* SUGGESTED TAB */
                 <View style={{ flex: 1 }}>
-                  {this.state.suggestedConnections.map((suggestedConnection, i) => (
+                  { this.state.suggestedConnections.map((suggestedConnection, i) => (
                     <ListItem
                       key={i}
                       style={style.listItem}
@@ -185,7 +213,7 @@ export default class Main extends Scene {
                     >
                       <Text>{suggestedConnection.display_name}</Text>
                     </ListItem>
-                    ))}
+                  ))}
                 </View>
               }
             </View>
@@ -205,44 +233,16 @@ export default class Main extends Scene {
 }
 
 const style = {
+  headerWrapper: {
+    borderColor: Palette.consentGrayDark,
+    height: Design.lifekeyHeaderHeight
+  },
   listItem: {
     flex: 1,
     paddingLeft: 20
   },
   listItemLabel: {
     backgroundColor: Palette.consentGrayDark
-  },
-  searchBox: {
-    flex: 1,
-    flexDirection: 'row',
-    margin: 5,
-    borderWidth: 2,
-    borderColor: Palette.consentGrayMedium,
-    borderRadius: 10,
-  },
-  searchBoxInput: {
-    flex: 1,
-    backgroundColor: 'white',
-    fontSize: 17,
-    padding: 2
-  },
-  searchBoxSearchIcon: {
-    borderRadius: 10,
-    backgroundColor: 'white',
-    padding: 5,
-    paddingTop: 10,
-    paddingLeft: 10,
-    borderTopRightRadius: 0,
-    borderBottomRightRadius: 0
-  },
-  searchBoxCloseIcon: {
-    borderRadius: 10,
-    backgroundColor: 'white',
-    padding: 5,
-    paddingTop: 8,
-    paddingRight: 10,
-    borderTopLeftRadius: 0,
-    borderBottomLeftRadius: 0
   },
   footer: {
     height: Dimensions.get('window').height / 6

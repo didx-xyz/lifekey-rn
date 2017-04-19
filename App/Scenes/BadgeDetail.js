@@ -4,6 +4,8 @@ import { Text, View, ScrollView } from "react-native"
 import { Container } from "native-base"
 
 // internal dependencies
+import Design from "../DesignParameters"
+import Palette from "../Palette"
 import BackButton from "../Components/BackButton"
 import HelpIcon from "../Components/HelpIcon"
 import Scene from "../Scene"
@@ -121,24 +123,24 @@ class BadgeDetail extends Scene {
   }
 }
 
-const navigationHeight = 12.5
+const navigationHeight = Design.navigationHeight
 
 const darkgray = '#353d43'
 const gray = '#666'
-const lightgray = '#999'
+// const lightgray = '#999'
+// const darkgray = Palette.consentGrayDark
+// const gray = Palette.consentGrayMedium
+const lightgray = Palette.consentGrayMedium
 
-const paddingTop = 15;
-const paddingRight = 20;
-const paddingBottom = 15;
-const paddingLeft = 20;
+const paddingTop = Design.paddingTop
+const paddingRight = Design.paddingRight
+const paddingBottom = Design.paddingBottom
+const paddingLeft = Design.paddingLeft
 
 const styles = {
   "content": {
     "backgroundColor": "#fff",
     "paddingBottom": paddingBottom * 2
-  },
-  "scrollableContent": {
-    // "height": `${100 - navigationHeight}%`
   },
   "navigation": {
     "width": "100%",
@@ -148,6 +150,9 @@ const styles = {
     "flexDirection": "row",
     "justifyContent": "space-between",
     "alignItems": "center"
+  },
+  "scrollableContent": {
+    "height": `${100 - navigationHeight}%`
   },
   "brand": {
     "flexDirection": "column",
@@ -164,7 +169,7 @@ const styles = {
   },
   "serviceName": {
     "fontSize": 25,
-    "color": "#666",
+    "color": gray,
     "paddingTop": paddingTop,
   },
   "brandName": {

@@ -1,6 +1,7 @@
 // external dependencies
 import React, { Component } from "react"
 import AndroidBackButton from "react-native-android-back-button"
+import PropTypes from "prop-types"
 
 class BackButton extends Component {
   constructor(...params) {
@@ -28,7 +29,7 @@ class BackButton extends Component {
 }
 
 BackButton.propTypes = {
-  "onPress": React.PropTypes.func
+  "onPress": PropTypes.func
 }
 
 export default BackButton

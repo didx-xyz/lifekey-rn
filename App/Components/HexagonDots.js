@@ -1,6 +1,7 @@
 // external dependencies
 import React from "react"
 import { Image } from "react-native"
+import PropTypes from "prop-types"
 
 const HexagonDots  = function(props) {
   let image = null
@@ -27,7 +28,7 @@ const HexagonDots  = function(props) {
 }
 
 HexagonDots.propTypes = {
-  "current": React.PropTypes.oneOf([0, 1, 2, 3, 4]).isRequired
+  "current": PropTypes.oneOf([0, 1, 2, 3, 4, 5]).isRequired
 }
 
 export default HexagonDots

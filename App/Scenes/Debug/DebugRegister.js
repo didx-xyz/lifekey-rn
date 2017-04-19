@@ -61,12 +61,13 @@ export default class DebugRegister extends Scene {
     const email = this.state.email.trim()
     const nickname = this.state.nickname.trim()
     const password = this.state.password.trim()
+    if (password.length)
     ConsentUser.register(nickname, email, password)
     .then(result => {
       this.setState({
         registered: true
       })
-      Logger.info(`${nickname} registered. Don't forget to click the magic link`, this._fileName)
+      Logger.info(`${nickname} registered. Don't forget to click the magic link`, this.filename)
       alert(`${nickname} created. Click the magic link sent to ${email} to activate.`)
     })
     .catch(error => {
@@ -101,10 +102,10 @@ export default class DebugRegister extends Scene {
     ConsentUser.unregister()
     .then(() => {
       alert('User unregistered')
-      Logger.info('User unregistered', this._fileName)
+      Logger.info('User unregistered', this.filename)
     })
     .catch(error => {
-      Logger.error('Could not unregister', this._fileName, error)
+      Logger.error('Could not unregister', this.filename, error)
     })
   }
 

@@ -57,6 +57,13 @@ export default class QRCodeScanner extends Scene {
     return true
   }
 
+  _preventOverheat() {
+    // Turn of after 5 minutes
+    setTimeout(() => {
+      this.setState({ showCamera: false , readyToScan: false })
+    }, (100 * 10) * 60 * 5)
+  }
+
   componentDidMount() {
     super.componentDidMount()
     InteractionManager.runAfterInteractions(() =>
@@ -126,7 +133,7 @@ export default class QRCodeScanner extends Scene {
                 background={ TouchableNativeFeedback.Ripple(Palette.consentGrayLightest, false) }
                 onPress={() => {
                   this.scannerActive = true
-                  this.setState({ readyToScan: true })
+                  this.setState({ readyToScan: true, showCamera: true })
                 }}
                 delayPressIn={0}
                 >

@@ -58,8 +58,6 @@ class ConsentConnection {
       } else {
         display_name = 'Mystery User'
       }
-      // const nickname = (response.body.user.display_name.charAt(0).toUpperCase()
-      //                  + response.body.user.display_name.substring(1))
 
       // Keep these for later
       const image_uri = response.body.user.image_uri
@@ -69,7 +67,7 @@ class ConsentConnection {
       // If entry does not exist, create from scratch
       if (!connectionsItem) {
         const connectionsItemJSON = JSON.stringify([{
-          id: parseInt(id),
+          id: parseInt(id, 10),
           to_did: to_did,
           display_name: display_name
         }])
@@ -94,13 +92,13 @@ class ConsentConnection {
       } else {
         // merge new data
         const updatedConnectionsItem = JSON.stringify(connections.concat({
-          id: parseInt(id),
+          id: parseInt(id, 10),
           to: parseInt(to_did),
-          nickname: nickname
+          display_name: display_name
         }))
         return Promise.all([
           AsyncStorage.setItem(STORAGE_KEY, updatedConnectionsItem),
-          ConsentDiscoveredUser.add(user_id, to_did, nickname, colour, image_uri)
+          ConsentDiscoveredUser.add(user_id, to_did, display_name, colour, image_uri)
         ])
       }
     })

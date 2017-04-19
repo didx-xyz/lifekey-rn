@@ -8,8 +8,8 @@
 import * as Lifecycle from './Lifecycle'
 import Logger from './Logger'
 import Palette from './Palette'
-import Api from './Api'
 import Session from './Session'
+import Firebase from './Firebase'
 import Routes from './Routes'
 import Config from './Config'
 import ConsentUser from './Models/ConsentUser'
@@ -40,6 +40,7 @@ export default class Lifekeyrn extends Component {
     this._messaging = this._firebase.messaging()
     this._navigationEventEmitter = new EventEmitter()
     this._orientationEventEmitter = new EventEmitter()
+    this.firebaseInternalEventEmitter = new EventEmitter()
     this.state = {
       booted: false,
       orientation: null,
@@ -62,7 +63,7 @@ export default class Lifekeyrn extends Component {
 
     this._initSession()
     this._initialRoute = this._getInitialRoute()
-    
+
     this._messaging.getInitialNotification().then(notification => {
       if (!notification) return
       // TODO check the structure of `notification`
@@ -95,12 +96,12 @@ export default class Lifekeyrn extends Component {
           loggedIn: results.loggedIn || false,
           email: results.email,
           firebaseToken: results.firebaseToken,
+          display_name: results.display_name
         }
         this.setState({
           booted: true
         }, () => {
           Session.update(update)
-          // this.forceUpdate()
         })
       } else {
         const update = {}
@@ -112,8 +113,6 @@ export default class Lifekeyrn extends Component {
           booted: true
         }, () => {
           Session.update(update)
-          console.log('BOOTED TRUE')
-          this.forceUpdate()
         })
       }
     })
@@ -186,7 +185,7 @@ export default class Lifekeyrn extends Component {
   }
 
   onDidFocus(route) {
-    this._navigationEventEmitter.emit('onDidfocus' + route.scene.name)
+    this._navigationEventEmitter.emit('onDidFocus' + route.scene.name)
   }
 
   componentDidMount() {
@@ -247,10 +246,10 @@ export default class Lifekeyrn extends Component {
   render() {
     return (
         <Navigator
-          ref={(_navigator) => this.navigator = _navigator}
-          initialRoute={this._initialRoute}
           onWillFocus={(route) => this.onWillFocus(route)}
           onDidFocus={(route) => this.onDidFocus(route)}
+          ref={(_navigator) => this.navigator = _navigator}
+          initialRoute={this._initialRoute}
           renderScene={ (route, navigator) => {
             Logger.routeStack(navigator.getCurrentRoutes())
             return (
