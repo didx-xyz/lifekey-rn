@@ -62,7 +62,6 @@ function request(route, opts, signedRequest = true) {
       }, opts)
       Logger.networkRequest(
         options.method,
-        new Date(),
         Config.http.baseUrl + route,
         opts
       )
@@ -162,7 +161,11 @@ function checkParameters(requiredKeys, receivedObject) {
     // null is not allowed
 
     if (receivedObject[requiredKeys[i]] === null || typeof receivedObject[requiredKeys[i]] === 'undefined') {
-      throw new ConsentError(`${receivedObject[requiredKeys[i]]} cannot be 'null' or 'undefined'`, ErrorCode.E_API_FATAL_ERROR)
+
+      throw new ConsentError(
+          `${receivedObject[requiredKeys[i]]} cannot be 'null' or 'undefined'`,
+          ErrorCode.E_API_FATAL_ERROR
+      )
 
     }
   }
@@ -174,19 +177,10 @@ function checkParameters(requiredKeys, receivedObject) {
 
 export default class Api {
 
-
-  // Fetch a profile
-  static profile(data) {
-    const requiredFields = [
-      'did'
-    ]
-    checkParameters(requiredFields, data)
-    return request(`/profile/${data.did}`, {
-      method: 'GET'
-    }, false)
-  }
-
-  // Register a user
+  /*
+   * Register a user
+   * 0 POST /management/user
+   */
   static register(data) {
     const requiredFields = [
       'email',
@@ -210,7 +204,10 @@ export default class Api {
 
   }
 
-  // Report device info
+  /*
+   * Report device info
+   * 1 POST /management/device
+   */
   static device(data) {
     const requiredFields = [
       'device_id',
@@ -232,7 +229,10 @@ export default class Api {
     }
   }
 
-   // Make a connection request with a target
+  /*
+   * Make a connection request with a target
+   * 2 POST /management/connection
+   */
   static requestConnection(data) {
     const requiredFields = [
       'target'
@@ -318,12 +318,17 @@ export default class Api {
    // Respond to an ISA request
   static respondISA(data) {
     const requiredFields = [
+      'isa_id',
       'accepted',
       'permitted_resources'
     ]
     if (checkParameters(requiredFields, data)) {
-      return request(`/management/isa/${data.isar_id}`, {
-        method: 'POST'
+      return request(`/management/isa/${data.isa_id}`, {
+        method: 'POST',
+        body: JSON.stringify({
+          accepted: data.accepted,
+          permitted_resources: data.permitted_resources
+        })
       })
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
@@ -429,12 +434,39 @@ export default class Api {
   // #### RESOURCE ####
   // ##################
 
-  static resource(data) {
+  // 0 GET /resource
+  static allResources() {
+    return request('/resource', {
+      method: 'GET'
+    })
+  }
+
+  // 1 GET /resource/:resource_id
+  static getResource(data) {
     const requiredFields = [
-      'value',
+      'id'
+    ]
+
+    if (checkParameters(requiredFields, data)) {
+      return request(`/resource/${data.id}`)
+    } else {
+      return Promise.reject(getMissingFieldsMessage(requiredFields))
+    }
+  }
+
+  // 2 POST /resource
+  static createResource(data) {
+    const requiredFields = [
       'entity',
       'attribute',
-      'alias'
+      'alias',
+      'mime',
+      'value',
+      'uri',
+      'is_verifiable_claim',
+      'schema',
+      'is_default',
+      'is_archived'
     ]
 
     if (checkParameters(requiredFields, data)) {
@@ -445,6 +477,142 @@ export default class Api {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
+  }
+
+  // 3 PUT /resource/:resource_id
+  static updateResource(data) {
+    return request(`/resource/${data.id}`,{
+      method: 'PUT',
+      body: JSON.stringify(data)
+    })
+  }
+
+  // 4 DELETE /resource/:resource_id
+  static deleteResource(data) {
+    const requiredFields = [
+      'id'
+    ]
+
+    if (checkParameters(requiredFields, data)) {
+      return request(`/resource/${data.id}`, {
+        method: 'DELETE'
+      })
+    } else {
+      return Promise.reject(getMissingFieldsMessage(requiredFields))
+    }
+  }
+
+  // 5 GET /profile/:did
+  static profile(data) {
+    const requiredFields = [
+      'did'
+    ]
+
+    if (checkParameters(requiredFields, data)) {
+      return request(`/profile/${data.did}`, {
+        method: 'GET'
+      }, false)
+    } else {
+      return Promise.reject(getMissingFieldsMessage(requiredFields))
+    }
+  }
+
+  // 6 PUT /profile/colour
+  static profileColour(data) {
+    const requiredFields = [
+      'colour'
+    ]
+
+    if (checkParameters(requiredFields, data)) {
+      return request('/profile/colour', {
+        method: 'PUT'
+      })
+    } else {
+      return Promise.reject(getMissingFieldsMessage(requiredFields))
+    }
+  }
+
+  // 7 PUT /profile/image
+  static profileImage(data) {
+    const requiredFields = [
+      'image_uri'
+    ]
+
+    if (checkParameters(requiredFields, data)) {
+      return request('profile/image', {
+        method: 'PUT'
+      })
+    } else {
+      return Promise.reject(getMissingFieldsMessage(requiredFields))
+    }
+  }
+
+  // 8 PUT /profile/name
+  static profileName(data) {
+    const requiredFields = [
+      'name'
+    ]
+
+    if (checkParameters(requiredFields, data)) {
+      return request('profile/name', {
+        method: 'PUT'
+      })
+    } else {
+      return Promise.reject(getMissingFieldsMessage(requiredFields))
+    }
+  }
+
+  // 9 PUT /profile/email
+  static profileEmail(data) {
+    const requiredFields = [
+      'email'
+    ]
+
+    if (checkParameters(requiredFields, data)) {
+      return request('profile/email', {
+        method: 'PUT'
+      })
+    } else {
+      return Promise.reject(getMissingFieldsMessage(requiredFields))
+    }
+  }
+
+  // 10 PUT /profile/tel
+  static profileTel(data) {
+    const requiredFields = [
+      'tel'
+    ]
+
+    if (checkParameters(requiredFields, data)) {
+      return request('profile/tel', {
+        method: 'PUT'
+      })
+    } else {
+      return Promise.reject(getMissingFieldsMessage(requiredFields))
+    }
+  }
+
+  // 11 PUT /profile/address
+  static profileAddress(data) {
+    const requiredFields = [
+      'address'
+    ]
+
+    if (checkParameters(requiredFields, data)) {
+      return request('profile/address', {
+        method: 'PUT'
+      })
+    } else {
+      return Promise.reject(getMissingFieldsMessage(requiredFields))
+    }
+  }
+
+  // 9 GET /profile
+  static myProfile() {
+
+    return request('/profile', {
+      method: 'GET'
+    })
   }
 
   // ##################
@@ -466,5 +634,13 @@ export default class Api {
     } else {
       // fail silenty
     }
+  }
+
+  static getActiveBots() {
+    const route = 'http://port8181.dev.cnsnt.io/active.php'
+    Logger.networkRequest('GET', route)
+    return fetch(route, {
+      method: 'GET'
+    })
   }
 }

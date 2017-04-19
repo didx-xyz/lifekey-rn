@@ -4,11 +4,14 @@
  * Civvals, 50 Seymour Street, London, England, W1H 7JG
  * @author Werner Roets <werner@io.co.za>
  */
+/* eslint-disable no-var */
 
 import Logger from './Logger'
 import deepmerge from 'deepmerge'
 
+// Hold's the current session state
 var state = {}
+
 /**
  * A static class to store and retrieve a global state
  */

@@ -8,15 +8,11 @@
 import * as Lifecycle from './Lifecycle'
 import Logger from './Logger'
 import Palette from './Palette'
-import Api from './Api'
 import Session from './Session'
+import Firebase from './Firebase'
 import Routes from './Routes'
 import Config from './Config'
 import ConsentUser from './Models/ConsentUser'
-import ConsentConnection from './Models/ConsentConnection'
-import ConsentConnectionRequest from './Models/ConsentConnectionRequest'
-import ConsentDiscoveredUser from './Models/ConsentDiscoveredUser'
-import ConsentISA from './Models/ConsentISA'
 import EventEmitter from 'EventEmitter'
 import React, { Component } from 'react'
 import {
@@ -40,6 +36,7 @@ export default class Lifekeyrn extends Component {
     this.filename = this._className + '.js'
     this._navigationEventEmitter = new EventEmitter()
     this._orientationEventEmitter = new EventEmitter()
+    this.firebaseInternalEventEmitter = new EventEmitter()
     this.state = {
       booted: false,
       orientation: null,
@@ -54,7 +51,10 @@ export default class Lifekeyrn extends Component {
 
     // Events
     if (Platform.OS === 'android') {
-      DeviceEventEmitter.addListener('messageReceived', (message) => this._nativeEventMessageReceived(message))
+      DeviceEventEmitter.addListener(
+        'messageReceived',
+        (message) => Firebase.messageReceived(message, this.firebaseInternalEventEmitter),
+      )
       DeviceEventEmitter.addListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
       // lol
 
@@ -63,7 +63,18 @@ export default class Lifekeyrn extends Component {
     }
     this._initSession()
     this._initialRoute = this._getInitialRoute()
+    this.initFirebaseInternal()
+  }
 
+  initFirebaseInternal() {
+    this.firebaseInternalEventEmitter.addListener(
+      'user_connection_created',
+      () => this.navigator.push(Routes.connectionDetails)
+    )
+    this.firebaseInternalEventEmitter.addListener(
+      'app_activation_link_clicked',
+      () => this.navigator.push(Routes.main)
+    )
   }
 
   _getInitialRoute() {
@@ -114,8 +125,7 @@ export default class Lifekeyrn extends Component {
           booted: true
         }, () => {
           Session.update(update)
-          console.log('BOOTED TRUE')
-          this.forceUpdate()
+          this.forceUpdate() // probably safe to remove
 
         })
 
@@ -124,115 +134,6 @@ export default class Lifekeyrn extends Component {
     .catch(error => {
       Logger.error('Error restoring session', this.filename, error)
     })
-  }
-
-  /**
-   * Fires when a Firebase EventMessage is received
-   * @param {string} message The firebase message
-   */
-  _nativeEventMessageReceived(message) {
-    Logger.info('Firebase message received', this.filename)
-    console.log(JSON.stringify(message))
-
-    if (message.data && message.data.type) {
-      switch (message.data.type) {
-
-      case 'received_did':
-        Logger.firebase('received_did')
-        ConsentUser.setDid(message.data.did_value)
-        .then(did => {
-          Logger.info(`DID set to ${did}`, this.filename)
-        })
-        .catch(error => {
-          Logger.error('Could not set DID', this.filename, error)
-        })
-        break
-
-      case 'user_connection_request':
-        Logger.firebase('user_connection_request')
-        ConsentConnectionRequest.add(
-          message.data.user_connection_request_id,
-          message.data.from_id,
-          message.data.from_did,
-          message.data.from_nickname
-        )
-        .then(connectionRequests => {
-          Logger.firebase('ConsentConnectionRequest updated')
-          console.log(connectionRequests)
-        })
-        .catch(error => {
-          Logger.error('Error writing to ConsentConnectionRequest', this.filename, error)
-        })
-        ConsentDiscoveredUser.add(
-          message.data.from_id,
-          message.data.from_did,
-          message.data.from_nickname
-        )
-        .then(discoveredUsers => {
-          Logger.firebase("ConsentDiscoveredUser updated")
-          console.log(discoveredUsers)
-        })
-        .catch(error => {
-          Logger.error('Error writing to ConsentDiscoveredUser ')
-        })
-        break
-
-      case 'user_connection_created':
-        Logger.firebase('user_connection_created')
-        ConsentConnection.add(
-          message.data.user_connection_id,
-          message.data.to_did
-        )
-        .then(() => {
-          Logger.info('Connection created')
-          // this.navigator.pop()
-          this.navigator.push(Routes.connectionDetails)
-
-        })
-        .catch(error => {
-          Logger.error(error, this.filename, error)
-        })
-        break
-      case 'sent_activiation_email':
-        Logger.firebase('sent_activiation_email')
-        alert(`${message.notification.title} - ${message.notification.body}`)
-        break
-      case 'app_activation_link_clicked':
-        Logger.firebase('app_activation_link_clicked')
-        this.navigator.push(Routes.main)
-        break
-      case 'information_sharing_agreement_request':
-        Logger.firebase('information_sharing_agreement_request')
-        // Would you like to accept?
-        // if yes:
-        ConsentISA.add(
-          message.data.isar_id,
-          message.data.from_did
-        )
-        .then(() => {
-          Logger.info('ISA Added')
-          // respond
-        })
-        .catch(error => {
-          Logger.error(error, this.filename, error)
-        })
-        break
-      default:
-        Logger.firebase(JSON.stringify(message))
-        if (message.notification) {
-          Logger.info(message.notification.title + ' - ' + message.notification.body, this.filename)
-        }
-        break
-      }
-
-    } else {
-      // Just a normal notification
-      if (message.notification) {
-        Logger.firebase(JSON.stringify(message))
-      } else {
-        Logger.error('Unexpected firebase message format')
-      }
-    }
   }
 
   /**
@@ -272,7 +173,7 @@ export default class Lifekeyrn extends Component {
   }
 
   onDidFocus(route) {
-    this._navigationEventEmitter.emit('onDidfocus' + route.scene.name)
+    this._navigationEventEmitter.emit('onDidFocus' + route.scene.name)
   }
 
   componentDidMount() {
@@ -295,7 +196,7 @@ export default class Lifekeyrn extends Component {
     Logger.react(this.filename, Lifecycle.COMPONENT_WILL_UNMOUNT)
 
     // Remove event listeners
-    DeviceEventEmitter.removeListener('messageReceived', (e) => this._nativeEventMessageReceived(e))
+    DeviceEventEmitter.removeListener('messageReceived', (message) => this.Firebase.messageReceived(message))
     DeviceEventEmitter.removeListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
   }
 
@@ -337,10 +238,10 @@ export default class Lifekeyrn extends Component {
   render() {
     return (
         <Navigator
-          ref={(_navigator) => this.navigator = _navigator}
-          initialRoute={this._initialRoute}
           onWillFocus={(route) => this.onWillFocus(route)}
           onDidFocus={(route) => this.onDidFocus(route)}
+          ref={(_navigator) => this.navigator = _navigator}
+          initialRoute={this._initialRoute}
           renderScene={ (route, navigator) => {
             Logger.routeStack(navigator.getCurrentRoutes())
             return (

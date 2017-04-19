@@ -1,24 +1,20 @@
 import React from "react"
 import Scene from "../Scene"
-import Session from "../Session"
 import Palette from "../Palette"
-import Routes from "../Routes"
-import Config from "../Config"
-import LifekeyHeader from "../Components/LifekeyHeader"
-import LifekeyCard from "../Components/LifekeyCard"
 import Touchable from "../Components/Touchable"
 import AndroidBackButton from 'react-native-android-back-button'
 import BackIcon from "../Components/BackIcon"
 import InfoIcon from "../Components/InfoIcon"
 import Api from '../Api'
 import ConsentDiscoveredUser from '../Models/ConsentDiscoveredUser'
+import Logger from "../Logger"
+import Session from "../Session"
+import _ from 'lodash'
 
 import {
   Text,
   View,
   ScrollView,
-  StyleSheet,
-  Image
 } from "react-native"
 
 import {
@@ -27,63 +23,56 @@ import {
 } from "native-base"
 
 class ConnectionDetails extends Scene {
-  constructor(...params) {
-    super(...params)
 
-    this.connection_to = this.props.route.connection_to
-    this.connection_id = this.props.route.connection_id
-
+  constructor(props) {
+    super(props)
     this.state = {
-      "showHelp": false,
+      showHelp: false,
       colour: null,
-      nickname: null,
-      user_id: null,
-      user_did: null
+      display_name: this.props.route.display_name,
+      current_user_display_name: Session.getState().user.display_name,
+      user_id: this.props.route.id,
+      user_did: this.props.route.user_did
     }
+  }
 
-    this.onHelpPress = this.onHelpPress.bind(this)
+  async loadData() {
+    try {
+      const discoveredUser = await ConsentDiscoveredUser.get(this.state.user_did)
+      if (discoveredUser) {
+        // Fetch data to check for update
+        this.setState({
+          colour: discoveredUser.colour || '#ffffff',
+          image_uri: discoveredUser.image_uri || null
+        })
+      }
+      // Fetch data in case of updated
+      const response = await Api.profile({ did: this.state.user_did })
+      const updated = (this.state.display_name !== response.body.user.display_name)
+                    || (this.state.image_uri !== response.body.user.image_uri)
+                    || (this.state.colour !== response.body.user.colour)
+      if (updated) {
+        this.setState({
+          colour: response.body.user.colour,
+          image_uri: response.body.user.image_uri
+        }, async () => {
+          await ConsentDiscoveredUser.update({
+            id: this.state.user_id,
+            did: this.state.user_did,
+            display_name: this.state.display_name,
+            colour: response.body.user.colour,
+            image_uri: response.body.user.image_uri
+          })
+        })
+      }
+    } catch (error) {
+      Logger.error(error)
+    }
   }
 
   componentWillMount() {
     super.componentWillMount()
-    ConsentDiscoveredUser.get(this.props.route.connection_to)
-    .then(discoveredUser => {
-      if (discoveredUser) {
-        this.setState({
-          colour: discoveredUser.colour,
-          nickname: discoveredUser.nickname,
-          user_id: discoveredUser.id
-        })
-        return new Promise.reject(null)
-      } else {
-        return Api.profile({ id: this.props.route.connection_to })
-      }
-
-    })
-    .then(response => {
-      this.setState({
-        id: response.body.user.id,
-        colour: response.body.user.colour,
-        nickname: response.body.user.display_name,
-        did: response.body.user.did,
-        image_uri: response.body.image_uri
-      })
-      return ConsentDiscoveredUser.add(
-        response.body.user.id,
-        response.body.user.did,
-        response.body.user.display_name,
-        response.body.user.colour,
-        response.body.image_uri
-      )
-    })
-    .catch(error => {
-      if (error !== null) {
-        alert(JSON.stringify(error))
-        console.error(error)
-        throw new Error(error.toString())
-      }
-    })
-    this.onAttention()
+    this.loadData()
   }
 
   componentWillFocus() {
@@ -91,48 +80,50 @@ class ConnectionDetails extends Scene {
     this.onAttention()
   }
 
-  onAttention() {
-
-  }
-
   onHelpPress() {
     this.setState({
-      "showHelp": !this.state.showHelp
+      showHelp: !this.state.showHelp
     })
   }
 
+  goBack() {
+    if (this.state.showHelp) {
+      this.setState({
+        showHelp: false
+      })
+    } else {
+      this.navigator.pop()
+    }
+  }
+  onBackIconPress() {
+    this.goBack()
+  }
+
   onHardwareBack() {
-    this.navigator.pop()
+    this.goBack()
     return true
   }
 
   render() {
-    const top = {
-      "backgroundColor": this.state.colour
-    }
-
-    const text = {
-      "color": "#fff"
-    }
 
     return (
       <Container>
         <Content style={styles.content}>
           <AndroidBackButton onPress={() => this.onHardwareBack()} />
-          <View style={Object.assign(styles.top, top)}>
-            <Touchable onPress={() => this.navigator.pop()}>
-              <View style={Object.assign(styles.back, styles.center)}>
+          <View style={_.assign({}, styles.top, { backgroundColor: this.state.colour })}>
+            <Touchable onPress={() => this.onBackIconPress()}>
+              <View style={_.assign(styles.back, styles.center)}>
                   <BackIcon width={16} height={16} stroke="#fff" />
               </View>
             </Touchable>
-            <View style={Object.assign(styles.branding, styles.center)}>
-              <Text style={text}>
+            <View style={_.assign({}, styles.branding, styles.center)}>
+              <Text style={{ color: "#fff" }}>
                 {/* insert connection image */}
-                ABSA Bank
+                {this.state.display_name}
               </Text>
             </View>
-            <Touchable onPress={this.onHelpPress}>
-              <View style={Object.assign(styles.help, styles.center)}>
+            <Touchable onPress={() => this.onHelpPress()}>
+              <View style={_.assign({}, styles.help, styles.center)}>
                   <InfoIcon width={24} height={24} stroke="#fff" />
               </View>
             </Touchable>
@@ -140,8 +131,8 @@ class ConnectionDetails extends Scene {
           <ScrollView style={styles.messages}>
             <View style={styles.message}>
               <Text style={styles.messageText}>
-                Hi Jacques. Thank you for
-                connecting with Absa. If you are an
+                Hi {this.state.current_user_display_name}. Thank you for
+                connecting with {this.state.display_name}. If you are an
                 existing customer, we invite you to
                 confirm your bank details
                 and save this information to your
@@ -185,92 +176,92 @@ class ConnectionDetails extends Scene {
 }
 
 const styles = {
-  "content": {
-    "backgroundColor": Palette.consentGrayMedium
+  content: {
+    backgroundColor: Palette.consentGrayMedium
   },
-  "top": {
-    "flexDirection": "row",
-    "justifyContent": "space-between",
-    "height": 75
+  top: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    height: 75
   },
-  "center": {
-    "flexDirection": "row",
-    "justifyContent": "center",
-    "alignItems": "center"
+  center: {
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center"
   },
-  "back": {
-    "flex": 1
+  back: {
+    flex: 1
   },
-  "branding": {
-    "flex": 4
+  branding: {
+    flex: 4
   },
-  "help": {
-    "flex": 1
+  help: {
+    flex: 1
   },
-  "messages": {
-    "flex": 1,
-    "flexDirection": "column"
+  messages: {
+    flex: 1,
+    flexDirection: "column"
   },
-  "message": {
-    "backgroundColor": "#fff",
-    "margin": 10,
-    "padding": 10,
-    "borderRadius": 5,
-    "width": "65%"
+  message: {
+    backgroundColor: "#fff",
+    margin: 10,
+    padding: 10,
+    borderRadius: 5,
+    width: "65%"
   },
-  "messageText": {
-    "color": "#62686d",
-    "paddingRight": 15,
-    "fontSize": 14
+  messageText: {
+    color: "#62686d",
+    paddingRight: 15,
+    fontSize: 14
   },
-  "messageTime": {
-    "color": "#c2c4c6",
-    "alignSelf": "flex-end",
-    "fontSize": 14
+  messageTime: {
+    color: "#c2c4c6",
+    alignSelf: "flex-end",
+    fontSize: 14
   },
-  "actions": {
-    "margin": 10,
-    "marginTop": 0,
-    "borderRadius": 5,
-    "backgroundColor": "#fff"
+  actions: {
+    margin: 10,
+    marginTop: 0,
+    borderRadius: 5,
+    backgroundColor: "#fff"
   },
-  "actionTitle": {
-    "backgroundColor": "#bac2ca",
-    "padding": 15,
-    "borderTopLeftRadius": 5,
-    "borderTopRightRadius": 5
+  actionTitle: {
+    backgroundColor: "#bac2ca",
+    padding: 15,
+    borderTopLeftRadius: 5,
+    borderTopRightRadius: 5
   },
-  "actionTitleText": {
-    "textAlign": "center",
-    "color": "#fff"
+  actionTitleText: {
+    textAlign: "center",
+    color: "#fff"
   },
-  "actionList": {
-    "flex": 1,
-    "flexDirection": "row",
-    "justifyContent": "space-between",
-    "borderBottomLeftRadius": 5,
-    "borderBottomRightRadius": 5
+  actionList: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "space-between",
+    borderBottomLeftRadius: 5,
+    borderBottomRightRadius: 5
   },
-  "actionItem": {
-    "width": "28%",
-    "paddingTop": 15,
-    "paddingBottom": 15
+  actionItem: {
+    width: "28%",
+    paddingTop: 15,
+    paddingBottom: 15
   },
-  "actionItemText": {
-    "textAlign": "center",
-    "backgroundColor": "transparent",
-    "color": "#62686d",
-    "fontSize": 12
+  actionItemText: {
+    textAlign: "center",
+    backgroundColor: "transparent",
+    color: "#62686d",
+    fontSize: 12
   },
-  "helpPopover": {
-    "position": "absolute",
-    "top": 85,
-    "right": 10,
-    "bottom": 10,
-    "left": 10,
-    "backgroundColor": "#fff",
-    "borderRadius": 5,
-    "padding": 10
+  helpPopover: {
+    position: "absolute",
+    top: 85,
+    right: 10,
+    bottom: 10,
+    left: 10,
+    backgroundColor: "#fff",
+    borderRadius: 5,
+    padding: 10
   }
 }
 

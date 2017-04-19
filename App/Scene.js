@@ -17,61 +17,61 @@ export default class Scene extends Component {
 
   constructor(props) {
     super(props)
-    this._fileName = this.constructor.name + '.js'
-    this._className = this.constructor.name
+    this.filename = this.constructor.name + '.js' // unreliable
+    this.className = this.constructor.name
 
     this.navigator = this.props.navigator
-    this.props._navigationEventEmitter.addListener('onWillFocus' + this._className, this.componentWillFocus, this)
-    this.props._navigationEventEmitter.addListener('onDidFocus' + this._className, this.componentDidFocus, this)
+    this.props._navigationEventEmitter.addListener('onWillFocus' + this.className, this.componentWillFocus, this)
+    this.props._navigationEventEmitter.addListener('onDidFocus' + this.className, this.componentDidFocus, this)
 
-    Logger.react(this._className, Lifecycle.CONSTRUCTOR)
+    Logger.react(this.className, Lifecycle.CONSTRUCTOR)
   }
 
   componentWillFocus() {
-    Logger.react(this._className, Lifecycle.COMPONENT_WILL_FOCUS)
+    Logger.react(this.className, Lifecycle.COMPONENT_WILL_FOCUS)
   }
 
   componentDidFocus() {
-    Logger.react(this._className, Lifecycle.COMPONENT_DID_FOCUS)
+    Logger.react(this.className, Lifecycle.COMPONENT_DID_FOCUS)
   }
 
   componentWillMount() {
-    Logger.react(this._className, Lifecycle.COMPONENT_WILL_MOUNT)
+    Logger.react(this.className, Lifecycle.COMPONENT_WILL_MOUNT)
   }
 
   componentDidMount() {
-    Logger.react(this._className, Lifecycle.COMPONENT_DID_MOUNT)
+    Logger.react(this.className, Lifecycle.COMPONENT_DID_MOUNT)
   }
 
   componentWillReceiveProps() {
-    Logger.react(this._className, Lifecycle.COMPONENT_WILL_RECEIEVE_PROPS)
+    Logger.react(this.className, Lifecycle.COMPONENT_WILL_RECEIEVE_PROPS)
   }
 
   shouldComponentUpdate() {
-    Logger.react(this._className, Lifecycle.SHOULD_COMPONENT_UPDATE)
+    Logger.react(this.className, Lifecycle.SHOULD_COMPONENT_UPDATE)
 
     // Must return true
     return true
   }
 
   componentWillUpdate() {
-    Logger.react(this._className, Lifecycle.COMPONENT_WILL_UPDATE)
+    Logger.react(this.className, Lifecycle.COMPONENT_WILL_UPDATE)
   }
 
   componentDidUpdate() {
-    Logger.react(this._className, Lifecycle.COMPONENT_DID_UPDATE)
+    Logger.react(this.className, Lifecycle.COMPONENT_DID_UPDATE)
   }
 
   componentWillUnmount() {
-    Logger.react(this._className, Lifecycle.COMPONENT_WILL_UNMOUNT)
+    Logger.react(this.className, Lifecycle.COMPONENT_WILL_UNMOUNT)
 
     // Remove event listeners
-    this.props._navigationEventEmitter.removeListener('onWillFocus' + this._className, this.componentWillFocus, this)
-    this.props._navigationEventEmitter.removeListener('onDidFocus' + this._className, this.componentDidFocus, this)
+    this.props._navigationEventEmitter.removeListener('onWillFocus' + this.className, this.componentWillFocus, this)
+    this.props._navigationEventEmitter.removeListener('onDidFocus' + this.className, this.componentDidFocus, this)
   }
 
   render() {
-    Logger.react(this._className, Lifecycle.RENDER)
+    Logger.react(this.className, Lifecycle.RENDER)
   }
 }
 
