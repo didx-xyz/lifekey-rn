@@ -9,7 +9,6 @@ import * as Lifecycle from './Lifecycle'
 import Logger from './Logger'
 import Palette from './Palette'
 import Session from './Session'
-import Firebase from './Firebase'
 import Routes from './Routes'
 import Config from './Config'
 import ConsentUser from './Models/ConsentUser'
@@ -21,7 +20,6 @@ import {
   View,
   Dimensions,
   Navigator,
-  DeviceEventEmitter,
   Platform,
   StatusBar
 } from 'react-native'
@@ -135,7 +133,7 @@ export default class Lifekeyrn extends Component {
       }
       return
     }
-    
+
     (
       Object.keys(
         PushNotifications.handlers
