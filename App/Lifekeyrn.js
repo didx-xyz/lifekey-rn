@@ -38,7 +38,6 @@ export default class Lifekeyrn extends Component {
     this._messaging = this._firebase.messaging()
     this._navigationEventEmitter = new EventEmitter()
     this._orientationEventEmitter = new EventEmitter()
-    this.firebaseInternalEventEmitter = new EventEmitter()
     this.state = {
       booted: false,
       orientation: null,
