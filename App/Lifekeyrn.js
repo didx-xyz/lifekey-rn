@@ -9,17 +9,18 @@ import * as Lifecycle from './Lifecycle'
 import Logger from './Logger'
 import Palette from './Palette'
 import Session from './Session'
-import Firebase from './Firebase'
 import Routes from './Routes'
 import Config from './Config'
 import ConsentUser from './Models/ConsentUser'
+// import PushNotifications from './PushNotifications'
+import FirebaseHandler from './FirebaseHandler'
 import EventEmitter from 'EventEmitter'
 import React, { Component } from 'react'
+import Firebase from 'react-native-firebase'
 import {
   View,
   Dimensions,
   Navigator,
-  DeviceEventEmitter,
   Platform,
   StatusBar
 } from 'react-native'
@@ -47,9 +48,11 @@ class Lifekeyrn extends Component {
     // Members
     this._className = this.constructor.name
     this.filename = this._className + '.js'
+    this._firebase = new Firebase
+    this._messaging = this._firebase.messaging()
+    this.firebaseInternalEventEmitter = new EventEmitter()
     this._navigationEventEmitter = new EventEmitter()
     this._orientationEventEmitter = new EventEmitter()
-    this.firebaseInternalEventEmitter = new EventEmitter()
     this.state = {
       booted: false,
       orientation: null,
@@ -64,19 +67,15 @@ class Lifekeyrn extends Component {
 
     // Events
     if (Platform.OS === 'android') {
-      DeviceEventEmitter.addListener(
-        'messageReceived',
-        (message) => Firebase.messageReceived(message, this.firebaseInternalEventEmitter),
-      )
-      DeviceEventEmitter.addListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
-      // lol
-
+      this._messaging.onTokenRefresh(this._nativeEventTokenRefreshed)
+      this._messaging.onMessage((message) => this._nativeEventMessageReceived(message, this.firebaseInternalEventEmitter))
     } else {
       Logger.info('TODO: Firebase iOS', this.filename)
     }
+
     this._initSession()
+    this.initFirebaseHandlerEvents()
     this._initialRoute = this._getInitialRoute()
-    this.initFirebaseInternal()
 
     // context behavior
     this.onBoundEditResource = this.onEditResource.bind(this)
@@ -108,15 +107,11 @@ class Lifekeyrn extends Component {
     return false
   }
 
-  initFirebaseInternal() {
-    this.firebaseInternalEventEmitter.addListener(
-      'user_connection_created',
-      () => this.navigator.push(Routes.connectionDetails)
-    )
-    this.firebaseInternalEventEmitter.addListener(
-      'app_activation_link_clicked',
-      () => this.navigator.push(Routes.main)
-    )
+    this._messaging.getInitialNotification().then(notification => {
+      Logger.info('_messaging.getInitialNotification', notification)
+      // TODO check the structure of `notification`
+      // and decide which scene to dispatch
+    }).catch(console.log)
   }
 
   onEditResource(form, id) {
@@ -131,17 +126,13 @@ class Lifekeyrn extends Component {
   }
 
   _getInitialRoute() {
-    if (Config.initialRouteFromConfig) {
-      return Config.initialRoute
-    } else {
-      const userState = Session.getState().user
-
-      if (!userState || !userState.registered) {
-        return Routes.onboarding.splashScreen
-      } else {
-        return Routes.onboarding.unlock
-      }
-    }
+    if (Config.initialRouteFromConfig) return Config.initialRoute
+    const userState = Session.getState().user
+    return (
+      userState && userState.registered ?
+      Routes.onboarding.unlock :
+      Routes.onboarding.splashScreen
+    )
   }
 
   _initSession() {
@@ -166,27 +157,41 @@ class Lifekeyrn extends Component {
         }, () => {
           Session.update(update)
         })
-
       } else {
         const update = {}
         update[ConsentUser.storageKey] = {
           registered: false,
           loggedIn: false,
         }
-
         this.setState({
           booted: true
         }, () => {
           Session.update(update)
-          this.forceUpdate() // probably safe to remove
-
         })
-
       }
     })
     .catch(error => {
       Logger.error('Error restoring session', this.filename, error)
     })
+  }
+
+  initFirebaseHandlerEvents() {
+    this.firebaseInternalEventEmitter.addListener(
+      'user_connection_created',
+      () => this.navigator.push(Routes.connectionDetails)
+    )
+    this.firebaseInternalEventEmitter.addListener(
+      'app_activation_link_clicked',
+      () => this.navigator.push(Routes.main)
+    )
+  }
+
+  /**
+   * Fires when a Firebase EventMessage is received
+   * @param {string} message The firebase message
+   */
+  _nativeEventMessageReceived(message, eventEmitter) {
+    FirebaseHandler.messageReceived(message, eventEmitter)
   }
 
   /**
@@ -195,10 +200,11 @@ class Lifekeyrn extends Component {
    * @returns {undefined} undefined
    */
   _nativeEventTokenRefreshed(token) {
-    ConsentUser.setToken(token)
-    .catch(error => {
-      Logger.firebase(error)
-    })
+    ConsentUser.setToken(
+      token
+    ).catch(
+      Logger.firebase
+    )
   }
 
   componentWillMount() {
@@ -247,10 +253,6 @@ class Lifekeyrn extends Component {
 
   componentWillUnmount() {
     Logger.react(this.filename, Lifecycle.COMPONENT_WILL_UNMOUNT)
-
-    // Remove event listeners
-    DeviceEventEmitter.removeListener('messageReceived', (message) => this.Firebase.messageReceived(message))
-    DeviceEventEmitter.removeListener('tokenRefreshed', (token) => this._nativeEventTokenRefreshed(token))
   }
 
   shouldComponentUpdate(nextProps, nextState) {
