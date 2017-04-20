@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 adb uninstall com.lifekeyrn
-cd bin
-./clear_packager_tmp
+./bin/clear_packager_tmp
+rm -rf node_modules/
 kill $(ps | grep "react-native/launchPackager.command" | grep bash | awk '{ print $1}') 2> /dev/null
 kill $(ps | grep "react-native/packager/../local-cli.cli.js" | grep node | awk '{print$1}') 2> /dev/null
-cd .. 
+yarn install
 react-native run-android && ./bin/log_android_clean
