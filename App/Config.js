@@ -21,8 +21,8 @@ export default {
   APP_NAME: APP_NAME,
 
   // First scene to show
-  initialRouteFromConfig: true, // Must be true to use route below
-  initialRoute: Routes.me,
+  initialRouteFromConfig: false, // Must be true to use route below
+  initialRoute: Routes.onboarding.splashScreen,
 
   // Allow requests from whitelisted user (testing on iOS, without login)
   useWhitelistedUser: true,
