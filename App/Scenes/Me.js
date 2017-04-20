@@ -5,6 +5,7 @@ import { Container, Content } from "native-base"
 import PropTypes from "prop-types"
 
 // internal dependencies
+import Api from "../Api"
 import Scene from "../Scene"
 import Session from "../Session"
 import Palette from "../Palette"
@@ -88,18 +89,7 @@ class Me extends Scene {
       "resources": {}
     })
 
-    const options = {
-      "headers": {
-        "x-cnsnt-id": "2",
-        "x-cnsnt-plain": "example",
-        "x-cnsnt-signed": "example",
-        "content-type": "application/json"
-      }
-    }
-
-    fetch("http://staging.api.lifekey.cnsnt.io/resource?all=1", options)
-      .then(this.onBoundResponse)
-      .then(this.onBoundResources)
+    Api.allResources().then(this.onBoundResources)
   }
 
   onResponse(response) {
