@@ -66,15 +66,14 @@ class Me extends Scene {
       "resourceTypes": []
     }
 
-    this.onBoundJson = this.onJson.bind(this)
+    this.onBoundResponse = this.onResponse.bind(this)
     this.onBoundResourceTypes = this.onResourceTypes.bind(this)
     this.onBoundResources = this.onResources.bind(this)
-    this.onBoundResource = this.onResource.bind(this)
   }
 
   componentDidMount() {
     fetch("http://schema.cnsnt.io/resources")
-      .then(this.onBoundJson)
+      .then(this.onBoundResponse)
       .then(this.onBoundResourceTypes)
 
     this.listener = this.props._navigationEventEmitter.addListener("onDidFocusMe", () => {
@@ -98,12 +97,12 @@ class Me extends Scene {
       }
     }
 
-    fetch("http://staging.api.lifekey.cnsnt.io/resource", options)
-      .then(this.onBoundJson)
+    fetch("http://staging.api.lifekey.cnsnt.io/resource?all=1", options)
+      .then(this.onBoundResponse)
       .then(this.onBoundResources)
   }
 
-  onJson(response) {
+  onResponse(response) {
     return response.json()
   }
 
@@ -122,48 +121,14 @@ class Me extends Scene {
   }
 
   onResources(data) {
-    const resources = {}
-
-    const options = {
-      "headers": {
-        "x-cnsnt-id": "2",
-        "x-cnsnt-plain": "example",
-        "x-cnsnt-signed": "example",
-        "content-type": "application/json"
-      }
-    }
-
-    data.body.forEach((resource) => {
-      if (resource.id == null) {
-        return
-      }
-
-      resources["_" + resource.id] = null
-
-      fetch("http://staging.api.lifekey.cnsnt.io/resource/" + resource.id, options)
-        .then(this.onBoundJson)
-        .then(this.onBoundResource)
-    })
-
     this.setState({
-      resources
-    })
-  }
-
-  onResource(data) {
-    if (data.body == null) {
-      return
-    }
-
-    const resources = this.state.resources
-
-    resources["_" + data.body.id] = {
-      "id": data.body.id,
-      ...JSON.parse(data.body.value)
-    }
-
-    this.setState({
-      resources
+      "resources": data.body.map((item) => {
+        return {
+          "id": item.id,
+          "alias": item.alias,
+          ...JSON.parse(item.value)
+        }
+      })
     })
   }
 
@@ -187,8 +152,6 @@ class Me extends Scene {
   }
 
   onPressEdit(form, id = null) {
-    console.log("press edit resource", form, id)
-
     this.context.onEditResource(form, id)
   }
 
@@ -209,22 +172,22 @@ class Me extends Scene {
               },
               {
                 icon: <Text>+</Text>,
-                onPress: () => alert('test')
+                onPress: () => alert("test")
               }
             ]}
             tabs={[
               {
-                text: 'Connect',
+                text: "Connect",
                 onPress: () => this.setTab(0),
                 active: this.state.activeTab === 0
               },
               {
-                text: 'My Data',
+                text: "My Data",
                 onPress: () => this.setTab(1),
                 active: this.state.activeTab === 1
               },
               {
-                text: 'Badges',
+                text: "Badges",
                 onPress: () => this.setTab(2),
                 active: this.state.activeTab === 1
               }
@@ -243,27 +206,27 @@ class Me extends Scene {
             if (resource.form == null) {
               return (
                 <LifekeyCard key={i} headingText={"resource " + resource.id} onPressEdit={() => this.onPressDelete(resource.id)}>
-                  <Text>delete {resource.id} (malformed)</Text>
+                  <Text>{resource.id} (malformed)</Text>
                 </LifekeyCard>
               )
             }
 
             return (
-              <LifekeyCard key={i} headingText={"resource " + resource.id} onPressEdit={() => this.onPressEdit(resource.form, resource.id)}>
+              <LifekeyCard key={i} headingText={resource.alias} onPressEdit={() => this.onPressEdit(resource.form, resource.id)}>
                 <Text key={i}>{resource.id}</Text>
               </LifekeyCard>
             )
           })}
 
-          {/*<LifekeyCard headingText="Legal Identity" onPressEdit={() => alert('EDIT')} onPressShare={() => alert('SHARE')} >
+          {/*<LifekeyCard headingText="Legal Identity" onPressEdit={() => alert("EDIT")} onPressShare={() => alert("SHARE")} >
             <LcLegalIdentity {...person} />
           </LifekeyCard>
 
-          <LifekeyCard headingText="Home Address 1" onPressEdit={() => alert('EDIT')} onPressShare={() => alert('SHARE')} >
+          <LifekeyCard headingText="Home Address 1" onPressEdit={() => alert("EDIT")} onPressShare={() => alert("SHARE")} >
             <LcHomeAddress {...person}/>
           </LifekeyCard>
 
-          <LifekeyCard headingText="Contact Details" onPressEdit={() => alert('EDIT')} onPressShare={() => alert('SHARE')} >
+          <LifekeyCard headingText="Contact Details" onPressEdit={() => alert("EDIT")} onPressShare={() => alert("SHARE")} >
             <LcContactDetails contactDetails={person.contactDetails} />
           </LifekeyCard>*/}
 
