@@ -1,148 +1,156 @@
-/**
- * Lifekey App
- * @copyright 2017 Global Consent Ltd
- * Civvals, 50 Seymour Street, London, England, W1H 7JG
- * @author Hein <hein@io.co.za>
- */
-
-import React, { Component } from 'react'
-import {
-  StyleSheet,
-  View,
-  Text
-} from 'react-native'
-import {
-  Card,
-  CardItem
-} from 'native-base'
-import Icon from 'react-native-vector-icons/FontAwesome'
-import Design from "../DesignParameters"
-import Palette from '../Palette'
-import Touchable from '../Components/Touchable'
+// external dependencies
+import React, { Component } from "react"
+import { View, Text } from "react-native"
+import { Card, CardItem } from "native-base"
+import Icon from "react-native-vector-icons/FontAwesome"
 import PropTypes from "prop-types"
 
-class LifekeyCard extends Component {
+// internal dependencies
+import Design from "../DesignParameters"
+import Palette from "../Palette"
+import Touchable from "../Components/Touchable"
 
+class LifekeyCard extends Component {
   constructor(props) {
     super(props)
 
     this.state = {
-      expanded: false
+      "expanded": false
     }
 
     this.onBoundPressSwitchExpand = this.onPressSwitchExpand.bind(this)
   }
 
-  onPressSwitchExpand (event) {
-    this.setState({ expanded: !this.state.expanded })
+  onPressSwitchExpand(event) {
+    this.setState({
+      "expanded": !this.state.expanded
+    })
   }
 
   render() {
+    const childrenWithExpandedProp = React.Children.map(this.props.children, (child) => {
+      return React.cloneElement(child, {
+        "expanded": this.state.expanded
+      })
+    })
 
-    var childrenWithExpandedProp = React.Children.map(this.props.children, (child) => React.cloneElement(child, { expanded: this.state.expanded }));
-
-    if(this.state.expanded)
+    if (this.state.expanded) {
       return (
-        <Card style={style.card}>
+        <Card style={styles.card}>
           <CardItem>
-            <View style={style.cardHeader}>
-              <Text style={style.cardHeadingText}>{this.props.headingText.toUpperCase()}</Text>
+            <View style={styles.cardHeader}>
+              <Text style={styles.cardHeadingText}>{this.props.headingText.toUpperCase()}</Text>
               <Touchable onPress={this.onBoundPressSwitchExpand}>
-                <Icon style={Object.assign({}, style.cardHeadingIcon, style.cardHeadingIconLarge)} name="angle-down"  />
+                <Icon style={Object.assign({}, styles.cardHeadingIcon, styles.cardHeadingIconLarge)} name="angle-down"  />
               </Touchable>
             </View>
           </CardItem>
-          <CardItem style={style.cardBody}>
+          <CardItem style={styles.cardBody}>
             { childrenWithExpandedProp }
           </CardItem>
           <CardItem>
-            <View style={style.cardFooter}>
-              <Touchable onPress={() => this.props.onPressEdit()}>
-                <Text style={Object.assign({}, style.cardFooterText, style.cardFooterLeftText)}>EDIT</Text>
-              </Touchable>
-              <Touchable onPress={() => this.props.onPressShare()}>
-                <Text style={Object.assign({}, style.cardFooterText, style.cardFooterRightText)}>SHARE</Text>
-              </Touchable>
+            <View style={styles.cardFooter}>
+              {this.props.onPressEdit &&
+                <Touchable onPress={this.props.onPressEdit}>
+                  <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterEditText)}>EDIT</Text>
+                </Touchable>
+              }
+              {this.props.onPressDelete &&
+                <Touchable onPress={this.props.onPressDelete}>
+                  <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterDeleteText)}>DELETE</Text>
+                </Touchable>
+              }
+              {this.props.onPressShare &&
+                <Touchable onPress={this.props.onPressShare}>
+                  <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterShareText)}>SHARE</Text>
+                </Touchable>
+              }
             </View>
           </CardItem>
         </Card>
       )
-    else
-      return(
-        <Card style={style.card}>
-          <CardItem>
-            <View style={style.cardHeader}>
-              <Text style={style.cardHeadingText}>{this.props.headingText.toUpperCase()}</Text>
-              <Touchable onPress={this.onBoundPressSwitchExpand}>
-                <Icon style={Object.assign({}, style.cardHeadingIcon, style.cardHeadingIconSmall)}  name="angle-right"  />
-              </Touchable>
-            </View>
-          </CardItem>
-          <CardItem style={style.cardBody}>
-            { childrenWithExpandedProp }
-          </CardItem>
-        </Card>
-      )
+    }
+
+    return(
+      <Card style={styles.card}>
+        <CardItem>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardHeadingText}>{this.props.headingText.toUpperCase()}</Text>
+            <Touchable onPress={this.onBoundPressSwitchExpand}>
+              <Icon style={Object.assign({}, styles.cardHeadingIcon, styles.cardHeadingIconSmall)}  name="angle-right"  />
+            </Touchable>
+          </View>
+        </CardItem>
+        <CardItem style={styles.cardBody}>
+          { childrenWithExpandedProp }
+        </CardItem>
+      </Card>
+    )
   }
 }
 
-const style = {
-  card: {
-    marginTop: Design.paddingLeft / 2,
-    marginLeft: Design.paddingLeft / 2,
-    marginRight: Design.paddingRight / 2
+const styles = {
+  "card": {
+    "marginTop": Design.paddingLeft / 2,
+    "marginLeft": Design.paddingLeft / 2,
+    "marginRight": Design.paddingRight / 2
   },
-  cardHeader: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between'
+  "cardHeader": {
+    "flex": 1,
+    "flexDirection": "row",
+    "justifyContent": "space-between"
   },
-  cardHeadingText: {
+  "cardHeadingText": {
     "fontSize": 10,
-    fontWeight: 'bold'
+    "fontWeight": "bold"
   },
-  cardHeadingIcon: {
-    marginTop: -10,
-    color: Palette.consentGrayDark
+  "cardHeadingIcon": {
+    "marginTop": -10,
+    "color": Palette.consentGrayDark
   },
-  cardHeadingIconSmall: {
-    fontSize: 30
+  "cardHeadingIconSmall": {
+    "fontSize": 30
   },
-  cardHeadingIconLarge: {
-    fontSize: 32
+  "cardHeadingIconLarge": {
+    "fontSize": 32
   },
-  cardBody: {
+  "cardBody": {
     "flex": 1,
     "paddingTop": 0,
     "marginTop": -10
   },
-  cardFooter: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+  "cardFooter": {
+    "flex": 1,
+    "flexDirection": "row",
+    "justifyContent": "space-between",
     "paddingTop": Design.paddingTop,
     "borderTopWidth": 1,
     "borderColor": Palette.consentGrayLightest
   },
-  cardFooterText: {
-    fontWeight: 'bold',
-    fontSize: 12
+  "cardFooterText": {
+    "fontWeight": "bold",
+    "fontSize": 12
   },
-  cardFooterLeftText: {
-    color: Palette.consentGrayDark
+  "cardFooterEditText": {
+    "color": Palette.consentGrayDark
   },
-  cardFooterRightText: {
-    color: Palette.consentBlue
+  "cardFooterDeleteText": {
+    "color": Palette.consentRed
   },
-
+  "cardFooterShareText": {
+    "color": Palette.consentBlue
+  }
 }
 
 LifekeyCard.defaultProps = {
-  headingText: 'NOT_SET'
+  "headingText": "heading not set"
 }
 
 LifekeyCard.propTypes = {
-  headingText: PropTypes.string
+  "headingText": PropTypes.string,
+  "onPressEdit": PropTypes.func,
+  "onPressDelete": PropTypes.func,
+  "onPressShare": PropTypes.func
 }
 
 export default LifekeyCard

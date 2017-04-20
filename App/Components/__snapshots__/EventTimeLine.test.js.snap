@@ -1,0 +1,29 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`renders correctly 1`] = `
+<RCTScrollView
+  contentContainerStyle={
+    Object {
+      "flex": 1,
+      "flexDirection": "column",
+      "justifyContent": "flex-end",
+    }
+  }
+  showsVerticalScrollIndicator={false}
+  style={
+    Object {
+      "flex": 1,
+    }
+  }
+>
+  <View>
+    <View
+      style={
+        Object {
+          "flexDirection": "column",
+        }
+      }
+    />
+  </View>
+</RCTScrollView>
+`;
