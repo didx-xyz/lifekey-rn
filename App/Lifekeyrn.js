@@ -12,7 +12,8 @@ import Session from './Session'
 import Routes from './Routes'
 import Config from './Config'
 import ConsentUser from './Models/ConsentUser'
-import PushNotifications from './PushNotifications'
+// import PushNotifications from './PushNotifications'
+import FirebaseHandler from './FirebaseHandler'
 import EventEmitter from 'EventEmitter'
 import React, { Component } from 'react'
 import Firebase from 'react-native-firebase'
@@ -36,6 +37,7 @@ export default class Lifekeyrn extends Component {
     this.filename = this._className + '.js'
     this._firebase = new Firebase
     this._messaging = this._firebase.messaging()
+    this.firebaseInternalEventEmitter = new EventEmitter()
     this._navigationEventEmitter = new EventEmitter()
     this._orientationEventEmitter = new EventEmitter()
     this.state = {
@@ -53,16 +55,17 @@ export default class Lifekeyrn extends Component {
     // Events
     if (Platform.OS === 'android') {
       this._messaging.onTokenRefresh(this._nativeEventTokenRefreshed)
-      this._messaging.onMessage(this._nativeEventMessageReceived)
+      this._messaging.onMessage((message) => this._nativeEventMessageReceived(message, this.firebaseInternalEventEmitter))
     } else {
       Logger.info('TODO: Firebase iOS', this.filename)
     }
 
     this._initSession()
+    this.initFirebaseHandlerEvents()
     this._initialRoute = this._getInitialRoute()
 
     this._messaging.getInitialNotification().then(notification => {
-      if (!notification) return
+      Logger.info('_messaging.getInitialNotification', notification)
       // TODO check the structure of `notification`
       // and decide which scene to dispatch
     }).catch(console.log)
@@ -118,30 +121,23 @@ export default class Lifekeyrn extends Component {
     })
   }
 
+  initFirebaseHandlerEvents() {
+    this.firebaseInternalEventEmitter.addListener(
+      'user_connection_created',
+      () => this.navigator.push(Routes.connectionDetails)
+    )
+    this.firebaseInternalEventEmitter.addListener(
+      'app_activation_link_clicked',
+      () => this.navigator.push(Routes.main)
+    )
+  }
+
   /**
    * Fires when a Firebase EventMessage is received
    * @param {string} message The firebase message
    */
-  _nativeEventMessageReceived(message) {
-    Logger.info('Firebase message received', this.filename)
-    if (!(message.data && message.data.type)) {
-      if (message.notification) {
-        Logger.firebase(JSON.stringify(message))
-      } else {
-        Logger.error('Unexpected firebase message format')
-      }
-      return
-    }
-
-    (
-      Object.keys(
-        PushNotifications.handlers
-      ).indexOf(
-        message.data.type
-      ) === -1 ?
-      PushNotifications.error :
-      PushNotifications.handlers[message.data.type]
-    ).call(this, message)
+  _nativeEventMessageReceived(message, eventEmitter) {
+    FirebaseHandler.messageReceived(message, eventEmitter)
   }
 
   /**
