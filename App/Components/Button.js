@@ -6,7 +6,7 @@
  */
 
 // external dependencies
-import React from "react"
+import React, { Component } from "react"
 import { Text, View } from "react-native"
 const { bool, string, func } = React.PropTypes
 
@@ -14,33 +14,28 @@ const { bool, string, func } = React.PropTypes
 import Touchable from "./Touchable"
 import Design from "../DesignParameters"
 import Palette from "../Palette"
+import PropTypes from 'prop-types'
 
-const Button = React.createClass({
-  
-  "propTypes" : {
-    "buttonText": string,
-    "affirmative": bool,
-    "onClick": func
-  },
-  render () {
-    
+class Button extends Component {
+  render() {
+
     const styles = {
-      "button": {
-        "paddingTop": Design.paddingTop,
-        "paddingBottom": Design.paddingBottom,
-        "paddingLeft": Design.paddingLeft * 2,
-        "paddingRight": Design.paddingRight * 2,
-        "borderRadius": 5,
-        "marginLeft": Design.paddingTop / 2,
-        "marginRight": Design.paddingTop / 2,
+      button: {
+        paddingTop: Design.paddingTop,
+        paddingBottom: Design.paddingBottom,
+        paddingLeft: Design.paddingLeft * 2,
+        paddingRight: Design.paddingRight * 2,
+        borderRadius: 5,
+        marginLeft: Design.paddingTop / 2,
+        marginRight: Design.paddingTop / 2,
       },
-      "buttonRed":{
-        "backgroundColor": "red"
+      buttonRed: {
+        backgroundColor: "red"
       },
-      "buttonText": {
-        "fontSize": 18,
-        "color": "white",
-        "fontWeight": "300"
+      buttonText: {
+        fontSize: 18,
+        color: "white",
+        fontWeight: "300"
       },
     }
 
@@ -48,13 +43,19 @@ const Button = React.createClass({
     const backgroundColor = affirmative ? Palette.consentBlue : Palette.consentRed
 
     return (
-      <View style={Object.assign({}, styles.button, { "backgroundColor": backgroundColor })}>
+      <View style={Object.assign({}, styles.button, { backgroundColor: backgroundColor })}>
         <Touchable onPress={onClick}>
           <Text style={styles.buttonText}>{buttonText}</Text>
         </Touchable>
       </View>
-    )  
+    )
   }
-})
+}
+
+Button.propTypes = {
+  buttonText: PropTypes.string,
+  affirmative: PropTypes.bool,
+  onClick: PropTypes.func
+}
 
 export default Button

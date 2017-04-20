@@ -23,6 +23,16 @@ class MockStorage {
     })
   })
 
+  mergeItem = jest.fn((key, value) => {
+    return new Promise((resolve, reject) => {
+      if (typeof key !== "string" || typeof value !== "string") {
+        return reject(new Error("key and value must be string"))
+      }
+
+      return resolve(this.cache[key] = value)
+    })
+  })
+
   removeItem = jest.fn((key) => {
     return new Promise((resolve, reject) => {
       if (this.cache.hasOwnProperty(key)) {
