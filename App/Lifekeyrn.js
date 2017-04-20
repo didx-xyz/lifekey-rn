@@ -36,16 +36,9 @@ class Lifekeyrn extends Component {
       "onSaveResource": this.onBoundSaveResource,
 
       // state
-      "editResourceForm": () => this.editResourceForm,
-      "editResourceId": () => this.editResourceId,
-      "clearResourceCache": () => {
-        if (this.clearResourceCache) {
-          this.clearResourceCache = false
-          return true
-        }
-
-        return false
-      }
+      "getEditResourceForm": this.boundGetEditResourceForm,
+      "getEditResourceId": this.boundGetEditResourceId,
+      "getShouldClearResourceCache": this.boundGetShouldClearResourceCache
     }
   }
 
@@ -90,7 +83,29 @@ class Lifekeyrn extends Component {
     this.onBoundSaveResource = this.onSaveResource.bind(this)
 
     // context state
-    this.clearResourceCache = true
+    this.shouldClearResourceCache = true
+    this.editResourceForm = null
+    this.editResourceId = null
+    this.boundGetEditResourceForm = this.getEditResourceForm.bind(this)
+    this.boundGetEditResourceId = this.getEditResourceId.bind(this)
+    this.boundGetShouldClearResourceCache = this.getShouldClearResourceCache.bind(this)
+  }
+
+  getEditResourceForm() {
+    return this.editResourceForm
+  }
+
+  getEditResourceId() {
+    return this.editResourceId
+  }
+
+  getShouldClearResourceCache() {
+    if (this.shouldClearResourceCache) {
+      this.shouldClearResourceCache = false
+      return true
+    }
+
+    return false
   }
 
   initFirebaseInternal() {
@@ -112,7 +127,7 @@ class Lifekeyrn extends Component {
   }
 
   onSaveResource() {
-    this.clearResourceCache = true
+    this.shouldClearResourceCache = true
   }
 
   _getInitialRoute() {
@@ -323,9 +338,9 @@ Lifekeyrn.childContextTypes = {
   "onSaveResource": PropTypes.func,
 
   // state
-  "editResourceForm": PropTypes.func,
-  "editResourceId": PropTypes.func,
-  "clearResourceCache": PropTypes.func
+  "getEditResourceForm": PropTypes.func,
+  "getEditResourceId": PropTypes.func,
+  "getShouldClearResourceCache": PropTypes.func
 }
 
 export default Lifekeyrn

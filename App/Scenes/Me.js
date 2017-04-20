@@ -69,7 +69,7 @@ class Me extends Scene {
     Api.allResourceTypes().then(this.onBoundResourceTypes)
 
     this.listener = this.props._navigationEventEmitter.addListener("onDidFocusMe", () => {
-      if (this.context.clearResourceCache()) {
+      if (this.context.getShouldClearResourceCache()) {
         this.onClearCache()
       }
     })
@@ -209,10 +209,14 @@ class Me extends Scene {
   }
 }
 
+// these are from Lifekeyrn
 Me.contextTypes = {
+  // behavior
   "onEditResource": PropTypes.func,
   "onSaveResource": PropTypes.func,
-  "clearResourceCache": PropTypes.func
+
+  // state
+  "getShouldClearResourceCache": PropTypes.func
 }
 
 export default Me

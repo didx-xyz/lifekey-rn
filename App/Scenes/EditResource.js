@@ -45,7 +45,7 @@ class EditResource extends Scene {
 
     const options = {
       "value": JSON.stringify({
-        "form": this.context.editResourceForm(),
+        "form": this.context.getEditResourceForm(),
         ...data
       }),
       "entity": this.state.label,
@@ -80,12 +80,12 @@ class EditResource extends Scene {
   }
 
   componentDidMount() {
-    const form = this.context.editResourceForm()
+    const form = this.context.getEditResourceForm()
 
     Api.getResourceForm(form).then(this.onBoundForm)
 
     this.listener = this.props._navigationEventEmitter.addListener("onDidFocusEditResource", () => {
-      const id = this.context.editResourceId()
+      const id = this.context.getEditResourceId()
 
       if (id) {
         Api.getResource({ id }).then(this.onBoundResource)
@@ -352,10 +352,14 @@ EditResource.propTypes = {
   "onEditResource": PropTypes.func
 }
 
+// these are from Lifekeyrn
 EditResource.contextTypes = {
+  // behavior
   "onSaveResource": PropTypes.func,
-  "editResourceForm": PropTypes.func,
-  "editResourceId": PropTypes.func
+
+  // state
+  "getEditResourceForm": PropTypes.func,
+  "getEditResourceId": PropTypes.func
 }
 
 const styles = {
