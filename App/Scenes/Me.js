@@ -66,25 +66,25 @@ class Me extends Scene {
   }
 
   componentDidMount() {
-    Api.allResourceTypes().then(this.onBoundResourceTypes)
+    super.componentDidMount()
+    this.onClearCache()
 
-    this.listener = this.props._navigationEventEmitter.addListener("onDidFocusMe", () => {
-      if (this.context.getShouldClearResourceCache()) {
-        this.onClearCache()
-      }
-    })
+    Api.allResourceTypes().then(this.onBoundResourceTypes)
+  }
+
+  componentWillFocus() {
+    super.componentWillFocus()
+    this.onClearCache()
   }
 
   onClearCache() {
-    this.setState({
-      "resources": {}
-    })
+    if (this.context.getShouldClearResourceCache()) {
+      this.setState({
+        "resources": {}
+      })
 
-    Api.allResources().then(this.onBoundResources)
-  }
-
-  componentWillUnmount() {
-    this.listener.remove()
+      Api.allResources().then(this.onBoundResources)
+    }
   }
 
   onResourceTypes(data) {
