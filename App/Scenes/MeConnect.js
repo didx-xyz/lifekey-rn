@@ -12,17 +12,19 @@ import Scene from '../Scene'
 import Session from '../Session'
 import Palette from '../Palette'
 import Routes from '../Routes'
+import Api from '../Api'
+import Logger from "../Logger"
 import Config from '../Config'
-import MvTemplate from '../Components/mv-Template'
 import Touchable from '../Components/Touchable'
+import ConsentUser from '../Models/ConsentUser'
 
-import { Text, View } from 'react-native'
+import { Text, View, Image } from 'react-native'
 import { Container, Content } from 'native-base'
 
-import HelpIcon from "../Components/HelpIcon"
-
 // internal dependencies
+import MvTemplate from '../Components/mv-Template'
 import Design from "../DesignParameters"
+import HelpIcon from "../Components/HelpIcon"
 
 var person = {
   mycode: '+',
@@ -52,7 +54,7 @@ export default class MeConnect extends Scene {
     this.setState({ informationSource: "MY CODE" })
   }
   onPressFaceMatch() {
-    this.setState({ informationSource: "FACE MATCH" })
+    this.setState({ informationSource: "FACE MATCH" })   
   }
 
   currentInformationState(){
@@ -60,7 +62,6 @@ export default class MeConnect extends Scene {
       return (
         <View>
           <View style={styles.qrCodeContainer}>
-            {/* Image goes here */}
             <Text>{person.mycode}</Text>
           </View>
           <View style={styles.textContainer}>
@@ -80,8 +81,7 @@ export default class MeConnect extends Scene {
       return (
         <View>
           <View style={styles.qrCodeContainer}>
-            {/* Image goes here */}
-            <Text>{person.facematch}</Text>
+            <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/facial-verification?user_did=${ConsentUser.getDidSync()}` }} />
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text}>Get someone else to scan this QR Code to verify your facial match</Text>
@@ -170,6 +170,10 @@ const styles = {
     "flex": 4,
     "alignItems": "center",
     "justifyContent": "center"
+  },
+  "qrImage": {
+    "width": "70%",
+    "height": "100%"
   },
   "textContainer": {
     "flex": 2,

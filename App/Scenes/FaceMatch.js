@@ -1,9 +1,10 @@
 // external dependencies
 import React from "react"
-import { Text, View } from "react-native"
+import { Text, View, Image } from "react-native"
 import { Container } from "native-base"
 
 // internal dependencies
+import Api from '../Api'
 import BackButton from "../Components/BackButton"
 import BackIcon from "../Components/BackIcon"
 import Design from "../DesignParameters"
@@ -17,9 +18,18 @@ class FaceMatch extends Scene {
   constructor(...params) {
     super(...params)
 
+    this.state = {
+      "imageAvailable": false, 
+      "imageDataUrl": "" 
+    }
+
     this.onBoundPressYes = this.onPressYes.bind(this)
     this.onBoundPressNo = this.onPressNo.bind(this)
     this.onBoundPressUnsure = this.onPressUnsure.bind(this)
+  }
+
+  componentDidMount() {
+    this.loadImage()
   }
 
   onPressYes() {
@@ -32,6 +42,18 @@ class FaceMatch extends Scene {
 
   onPressUnsure() {
     alert("unsure")
+  }
+
+  async loadImage() {
+    // try{
+      const response = await Api.facialVerificationQrScanResponse(); 
+      console.log('RESULT: ', `data:${response.body.mime};${response.body.encoding},value`)
+      this.setState({
+        "imageAvailable": true,
+        "imageDataUrl": `data:${response.body.mime};${response.body.encoding},${response.body.value}`
+      })
+    // }
+    // catch
   }
 
   render() {
@@ -49,7 +71,7 @@ class FaceMatch extends Scene {
           </View>
           <View style={styles.image}>
             {/* Image goes here */}
-            <Text>+</Text>
+            { this.state.imageAvailable && <Image style={styles.profileImg} source={{ uri: this.state.imageDataUrl }} /> }
           </View>
           <View style={styles.copyContainer}>
             <Text style={styles.copyText}>Is this the person who's QR Code you scanned?</Text>
@@ -97,6 +119,10 @@ const styles = {
     "fontSize": 28,
     "color": Palette.consentBlue,
     "fontWeight": "300"
+  },
+  "profileImg":{
+    "width": 75,
+    "height": 75
   },
   "image":{
     "flex": 1,

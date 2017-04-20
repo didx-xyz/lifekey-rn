@@ -495,13 +495,23 @@ export default class Api {
     }
   }
 
-  // 9 GET /profile
+  // 12 GET /profile
   static myProfile() {
 
     return request('/profile', {
       method: 'GET'
     })
   }
+
+  // 14 POST /facial-verfication token
+  // Get a Face pic after scanning a QR code
+  static facialVerificationQrScanResponse() {
+    return request('/facial-verification/3fede6b872fee33ad048e0ea33907643fe415021e2a2a2db1f85edad353f49d9/3fede6b872fee33ad048e0ea33907643fe415021e2a2a2db1f85edad353f49d9HpcQUHUkdc203FOsfSijth5qN4I232OgOvM9ECi1MsQ=', { 
+      method: 'GET' 
+    }, false)
+  } 
+
+  ///facial-verification/:user_did/:token
 
   // ##################
   // ##### DEBUG ######
