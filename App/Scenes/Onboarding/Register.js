@@ -106,7 +106,7 @@ export default class Register extends Scene {
 
   componentDidFocus() {
     super.componentDidFocus()
-    this._oti.focus()
+    // this._oti.focus()
   }
 
   componentDidMount() {
