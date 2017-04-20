@@ -86,22 +86,22 @@ describe('#respondConnectionRequest()', () =>{
   });
 });
 
-describe('#deleteConnection()', () =>{
-  it('rejects unknown values', async () => {
-    const response = 'User not registered. Cannot send a signed request';
-    const data = await Api.deleteConnection({user_connection_id:1})
-    .catch(error => expect(error).toEqual(response));
-    expect(data).not.toBe(null);
-  });
-  it('rejects incorrect null and undefined values', async () => {
-    const response = "null cannot be 'null' or 'undefined'";
+// describe('#deleteConnection()', () =>{
+//   it('rejects unknown values', async () => {
+//     const response = 'User not registered. Cannot send a signed request';
+//     const data = await Api.deleteConnection({user_connection_id:1})
+//     .catch(error => expect(error).toEqual(response));
+//     expect(data).not.toBe(null);
+//   });
+//   it('rejects incorrect null and undefined values', async () => {
+//     const response = "null cannot be 'null' or 'undefined'";
 
-    try {
-      const {data} = await Api.deleteConnection({user_connection_id:null})
-       } catch (e) {
-         expect(e.message).toEqual(response);
-      }
-  });
+//     try {
+//       const {data} = await Api.deleteConnection({user_connection_id:null})
+//        } catch (e) {
+//          expect(e.message).toEqual(response);
+//       }
+//   });
 
  it('rejects incorrect params values (that are not objects)', async () => {
    const response = `Expected 'object', received 'number'`;
