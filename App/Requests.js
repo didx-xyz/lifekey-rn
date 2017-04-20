@@ -5,17 +5,21 @@ import Logger from "./Logger"
 import ConsentUser from "./Models/ConsentUser"
 import ConsentError, { ErrorCode } from "./ConsentError"
 
-const request = function(route, opts, shouldBeSigned = true) {
-  if (shouldBeSigned) {
-    return signedRequest(route, opts)
+const request = function(url, opts, shouldBeSigned = true) {
+  if (url.indexOf("http") !== 0) {
+    url = Config.http.baseUrl + url
   }
 
-  return unsignedRequest(route, opts)
+  if (shouldBeSigned) {
+    return signedRequest(url, opts)
+  }
+
+  return unsignedRequest(url, opts)
 }
 
-const signedRequest = function(route, opts) {
+const signedRequest = function(url, opts) {
   if (Config.useWhitelistedUser) {
-    return whitelistedSignedRequest(route, opts)
+    return whitelistedSignedRequest(url, opts)
   }
 
   let userID = null
@@ -57,7 +61,7 @@ const signedRequest = function(route, opts) {
         }
       }, opts)
 
-      return wrappedFetch(Config.http.baseUrl + route, options)
+      return wrappedFetch(url, options)
     })
 }
 
@@ -94,7 +98,7 @@ const onResponse = function(response) {
   return rejectionWithError(JSON.stringify(response))
 }
 
-const whitelistedSignedRequest = function(route, opts) {
+const whitelistedSignedRequest = function(url, opts) {
   const options = Object.assign({
     "method": "GET",
     "headers": {
@@ -105,10 +109,10 @@ const whitelistedSignedRequest = function(route, opts) {
     }
   }, opts)
 
-  return wrappedFetch(Config.http.baseUrl + route, options)
+  return wrappedFetch(url, options)
 }
 
-const unsignedRequest = function(route, opts) {
+const unsignedRequest = function(url, opts) {
   const options = Object.assign({
     "method": "GET",
     "headers": {
@@ -116,7 +120,7 @@ const unsignedRequest = function(route, opts) {
     }
   }, opts)
 
-  return wrappedFetch(Config.http.baseUrl + route, options)
+  return wrappedFetch(url, options)
 }
 
 export {

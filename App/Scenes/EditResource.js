@@ -8,6 +8,7 @@ import PropTypes from "prop-types"
 import ImagePicker from "react-native-image-picker"
 
 // internal dependencies
+import Api from "../Api"
 import BackButton from "../Components/BackButton"
 import Scene from "../Scene"
 import Touchable from "../Components/Touchable"
@@ -25,6 +26,9 @@ class EditResource extends Scene {
 
     this.onBoundPressCancel = this.onPressCancel.bind(this)
     this.onBoundPressSave = this.onPressSave.bind(this)
+    this.onBoundSave = this.onSave.bind(this)
+    this.onBoundForm = this.onForm.bind(this)
+    this.onBoundResource = this.onResource.bind(this)
   }
 
   onPressCancel() {
@@ -32,90 +36,59 @@ class EditResource extends Scene {
   }
 
   onPressSave() {
+    const data = {}
     const keys = this.state.entities.map(entity => entity.name)
     const values = keys.map(key => this.state[key] || null)
 
-    const data = {
-      "value": {
-        "form": this.context.editResourceForm()
-      },
-      "entity": this.state.label,
-      "attribute": this.state.label,
-      "alias": this.state.label,
-      "error": ""
-    }
-
-    keys.forEach((key, i) => data.value[key] = values[i])
-
-    data.value = JSON.stringify(data.value)
+    // combine keys and values into a single object
+    keys.forEach((key, i) => data[key] = values[i])
 
     const options = {
-      "method": this.state.id ? "PUT" : "POST",
-      "headers": {
-        "x-cnsnt-id": "2",
-        "x-cnsnt-plain": "example",
-        "x-cnsnt-signed": "example",
-        "content-type": "application/json"
-      },
-      "body": JSON.stringify(data)
+      "value": JSON.stringify({
+        "form": this.context.editResourceForm(),
+        ...data
+      }),
+      "entity": this.state.label,
+      "attribute": this.state.label,
+      "alias": this.state.label
     }
 
-    let url = "http://staging.api.lifekey.cnsnt.io/resource"
-    let response = null
+    try {
+      if (this.state.id) {
+        return Api
+          .updateResource({
+            "id": this.state.id,
+            ...options
+          })
+          .then(this.onBoundSave)
+      }
 
-    if (this.state.id) {
-      url = "http://staging.api.lifekey.cnsnt.io/resource/" + this.state.id
+      return Api
+        .createResource(options)
+        .then(this.onBoundSave)
     }
 
-    fetch(url, options)
-      .then(next => {
-        response = next
-        response.json()
-      })
-      .then(data => this.onResponse(response, data))
+    // handle promise rejections for validation errors
+    catch (e) {
+      alert("Error saving resource")
+    }
   }
 
-  onResponse(response, data) {
-    if (response.status === 400) {
-
-      // there is built-in support for
-      // displaying the error in the scene:
-      //
-      // this.setState({
-      //   "error": "Error saving resource"
-      // })
-
-      alert("Error saving resource")
-    } else {
-      alert("Resource saved")
-      this.context.onSaveResource()
-      this.navigator.pop()
-    }
+  onSave() {
+    this.context.onSaveResource()
+    this.navigator.pop()
   }
 
   componentDidMount() {
     const form = this.context.editResourceForm()
 
-    fetch(form)
-      .then(response => response.json())
-      .then(data => this.onEntities(data))
-
-    const options = {
-      "headers": {
-        "x-cnsnt-id": "2",
-        "x-cnsnt-plain": "example",
-        "x-cnsnt-signed": "example",
-        "content-type": "application/json"
-      }
-    }
+    Api.getResourceForm(form).then(this.onBoundForm)
 
     this.listener = this.props._navigationEventEmitter.addListener("onDidFocusEditResource", () => {
-      const resourceId = this.context.editResourceId()
+      const id = this.context.editResourceId()
 
-      if (resourceId) {
-        fetch("http://staging.api.lifekey.cnsnt.io/resource/" + resourceId, options)
-          .then(response => response.json())
-          .then(data => this.onResource(data))
+      if (id) {
+        Api.getResource({ id }).then(this.onBoundResource)
       }
     })
   }
@@ -133,7 +106,7 @@ class EditResource extends Scene {
     this.listener.remove()
   }
 
-  onEntities(data) {
+  onForm(data) {
     // TODO: handle error conditions
 
     let state = {

@@ -24,38 +24,32 @@ import BackIcon from "../Components/BackIcon"
 import HelpIcon from "../Components/HelpIcon"
 import Design from "../DesignParameters"
 
-const person = {
-  "fullName": "Jacques Noel Kleynhans",
-  "idOrigin": "South African ID",
-  "idNumber": "8205945067082",
-  "address": "52 Stanley Road, Tamboerskloof, Cape Town, South Africa, 8001",
-  "contactDetails": [
-    {
-      listCardHeading: "Mobile",
-      listCardPrimaryDetail: "+27 (082) 564 8245",
-      listCardSecondaryDetails: ["+27 (072) 223 3254"],
-      listImageUrl: "hello"
-    },
-    {
-      listCardHeading: "Home",
-      listCardPrimaryDetail: "+27 (021) 425 7685",
-      listCardSecondaryDetails: ["021 424 5678"],
-      listImageUrl: "hello"
-    },
-    {
-      listCardHeading: "Email",
-      listCardPrimaryDetail: "jacques@io.co.za",
-      listCardSecondaryDetails: ["jacqieboy@bedbathandbeyond.com", "jacqueslehomme@findyourdesire.fr"],
-      listImageUrl: "hello"
-    }
-  ]
-}
-
-const categoriesToAdd = [
-  "Life Insurance",
-  "Medical Aid",
-  "Current Occupation"
-]
+// const person = {
+//   "fullName": "Jacques Noel Kleynhans",
+//   "idOrigin": "South African ID",
+//   "idNumber": "8205945067082",
+//   "address": "52 Stanley Road, Tamboerskloof, Cape Town, South Africa, 8001",
+//   "contactDetails": [
+//     {
+//       listCardHeading: "Mobile",
+//       listCardPrimaryDetail: "+27 (082) 564 8245",
+//       listCardSecondaryDetails: ["+27 (072) 223 3254"],
+//       listImageUrl: "hello"
+//     },
+//     {
+//       listCardHeading: "Home",
+//       listCardPrimaryDetail: "+27 (021) 425 7685",
+//       listCardSecondaryDetails: ["021 424 5678"],
+//       listImageUrl: "hello"
+//     },
+//     {
+//       listCardHeading: "Email",
+//       listCardPrimaryDetail: "jacques@io.co.za",
+//       listCardSecondaryDetails: ["jacqieboy@bedbathandbeyond.com", "jacqueslehomme@findyourdesire.fr"],
+//       listImageUrl: "hello"
+//     }
+//   ]
+// }
 
 class Me extends Scene {
   constructor(...params) {
@@ -67,15 +61,12 @@ class Me extends Scene {
       "resourceTypes": []
     }
 
-    this.onBoundResponse = this.onResponse.bind(this)
     this.onBoundResourceTypes = this.onResourceTypes.bind(this)
     this.onBoundResources = this.onResources.bind(this)
   }
 
   componentDidMount() {
-    fetch("http://schema.cnsnt.io/resources")
-      .then(this.onBoundResponse)
-      .then(this.onBoundResourceTypes)
+    Api.allResourceTypes().then(this.onBoundResourceTypes)
 
     this.listener = this.props._navigationEventEmitter.addListener("onDidFocusMe", () => {
       if (this.context.clearResourceCache()) {
@@ -90,10 +81,6 @@ class Me extends Scene {
     })
 
     Api.allResources().then(this.onBoundResources)
-  }
-
-  onResponse(response) {
-    return response.json()
   }
 
   componentWillUnmount() {
@@ -123,20 +110,9 @@ class Me extends Scene {
   }
 
   onPressDelete(id) {
-    const options = {
-      "method": "DELETE",
-      "headers": {
-        "x-cnsnt-id": "2",
-        "x-cnsnt-plain": "example",
-        "x-cnsnt-signed": "example",
-        "content-type": "application/json"
-      }
-    }
-
-    fetch("http://staging.api.lifekey.cnsnt.io/resource/" + id, options)
+    Api.deleteResource({ id })
 
     // refresh the list
-
     this.context.onSaveResource()
     this.onClearCache()
   }
@@ -195,14 +171,14 @@ class Me extends Scene {
 
             if (resource.form == null) {
               return (
-                <LifekeyCard key={i} headingText={"resource " + resource.id} onPressEdit={() => this.onPressDelete(resource.id)}>
+                <LifekeyCard key={i} headingText={"resource " + resource.id} onPressDelete={() => this.onPressDelete(resource.id)}>
                   <Text>{resource.id} (malformed)</Text>
                 </LifekeyCard>
               )
             }
 
             return (
-              <LifekeyCard key={i} headingText={resource.alias} onPressEdit={() => this.onPressEdit(resource.form, resource.id)}>
+              <LifekeyCard key={i} headingText={resource.alias} onPressEdit={() => this.onPressEdit(resource.form, resource.id)} onPressDelete={() => this.onPressDelete(resource.id)}>
                 <Text key={i}>{resource.id}</Text>
               </LifekeyCard>
             )

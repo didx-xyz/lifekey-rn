@@ -322,6 +322,14 @@ export default class Api {
   // #### RESOURCE ####
   // ##################
 
+  static allResourceTypes() {
+    return request("http://schema.cnsnt.io/resources")
+  }
+
+  static getResourceForm(form) {
+    return request(form)
+  }
+
   // 0 GET /resource
   static allResources() {
     return request("/resource?all=1")
@@ -346,13 +354,7 @@ export default class Api {
       'entity',
       'attribute',
       'alias',
-      'mime',
-      'value',
-      'uri',
-      'is_verifiable_claim',
-      'schema',
-      'is_default',
-      'is_archived'
+      'value'
     ]
 
     if (checkParameters(requiredFields, data)) {
