@@ -24,8 +24,6 @@ const signedRequest = function(url, opts) {
 
   let userID = null
   let secureRandom = null
-  let signature = null
-
   return ConsentUser.get()
     .then(results => {
       if (results.id) {
