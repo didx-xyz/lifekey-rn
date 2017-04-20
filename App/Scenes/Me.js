@@ -1,7 +1,7 @@
 // external dependencies
 import React from "react"
 import { Text, View } from "react-native"
-import { Container, Content } from "native-base"
+import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
 
 // internal dependencies
@@ -51,14 +51,19 @@ import Design from "../DesignParameters"
 //   ]
 // }
 
+const CONNECT = 0
+const MY_DATA = 1
+const BADGES = 2
+
 class Me extends Scene {
   constructor(...params) {
     super(...params)
 
     this.state = {
-      "tabName":  "My Data",
-      "resources": {},
-      "resourceTypes": []
+      activeTab: MY_DATA,
+      tabName: "My Data",
+      resources: {},
+      resourceTypes: []
     }
 
     this.onBoundResourceTypes = this.onResourceTypes.bind(this)
@@ -80,7 +85,7 @@ class Me extends Scene {
   onClearCache() {
     if (this.context.getShouldClearResourceCache()) {
       this.setState({
-        "resources": {}
+        resources: {}
       })
 
       Api.allResources().then(this.onBoundResources)
@@ -93,16 +98,16 @@ class Me extends Scene {
     }
 
     this.setState({
-      "resourceTypes": data.resources
+      resourceTypes: data.resources
     })
   }
 
   onResources(data) {
     this.setState({
-      "resources": data.body.map((item) => {
+      resources: data.body.map((item) => {
         return {
-          "id": item.id,
-          "alias": item.alias,
+          id: item.id,
+          alias: item.alias,
           ...JSON.parse(item.value)
         }
       })
@@ -121,49 +126,15 @@ class Me extends Scene {
     this.context.onEditResource(form, id)
   }
 
-  render() {
-    return (
-      <MvTemplate
-        tabName={this.state.tabName}
-        header={
-          () => <LifekeyHeader
-            icons={[
-              {
-                icon: <BackIcon width={15} height={15}/>,
-                onPress: () => this.navigator.pop()
-              },
-              {
-                icon: <Text>:)</Text>,
-                onPress: () => alert("test")
-              },
-              {
-                icon: <Text>+</Text>,
-                onPress: () => alert("test")
-              }
-            ]}
-            tabs={[
-              {
-                text: "Connect",
-                onPress: () => this.setTab(0),
-                active: this.state.activeTab === 0
-              },
-              {
-                text: "My Data",
-                onPress: () => this.setTab(1),
-                active: this.state.activeTab === 1
-              },
-              {
-                text: "Badges",
-                onPress: () => this.setTab(2),
-                active: this.state.activeTab === 1
-              }
-            ]}
-          />
-        }
-      >
-        <BackButton navigator={this.navigator} />
-        <Content>
+  renderTab() {
+    switch (this.state.activeTab) {
 
+    case CONNECT:
+      return (<View/>)
+
+    case MY_DATA:
+      return (
+        <Content>
           {Object.values(this.state.resources).map((resource, i) => {
             if (resource === null) {
               return
@@ -184,18 +155,6 @@ class Me extends Scene {
             )
           })}
 
-          {/*<LifekeyCard headingText="Legal Identity" onPressEdit={() => alert("EDIT")} onPressShare={() => alert("SHARE")} >
-            <LcLegalIdentity {...person} />
-          </LifekeyCard>
-
-          <LifekeyCard headingText="Home Address 1" onPressEdit={() => alert("EDIT")} onPressShare={() => alert("SHARE")} >
-            <LcHomeAddress {...person}/>
-          </LifekeyCard>
-
-          <LifekeyCard headingText="Contact Details" onPressEdit={() => alert("EDIT")} onPressShare={() => alert("SHARE")} >
-            <LcContactDetails contactDetails={person.contactDetails} />
-          </LifekeyCard>*/}
-
           <View>
             {this.state.resourceTypes.map((resourceType, i) => {
               return (
@@ -204,19 +163,79 @@ class Me extends Scene {
             })}
           </View>
         </Content>
-      </MvTemplate>
+      )
+
+    case BADGES:
+      return (<View/>)
+    }
+  }
+
+  render() {
+    const headerIcons = [
+              {
+                icon: <BackIcon width={16} height={16}/>,
+                onPress: () => this.navigator.pop()
+              },
+              {
+                icon: <Text>:)</Text>,
+                onPress: () => alert("test")
+              },
+              {
+                icon: <Text>+</Text>,
+                onPress: () => alert("test")
+              }
+            ]
+
+    return (
+      <Container>
+        <View style={style.headerWrapper}>
+          <BackButton navigator={this.navigator} />
+          <LifekeyHeader
+            icons={headerIcons}
+            tabs={[
+              {
+                text: "Connect",
+                onPress: () => this.setState({ activeTab: CONNECT }),
+                active: this.state.activeTab === CONNECT
+              },
+              {
+                text: "My Data",
+                onPress: () => this.setState({ activeTab: MY_DATA }),
+                active: this.state.activeTab === MY_DATA
+              },
+              {
+                text: "Badges",
+                onPress: () => this.setState({ activeTab: BADGES }),
+                active: this.state.activeTab === BADGES
+              }
+            ]}
+            />
+        </View>
+        <Content>
+          <Col style={{ flex: 1 }}>
+            {this.renderTab()}
+          </Col>
+        </Content>
+      </Container>
     )
+  }
+}
+
+const style = {
+  headerWrapper: {
+    borderColor: Palette.consentGrayDark,
+    height: Design.lifekeyHeaderHeight
   }
 }
 
 // these are from Lifekeyrn
 Me.contextTypes = {
   // behavior
-  "onEditResource": PropTypes.func,
-  "onSaveResource": PropTypes.func,
+  onEditResource: PropTypes.func,
+  onSaveResource: PropTypes.func,
 
   // state
-  "getShouldClearResourceCache": PropTypes.func
+  getShouldClearResourceCache: PropTypes.func
 }
 
 export default Me
