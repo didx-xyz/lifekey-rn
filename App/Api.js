@@ -159,14 +159,11 @@ function checkParameters(requiredKeys, receivedObject) {
     }
 
     // null is not allowed
-
     if (receivedObject[requiredKeys[i]] === null || typeof receivedObject[requiredKeys[i]] === 'undefined') {
-
       throw new ConsentError(
           `${receivedObject[requiredKeys[i]]} cannot be 'null' or 'undefined'`,
           ErrorCode.E_API_FATAL_ERROR
       )
-
     }
   }
 
