@@ -8,11 +8,13 @@ import PropTypes from "prop-types"
 import ImagePicker from "react-native-image-picker"
 
 // internal dependencies
+import Api from "../Api"
 import BackButton from "../Components/BackButton"
 import Scene from "../Scene"
 import Touchable from "../Components/Touchable"
 import Countries from "../Countries"
 import Languages from "../Languages"
+import Routes from "../Routes"
 
 class EditResource extends Scene {
   constructor(...params) {
@@ -24,56 +26,94 @@ class EditResource extends Scene {
 
     this.onBoundPressCancel = this.onPressCancel.bind(this)
     this.onBoundPressSave = this.onPressSave.bind(this)
+    this.onBoundSave = this.onSave.bind(this)
+    this.onBoundForm = this.onForm.bind(this)
+    this.onBoundResource = this.onResource.bind(this)
   }
 
   onPressCancel() {
-    alert("cancel")
+    this.navigator.pop()
   }
 
   onPressSave() {
+    const data = {}
     const keys = this.state.entities.map(entity => entity.name)
     const values = keys.map(key => this.state[key] || null)
 
-    const data = {
-      "value": {},
-      "entity": "test_" + Date.now(),
-      "attribute": "test_" + Date.now(),
-      "alias": "test_" + Date.now()
-    }
-
-    keys.forEach((key, i) => data.value[key] = values[i])
-
-    data.value = JSON.stringify(data.value)
+    // combine keys and values into a single object
+    keys.forEach((key, i) => data[key] = values[i])
 
     const options = {
-      "method": "POST",
-      "headers": {
-        "x-cnsnt-id": "2",
-        "x-cnsnt-plain": "example",
-        "x-cnsnt-signed": "example",
-        "content-type": "application/json"
-      },
-      "body": JSON.stringify(data)
+      "value": JSON.stringify({
+        "form": this.context.getEditResourceForm(),
+        ...data
+      }),
+      "entity": this.state.label,
+      "attribute": this.state.label,
+      "alias": this.state.label
     }
 
-    console.log(options)
+    try {
+      if (this.state.id) {
+        return Api
+          .updateResource({
+            "id": this.state.id,
+            ...options
+          })
+          .then(this.onBoundSave)
+      }
 
-    fetch("http://staging.api.lifekey.cnsnt.io/resource", options)
-      .then(response => response.json())
-      .then(data => console.log(data))
+      return Api
+        .createResource(options)
+        .then(this.onBoundSave)
+    }
+
+    // handle promise rejections for validation errors
+    catch (e) {
+      alert("Error saving resource")
+    }
+  }
+
+  onSave() {
+    this.context.onSaveResource()
+    this.navigator.pop()
   }
 
   componentDidMount() {
-    fetch(this.props.form)
-      .then(response => response.json())
-      .then(data => this.handleData(data))
+    const form = this.context.getEditResourceForm()
+
+    Api.getResourceForm(form).then(this.onBoundForm)
+
+    this.listener = this.props._navigationEventEmitter.addListener("onDidFocusEditResource", () => {
+      const id = this.context.getEditResourceId()
+
+      if (id) {
+        Api.getResource({ id }).then(this.onBoundResource)
+      }
+    })
   }
 
-  handleData(data) {
+  onResource(data) {
+    const state = {
+      "id": data.body.id,
+      ...JSON.parse(data.body.value)
+    }
+
+    this.setState(state)
+  }
+
+  componentWillUnmount() {
+    this.listener.remove()
+  }
+
+  onForm(data) {
     // TODO: handle error conditions
 
     let state = {
-      "entities": data.entities
+      "entities": [
+        {"label": "Label", "name": "label", "type": "string"},
+        ...data.entities
+      ]
     }
 
     data.entities.forEach((entity) => {
@@ -275,6 +315,13 @@ class EditResource extends Scene {
           <View style={styles.fields}>
             <ScrollView style={styles.scroll}>
               <View style={styles.card}>
+                {this.state.error !== "" &&
+                  <View style={styles.error}>
+                    <Text style={styles.errorText}>
+                      {this.state.error}
+                    </Text>
+                  </View>
+                }
                 {this.state.entities.map((entity, i) => this.renderEntity(entity, i))}
               </View>
             </ScrollView>
@@ -302,11 +349,17 @@ class EditResource extends Scene {
 }
 
 EditResource.propTypes = {
-  "form": PropTypes.string
+  "onEditResource": PropTypes.func
 }
 
-EditResource.defaultProps = {
-  "form": "http://schema.cnsnt.io/person_form"
+// these are from Lifekeyrn
+EditResource.contextTypes = {
+  // behavior
+  "onSaveResource": PropTypes.func,
+
+  // state
+  "getEditResourceForm": PropTypes.func,
+  "getEditResourceId": PropTypes.func
 }
 
 const styles = {
@@ -425,6 +478,13 @@ const styles = {
     "color": "#fff",
     "fontSize": 16,
     "textAlign": "right"
+  },
+  "error": {
+    "flex": 1
+  },
+  "errorText": {
+    "textAlign": "center",
+    "color": "red"
   }
 }
 

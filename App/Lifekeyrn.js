@@ -23,11 +23,24 @@ import {
   Platform,
   StatusBar
 } from 'react-native'
+import PropTypes from "prop-types"
 
 const PORTRAIT = 0
 const LANDSCAPE = 1
 
-export default class Lifekeyrn extends Component {
+class Lifekeyrn extends Component {
+  getChildContext() {
+    return {
+      // behavior
+      "onEditResource": this.onBoundEditResource,
+      "onSaveResource": this.onBoundSaveResource,
+
+      // state
+      "getEditResourceForm": this.boundGetEditResourceForm,
+      "getEditResourceId": this.boundGetEditResourceId,
+      "getShouldClearResourceCache": this.boundGetShouldClearResourceCache
+    }
+  }
 
   constructor(props) {
     super(props)
@@ -64,6 +77,35 @@ export default class Lifekeyrn extends Component {
     this._initSession()
     this._initialRoute = this._getInitialRoute()
     this.initFirebaseInternal()
+
+    // context behavior
+    this.onBoundEditResource = this.onEditResource.bind(this)
+    this.onBoundSaveResource = this.onSaveResource.bind(this)
+
+    // context state
+    this.shouldClearResourceCache = true
+    this.editResourceForm = null
+    this.editResourceId = null
+    this.boundGetEditResourceForm = this.getEditResourceForm.bind(this)
+    this.boundGetEditResourceId = this.getEditResourceId.bind(this)
+    this.boundGetShouldClearResourceCache = this.getShouldClearResourceCache.bind(this)
+  }
+
+  getEditResourceForm() {
+    return this.editResourceForm
+  }
+
+  getEditResourceId() {
+    return this.editResourceId
+  }
+
+  getShouldClearResourceCache() {
+    if (this.shouldClearResourceCache) {
+      this.shouldClearResourceCache = false
+      return true
+    }
+
+    return false
   }
 
   initFirebaseInternal() {
@@ -75,6 +117,17 @@ export default class Lifekeyrn extends Component {
       'app_activation_link_clicked',
       () => this.navigator.push(Routes.main)
     )
+  }
+
+  onEditResource(form, id) {
+    this.editResourceForm = form
+    this.editResourceId = id
+
+    this.navigator.push(Routes.editResource)
+  }
+
+  onSaveResource() {
+    this.shouldClearResourceCache = true
   }
 
   _getInitialRoute() {
@@ -278,3 +331,16 @@ export default class Lifekeyrn extends Component {
     );
   }
 }
+
+Lifekeyrn.childContextTypes = {
+  // behavior
+  "onEditResource": PropTypes.func,
+  "onSaveResource": PropTypes.func,
+
+  // state
+  "getEditResourceForm": PropTypes.func,
+  "getEditResourceId": PropTypes.func,
+  "getShouldClearResourceCache": PropTypes.func
+}
+
+export default Lifekeyrn
