@@ -47,7 +47,8 @@ export default class Main extends Scene {
       activeTab: TAB_CONNECTED,
       searchText: '',
       connections: [],
-      suggestedConnections: []
+      suggestedConnections: Config.hardcodedSuggestedConnections
+                            ? Config.suggestedConnections : []
     }
     this.fetchingData = false;
   }
@@ -124,7 +125,7 @@ export default class Main extends Scene {
             icons={[
               {
                 icon: <Image source={require("../Images/torn_page.png")}/>,
-                onPress: () => alert('test')
+                onPress: () => this.navigator.push(Routes.messages)
               },
               {
                 icon: <HexagonIcon fill={ ConsentUser.getDidSync() ? Palette.consentBlue : 'red' }/>,
