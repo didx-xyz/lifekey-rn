@@ -24,8 +24,6 @@ const signedRequest = function(url, opts) {
 
   let userID = null
   let secureRandom = null
-  let signature = null
-
   return ConsentUser.get()
     .then(results => {
       if (results.id) {
@@ -42,7 +40,8 @@ const signedRequest = function(url, opts) {
 
       return rejectionWithError("Keystore must first be loaded", ErrorCode.E_ACCESS_KEYSTORE_NOT_LOADED)
     })
-    .then(secureRandom => {
+    .then(_secureRandom => {
+      secureRandom = _secureRandom
       return Crypto.sign(
         secureRandom,
         Config.keystore.privateKeyName,

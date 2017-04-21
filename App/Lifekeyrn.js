@@ -12,7 +12,6 @@ import Session from './Session'
 import Routes from './Routes'
 import Config from './Config'
 import ConsentUser from './Models/ConsentUser'
-// import PushNotifications from './PushNotifications'
 import FirebaseHandler from './FirebaseHandler'
 import EventEmitter from 'EventEmitter'
 import React, { Component } from 'react'
@@ -68,7 +67,12 @@ class Lifekeyrn extends Component {
     // Events
     if (Platform.OS === 'android') {
       this._messaging.onTokenRefresh(this._nativeEventTokenRefreshed)
-      this._messaging.onMessage((message) => this._nativeEventMessageReceived(message, this.firebaseInternalEventEmitter))
+      this._messaging.onMessage( message =>
+        FirebaseHandler.messageReceived(message, this.firebaseInternalEventEmitter)
+      )
+      //   this._nativeEventMessageReceived(message, this.firebaseInternalEventEmitter)
+      // )
+      // FirebaseHandler.messageReceived(message, eventEmitter)
     } else {
       Logger.info('TODO: Firebase iOS', this.filename)
     }
@@ -76,6 +80,13 @@ class Lifekeyrn extends Component {
     this._initSession()
     this.initFirebaseHandlerEvents()
     this._initialRoute = this._getInitialRoute()
+
+    // What is this? - werner
+    this._messaging.getInitialNotification().then(notification => {
+      Logger.info('_messaging.getInitialNotification', notification)
+      // TODO check the structure of `notification`
+      // and decide which scene to dispatch
+    }).catch(console.log)
 
     // context behavior
     this.onBoundEditResource = this.onEditResource.bind(this)
@@ -105,13 +116,6 @@ class Lifekeyrn extends Component {
     }
 
     return false
-  }
-
-    this._messaging.getInitialNotification().then(notification => {
-      Logger.info('_messaging.getInitialNotification', notification)
-      // TODO check the structure of `notification`
-      // and decide which scene to dispatch
-    }).catch(console.log)
   }
 
   onEditResource(form, id) {
@@ -184,14 +188,6 @@ class Lifekeyrn extends Component {
       'app_activation_link_clicked',
       () => this.navigator.push(Routes.main)
     )
-  }
-
-  /**
-   * Fires when a Firebase EventMessage is received
-   * @param {string} message The firebase message
-   */
-  _nativeEventMessageReceived(message, eventEmitter) {
-    FirebaseHandler.messageReceived(message, eventEmitter)
   }
 
   /**

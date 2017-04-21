@@ -14,10 +14,7 @@ function checkParameters(requiredKeys, receivedObject) {
   // It must be an object
   if (typeof receivedObject !== 'object') {
 
-    throw new ConsentError(
-      `Expected 'object', received '${typeof receivedObject}'`,
-      ErrorCode.E_API_FATAL_ERROR
-    )
+    throw new Error(`Expected 'object', received '${typeof receivedObject}'`)
   }
 
   // Get the keys of the parameter object and sort them
@@ -31,7 +28,7 @@ function checkParameters(requiredKeys, receivedObject) {
                         + '\nbut recieved an object containing:\n'
                         + receivedObjectKeys.reduce((p, c) => `${p}, '${c}'`, '').slice(2)
 
-    throw new ConsentError(errorMessage, ErrorCode.E_API_FATAL_ERROR)
+    throw new Error(errorMessage)
   }
 
   // We need these sorted, now
@@ -47,15 +44,12 @@ function checkParameters(requiredKeys, receivedObject) {
                         + requiredKeys.reduce((p, c) => `${p}, '${c}'`, '').slice(2)
                         + '\nbut recieved an object containing:\n'
                         + receivedObjectKeys.reduce((p, c) => `${p}, '${c}'`, '').slice(2)
-      throw new ConsentError(errorMessage, ErrorCode.E_API_ERROR)
+      throw new Error(errorMessage)
     }
 
     // null is not allowed
     if (receivedObject[requiredKeys[i]] === null || typeof receivedObject[requiredKeys[i]] === 'undefined') {
-      throw new ConsentError(
-          `${receivedObject[requiredKeys[i]]} cannot be 'null' or 'undefined'`,
-          ErrorCode.E_API_FATAL_ERROR
-      )
+      throw new Error(`${receivedObject[requiredKeys[i]]} cannot be 'null' or 'undefined'`)
     }
   }
 

@@ -25,7 +25,8 @@ import SearchBox from '../Components/SearchBox'
 import {
   Text,
   View,
-  Dimensions
+  Dimensions,
+  Image
 } from 'react-native'
 import {
   Container,
@@ -46,7 +47,8 @@ export default class Main extends Scene {
       activeTab: TAB_CONNECTED,
       searchText: '',
       connections: [],
-      suggestedConnections: Config.suggestedConnections
+      suggestedConnections: Config.hardcodedSuggestedConnections
+                            ? Config.suggestedConnections : []
     }
     this.fetchingData = false;
   }
@@ -122,8 +124,8 @@ export default class Main extends Scene {
           <LifekeyHeader
             icons={[
               {
-                icon: <Text>+</Text>,
-                onPress: () => alert('test')
+                icon: <Image source={require("../Images/torn_page.png")}/>,
+                onPress: () => this.navigator.push(Routes.messages)
               },
               {
                 icon: <HexagonIcon fill={ ConsentUser.getDidSync() ? Palette.consentBlue : 'red' }/>,
@@ -135,7 +137,7 @@ export default class Main extends Scene {
                 }
               },
               {
-                icon: <Text>+</Text>,
+                icon: <Image source={require("../Images/smiley_speech_bubble.png")}/>,
                 onPress: () => alert('test')
               }
             ]}
