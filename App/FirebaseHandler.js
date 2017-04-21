@@ -37,12 +37,6 @@ class FirebaseHandler {
             user_connection_request_id: message.user_connection_request_id,
             accepted: true
           }),
-          ConsentConnectionRequest.add(
-            message.user_connection_request_id,
-            message.from_id,
-            message.from_did,
-            message.from_nickname
-          ),
           ConsentDiscoveredUser.add(
             message.from_id,
             message.from_did,
