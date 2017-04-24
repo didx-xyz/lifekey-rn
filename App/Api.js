@@ -324,6 +324,7 @@ export default class Api {
 
   static allResourceTypes() {
     return request("http://schema.cnsnt.io/resources")
+    // return fetch('http://schema.cnsnt.io/resources').then(_ => _.json())
   }
 
   static getResourceForm(form) {
@@ -505,13 +506,23 @@ export default class Api {
 
   // 14 POST /facial-verfication token
   // Get a Face pic after scanning a QR code
-  static facialVerificationQrScanResponse() {
-    return request('/facial-verification/3fede6b872fee33ad048e0ea33907643fe415021e2a2a2db1f85edad353f49d9/3fede6b872fee33ad048e0ea33907643fe415021e2a2a2db1f85edad353f49d9HpcQUHUkdc203FOsfSijth5qN4I232OgOvM9ECi1MsQ=', { 
+  static facialVerificationQrScanResponse(user_did, token) {
+    return request(`/facial-verification/${user_did}/${token}`, { 
       method: 'GET' 
     }, false)
   } 
 
-  ///facial-verification/:user_did/:token
+  // 15 POST /facial-verfication 
+  // User result on QR code verification
+  static facialVerificationQrScanResult(user_did, token, result) {
+    if (checkParameters(requiredFields, data)) {
+      return request(`/facial-verification/${user_did}/${token}?${result}`, { 
+        method: 'POST'
+      })
+    } else {
+      return Promise.reject(getMissingFieldsMessage(requiredFields))
+    }
+  } 
 
   // ##################
   // ##### DEBUG ######

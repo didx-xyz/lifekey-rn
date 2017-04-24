@@ -70,7 +70,7 @@ class EditResource extends Scene {
 
     // handle promise rejections for validation errors
     catch (e) {
-      alert("Error saving resource")
+      alert("Error saving resource: " + e)
     }
   }
 
@@ -194,7 +194,10 @@ class EditResource extends Scene {
       <TextInput
         style={styles.textInput}
         value={this.state[entity.name]}
-        onChangeText={text => this.setState({[entity.name]: text})}
+        onChangeText={
+          text => this.setState({[entity.name]: text})
+          // text => console.log("TEXT: ", entity.name, " : ", text)
+        }
         autoCapitalize="none"
         autoCorrect={false}
         returnKeyType="done"

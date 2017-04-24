@@ -6,7 +6,7 @@
  */
 
 // external dependencies
-import React from "react"
+import React, { Component } from 'react'
 import { Text, View } from "react-native"
 const { bool, array, string } = React.PropTypes
 
@@ -15,7 +15,7 @@ import Design from "../DesignParameters"
 import Palette from "../Palette"
 import LcContactDetail from '../Components/lc-ContactDetail'
 
-const LcContactDetails = React.createClass({
+const LcContactDetails extends Component{
   
   "propTypes" : {
     "expanded": bool,
@@ -28,10 +28,10 @@ const LcContactDetails = React.createClass({
       
       <View style={{"flex": 1}}>
   			{ /* The key for this map is the index. Which is a bad idea. */ }
-  			{ contactDetails.map((detail, i) => <LcContactDetail key={i} {...detail } expanded={expanded} /> )}
+        { contactDetails.map((detail, i) => <LcContactDetail key={i} listCardHeading={detail.alias} listCardPrimaryDetail={detail.email} listCardSecondaryDetails={[]} expanded={expanded} /> )}
   		</View>
     )
   }
-})
+}
 
 export default LcContactDetails

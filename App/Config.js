@@ -21,19 +21,19 @@ export default {
   APP_NAME: APP_NAME,
 
   // First scene to show
-  initialRouteFromConfig: true, // Must be true to use route below
+  initialRouteFromConfig: false, // Must be true to use route below
   initialRoute: Routes.me,
 
   // Allow requests from whitelisted user (testing on iOS, without login)
-  useWhitelistedUser: true,
+  useWhitelistedUser: false,
   whitelistedUserId: 2,
   whitelistedUserPlain: "example",
   whitelistedUserSigned: "example",
 
   // Debug
   DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
-  debugNetwork: true,         // Log API requests and responses
-  debugReact: false,           // Log the React Lifecycle events
+  debugNetwork: false,         // Log API requests and responses
+  debugReact: true,           // Log the React Lifecycle events
   debugNavigator: false,      // Log the current stack of Navigator routes
   debugFirebase: false,        // Log Firebase events
   debugAsyncStorage: false,

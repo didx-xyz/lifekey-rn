@@ -5,6 +5,7 @@ import { Container } from "native-base"
 
 // internal dependencies
 import Api from '../Api'
+import ConsentUser from '../Models/ConsentUser'
 import BackButton from "../Components/BackButton"
 import BackIcon from "../Components/BackIcon"
 import Design from "../DesignParameters"
@@ -45,15 +46,19 @@ class FaceMatch extends Scene {
   }
 
   async loadImage() {
-    // try{
-      const response = await Api.facialVerificationQrScanResponse(); 
-      console.log('RESULT: ', `data:${response.body.mime};${response.body.encoding},value`)
+    try{
+      const userdid = ConsentUser.getDidSync()
+      const response = await Api.facialVerificationQrScanResponse(userdid)
+      
       this.setState({
         "imageAvailable": true,
         "imageDataUrl": `data:${response.body.mime};${response.body.encoding},${response.body.value}`
       })
-    // }
-    // catch
+      
+    }
+    catch(e){
+      console.log("ERROR: ", e)
+    }
   }
 
   render() {
@@ -71,7 +76,7 @@ class FaceMatch extends Scene {
           </View>
           <View style={styles.image}>
             {/* Image goes here */}
-            { this.state.imageAvailable && <Image style={styles.profileImg} source={{ uri: this.state.imageDataUrl }} /> }
+            { this.state.imageAvailable && <Image style={styles.profileImg} source={{ uri: this.state.imageDataUrl, scale: 1 }} /> }
           </View>
           <View style={styles.copyContainer}>
             <Text style={styles.copyText}>Is this the person who's QR Code you scanned?</Text>

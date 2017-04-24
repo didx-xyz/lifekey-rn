@@ -10,7 +10,6 @@
 import React from 'react'
 import Scene from '../Scene'
 import Session from '../Session'
-import Palette from '../Palette'
 import Routes from '../Routes'
 import Api from '../Api'
 import Logger from "../Logger"
@@ -22,9 +21,13 @@ import { Text, View, Image } from 'react-native'
 import { Container, Content } from 'native-base'
 
 // internal dependencies
-import MvTemplate from '../Components/mv-Template'
 import Design from "../DesignParameters"
+import Palette from '../Palette'
+import MvTemplate from "../Components/mv-Template"
+import BackIcon from "../Components/BackIcon"
 import HelpIcon from "../Components/HelpIcon"
+import LifekeyHeader from "../Components/LifekeyHeader"
+import LifekeyCard from "../Components/LifekeyCard"
 
 var person = {
   mycode: '+',
@@ -98,7 +101,44 @@ export default class MeConnect extends Scene {
   render() {
     return (
       
-      <MvTemplate tabName={this.state.tabName}>
+      <MvTemplate
+        tabName={this.state.tabName}
+        header={
+          () => <LifekeyHeader
+            icons={[
+              {
+                icon: <BackIcon {...Design.backIcon}/>,
+                onPress: () => this.navigator.pop()
+              },
+              {
+                icon: <Text>:)</Text>,
+                onPress: () => alert("test")
+              },
+              {
+                icon: <Text>+</Text>,
+                onPress: () => alert("test")
+              }
+            ]}
+            tabs={[
+              {
+                text: "Connect",
+                onPress: () => this.setTab(0),
+                active: this.state.activeTab === 0
+              },
+              {
+                text: "My Data",
+                onPress: () => this.setTab(1),
+                active: this.state.activeTab === 1
+              },
+              {
+                text: "Badges",
+                onPress: () => this.setTab(2),
+                active: this.state.activeTab === 2
+              }
+            ]}
+          />
+        }
+      >
         <View style={styles.content}>
           <View style={styles.switchButtonContainer}>
             <View style={Object.assign({}, styles.switchButton, styles.switchButtonLeft, 
