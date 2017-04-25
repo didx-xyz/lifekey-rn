@@ -67,7 +67,7 @@ class FirebaseHandler {
           eventEmitter.emit('user_connection_created')
         })
         .catch(error => {
-          Logger.error(error, this.filename, error)
+          Logger.warn(error, this.filename, error)
         })
         break
 
