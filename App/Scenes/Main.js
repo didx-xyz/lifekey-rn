@@ -21,6 +21,7 @@ import Design from '../DesignParameters'
 import HexagonIcon from '../Components/HexagonIcon'
 import ConsentUser from '../Models/ConsentUser'
 import SearchBox from '../Components/SearchBox'
+import _ from 'lodash'
 
 import {
   Text,
@@ -61,20 +62,28 @@ export default class Main extends Scene {
   _onAttention() {
     if (!this.fetchingData) {
       this.fetchingData = true
-      Promise.all([
-        Api.getActiveBots(),
-        ConsentConnection.all()
-      ])
+      // Promise.all([
+      //   Api.getActiveBots(),
+      //   ConsentConnection.all()
+      // ])
+      // .then(result => {
+      //   this.setState({
+      //     suggestedConnections: JSON.parse(result[0]._bodyText),
+      //     connections: result[1]
+      //   }, () => {
+      //     this.fetchingData = false
+      //   })
+      // })
+      // .catch(error => {
+      //   Logger.error(error)
+      // })
+      return ConsentConnection.all()
       .then(result => {
-        this.setState({
-          suggestedConnections: JSON.parse(result[0]._bodyText),
-          connections: result[1]
-        }, () => {
-          this.fetchingData = false
-        })
-      })
-      .catch(error => {
-        Logger.error(error)
+        if (_.isArray(result)) {
+          this.setState({
+            connections: result
+          })
+        }
       })
 
     }
