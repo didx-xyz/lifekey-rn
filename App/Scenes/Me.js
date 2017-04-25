@@ -103,6 +103,8 @@ class Me extends Scene {
   }
 
   onResources(data) {
+    console.log("resources", data)
+
     this.setState({
       resources: data.body.map((item) => {
         return {

@@ -84,13 +84,19 @@ class EditResource extends Scene {
 
     Api.getResourceForm(form).then(this.onBoundForm)
 
-    this.listener = this.props._navigationEventEmitter.addListener("onDidFocusEditResource", () => {
-      const id = this.context.getEditResourceId()
+    this.loadResource()
+  }
 
-      if (id) {
-        Api.getResource({ id }).then(this.onBoundResource)
-      }
-    })
+  componentWillFocus() {
+    this.loadResource()
+  }
+
+  loadResource() {
+    const id = this.context.getEditResourceId()
+
+    if (id) {
+      Api.getResource({ id }).then(this.onBoundResource)
+    }
   }
 
   onResource(data) {
@@ -100,10 +106,6 @@ class EditResource extends Scene {
     }
 
     this.setState(state)
-  }
-
-  componentWillUnmount() {
-    this.listener.remove()
   }
 
   onForm(data) {
@@ -198,6 +200,7 @@ class EditResource extends Scene {
         autoCapitalize="none"
         autoCorrect={false}
         returnKeyType="done"
+        underlineColorAndroid="rgba(0, 0, 0, 0)"
       />
     )
   }
@@ -378,14 +381,14 @@ const styles = {
     "padding": 10
   },
   "formField": {
-    "paddingTop": 15,
-    "paddingBottom": 15,
+    "paddingTop": 5,
+    "paddingBottom": 5,
     "borderBottomWidth": 1,
     "borderBottomColor": "#efefef",
     "flexDirection": "row"
   },
   "formFieldLabel": {
-    "height": 20,
+    "height": 40,
     "width": "35%",
     "justifyContent": "center"
   },
@@ -396,13 +399,15 @@ const styles = {
   },
   "formFieldInput": {
     "flex": 1,
-    "height": 20
+    "height": 40,
+    "borderBottomWidth": 0
   },
   "textInput": {
     "flex": 1,
     "color": "#666",
     "fontWeight": "100",
-    "fontSize": 14
+    "fontSize": 14,
+    "height": 40
   },
   "countryLabel": {
     "color": "#666",

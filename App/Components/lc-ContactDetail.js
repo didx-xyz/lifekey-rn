@@ -6,9 +6,9 @@
  */
 
 // external dependencies
-import React from "react"
+import React, { Component } from "react"
 import { Text, View } from "react-native"
-const { bool, array, string } = React.PropTypes
+import PropTypes from "prop-types"
 
 // internal dependencies
 import MobileIcon from "../Components/MobileIcon"
@@ -17,15 +17,7 @@ import EnvelopeIcon from "../Components/EnvelopeIcon"
 import Design from "../DesignParameters"
 import Palette from "../Palette"
 
-const LcContactDetail = React.createClass({
-  
-  "propTypes" : {
-    "expanded": bool,
-    "listCardHeading": string,
-    "listCardPrimaryDetail": string,
-    "listCardSecondaryDetails": array,
-    "listImageUrl": string
-  },
+class LcContactDetail extends Component {
   mobileIcon (listCardHeading) {
     switch (listCardHeading) {
       case "Mobile":
@@ -39,59 +31,10 @@ const LcContactDetail = React.createClass({
         break;
       default:
         return (<EnvelopeIcon width={28} height={18} stroke="#666" />)
-    } 
+    }
   },
   render () {
     
-    const styles = {
-      "listCard":{
-        "width": "100%",
-        "flexDirection": "row"
-      },
-      "listImageContainer":{
-        "flex": 1,
-        "marginRight": Design.paddingRight,
-        "justifyContent": "flex-start",
-        "alignItems": "center"
-      },
-      "listImage":{
-        "width": "100%",
-        "justifyContent": "center",
-        "alignItems": "center",
-        "backgroundColor": Palette.consentGrayMedium
-      },
-      "listBody":{
-        "flex": 18,
-        "justifyContent": "space-around",  
-        "paddingTop": 5,
-        "paddingBottom": 5, 
-      },
-      "listBodyTitle":{
-        "fontSize": 16,
-        "color": Palette.consentGrayDark
-      },
-      "listBodySubtitle":{
-        "fontSize": 10,
-        "color": Palette.consentGrayMedium
-      },
-      "listBodyPrimaryContent":{
-        "fontSize": 25,
-        "color": Palette.consentGray
-      },
-      "listBodySecondaryContent":{
-        "fontSize": 12,
-        "color": Palette.consentGray
-      },
-      "unexpandedListCard": {
-        "width": "100%",
-        "flexDirection": "column"
-      },
-      "unexpandedListCardCopy":{
-        "fontSize": 12,
-        "color": Palette.consentGrayDark
-      }
-    }
-
     const { expanded, listCardHeading, listCardPrimaryDetail, listCardSecondaryDetails } = this.props
 
     if(!expanded)
@@ -102,14 +45,14 @@ const LcContactDetail = React.createClass({
       )
     else
       return (
-      
+
         <View style={styles.listCard}>
           <View style={styles.listImageContainer}>
-            
-          
+
+
            { this.mobileIcon(listCardHeading) }
-          
-             
+
+
           </View>
           <View style={styles.listBody}>
             <Text style={styles.listBodySubtitle}> {listCardHeading} </Text>
@@ -122,6 +65,63 @@ const LcContactDetail = React.createClass({
 
       )
   }
-})
+}
+
+LcContactDetail.propTypes = {
+  "expanded": PropTypes.bool,
+  "listCardHeading": PropTypes.string,
+  "listCardPrimaryDetail": PropTypes.string,
+  "listCardSecondaryDetails": PropTypes.array,
+  "listImageUrl": PropTypes.string
+}
+
+const styles = {
+  "listCard":{
+    "width": "100%",
+    "flexDirection": "row"
+  },
+  "listImageContainer":{
+    "flex": 1,
+    "marginRight": Design.paddingRight,
+    "justifyContent": "flex-start",
+    "alignItems": "center"
+  },
+  "listImage":{
+    "width": "100%",
+    "justifyContent": "center",
+    "alignItems": "center",
+    "backgroundColor": Palette.consentGrayMedium
+  },
+  "listBody":{
+    "flex": 18,
+    "justifyContent": "space-around",
+    "paddingTop": 5,
+    "paddingBottom": 5,
+  },
+  "listBodyTitle":{
+    "fontSize": 16,
+    "color": Palette.consentGrayDark
+  },
+  "listBodySubtitle":{
+    "fontSize": 10,
+    "color": Palette.consentGrayMedium
+  },
+  "listBodyPrimaryContent":{
+    "fontSize": 25,
+    "color": Palette.consentGray
+  },
+  "listBodySecondaryContent":{
+    "fontSize": 12,
+    "color": Palette.consentGray
+  },
+  "unexpandedListCard": {
+    "width": "100%",
+    "flexDirection": "column"
+  },
+  "unexpandedListCardCopy":{
+    "fontSize": 12,
+    "color": Palette.consentGrayDark
+  }
+}
 
 export default LcContactDetail

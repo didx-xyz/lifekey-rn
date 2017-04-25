@@ -6,43 +6,17 @@
  */
 
 // external dependencies
-import React from "react"
+import React, { Component } from "react"
 import { Text, View } from "react-native"
-const { bool, string } = React.PropTypes
+import PropTypes from "prop-types"
 
 // internal dependencies
 import Design from "../DesignParameters"
 import Palette from "../Palette"
 
-const LcHomeAddress = React.createClass({
-  
-  "propTypes" : {
-    "expanded": bool,
-    "address": string
-  },
+class LcHomeAddress extends Component {
+
   render () {
-    
-    const styles = {
-      "addressImage": {
-        "flex": 1,
-        "width": "100%",
-        "flexDirection": "row",
-        "height": 150,
-        "justifyContent": "center",
-        "alignItems": "center",
-        "marginRight": -15,
-        "marginLeft": -15,
-        "backgroundColor": Palette.consentGrayLight
-      },
-      "unexpandedListCard": {
-        "width": "100%",
-        "flexDirection": "column"
-      },
-      "unexpandedListCardCopy":{
-        "fontSize": 12,
-        "color": Palette.consentGrayDark
-      }
-    }
 
     const { expanded, address } = this.props
 
@@ -62,5 +36,32 @@ const LcHomeAddress = React.createClass({
       )
   }
 })
+
+LcHomeAddress.propTypes = {
+  "expanded": PropTypes.bool,
+  "address": PropTypes.string
+}
+
+const styles = {
+  "addressImage": {
+    "flex": 1,
+    "width": "100%",
+    "flexDirection": "row",
+    "height": 150,
+    "justifyContent": "center",
+    "alignItems": "center",
+    "marginRight": -15,
+    "marginLeft": -15,
+    "backgroundColor": Palette.consentGrayLight
+  },
+  "unexpandedListCard": {
+    "width": "100%",
+    "flexDirection": "column"
+  },
+  "unexpandedListCardCopy":{
+    "fontSize": 12,
+    "color": Palette.consentGrayDark
+  }
+}
 
 export default LcHomeAddress
