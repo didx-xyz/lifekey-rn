@@ -23,7 +23,9 @@ export default {
   // First scene to show
   initialRouteFromConfig: false, // Must be true to use route below
   initialRoute: Routes.onboarding.splashScreen,
-
+  suggestedConnections: [
+    { did: '7dc1ddd0c7452a96968d9604bee07edb60251efff189f841662ed4643797e1bc', display_name: 'Woolworths' }
+  ],
   // Allow requests from whitelisted user (testing on iOS, without login)
   useWhitelistedUser: false,
   whitelistedUserId: 2,
