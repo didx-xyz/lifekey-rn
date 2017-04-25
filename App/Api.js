@@ -1,6 +1,7 @@
 // internal dependencies
 import Config from "./Config"
 import Crypto from "./Crypto"
+import Session from "./Session"
 import Logger from "./Logger"
 import ConsentUser from "./Models/ConsentUser"
 import ConsentError, { ErrorCode } from "./ConsentError"
@@ -120,8 +121,9 @@ export default class Api {
       'target'
     ]
     if (checkParameters(requiredFields, data)) {
+      const userDID = Session.getState().user.did
       return request('/management/connection', {
-        body: JSON.stringify({ target: data.target }),
+        body: JSON.stringify({ target: data.target, from_did: userDID }),
         method: 'POST'
       })
     } else {
@@ -258,7 +260,7 @@ export default class Api {
       'user_id'
     ]
     if (checkParameters(requiredFields, data)) {
-      return request(`/management/qr/${data.user_id}`, {
+      return request(`/qr/${data.user_id}`, {
         method: 'GET'
       })
     } else {
