@@ -13,7 +13,7 @@ class DebugAsyncStorage extends Component {
     super(props)
     this.keys = [
       'user',
-      'connection',
+      'connections',
       'discovered_users'
     ]
 
