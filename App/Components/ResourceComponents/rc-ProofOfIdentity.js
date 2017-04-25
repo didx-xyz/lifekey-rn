@@ -7,7 +7,7 @@ import LifekeyCard from "../LifekeyCard"
 import LcImageDocument from "../lc-ImageDocument"
 
 
-class rcProofOfEmployment extends Component {
+class rcProofOfIdentity extends Component {
 
   constructor(props) {
     super(props)
@@ -27,7 +27,7 @@ class rcProofOfEmployment extends Component {
         { resourceType.items.map((resource, i) => { 
           return (
             <LifekeyCard key={i} headingText={resourceType.name} onPressEdit={() => onPressEdit(resource.form, resource.id)} onPressDelete={() => onPressDelete(resource.id)} >
-              <LcImageDocument title={"Proof Of Employment"} documentIdentifier={"proofOfEmployment"} {...resource} expanded={ false }/>
+              <LcImageDocument title={"Proof Of Identity"} documentIdentifier={"proofOfIdentity"} {...resource} expanded={ false }/>
             </LifekeyCard>
           )
         })}
@@ -36,4 +36,4 @@ class rcProofOfEmployment extends Component {
   }
 }
 
-export default rcProofOfEmployment
+export default rcProofOfIdentity

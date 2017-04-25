@@ -18,7 +18,7 @@ class LcImageDocument extends Component {
   render() {
 
     const { expanded, title, documentIdentifier } = this.props
-    const documentUri = this.props[documentIdentifier]
+    const documentUri = `data:image/jpg;base64,${this.props[documentIdentifier]}`
     
     if(expanded)
       return (
@@ -29,7 +29,6 @@ class LcImageDocument extends Component {
     else
       return (
         <View>
-          { /* <LcSummary summary={`${position} at ${company}`}></LcSummary> */ }
           <Text>{title}</Text>
         </View>
       )

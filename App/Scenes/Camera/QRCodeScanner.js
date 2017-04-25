@@ -74,6 +74,30 @@ export default class QRCodeScanner extends Scene {
     )
   }
 
+  // connect(data) {
+  //   this.navigator.push({
+  //     ...Routes.connection,
+  //     did: data.data,
+  //     display_name: null // can either be in QR code or fetched http
+  //   })
+  // }
+
+  // _onBarCodeRead(data) {
+  //   // alert(JSON.stringify(data))
+  //   if (this.scannerActive) {
+  //     this.scannerActive = false
+  //     this.connect(data)
+  //   }
+  // }
+
+  faceMatch(data) {
+
+    this.navigator.push({
+      ...Routes.faceMatch,
+      url: data.data
+    })
+  }
+
   connect(data) {
     this.navigator.push({
       ...Routes.connection,
@@ -83,10 +107,19 @@ export default class QRCodeScanner extends Scene {
   }
 
   _onBarCodeRead(data) {
-    // alert(JSON.stringify(data))
+
+    console.log("DATA: ", data)
+    console.log("DATA JSON: ", JSON.stringify(data))
+
     if (this.scannerActive) {
       this.scannerActive = false
-      this.connect(data)
+
+      const dest = data.data.indexOf('facial-verification')
+
+      if(dest > -1)
+        this.faceMatch(data)
+      else
+        this.connect(data)
     }
   }
 

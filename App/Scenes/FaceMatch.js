@@ -2,6 +2,7 @@
 import React from "react"
 import { Text, View, Image } from "react-native"
 import { Container } from "native-base"
+import Routes from '../Routes'
 
 // internal dependencies
 import Api from '../Api'
@@ -45,14 +46,35 @@ class FaceMatch extends Scene {
     alert("unsure")
   }
 
+  async onResultGiven(result){
+    const response = await Api.facialVerificationResult(this.state.userDid, this.state.userToken, result)
+    if(response.status === 200)
+      this.navigator.replace({
+        ...Routes.me
+      })
+  }
+
   async loadImage() {
     try{
-      const userdid = ConsentUser.getDidSync()
-      const response = await Api.facialVerificationQrScanResponse(userdid)
+
+      alert(this.props.route.url)
+
+      const urlPieces = this.props.route.url.split("/")
+      const userdid = urlPieces[urlPieces.length - 2]
+      const token = urlPieces[urlPieces.length - 1]
+
+      // alert("USERDID: " + userdid + " | " + "TOKEN: " + token)
+      const response = await Api.facialVerificationQrScanResponse(userdid, token)
       
+      const parsedValue = JSON.parse(response.body.value); 
+      const url = `data:image/jpeg;base64,${parsedValue.identityPhotograph}}`
+      // alert("PIC URL: " + )
+
       this.setState({
         "imageAvailable": true,
-        "imageDataUrl": `data:${response.body.mime};${response.body.encoding},${response.body.value}`
+        "imageDataUrl": url,
+        "userDid": userdid,
+        "userToken": token
       })
       
     }
@@ -82,11 +104,11 @@ class FaceMatch extends Scene {
             <Text style={styles.copyText}>Is this the person who's QR Code you scanned?</Text>
           </View>
           <View style={styles.actions}>
-            <Button affirmative={false} buttonText={"No"} onClick={this.onBoundPressNo} />
-            <Button affirmative={true} buttonText={"Yes"} onClick={this.onBoundPressYes} />
+            <Button affirmative={false} buttonText={"No"} onClick={this.onResultGiven.bind(this, "no")} />
+            <Button affirmative={true} buttonText={"Yes"} onClick={this.onResultGiven.bind(this, "yes")} />
           </View>
           <View style={styles.footer}>
-            <Touchable onPress={this.onBoundPressUnsure}>
+            <Touchable onClick={this.onResultGiven.bind(this, "not sure")}>
               <Text style={styles.footerText}>I'm not sure</Text>
             </Touchable>
           </View>

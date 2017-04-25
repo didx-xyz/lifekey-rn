@@ -355,7 +355,8 @@ export default class Api {
       'entity',
       'attribute',
       'alias',
-      'value'
+      'value',
+      'schema'
     ]
 
     if (checkParameters(requiredFields, data)) {
@@ -514,14 +515,11 @@ export default class Api {
 
   // 15 POST /facial-verfication 
   // User result on QR code verification
-  static facialVerificationQrScanResult(user_did, token, result) {
-    if (checkParameters(requiredFields, data)) {
-      return request(`/facial-verification/${user_did}/${token}?${result}`, { 
-        method: 'POST'
-      })
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+  static facialVerificationResult(user_did, token, result) {
+    return request(`/facial-verification/${user_did}/${token}`, { 
+      method: 'POST',
+      body: JSON.stringify({ result : result })
+    })
   } 
 
   // ##################
