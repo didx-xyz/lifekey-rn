@@ -37,8 +37,6 @@ class Connection extends Scene {
         setTimeout(() => {
           this.setState({
             connecting: false
-          }, () => {
-            alert(`Could not connect to ${this.props.route.display_name}`)
           })
         }, 10000) // Wait max 10 seconds
       })
