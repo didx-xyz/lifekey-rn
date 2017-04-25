@@ -257,10 +257,10 @@ export default class Api {
    // Demo QR code
   static qrCode(data) {
     const requiredFields = [
-      'user_id'
+      'user_did'
     ]
     if (checkParameters(requiredFields, data)) {
-      return request(`/qr/${data.user_id}`, {
+      return request(`/qr/${data.user_did}`, {
         method: 'GET'
       })
     } else {
