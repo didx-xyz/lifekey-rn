@@ -71,10 +71,7 @@ class ConsentConnection {
           to_did: to_did,
           display_name: display_name
         }])
-        return Promise.all([
-          AsyncStorage.setItem(STORAGE_KEY, connectionsItemJSON),
-          ConsentDiscoveredUser.add(user_id, to_did, display_name, colour)
-        ])
+        return AsyncStorage.setItem(STORAGE_KEY, connectionsItemJSON)
       }
 
       // Parse JSON to object
@@ -96,22 +93,7 @@ class ConsentConnection {
           to: parseInt(to_did),
           display_name: display_name
         }))
-        return Promise.all([
-          AsyncStorage.setItem(STORAGE_KEY, updatedConnectionsItem),
-          ConsentDiscoveredUser.add(user_id, to_did, display_name, colour, image_uri)
-        ])
-      }
-    })
-    .then(result => {
-      if (result[0] && result[1]) {
-        return Promise.resolve(true)
-      } else {
-        return Promise.resolve(
-          new ConsentError(
-            `Error updating store ${STORAGE_KEY}`,
-            E_COULD_NOT_SET_ITEM
-          )
-        )
+        return AsyncStorage.setItem(STORAGE_KEY, updatedConnectionsItem)
       }
     })
   }
