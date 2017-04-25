@@ -14,8 +14,7 @@ import _ from 'lodash'
 
 import {
   Text,
-  View,
-  StyleSheet,
+  View
 } from 'react-native'
 
 class LifekeyHeader extends Component {
@@ -27,7 +26,7 @@ class LifekeyHeader extends Component {
   render() {
 
     return (
-        <View style={style.header}>
+        <View style={_.assign({}, style.header, { backgroundColor: this.props.backgroundColor })}>
           { /* TOP SECTION */ }
           <View style={style.navigation}>
 
@@ -50,15 +49,15 @@ class LifekeyHeader extends Component {
             { this.props.tabs.map((tab, i) => {
 
               const tabStyle = tab.active ?
-                _.assign({}, style.tab, { borderBottomWidth: 2, borderColor: Palette.consentBlue })
+                _.assign({}, style.tab, { borderBottomWidth: 2, borderColor: this.props.foregroundHighlightColor })
               :
                 style.tab
 
               const tabTextStyle = tab.active ?
-                _.assign({}, style.tabText, { color: Palette.consentBlue })
+                _.assign({}, style.tabText, { color: this.props.foregroundHighlightColor })
                 :
                   style.tabText
-              console.log(tabTextStyle)
+
               return (
                 <Touchable key={i} onPress={() => tab.onPress()}>
                   <View style={ tabStyle }>
@@ -75,7 +74,7 @@ class LifekeyHeader extends Component {
 
 const style = {
   header: {
-    backgroundColor: "white",
+    // backgroundColor: "white",
     flex: 1
   },
   navigation: {
@@ -112,7 +111,14 @@ const style = {
 
 LifekeyHeader.propTypes = {
   icons: PropTypes.array,
-  tabs: PropTypes.array
+  tabs: PropTypes.array,
+  foregroundHighlightColor: PropTypes.string,
+  backgroundColor: PropTypes.string
 }
 
+LifekeyHeader.defaultProps = {
+  backgroundColor: "white",
+  foregroundHighlightColor: Palette.consentBlue,
+  foregroundColor: "black"
+}
 export default LifekeyHeader
