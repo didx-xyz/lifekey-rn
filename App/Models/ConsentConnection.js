@@ -76,16 +76,17 @@ class ConsentConnection {
 
       // Parse JSON to object
       const connections = JSON.parse(connectionsItem)
-
-      // Check if already connected
-      if (connections.find(connection => connection.to_did === to_did)) {
-        // Connection already exists
-        return Promise.reject(
-          new ConsentError(
-            `Connection ${to_did} already exists`,
-            E_CONNECTION_ALREADY_EXISTS
+      if (connections && connections.to_did) {
+        // Check if already connected
+        if (connections.find(connection => connection.to_did === to_did)) {
+          // Connection already exists
+          return Promise.reject(
+            new ConsentError(
+              `Connection ${to_did} already exists`,
+              E_CONNECTION_ALREADY_EXISTS
+            )
           )
-        )
+        }
       } else {
         // merge new data
         const updatedConnectionsItem = JSON.stringify(connections.concat({
