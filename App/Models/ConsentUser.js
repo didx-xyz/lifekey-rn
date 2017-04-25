@@ -15,6 +15,7 @@ import ConsentConnection from './ConsentConnection'
 import ConsentConnectionRequest from './ConsentConnectionRequest'
 import ConsentDiscoveredUser from './ConsentDiscoveredUser'
 import ConsentError from '../ConsentError'
+import Firebase from 'react-native-firebase'
 
 export const E_MUST_BE_REGISTERED = 0x01
 export const E_INCORRECT_PASSWORD_FOR_KEYSTORE = 0x02
@@ -160,23 +161,37 @@ export default class ConsentUser {
    */
   static getToken() {
     return AsyncStorage.getItem(STORAGE_KEY)
-    .then(userJSON => {
-      if (userJSON) {
-        const user = JSON.parse(userJSON)
-        if (!user || !user.firebaseToken) {
-          return Promise.resolve(
-            new ConsentError(
+      .then(json => {
+        if (json !== null) {
+          const user = JSON.parse(json)
+
+          if (user && user.firebaseToken) {
+            return Promise.resolve(user.firebaseToken)
+          }
+        }
+
+        let token = null
+        const firebase = new Firebase()
+
+        return firebase.messaging().getToken()
+          .then(_token => {
+            token = _token
+
+            return AsyncStorage.setItem(
+              STORAGE_KEY,
+              JSON.stringify({ firebaseToken: token })
+            )
+          })
+          .then(_ => {
+            return Promise.resolve(token)
+          })
+          .catch(e => {
+            throw new ConsentError(
               'No firebase token available',
               E_NO_FIREBASE_TOKEN
             )
-          )
-        } else {
-          return Promise.resolve(user.firebaseToken)
-        }
-      } else {
-        return Promise.resolve(null)
-      }
-    })
+          })
+      })
   }
 
   /**

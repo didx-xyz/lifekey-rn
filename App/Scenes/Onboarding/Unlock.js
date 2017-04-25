@@ -86,7 +86,11 @@ class Unlocked extends Scene {
   }
 
   onPressForgot(event) {
-    alert('forgot')
+    if (Config.DEBUG) {
+      this.navigator.push(Routes.debug.main)
+    } else {
+      alert('That\'s unlucky')
+    }
 
     event.preventDefault()
     event.stopPropagation()
@@ -172,18 +176,6 @@ class Unlocked extends Scene {
                     onChangeText={(text) => this.onChangeText(text)}
                     style={style.input}
                   />
-                {/*
-                <Nachos.Input
-                    ref="input" // ERROR SOURCE
-                    autoFocus={true}
-                    returnKeyType="done"
-                    keyboardType="numeric"
-                    value={this.state.characters}
-                    onChangeText={(text) => this.onChangeText(text)}
-                    style={style.input}
-                  />
-                */}
-
                 </View>
               </Row>
             </Col>

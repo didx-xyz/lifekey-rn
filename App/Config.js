@@ -22,7 +22,8 @@ export default {
 
   // First scene to show
   initialRouteFromConfig: false, // Must be true to use route below
-  initialRoute: Routes.me,
+
+  initialRoute: Routes.onboarding.splashScreen,
 
   // Allow requests from whitelisted user (testing on iOS, without login)
   useWhitelistedUser: false,
@@ -32,13 +33,20 @@ export default {
 
   // Debug
   DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
-  debugNetwork: false,         // Log API requests and responses
-  debugReact: true,           // Log the React Lifecycle events
+
+  debugNetwork: true,         // Log API requests and responses
+  debugReact: false,          // Log the React Lifecycle events
+
   debugNavigator: false,      // Log the current stack of Navigator routes
-  debugFirebase: false,        // Log Firebase events
+  debugFirebase: true,        // Log Firebase events
   debugAsyncStorage: false,
   debugAutoLogin: false,
   debugAutoLoginPassword: '99999',
+
+  hardcodedSuggestedConnections: false,
+  suggestedConnections: [
+    { did: 'ade95e3f8014c3eb4067ce82b185b42b7b50edd8493748808a7e73fe86f7338e', display_name: 'Testing'}
+  ],
 
   version: NPM_PACKAGE.version, // App version
 

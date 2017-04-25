@@ -12,7 +12,8 @@
     "clear_packager_cache": "rm -rf $TMPDIR/react-native-packager-cache-*; rm -rf $TMPDIR/haste-map-react-native-packager-*",
     "build_rn_android_docs": "./bin/build_rn_android_docs",
     "log_android_clean": "./bin/log_android_clean",
-    "shake_android_all": "./bin/shake_android_all"
+    "shake_android_all": "./bin/shake_android_all",
+    "reinstall_complete": "./bin/reinstall_complete"
   },
   "dependencies": {
     "ansi-styles": "^2.2.1",
@@ -31,6 +32,7 @@
     "react-native-cli": "^2.0.1",
     "react-native-datepicker": "^1.4.7",
     "react-native-dialogs": "0.0.19",
+    "react-native-firebase": "^1.0.0-alpha12",
     "react-native-google-analytics-bridge": "^5.0.0",
     "react-native-image-picker": "^0.26.3",
     "react-native-modal-picker": "0.0.16",
