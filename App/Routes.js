@@ -12,6 +12,7 @@ import DebugRegister from './Scenes/Debug/DebugRegister'
 import DebugConfiguration from './Scenes/Debug/DebugConfiguration'
 import DebugConnectionRequest from './Scenes/Debug/DebugConnectionRequest'
 import DebugAsyncStorage from './Scenes/Debug/DebugAsyncStorage'
+import DebugSvg from './Scenes/Debug/DebugSvg'
 
 // Main
 import Main from './Scenes/Main'
@@ -75,6 +76,7 @@ export default {
     register: { scene: DebugRegister },
     configuration: { scene: DebugConfiguration },
     connectionRequest: { scene: DebugConnectionRequest },
-    asyncStorage: { scene: DebugAsyncStorage }
+    asyncStorage: { scene: DebugAsyncStorage },
+    svg: { scene: DebugSvg }
   }
 }

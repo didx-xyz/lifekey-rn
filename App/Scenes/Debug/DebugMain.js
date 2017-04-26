@@ -100,6 +100,10 @@ export default class DebugMain extends Scene {
               onPress={() => this.navigator.push(Routes.debug.asyncStorage)}
             />
 
+            <DebugButton text="SVG Icons" iconName="ios-images"
+              onPress={() => this.navigator.push(Routes.debug.svg)}
+            />
+
           </View>
 
           { /* Logged in only */ }
