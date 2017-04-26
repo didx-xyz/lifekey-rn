@@ -521,9 +521,7 @@ export default class Api {
   }
 
   static getActiveBots() {
-    const route = 'http://port8181.dev.cnsnt.io/active.php'
-    Logger.networkRequest('GET', route)
-    return fetch(route, {
+    return request('/directory', {
       method: 'GET'
     })
   }
