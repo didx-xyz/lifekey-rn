@@ -168,12 +168,7 @@ class ConnectionDetails extends Scene {
         <ScrollView style={styles.messages}>
           <View style={styles.message}>
             <Text style={styles.messageText}>
-              Hi {this.state.current_user_display_name}. Thank you for
-              connecting with {this.state.display_name}. If you are an
-              existing customer, we invite you to
-              confirm your details
-              and save this information to your
-              personal data.
+              Hi {this.state.current_user_display_name}. Thank you for connecting with {this.state.display_name}. Please select an action from the options below to continue.
             </Text>
             <Text style={styles.messageTime}>
               2 mins
