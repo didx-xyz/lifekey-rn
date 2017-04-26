@@ -27,10 +27,10 @@ class ISACard extends Component {
                 <Text>{'> '}</Text>
               </Touchable>
             </View>
-            <View style={{ paddingLeft: Design.paddingLeft }}>
+            <View style={{ paddingLeft: 5 }}>
               {this.props.shared.map((share, i) => {
                 return (
-                  <Text style={{ color: Palette.consentGrayDarkest }} key={i}>{share}</Text>
+                  <Text style={{ color: Palette.consentGrayDarkest }} key={i}>{'• ' + share}</Text>
                 )
               })}
             </View>
