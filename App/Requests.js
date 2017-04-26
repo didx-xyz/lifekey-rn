@@ -65,7 +65,7 @@ const signedRequest = function(url, opts) {
 }
 
 const rejectionWithError = function(message) {
-  return Promise.reject(new ConsentError(message))
+  return Promise.reject(new Error(message))
 }
 
 const wrappedFetch = function(url, options) {
@@ -78,19 +78,17 @@ const onResponse = function(response) {
 
   switch (parseInt(response.status, 10)) {
     case 502:
-      Logger.error("502 Bad gateway", "Api.js", response)
+      Logger.warn("502 Bad gateway", "Api.js", response)
       return rejectionWithError("502 Bad Gateway from server")
     case 500:
-      Logger.error("500 Internal server error", "Api.js", response)
+      Logger.warn("500 Internal server error", "Api.js", response)
       return rejectionWithError("Internal server error")
     case 400:
-      Logger.error("400 Bad request", "Api.js", response)
+      Logger.warn("400 Bad request", "Api.js", response)
       return rejectionWithError(JSON.parse(response._bodyText))
     case 201:
-      Logger.info("201 Created", "Api.js", response)
       return response.json()
     case 200:
-      Logger.info("200 Okay", "Api.js", response)
       return response.json()
   }
 
