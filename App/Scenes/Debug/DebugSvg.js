@@ -12,8 +12,8 @@ import HexagonDots from '../../Components/HexagonDots'
 import HelpIcon from '../../Components/HelpIcon'
 import ForwardIcon from '../../Components/ForwardIcon'
 import EnvelopeIcon from '../../Components/EnvelopeIcon'
-import Dots from '../../Components/Dots'
 import BackIcon from '../../Components/BackIcon'
+import Dots from '../../Components/Dots'
 
 import * as Base from 'native-base'
 
@@ -34,12 +34,9 @@ class DebugSvg extends Component {
             <HexagonDots current={4}/>
             <HelpIcon width={50} height={50}/>
             <ForwardIcon width={50} height={50}/>
-            { /*
             <EnvelopeIcon width={50} height={50}/>
-            <Dots width={50} height={50}/>
             <BackIcon width={50} height={50}/>
-            */}
-
+            <Dots max={5}/>
           </View>
         </Base.Content>
       </Base.Container>
