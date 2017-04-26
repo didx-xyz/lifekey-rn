@@ -7,6 +7,7 @@ import Touchable from './Touchable'
 import Design from '../DesignParameters'
 import Palette from '../Palette'
 import PropTypes from 'prop-types'
+import ForwardIcon from '../Components/ForwardIcon'
 
 class ISACard extends Component {
 
@@ -24,7 +25,7 @@ class ISACard extends Component {
                 {this.props.title}
               </Text>
               <Touchable>
-                <Text>{'> '}</Text>
+                <ForwardIcon width={16} height={16}/>
               </Touchable>
             </View>
             <View style={{ paddingLeft: 5 }}>
@@ -55,7 +56,7 @@ class ISACard extends Component {
               <Text style={styles.date}>DATE</Text>
               <Text style={{ color: Palette.consentGrayDarkest }}>{this.props.date}</Text>
             </View>
-            <View style={{ flex: 1, flexDirection: 'row' }}>
+            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
               <Text style={styles.expires}>EXPIRES</Text>
               <Text style={{ color: Palette.consentGrayDarkest }}>{this.props.expires}</Text>
             </View>
@@ -80,7 +81,10 @@ const styles = {
     flex: 1,
     flexDirection: 'column',
     backgroundColor: 'white',
-    padding: 14,
+    paddingTop: 14,
+    paddingBottom: 14,
+    paddingRight: 18,
+    paddingLeft: 18,
     borderRadius: Design.borderRadius,
     marginBottom: 20
   },
@@ -88,6 +92,7 @@ const styles = {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingTop: 5,
     paddingBottom: 5,
     borderBottomWidth: 1,
@@ -125,7 +130,8 @@ const styles = {
   term: {
     paddingLeft: 4,
     paddingRight: 4,
-    flexDirection: 'row'
+    flexDirection: 'row',
+    alignItems: 'center'
   },
   termsLabelText: {
     fontSize: 12,
@@ -142,6 +148,7 @@ const styles = {
     flex: 1,
     flexDirection: 'row',
     justifyContent: 'space-between',
+    alignItems: 'center',
     paddingBottom: 5
   }
 
