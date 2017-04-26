@@ -12,6 +12,8 @@ import DebugRegister from './Scenes/Debug/DebugRegister'
 import DebugConfiguration from './Scenes/Debug/DebugConfiguration'
 import DebugConnectionRequest from './Scenes/Debug/DebugConnectionRequest'
 import DebugAsyncStorage from './Scenes/Debug/DebugAsyncStorage'
+import DebugCreateIsa from './Scenes/Debug/DebugCreateIsa'
+import DebugListIsas from './Scenes/Debug/DebugListIsas'
 
 // Main
 import Main from './Scenes/Main'
@@ -75,6 +77,8 @@ export default {
     register: { scene: DebugRegister },
     configuration: { scene: DebugConfiguration },
     connectionRequest: { scene: DebugConnectionRequest },
-    asyncStorage: { scene: DebugAsyncStorage }
+    asyncStorage: { scene: DebugAsyncStorage },
+    createIsa: { scene: DebugCreateIsa },
+    listIsas: { scene: DebugListIsas }
   }
 }

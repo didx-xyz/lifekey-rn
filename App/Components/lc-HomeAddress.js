@@ -6,9 +6,15 @@
  */
 
 // external dependencies
+<<<<<<< HEAD
 import React, { Component } from 'react'
 import { Text, View, Image } from "react-native"
 const { bool, string } = React.PropTypes
+=======
+import React, { Component } from "react"
+import { Text, View } from "react-native"
+import PropTypes from "prop-types"
+>>>>>>> dev
 
 // internal dependencies
 import Design from "../DesignParameters"
@@ -16,6 +22,7 @@ import Palette from "../Palette"
 import RcItemDetail from "./ResourceComponents/rc-DetailView"
 
 class LcHomeAddress extends Component {
+<<<<<<< HEAD
   
   "propTypes" : {
     "expanded": bool,
@@ -26,6 +33,8 @@ class LcHomeAddress extends Component {
     "postOfficeBoxNumber": string,
     "postalCode": string
   } 
+=======
+>>>>>>> dev
 
   render () {
 
@@ -86,6 +95,33 @@ const styles = {
   },
   "imageText": {
     "color": "white"
+  },
+  "unexpandedListCard": {
+    "width": "100%",
+    "flexDirection": "column"
+  },
+  "unexpandedListCardCopy":{
+    "fontSize": 12,
+    "color": Palette.consentGrayDark
+  }
+}
+
+LcHomeAddress.propTypes = {
+  "expanded": PropTypes.bool,
+  "address": PropTypes.string
+}
+
+const styles = {
+  "addressImage": {
+    "flex": 1,
+    "width": "100%",
+    "flexDirection": "row",
+    "height": 150,
+    "justifyContent": "center",
+    "alignItems": "center",
+    "marginRight": -15,
+    "marginLeft": -15,
+    "backgroundColor": Palette.consentGrayLight
   },
   "unexpandedListCard": {
     "width": "100%",

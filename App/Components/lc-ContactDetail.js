@@ -6,9 +6,9 @@
  */
 
 // external dependencies
-import React, { Component } from 'react'
+import React, { Component } from "react"
 import { Text, View } from "react-native"
-const { bool, array, string } = React.PropTypes
+import PropTypes from "prop-types"
 
 // internal dependencies
 import RcItemDetail from "./ResourceComponents/rc-DetailView"
@@ -23,14 +23,6 @@ class LcContactDetail extends Component {
   constructor(props) {
     super(props)
   }
-
-  "propTypes" : {
-    "expanded": bool,
-    "listCardHeading": string,
-    "listCardPrimaryDetail": string,
-    "listCardSecondaryDetails": array,
-    "listImageUrl": string
-  } 
 
   mobileIcon (listCardHeading) {
     switch (listCardHeading) {
@@ -49,6 +41,7 @@ class LcContactDetail extends Component {
   }
 
   render () {
+    
     const { expanded, listCardHeading, listCardPrimaryDetail, listCardSecondaryDetails } = this.props
 
     if(expanded)
@@ -73,6 +66,14 @@ class LcContactDetail extends Component {
         </View>
       )
   }
+}
+
+LcContactDetail.propTypes = {
+  "expanded": PropTypes.bool,
+  "listCardHeading": PropTypes.string,
+  "listCardPrimaryDetail": PropTypes.string,
+  "listCardSecondaryDetails": PropTypes.array,
+  "listImageUrl": PropTypes.string
 }
 
 const styles = {

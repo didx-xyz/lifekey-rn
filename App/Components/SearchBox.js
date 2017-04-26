@@ -43,9 +43,6 @@ class SearchBox extends Component {
   }
 }
 
-export default SearchBox
-
-
 const style = {
   searchBox: {
     flex: 1,
@@ -78,5 +75,7 @@ const style = {
     paddingRight: 10,
     borderTopLeftRadius: 0,
     borderBottomLeftRadius: 0
-  },
+  }
 }
+
+export default SearchBox

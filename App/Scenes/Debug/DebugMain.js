@@ -100,6 +100,14 @@ export default class DebugMain extends Scene {
               onPress={() => this.navigator.push(Routes.debug.asyncStorage)}
             />
 
+          <DebugButton text="Create ISA" iconName="md-contact"
+              onPress={() => this.navigator.push(Routes.debug.createIsa)}
+            />
+
+          <DebugButton text="List ISAs" iconName="md-contact"
+              onPress={() => this.navigator.push(Routes.debug.listIsas)}
+            />
+
           </View>
 
           { /* Logged in only */ }
