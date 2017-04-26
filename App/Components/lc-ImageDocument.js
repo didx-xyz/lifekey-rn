@@ -41,14 +41,15 @@ const styles = {
     "flexDirection": "column"
   },
   "imageContainer":{
+    "flex": 1,
     "backgroundColor": Palette.consentGrayDark,
     "width": "100%",
     "justifyContent": "center",
     "alignItems": "center"
   },
   "image": {
-    "width": 50,
-    "height": 50,
+    "width": "100%",
+    "height": 400,
     "resizeMode": "cover",
   }
 }

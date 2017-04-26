@@ -34,18 +34,6 @@ class FaceMatch extends Scene {
     this.loadImage()
   }
 
-  onPressYes() {
-    alert("yes")
-  }
-
-  onPressNo() {
-    alert("no")
-  }
-
-  onPressUnsure() {
-    alert("unsure")
-  }
-
   async onResultGiven(result){
     const response = await Api.facialVerificationResult(this.state.userDid, this.state.userToken, result)
     if(response.status === 200)
@@ -57,18 +45,14 @@ class FaceMatch extends Scene {
   async loadImage() {
     try{
 
-      alert(this.props.route.url)
-
       const urlPieces = this.props.route.url.split("/")
       const userdid = urlPieces[urlPieces.length - 2]
       const token = urlPieces[urlPieces.length - 1]
 
-      // alert("USERDID: " + userdid + " | " + "TOKEN: " + token)
       const response = await Api.facialVerificationQrScanResponse(userdid, token)
       
       const parsedValue = JSON.parse(response.body.value); 
       const url = `data:image/jpeg;base64,${parsedValue.identityPhotograph}}`
-      // alert("PIC URL: " + )
 
       this.setState({
         "imageAvailable": true,

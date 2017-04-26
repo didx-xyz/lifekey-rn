@@ -28,16 +28,6 @@ import LifekeyCard from "../../Components/LifekeyCard"
 
 class Badges extends Component  {
 
-  constructor(...params) {
-    super(...params)
-  }
-
-  componentWillReceiveProps(newProps){
-    super.componentWillReceiveProps()
-
-    // Will do map on props here
-  }
-
   render() {
    
     return (
@@ -48,19 +38,19 @@ class Badges extends Component  {
                 return (
                     <View key={i} style={styles.badge}>
                       <View style={styles.badgeImage}>
-                        <Text>+</Text>
+                        <Image style={{"width" : "100%", "height": "100%"}} source={b.image} />
                       </View>
                       <View style={styles.badgeContent}>
                         <View style={styles.badgeName}>
                           
-                            <Text style={styles.badgeNameText}>{b.label}</Text>
+                            <Text style={styles.badgeNameText}>{b.name}</Text>
                           
                         </View>
-                        <View style={styles.badgeDescription}>
+                        { /* <View style={styles.badgeDescription}>
                           <Text style={styles.badgeDescriptionText}>
                             Complete RICA documentation with verification from Absa Bank.
-                          </Text>
-                        </View>
+                          </Text> 
+                        </View> */ }
                       </View>
                     </View>
                 )
@@ -69,7 +59,7 @@ class Badges extends Component  {
             
           </View>
         :
-          null
+          <Text>NO BADGES YET</Text>
       )
   }
 }
@@ -80,14 +70,15 @@ const styles = {
     "flex": 1,
     "backgroundColor": Palette.consentGrayLightest,
     "alignItems": "center",
-    "justifyContent": "center",
+    "justifyContent": "flex-start",
     "paddingRight": Design.paddingRight,
     "paddingLeft": Design.paddingLeft,
   },
   "badge": {
     "flex": 1,
-    "maxHeight": 150,
     "flexDirection": "row",
+    "justifyContent": "center",
+    "maxHeight": 75,
     "margin": 15,
     "marginBottom": 0,
     "paddingBottom": 15,
@@ -95,16 +86,19 @@ const styles = {
     "borderBottomColor": "#ddd"
   },
   "badgeImage": {
-    "width": 80,
+    "flex": 1,
+    "width": 25,
+    "height": 50,
     "justifyContent": "center",
     "alignItems": "center"
   },
   "badgeContent": {
-    "flex": 1,
+    "flex": 4,
     "flexDirection": "column"
   },
   "badgeName": {
-    "flex": 1
+    "flex": 1,
+    "paddingLeft": 20
   },
   "badgeNameText": {
     "fontWeight": "bold",

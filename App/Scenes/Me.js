@@ -33,8 +33,10 @@ class Me extends Scene {
     this.state = {
       activeTab: MY_DATA,
       tabName: "My Data",
-      resources: {},
+      resources: [],
       resourceTypes: [],
+      sortedResourceTypes: [],
+      sortedBadges: [],
       informationSource: "MY CODE"
     }
 
@@ -43,81 +45,124 @@ class Me extends Scene {
   }
 
   componentDidMount() {
-    super.componentDidMount()   
+    super.componentDidMount()
 
     Promise.all([
-      this.onClearCache(),
-      Api.allResourceTypes()
-    ]).then(values => { 
-      this.onBoundResourceTypes(values[1])
-      this.sortMyData(this.state.resources, this.state.resourceTypes)
+      Api.allResourceTypes(),
+      Api.allResources()
+    ]).then(values => {
+      this.onBoundResourceTypes(values[0], () => {
+        this.onBoundResources(values[1])
+      })
     }).catch(error => {
       Logger.error(error)
-    });
+    })
   }
 
   componentWillFocus() {
     super.componentWillFocus()
-    this.onClearCache()
-  }
 
-  onClearCache() {
-    if (this.context.getShouldClearResourceCache()) {
-      this.setState({
-        "resources": {}
-      })  
-      return Api.allResources()
-                .then(this.onBoundResources)
-                .catch(e => alert("All RESOURCES ERROR: " + e))
-    }
-    return Promise.resolve()
-  }
-
-  sortMyData(resources, resourceTypes){
-
-    resourceTypes.push({ name: 'Malformed', url: null, items: [] })
-    resourceTypes.map(rt => {
-      rt.items = []
-      resources.forEach(r => {
-        if(`${rt.url}_form` === r.form){
-          rt.items.push(r)
-        }
-      })
-      return rt
-    })
-
-    this.setState({
-      "myData": resourceTypes
+    Promise.all([
+      Api.allResources()
+    ]).then(values => {
+      this.onBoundResources(values[0])
+    }).catch(error => {
+      Logger.error(error)
     })
   }
 
-  onResourceTypes(data) {
+  onResourceTypes(data, then) {
     if (!data.resources) {
       console.warn("resource list format changed")
     }
 
     this.setState({
       resourceTypes: data.resources
-    })
+    }, then)
   }
 
   onResources(data) {
-
-    const updatedResources = data.body.map((item) => {
+    const updatedResources = data.body.map(resource => {
       return {
-        id: item.id,
-        alias: item.alias,
-        ...JSON.parse(item.value)
+        id: resource.id,
+        alias: resource.alias,
+        ...JSON.parse(resource.value)
       }
     })
 
-    if(this.state.resourceTypes && this.state.resourceTypes.length)
-      this.sortMyData(updatedResources, this.state.resourceTypes)
+    if (this.state.resourceTypes && this.state.resourceTypes.length) {
+      this.sortChildData(updatedResources, this.state.resourceTypes)
+    }  
     
     this.setState({
       resources: updatedResources
     })
-    
+  }
+
+  sortChildData(resources, resourceTypes){
+    this.sortBadges(resources)
+    this.sortMyData(resources, this.state.resourceTypes)
+  }
+
+  sortBadges(resources){
+
+    var badges = Object.values(resources).map((v, i) => {
+      if (v.form === "http://schema.cnsnt.io/pirate_name_form") {
+        return {
+          "name": "Pirate Name",
+          "description": "Hello ",
+          "image": require('../../App/Images/pirate_name.png')
+        }
+      } else if (v.form === "http://schema.cnsnt.io/edit/verified_identity_form") {
+        return {
+          "name": "Verified Identity",
+          "description": "Hello ",
+          "image": require('../../App/Images/verified_identity.png')
+        }
+      } else if (v.form === "http://schema.cnsnt.io/full_name_form") {
+        return {
+          "name": "Full Name",
+          "description": "Hello ",
+          "image": require('../../App/Images/full_name.png')
+        }
+      } else if (v.form === "http://schema.cnsnt.io/contact_email_form") {
+        return {
+          "name": "Verified Email",
+          "description": "Hello ",
+          "image": require('../../App/Images/contact_email.png')
+        }
+      } else if (v.form === "http://schema.cnsnt.io/contact_mobile_form") {
+        return {
+          "name": "Verified Mobile",
+          "description": "Hello ",
+          "image": require('../../App/Images/contact_mobile.png')
+        }
+      } else {
+        // FIXME
+        return null
+      }
+    })
+    .filter(v => !!v)
+
+    console.log("BADGES: ", badges)
+
+    this.setState({
+      "sortedBadges": badges
+    })
+  }
+
+  sortMyData(resources, resourceTypes) {
+    resourceTypes.push({ name: 'Malformed', url: null, items: [] })
+
+    resourceTypes.map(rt => {
+      rt.items = resources.filter(r => `${rt.url}_form` === r.form)
+
+      return rt
+    })
+
+    this.setState({
+      "sortedResourceTypes": resourceTypes
+    })
   }
 
   onPressDelete(id) {
@@ -125,23 +170,10 @@ class Me extends Scene {
     .catch(error => Logger.error(error))
     // refresh the list
     this.context.onSaveResource()
-    this.onClearCache()
   }
 
   onPressEdit(form, id = null) {
     this.context.onEditResource(form, id)
-  }
-
-  renderTab() {
-    switch (this.state.activeTab) {
-
-    case CONNECT:
-      return <Connect></Connect> 
-    case MY_DATA: 
-      return this.state.myData && <MyData data={this.state.myData} notifyParent={this.onClearCache.bind(this)}></MyData>
-    case BADGES:
-      return <Badges badges={this.state.resources}></Badges>
-    }
   }
 
   render() {
@@ -190,6 +222,18 @@ class Me extends Scene {
 
       </Container>
     )
+  }
+
+  renderTab() {
+    switch (this.state.activeTab) {
+
+    case CONNECT:
+      return <Connect></Connect> 
+    case MY_DATA: 
+      return <MyData sortedResourceTypes={this.state.sortedResourceTypes}></MyData>
+    case BADGES:
+      return <Badges badges={this.state.sortedBadges}></Badges>
+    }
   }
 }
 

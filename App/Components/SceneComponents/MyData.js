@@ -36,23 +36,15 @@ class MyData extends Component {
 
   constructor(...params) {
     super(...params)
-
-    this.state = {
-      "data": this.props.data,
-      "notifyParent": this.props.notifyParent
-    }
   }
-
-  // componentWillReceiveProps(freshProps) {
-  //   console.log("NEW PROPS: ", freshProps)
-  // }
 
   onPressDelete(id) {
     Api.deleteResource({ id })
 
     // refresh the list
     this.context.onSaveResource()
-    this.state.notifyParent()
+
+    Api.clearCached("allResources")
   }
 
   onPressEdit(form, id = null) {
@@ -135,7 +127,6 @@ class MyData extends Component {
 
   Malformed_render(resourceType) {
     if(!this.validResourceType(resourceType)) return
-
     return ( 
       <View>
         { resourceType.items.map((resource, i) => {
@@ -152,17 +143,18 @@ class MyData extends Component {
 
   render() {
 
-  	const person = this.state.data.find(rt => rt.name === "Person"); 
-    const identity = this.state.data.find(rt => rt.name === "Identity"); 
-    const email = this.state.data.find(rt => rt.name === "Email"); 
-    const mobile = this.state.data.find(rt => rt.name === "Mobile Phone"); 
-    const landline = this.state.data.find(rt => rt.name === "Landline"); 
-    const address = this.state.data.find(rt => rt.name === "Address"); 
-    const employment = this.state.data.find(rt => rt.name === "Employment"); 
-    const poIdentity = this.state.data.find(rt => rt.name === "Proof Of Identity"); 
-    const poResidence = this.state.data.find(rt => rt.name === "Proof Of Residence"); 
+    const sortedResourceTypes = this.props.sortedResourceTypes
 
-    const malformed = this.state.data.find(rt => rt.name === "Malformed"); 
+  	const person = sortedResourceTypes.find(rt => rt.name === "Person"); 
+    const identity = sortedResourceTypes.find(rt => rt.name === "Identity"); 
+    const email = sortedResourceTypes.find(rt => rt.name === "Email"); 
+    const mobile = sortedResourceTypes.find(rt => rt.name === "Mobile Phone"); 
+    const landline = sortedResourceTypes.find(rt => rt.name === "Landline"); 
+    const address = sortedResourceTypes.find(rt => rt.name === "Address"); 
+    const employment = sortedResourceTypes.find(rt => rt.name === "Employment"); 
+    const poIdentity = sortedResourceTypes.find(rt => rt.name === "Proof Of Identity"); 
+    const poResidence = sortedResourceTypes.find(rt => rt.name === "Proof Of Residence"); 
+    const malformed = sortedResourceTypes.find(rt => rt.name === "Malformed"); 
 
     return (
     
@@ -199,7 +191,7 @@ class MyData extends Component {
 			{/* Add additional items */}  
 			<View style={styles.addItemContainer}>
 				<View style={styles.addHeadingContainer}><Text style={styles.addHeading}>ADD DATA</Text></View>
-				{this.state.data.map((resourceType, i) => {
+				{this.props.sortedResourceTypes.map((resourceType, i) => {
 				  if(resourceType.name !== "Malformed")
 				    return (
 				      <LcAddCategoryButton  key={i} name={resourceType.name} form={resourceType.url + "_form"} onEditResource={this.context.onEditResource} />
