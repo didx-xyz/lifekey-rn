@@ -29,8 +29,9 @@ import {
   Container,
   Content
 } from "native-base"
-
 import ISACard from '../Components/ISACard'
+import Icon from 'react-native-vector-icons/Ionicons'
+import HexagonIcon from '../Components/HexagonIcon'
 
 const CONNECT = 0
 const ACTIVITY = 1
@@ -137,7 +138,7 @@ class ConnectionDetails extends Scene {
 
             <View style={styles.connectHelpTextWrap}>
               <Text style={{ textAlign: 'center' }}>
-                Invite other people to connect with you by sharing your unique code.
+                Invite other people to connect with {this.state.display_name} by sharing this unique code.
               </Text>
             </View>
 
@@ -152,7 +153,10 @@ class ConnectionDetails extends Scene {
               <View style={{ flex: 2 }}/>
               <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
                 <Touchable onPress={() => alert('todo')}>
-                  <Text style={{ fontSize: 18, marginRight: 20 }}>Share</Text>
+                  <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+                    <Icon name="ios-arrow-round-up" size={30} color="#000"/>
+                    <Text style={{ fontSize: 18, color: 'black', marginRight: 20 }}> Share</Text>
+                  </View>
                 </Touchable>
               </View>
             </View>
@@ -182,6 +186,7 @@ class ConnectionDetails extends Scene {
             <View style={styles.actionList}>
               {this.state.actions.map((action, i) =>
                 <View key={i} style={styles.actionItem}>
+                  <HexagonIcon width={65} height={65} fill={Palette.consentGrayDarkest}/>
                   <Text style={styles.actionItemText}>{action.name}</Text>
                 </View>
               )}
@@ -394,7 +399,8 @@ const styles = {
   actionItem: {
     width: "28%",
     paddingTop: 15,
-    paddingBottom: 15
+    paddingBottom: 15,
+    alignItems: 'center'
   },
   actionItemText: {
     textAlign: "center",
