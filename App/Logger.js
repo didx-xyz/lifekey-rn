@@ -83,7 +83,7 @@ export default class Logger {
    */
   static networkRequest = (method, route, opts = null) => {
     const timestamp = new Date()
-    const prefix = `${ANSI.blue.open}[NETWORK]${ANSI.blue.close}`
+    const prefix = `${ANSI.cyan.open}[HTTP->]${ANSI.cyan.close}`
     const methodColor = `${ANSI.bold.open}${ANSI.green.open}${method}${ANSI.green.close}${ANSI.bold.close}`
     const timestampColor = `${ANSI.gray.open}${ANSI.underline.open}${timestamp}${ANSI.underline.close}${ANSI.gray.close}`
     const routeColor = `${ANSI.white.open}${route}${ANSI.white.close}`
@@ -103,7 +103,7 @@ export default class Logger {
    * @returns {undefined}
    */
   static networkResponse = (status, timestamp, data) => {
-    const prefix = `${ANSI.green.open}[NETWORK]${ANSI.green.close}`
+    const prefix = `${ANSI.green.open}[HTTP<-]${ANSI.green.close}`
 
     const code = [
       { code: 200, color: ANSI.green },
