@@ -28,11 +28,6 @@ import HelpIcon from "../../Components/HelpIcon"
 import LifekeyHeader from "../../Components/LifekeyHeader"
 import LifekeyCard from "../../Components/LifekeyCard"
 
-var person = {
-  mycode: '+',
-  facematch: '-',
-}
-
 class Connect extends Component  {
 
   constructor(...params) {

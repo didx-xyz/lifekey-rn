@@ -43,9 +43,9 @@ class MyData extends Component {
     }
   }
 
-  componentWillReceiveProps(freshProps) {
-    console.log("NEW PROPS: ", freshProps)
-  }
+  // componentWillReceiveProps(freshProps) {
+  //   console.log("NEW PROPS: ", freshProps)
+  // }
 
   onPressDelete(id) {
     Api.deleteResource({ id })

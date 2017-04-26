@@ -20,24 +20,11 @@ import Logger from "../Logger"
 
 import MyData from "../Components/SceneComponents/MyData"
 import Connect from "../Components/SceneComponents/Connect"
+import Badges from "../Components/SceneComponents/Badges"
 
 const CONNECT = 0
 const MY_DATA = 1
 const BADGES = 2
-
-var person = {
-  mycode: '+',
-  facematch: '-',
-}
-
-const CONNECT = 0
-const MY_DATA = 1
-const BADGES = 2
-
-var person = {
-  mycode: '+',
-  facematch: '-',
-}
 
 class Me extends Scene {
   constructor(...params) {
@@ -150,70 +137,10 @@ class Me extends Scene {
 
     case CONNECT:
       return <Connect></Connect> 
-    case MY_DATA: {
+    case MY_DATA: 
       return this.state.myData && <MyData data={this.state.myData} notifyParent={this.onClearCache.bind(this)}></MyData>
-    }
     case BADGES:
-      return (
-        <View style={style.content}>
-          <View style={style.badge}>
-            <View style={style.badgeImage}>
-              {/* badge image here */}
-              <Text>+</Text>
-            </View>
-            <View style={style.badgeContent}>
-              <View style={style.badgeName}>
-                <Text style={style.badgeNameText}>
-                  Absa RICA
-                </Text>
-              </View>
-              <View style={style.badgeDescription}>
-                <Text style={style.badgeDescriptionText}>
-                  Complete RICA documentation with verification from Absa Bank.
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={style.badge}>
-            <View style={style.badgeImage}>
-              {/* badge image here */}
-              <Text>+</Text>
-            </View>
-            <View style={style.badgeContent}>
-              <View style={style.badgeName}>
-                <Text style={style.badgeNameText}>
-                  LifeLock
-                </Text>
-              </View>
-              <View style={style.badgeDescription}>
-                <Text style={style.badgeDescriptionText}>
-                  Get a trust score of 4.5 or higher on the LifeKey platform.
-                </Text>
-              </View>
-            </View>
-          </View>
-
-          <View style={style.badge}>
-            <View style={style.badgeImage}>
-              {/* badge image here */}
-              <Text>+</Text>
-            </View>
-            <View style={style.badgeContent}>
-              <View style={style.badgeName}>
-                <Text style={style.badgeNameText}>
-                  ThisIsMe Verified
-                </Text>
-              </View>
-              <View style={style.badgeDescription}>
-                <Text style={style.badgeDescriptionText}>
-                  Complete all required fields to get a trustworthy verification from ThisIsMe.
-                </Text>
-              </View>
-            </View>
-          </View>
-        </View>
-      )
+      return <Badges badges={this.state.resources}></Badges>
     }
   }
 
@@ -286,38 +213,6 @@ const style = {
     "justifyContent": "center",
     "paddingRight": Design.paddingRight,
     "paddingLeft": Design.paddingLeft,
-  },
-
-  "badge": {
-    "flex": 1,
-    "flexDirection": "row",
-    "margin": 15,
-    "marginBottom": 0,
-    "paddingBottom": 15,
-    "borderBottomWidth": 2,
-    "borderBottomColor": "#ddd"
-  },
-  "badgeImage": {
-    "width": 80,
-    "justifyContent": "center",
-    "alignItems": "center"
-  },
-  "badgeContent": {
-    "flex": 1,
-    "flexDirection": "column"
-  },
-  "badgeName": {
-    "flex": 1
-  },
-  "badgeNameText": {
-    "fontWeight": "bold",
-    "color": "#333"
-  },
-  "badgeDescription": {
-    "flex": 1
-  },
-  "badgeDescriptionText": {
-    "color": "#666"
   },
   "switchButtonContainer":{
     "flex": 2,
