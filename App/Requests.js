@@ -69,7 +69,14 @@ const rejectionWithError = function(message) {
 }
 
 const wrappedFetch = function(url, options) {
+  if (url.indexOf("?") > -1) {
+    url += "&_=" + (new Date()).getTime()
+  } else {
+    url += "?_=" + (new Date()).getTime()
+  }
+
   Logger.networkRequest(options.method, url, options)
+
   return fetch(url, options).then(onResponse)
 }
 

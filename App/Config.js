@@ -21,11 +21,11 @@ export default {
   APP_NAME: APP_NAME,
 
   // First scene to show
-  initialRouteFromConfig: false, // Must be true to use route below
-  initialRoute: Routes.onboarding.splashScreen,
+  initialRouteFromConfig: true, // Must be true to use route below
+  initialRoute: Routes.main,
 
   // Allow requests from whitelisted user (testing on iOS, without login)
-  useWhitelistedUser: false,
+  useWhitelistedUser: true,
   whitelistedUserId: 2,
   whitelistedUserPlain: "example",
   whitelistedUserSigned: "example",
@@ -35,7 +35,7 @@ export default {
   debugNetwork: true,         // Log API requests and responses
   debugReact: false,          // Log the React Lifecycle events
   debugNavigator: false,      // Log the current stack of Navigator routes
-  debugFirebase: true,        // Log Firebase events
+  debugFirebase: false,        // Log Firebase events
   debugAsyncStorage: false,
   debugAutoLogin: false,
   debugAutoLoginPassword: '99999',

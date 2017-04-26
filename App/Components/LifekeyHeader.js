@@ -51,14 +51,12 @@ class LifekeyHeader extends Component {
 
               const tabStyle = tab.active ?
                 _.assign({}, style.tab, { borderBottomWidth: 2, borderColor: Palette.consentBlue })
-              :
-                style.tab
+              : style.tab
 
               const tabTextStyle = tab.active ?
                 _.assign({}, style.tabText, { color: Palette.consentBlue })
-                :
-                  style.tabText
-              console.log(tabTextStyle)
+                : style.tabText
+
               return (
                 <Touchable key={i} onPress={() => tab.onPress()}>
                   <View style={ tabStyle }>

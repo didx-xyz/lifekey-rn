@@ -6,68 +6,24 @@
  */
 
 // external dependencies
-import React from "react"
+import React, { Component } from "react"
 import { Text, View } from "react-native"
-const { bool, string } = React.PropTypes
+import PropTypes from "prop-types"
 
 // internal dependencies
 import Design from "../DesignParameters"
 import Palette from "../Palette"
 
-const LcLegalIdentity = React.createClass({
-  
-  "propTypes" : {
-    "expanded": bool,
-    "fullName": string,
-    "idOrigin": string,
-    "idNumber": string
-  },
-  getInitialState () {
-    return {
+class LcLegalIdentity extends Component {
+  constructor(...params) {
+    super(...params)
+
+    this.state = {
       "expanded": this.props.expanded
     }
-  },
+  }
+
   render () {
-    
-    const styles = {
-      "listCard":{
-        "width": "100%",
-        "flexDirection": "row"
-      },
-      "listImage":{
-        "flex": 1,
-        "marginRight": Design.paddingRight,
-        "justifyContent": "space-around",
-        "alignItems": "center",
-        "backgroundColor": Palette.consentGrayMedium
-      },
-      "listBody":{
-        "flex": 4,
-        "justifyContent": "space-around",  
-        "paddingTop": 5,
-        "paddingBottom": 5, 
-      },
-      "listBodyTitle":{
-        "fontSize": 16,
-        "color": Palette.consentGrayDark
-      },
-      "listBodySubtitle":{
-        "fontSize": 10,
-        "color": Palette.consentGrayMedium
-      },
-      "listBodyContent":{
-        "fontSize": 25,
-        "color": Palette.consentGray
-      },
-      "unexpandedListCard": {
-        "width": "100%",
-        "flexDirection": "column"
-      },
-      "unexpandedListCardCopy":{
-        "fontSize": 12,
-        "color": Palette.consentGrayDark
-      }
-    }
 
     const { expanded, fullName, idOrigin, idNumber } = this.props
 
@@ -94,5 +50,52 @@ const LcLegalIdentity = React.createClass({
       )
   }
 })
+
+LcLegalIdentity.propTypes = {
+  "expanded": PropTypes.bool,
+  "fullName": PropTypes.string,
+  "idOrigin": PropTypes.string,
+  "idNumber": PropTypes.string
+}
+
+const styles = {
+  "listCard":{
+    "width": "100%",
+    "flexDirection": "row"
+  },
+  "listImage":{
+    "flex": 1,
+    "marginRight": Design.paddingRight,
+    "justifyContent": "space-around",
+    "alignItems": "center",
+    "backgroundColor": Palette.consentGrayMedium
+  },
+  "listBody":{
+    "flex": 4,
+    "justifyContent": "space-around",
+    "paddingTop": 5,
+    "paddingBottom": 5,
+  },
+  "listBodyTitle":{
+    "fontSize": 16,
+    "color": Palette.consentGrayDark
+  },
+  "listBodySubtitle":{
+    "fontSize": 10,
+    "color": Palette.consentGrayMedium
+  },
+  "listBodyContent":{
+    "fontSize": 25,
+    "color": Palette.consentGray
+  },
+  "unexpandedListCard": {
+    "width": "100%",
+    "flexDirection": "column"
+  },
+  "unexpandedListCardCopy":{
+    "fontSize": 12,
+    "color": Palette.consentGrayDark
+  }
+}
 
 export default LcLegalIdentity

@@ -4,8 +4,12 @@ import { Text, View, ScrollView } from "react-native"
 import { Container } from "native-base"
 
 // internal dependencies
+import Api from "../Api"
+import Session from "../Session"
+import Routes from "../Routes"
 import BackButton from "../Components/BackButton"
 import HelpIcon from "../Components/HelpIcon"
+import HexagonIcon from "../Components/HexagonIcon"
 import InformationRequestResource from "../Components/InformationRequestResource"
 import LocationIcon from "../Components/LocationIcon"
 import MarketingIcon from "../Components/MarketingIcon"
@@ -17,19 +21,58 @@ class InformationRequest extends Scene {
   constructor(...params) {
     super(...params)
 
+    this.state = {
+      "isa": null,
+      "resources": []
+    }
+
     this.onBoundPressDecline = this.onPressDecline.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
+    this.onBoundPressShare = this.onPressShare.bind(this)
+
+    this.shared = []
+  }
+
+  componentDidMount() {
+    const state = Session.getState()
+
+    console.log("isa", state.currentIsa)
+
+    this.setState({
+      "isa": state.currentIsa
+    })
+
+    Api.allResources().then(data => {
+      console.log("resources", data)
+
+      this.setState({
+        "resources": data.body,
+      })
+    })
   }
 
   onPressDecline() {
-    alert("decline")
+    this.navigator.pop()
   }
 
   onPressHelp() {
     alert("help")
   }
 
+  onPressShare() {
+    Api.respondISA({
+      "isa_id": this.state.isa.id,
+      "accepted": true,
+      "permitted_resources": this.shared.map(shared => ({ "id": shared }))
+    }).then(response => {
+      console.log("response", response)
+      this.navigator.push(Routes.main)
+    })
+  }
+
   render() {
+    const missing = []
+
     return (
       <Container>
         <BackButton navigator={this.navigator} />
@@ -50,38 +93,73 @@ class InformationRequest extends Scene {
                     Would like to see the following information:
                   </Text>
                 </View>
-                <InformationRequestResource title="Legal Identity">
-                  <Text style={styles.itemText}>
-                    Jacques Noel Kleynhans, 8110231234567 {"\n"}
-                    <Text style={styles.missingText}>Copy of ID</Text>.
-                  </Text>
-                </InformationRequestResource>
-                <InformationRequestResource title="Home Address 1">
-                  <Text style={styles.itemText}>
-                    100 Palm Place, 45 Regent Street, Sea Point, Cape Town, 8005
-                  </Text>
-                </InformationRequestResource>
+                {this.state.isa &&
+                  <View>
+                    {this.state.isa.required_entities.map((entity, i) => {
+                      let component = null
+
+                      this.shared = []
+
+                      this.state.resources.forEach(resource => {
+                        const value = JSON.parse(resource.value)
+                        const schema = value.form.split("_form").shift()
+
+                        if (schema === entity.address && value[entity.name].trim() !== "") {
+                          this.shared.push(resource.id)
+
+                          component = (
+                            <InformationRequestResource key={i} title={resource.alias}>
+                              <Text style={styles.itemText}>
+                                <Text style={styles.foundText}>{value[entity.name]}</Text>
+                              </Text>
+                            </InformationRequestResource>
+                          )
+                        }
+                      })
+
+                      if (component) {
+                        return component
+                      }
+
+                      missing.push(entity)
+                    })}
+                  </View>
+                }
+                {missing.length > 0 &&
+                  <View style={styles.missingItems}>
+                    {missing.map((entity, i) => {
+                      return (
+                        <Text key={i} style={styles.missingItemsText}>
+                          You are missing a {entity.name}.
+                        </Text>
+                      )
+                    })}
+                  </View>
+                }
+                {missing.length < 1 &&
+                  <Touchable onPress={this.onBoundPressShare}>
+                    <View style={styles.shareView}>
+                      <HexagonIcon width={100} height={100} textSize={19} textX={30} textY={43} text="Share" />
+                    </View>
+                  </Touchable>
+                }
                 <View style={styles.meta}>
-                  <Text>
-                    <Text style={styles.metaItem}>
-                      <PeriodIcon width={13} height={13} stroke="#666" />{" "}
-                      12 Months
-                    </Text>{"  "}
-                    <Text style={styles.metaItem}>
-                      <LocationIcon width={13} height={13} stroke="#666" />{" "}
-                      In SA
-                    </Text>{"  "}
-                    <Text style={styles.metaItem}>
-                      <MarketingIcon width={13} height={13} stroke="#666" />{" "}
-                      Marketing
-                    </Text>
-                  </Text>
-                </View>
-                <View style={styles.missingItems}>
-                  <Text style={styles.missingItemsText}>
-                    You are missing a photo of your Identity Document.
-                    Please add one now.
-                  </Text>
+                  {/* TODO: This stuff needs to be styled properly
+                  <View>
+                    <View style={styles.metaItem}>
+                      <PeriodIcon width={13} height={13} stroke="#666" />
+                      <Text style={styles.metaItemText}>{" "} 12 Months {"  "}</Text>
+                    </View>
+                    <View style={styles.metaItem}>
+                      <LocationIcon width={13} height={13} stroke="#666" />
+                      <Text style={styles.metaItemText}>{" "} In SA {"  "}</Text>
+                    </View>
+                    <View style={styles.metaItem}>
+                      <MarketingIcon width={13} height={13} stroke="#666" />
+                      <Text style={styles.metaItemText}>{" "} Marketing</Text>
+                    </View>
+                  </View>
+                  */}
                 </View>
               </ScrollView>
             </View>
@@ -110,7 +188,6 @@ const styles = {
   "content": {
     "flex": 1,
     "backgroundColor": "#323a43"
-    // "backgroundColor": "#fff"
   },
   "top": {
     "height": "14%"
@@ -179,6 +256,10 @@ const styles = {
   "missingItemsText": {
     "color": "#fff"
   },
+  "foundText": {
+    "color": "#333",
+    "fontWeight": "bold"
+  },
   "bottom": {
     "height": "14%",
     "flexDirection": "row",
@@ -199,6 +280,12 @@ const styles = {
     "flex": 1,
     "alignItems": "flex-end",
     "justifyContent": "center"
+  },
+  "shareView": {
+    "alignItems": "center",
+    "justifyContent": "center",
+    "flex": 1,
+    "padding": 30
   }
 }
 
