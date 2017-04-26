@@ -6,6 +6,9 @@ import AndroidBackButton from 'react-native-android-back-button'
 import BackIcon from "../Components/BackIcon"
 import InfoIcon from "../Components/InfoIcon"
 import HelpIcon from "../Components/HelpIcon"
+import LocationIcon from "../Components/LocationIcon"
+import MarketingIcon from "../Components/MarketingIcon"
+import PeriodIcon from "../Components/PeriodIcon"
 import Api from '../Api'
 import ConsentDiscoveredUser from '../Models/ConsentDiscoveredUser'
 import Logger from "../Logger"
@@ -203,9 +206,9 @@ class ConnectionDetails extends Scene {
               "Verified Identity"
             ]}
             terms={[
-              { icon: <Text>ic</Text>, text: "12 Months" },
-              { icon: <Text>ic</Text>, text: "In SA" },
-              { icon: <Text>ic</Text>, text: "Marketing" }
+              { icon: <PeriodIcon width={15} height={15}/>, text: "12 Months" },
+              { icon: <LocationIcon width={15} height={15}/>, text: "In SA" },
+              { icon: <MarketingIcon width={15} height={15}/>, text: "Marketing" }
             ]}
             date="23-02-2017"
             expires="23-02-2018"
