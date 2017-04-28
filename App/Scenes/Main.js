@@ -48,47 +48,71 @@ export default class Main extends Scene {
       activeTab: TAB_CONNECTED,
       searchText: '',
       connections: [],
+      profiles: [],
       suggestedConnections: Config.hardcodedSuggestedConnections
                             ? Config.suggestedConnections : []
     }
     this.fetchingData = false;
   }
 
-  componentWillFocus() {
-    super.componentWillFocus()
+  componentDidFocus() {
+    super.componentDidFocus()
     this._onAttention()
+  }
+
+  async fetchServerData(connections) {
+    const profileStart = new Date().getTime()
+    // Get an array of requests for profiles
+    let requests = connections.map(connection =>
+      Api.profile({ did: connection.to_did }))
+
+    // Push annother request on
+    requests.push(Api.getActiveBots())
+
+    // Make requests
+    let responses = await Promise.all(requests)
+
+    // Pop the active bots response off the stack
+    const activeBotsResponse = responses.pop()
+
+    const updatedConnections = connections.map((connection, i) =>
+      _.assign(connection, { image_uri: responses[i].body.user.image_uri })
+    )
+
+    if (activeBotsResponse && typeof activeBotsResponse.body === 'object') {
+      this.setState({
+        connections: updatedConnections,
+        suggestedConnections: activeBotsResponse.body
+      }, () => {
+        Logger.info("Fetching data took " + (new Date().getTime() - profileStart) + " ms")
+      })
+    }
+
   }
 
   _onAttention() {
     if (!this.fetchingData) {
       this.fetchingData = true
-      // Promise.all([
-      //   Api.getActiveBots(),
-      //   ConsentConnection.all()
-      // ])
-      // .then(result => {
-      //   this.setState({
-      //     suggestedConnections: JSON.parse(result[0]._bodyText),
-      //     connections: result[1]
-      //   }, () => {
-      //     this.fetchingData = false
-      //   })
-      // })
-      // .catch(error => {
-      //   Logger.error(error)
-      // })
       return ConsentConnection.all()
       .then(result => {
         if (_.isArray(result)) {
           this.setState({
             connections: result
+          }, () => {
+            try {
+              this.fetchServerData(this.state.connections)
+            } catch (error) {
+              Logger.warn(error)
+            }
           })
         }
       })
 
     }
   }
-
+/*
+{"error":false,"status":200,"message":"ok","body":[{"display_name":null,"nickname":"trustbank-bot","did":"3e699ce5b77bc25e72826233bad77f463410764956d41d3a41cc0e67fbdd5ebf","actions_url":"https://ceaf6e6b.ngrok.io/actions"},{"display_name":"IDBot + TIM proof of residence, and -id","nickname":"idbot-rc1","did":"a367593a7a7b4ebf0ab938236d6285b2627b85a6627cd02e22a2da0cca24a1c1","actions_url":"http://port8505.dev.cnsnt.io/idbot-rc1-actions"}]}
+*/
   componentWillMount() {
     super.componentWillMount()
     this._onAttention()
