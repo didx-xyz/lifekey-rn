@@ -16,7 +16,8 @@ import {
   Text,
   View,
   StyleSheet,
-  Dimensions
+  Dimensions,
+  Image
 } from 'react-native'
 
 import {
@@ -38,20 +39,12 @@ moment.updateLocale('en', {
   relativeTime: {
     future: 'in %s',
     past: '%s ago',
-    s: function (number, withoutSuffix, key, isFuture) {
-      return [
-        '00:' + (number < 10 ? '0' : '' + number),
-        'minutes'
-      ].join(' ')
+    s: function(number, withoutSuffix, key, isFuture) {
+      return '00:' + (number < 10 ? '0' : '') + number + ' minutes'
     },
-    m: '01:00 minutes',
-    mm: function (number, withoutSuffix, key, isFuture) {
-      return [
-        number < 10 ?
-        '0' :
-        '' + number + ':00',
-        'minutes'
-      ].join(' ')
+    m: 'a minute',
+    mm: function(number, withoutSuffix, key, isFuture) {
+      return (number < 10 ? '0' : '') + number + ':00' + ' minutes'
     },
     h: 'an hour',
     hh: '%d hours',
@@ -73,7 +66,7 @@ export default class Thanks extends Scene {
     super(props)
     this.state = {
       activeTab: TAB_RECEIPTS,
-      thanksBalanceAmount: 0,
+      thanksBalanceAmount: '0',
       receipts: []
     }
   }
@@ -106,24 +99,22 @@ export default class Thanks extends Scene {
     Api.thanksBalance().then(function(res) {
       if (res.error) {
         console.log('thanks balance error', res.status, res.message)
-        this.setState({thanksBalanceAmount: '0'})
+        return
       }
       this.setState({thanksBalanceAmount: res.body.balance})
     }).catch(function(err) {
       console.log('thanks balance error', err)
-      alert('Error retrieving Thanks balance')
     })
   }
 
   refreshThanksMessages() {
     ConsentThanksMessage.all().then(msgs => {
-      this.state.receipts = msgs
-    }).catch(err => {
-      this.state.receipts = []
-    })
+      this.setState({receipts: msgs})
+    }).catch(console.log)
   }
   
   renderReceipt(receipt) {
+    alert(JSON.stringify(receipt))
     return (
       // FIXME `Card.key`
       <Card key={Date.now()} style={style.card}>
@@ -136,10 +127,10 @@ export default class Thanks extends Scene {
                     'You were awarded',
                     receipt.amount,
                     'Thanks by',
-                    receipt.from
+                    receipt.from.nickname
                   ].concat(
-                    receipt.reason.length ?
-                    ['because', receipt.reason].join(' ') :
+                    receipt.reason ?
+                    ['for', receipt.reason].join(' ') :
                     ''
                   )
                 ).join(' ')
@@ -165,19 +156,19 @@ export default class Thanks extends Scene {
     var y = now.getFullYear(), r_y
     var m = now.getMonth(), r_m
     var d = now.getDate(), r_d
-    
     var today = []
     var any_other_day = []
-    for (var i = 0, len = this.state.receipts.length; i < len; i++) {
-      r_y = this.state.receipts[i].created_at.getFullYear()
-      r_m = this.state.receipts[i].created_at.getMonth()
-      r_d = this.state.receipts[i].created_at.getDate()
+    this.state.receipts.forEach((receipt, idx, arr) => {
+      this.state.receipts[idx].created_at = new Date(receipt.created_at)
+      r_y = receipt.created_at.getFullYear()
+      r_m = receipt.created_at.getMonth()
+      r_d = receipt.created_at.getDate()
       if (r_y === y && r_m === m && r_d === d) {
-        today.push(this.state.receipts[i])
+        today.push(receipt)
       } else {
-        any_other_day.push(this.state.receipts[i])
+        any_other_day.push(receipt)
       }
-    }
+    })
     return (
       <View style={style.flexOne}>
         {
@@ -202,22 +193,23 @@ export default class Thanks extends Scene {
     var icons = [
       {
         // back button
-        icon: (<BackIcon />),
+        icon: (<BackIcon width={20} height={20} />),
         onPress: this.hardwareBack.bind(this)
       },
       {
         // smiling face in conversation bubble
-        icon: (<View style={{height: 75, width: 75, backgroundColor: '#000'}} />)
+        icon: (<Image source={require('../Images/smiley_speech_bubble.png')} />)
       },
       {
         // thanks balance number
-        icon: (<Text>{this.state.thanksBalanceAmount}</Text>),
+        icon: (<Text style={{fontSize: 22}}>{this.state.thanksBalanceAmount}</Text>),
         onPress: this.refreshThanksBalance.bind(this)
       }
     ], tabs = [
       {
-        // NOTE omission of onPress is intentional (defaults to 'not implemented' alert)
+        
         text: 'Offers',
+        onPress: _ => alert('not implemented'),
         active: this.state.activeTab === TAB_OFFERS
       },
       {
@@ -233,7 +225,7 @@ export default class Thanks extends Scene {
           <AndroidBackButton onPress={this.hardwareBack.bind(this)} />
           <LifekeyHeader icons={icons} tabs={tabs} />
         </View>
-        <Content>
+        <Content style={{backgroundColor: Palette.consentGrayLight}}>
           <Col style={style.flexOne}>
             <View style={style.tab}>{
               this.state.activeTab === TAB_OFFERS && (
