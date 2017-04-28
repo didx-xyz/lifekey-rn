@@ -10,6 +10,7 @@ import LifekeyHeader from '../Components/LifekeyHeader'
 import Touchable from '../Components/Touchable'
 import BackIcon from '../Components/BackIcon'
 import AndroidBackButton from 'react-native-android-back-button'
+import ConsentThanksMessage from '../Models/ConsentThanksMessage'
 
 import {
   Text,
@@ -72,12 +73,15 @@ export default class Thanks extends Scene {
     super(props)
     this.state = {
       activeTab: TAB_RECEIPTS,
-      thanksBalanceAmount: 0
+      thanksBalanceAmount: 0,
+      receipts: []
     }
   }
 
   componentWillFocus() {
     super.componentWillFocus()
+    this.refreshThanksMessages()
+    this.refreshThanksBalance()
   }
 
   componentWillMount() {
@@ -86,6 +90,7 @@ export default class Thanks extends Scene {
 
   componentDidMount() {
     this.refreshThanksBalance()
+    this.refreshThanksMessages()
   }
 
   setTab(tab) {
@@ -109,6 +114,14 @@ export default class Thanks extends Scene {
       alert('Error retrieving Thanks balance')
     })
   }
+
+  refreshThanksMessages() {
+    ConsentThanksMessage.all().then(msgs => {
+      this.state.receipts = msgs
+    }).catch(err => {
+      this.state.receipts = []
+    })
+  }
   
   renderReceipt(receipt) {
     return (
@@ -125,9 +138,9 @@ export default class Thanks extends Scene {
                     'Thanks by',
                     receipt.from
                   ].concat(
-                    receipt.shared.length ?
-                    ['for sharing your', receipt.shared.join(', ')] :
-                    []
+                    receipt.reason.length ?
+                    ['because', receipt.reason].join(' ') :
+                    ''
                   )
                 ).join(' ')
               }
@@ -148,56 +161,21 @@ export default class Thanks extends Scene {
   }
 
   renderReceipts() {
-    var three_days_ago = new Date
-    three_days_ago.setDate(three_days_ago.getDate() - 3)
-    var two_days_ago = new Date
-    two_days_ago.setDate(two_days_ago.getDate() - 2)
-    var yesterday = new Date
-    yesterday.setDate(yesterday.getDate() - 1)
-
     var now = new Date
     var y = now.getFullYear(), r_y
     var m = now.getMonth(), r_m
     var d = now.getDate(), r_d
     
-    // get receipts somehow (fake it for now)
-    var receipts = [
-      {
-        created_at: three_days_ago,
-        amount: 90,
-        from: 'mary',
-        shared: ['car keys']
-      },
-      {
-        created_at: two_days_ago,
-        amount: 25,
-        from: 'john',
-        shared: ['Home Address']
-      },
-      {
-        created_at: yesterday,
-        amount: 100,
-        from: 'idbot',
-        shared: ['Legal Identity']
-      },
-      {
-        created_at: new Date,
-        amount: 5,
-        from: 'someone',
-        shared: ['something']
-      }
-    ]
-    
     var today = []
     var any_other_day = []
-    for (var i = 0, len = receipts.length; i < len; i++) {
-      r_y = receipts[i].created_at.getFullYear()
-      r_m = receipts[i].created_at.getMonth()
-      r_d = receipts[i].created_at.getDate()
+    for (var i = 0, len = this.state.receipts.length; i < len; i++) {
+      r_y = this.state.receipts[i].created_at.getFullYear()
+      r_m = this.state.receipts[i].created_at.getMonth()
+      r_d = this.state.receipts[i].created_at.getDate()
       if (r_y === y && r_m === m && r_d === d) {
-        today.push(receipts[i])
+        today.push(this.state.receipts[i])
       } else {
-        any_other_day.push(receipts[i])
+        any_other_day.push(this.state.receipts[i])
       }
     }
     return (
@@ -216,11 +194,8 @@ export default class Thanks extends Scene {
   }
 
   renderOffersTab() {
-    return (
-      <View style={style.flexOne}>
-        <Text>Offers</Text>
-      </View>
-    )
+    // NOTE offers is not yet implemented
+    return this.renderReceipts()
   }
 
   render() {
@@ -232,9 +207,7 @@ export default class Thanks extends Scene {
       },
       {
         // smiling face in conversation bubble
-        icon: (
-          <View style={{height: 75, width: 75, backgroundColor: '#000'}}></View>
-        )
+        icon: (<View style={{height: 75, width: 75, backgroundColor: '#000'}} />)
       },
       {
         // thanks balance number
@@ -243,8 +216,8 @@ export default class Thanks extends Scene {
       }
     ], tabs = [
       {
+        // NOTE omission of onPress is intentional (defaults to 'not implemented' alert)
         text: 'Offers',
-        onPress: () => this.setTab(TAB_OFFERS),
         active: this.state.activeTab === TAB_OFFERS
       },
       {
