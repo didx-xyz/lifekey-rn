@@ -22,10 +22,7 @@ export default {
 
   // First scene to show
   initialRouteFromConfig: false, // Must be true to use route below
-  initialRoute: Routes.onboarding.splashScreen,
-  suggestedConnections: [
-    { did: '7dc1ddd0c7452a96968d9604bee07edb60251efff189f841662ed4643797e1bc', display_name: 'Woolworths' }
-  ],
+  initialRoute: Routes.debug.main,
   // Allow requests from whitelisted user (testing on iOS, without login)
   useWhitelistedUser: false,
   whitelistedUserId: 2,
@@ -39,12 +36,12 @@ export default {
   debugNavigator: false,      // Log the current stack of Navigator routes
   debugFirebase: true,        // Log Firebase events
   debugAsyncStorage: false,
-  debugAutoLogin: false,
+  debugAutoLogin: true,
   debugAutoLoginPassword: '99999',
 
-  hardcodedSuggestedConnections: false,
+  hardcodedSuggestedConnections: true,
   suggestedConnections: [
-    { did: 'ade95e3f8014c3eb4067ce82b185b42b7b50edd8493748808a7e73fe86f7338e', display_name: 'Testing'}
+    { did: '7dc1ddd0c7452a96968d9604bee07edb60251efff189f841662ed4643797e1bc', display_name: 'Woolworths' }
   ],
 
   version: NPM_PACKAGE.version, // App version
