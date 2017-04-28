@@ -87,7 +87,7 @@ class ConnectionDetails extends Scene {
   }
 
   goBack() {
-    if (this.state.showHelp) {
+    if (this.state.showHelp){
       this.setState({
         showHelp: false
       })
@@ -95,6 +95,7 @@ class ConnectionDetails extends Scene {
       this.navigator.pop()
     }
   }
+
   onBackIconPress() {
     this.goBack()
   }

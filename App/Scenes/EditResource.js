@@ -50,7 +50,8 @@ class EditResource extends Scene {
       }),
       "entity": this.state.label,
       "attribute": this.state.label,
-      "alias": this.state.label
+      "alias": this.state.label,
+      "schema": this.context.getEditResourceForm().split("_form")[0]
     }
 
     try {
@@ -70,7 +71,7 @@ class EditResource extends Scene {
 
     // handle promise rejections for validation errors
     catch (e) {
-      alert("Error saving resource")
+      alert("Error saving resource: " + e)
     }
   }
 
@@ -196,7 +197,10 @@ class EditResource extends Scene {
       <TextInput
         style={styles.textInput}
         value={this.state[entity.name]}
-        onChangeText={text => this.setState({[entity.name]: text})}
+        onChangeText={
+          text => this.setState({[entity.name]: text})
+          // text => console.log("TEXT: ", entity.name, " : ", text)
+        }
         autoCapitalize="none"
         autoCorrect={false}
         returnKeyType="done"
@@ -385,12 +389,15 @@ const styles = {
     "paddingBottom": 5,
     "borderBottomWidth": 1,
     "borderBottomColor": "#efefef",
-    "flexDirection": "row"
+    "flexDirection": "row",
+    "alignItems": "center",
+    "justifyContent": "center",
   },
   "formFieldLabel": {
     "height": 40,
     "width": "35%",
-    "justifyContent": "center"
+    "justifyContent": "center",
+    "backgroundColor": "red"
   },
   "formFieldLabelText": {
     "fontWeight": "bold",
@@ -404,15 +411,17 @@ const styles = {
   },
   "textInput": {
     "flex": 1,
+    "height": 40,
     "color": "#666",
     "fontWeight": "100",
     "fontSize": 14,
     "height": 40
   },
   "countryLabel": {
+    "flex": 1,
+    "height": 40,
     "color": "#666",
     "fontWeight": "100",
-    "height": 20,
     "paddingTop": 10,
     "paddingBottom": 10,
     "fontSize": 14
@@ -420,36 +429,46 @@ const styles = {
   "dateInput": {
     "dateTouchBody": {
       "width": "100%",
-      "height": "100%"
+      "height": "100%",
+      "backgroundColor": "blue"
     },
     "dateInput": {
       "borderWidth": 0,
-      "alignItems": "flex-start",
-      "justifyContent": "center",
+      "alignItems": "center",
       "padding": 0,
-      "height": null
+      "height": null,
+      "alignItems": "center",
+      "justifyContent": "center",
     },
     "dateText": {
+      "flex": 1,
+      "height": 40,
       "color": "#666",
       "fontWeight": "100",
-      "fontSize": 14
+      "fontSize": 14,
     },
     "placeholderText": {
+      "flex": 1,
+      "backgroundColor": "yellow",
+      "height": 40,
       "color": "#666",
       "fontWeight": "100",
-      "fontSize": 14
+      "fontSize": 14,
+      "textAlign": "left",
     }
   },
   "languageLabel": {
+    "flex": 1,
+    "height": 40,
     "color": "#666",
     "fontWeight": "100",
-    "height": 20,
     "paddingTop": 10,
     "paddingBottom": 10,
     "fontSize": 14
   },
   "photographLabel": {
-    "height": 20,
+    "flex": 1,
+    "height": 40,
     "justifyContent": "center"
   },
   "photographLabelText": {

@@ -15,7 +15,8 @@ import Design from "../DesignParameters"
 import Palette from "../Palette"
 import LcContactDetail from '../Components/lc-ContactDetail'
 
-class LcContactDetails extends Component {
+class LcContactDetails extends Component{
+ 
   render () {
 
     const { expanded, contactDetails } = this.props
@@ -23,11 +24,11 @@ class LcContactDetails extends Component {
 
       <View style={{"flex": 1}}>
   			{ /* The key for this map is the index. Which is a bad idea. */ }
-  			{ contactDetails.map((detail, i) => <LcContactDetail key={i} {...detail } expanded={expanded} /> )}
+        { contactDetails.map((detail, i) => <LcContactDetail key={i} listCardHeading={detail.alias} listCardPrimaryDetail={detail.email} listCardSecondaryDetails={[]} expanded={expanded} /> )}
   		</View>
     )
   }
-})
+}
 
 LcContactDetails.propTypes = {
   "expanded": PropTypes.bool,

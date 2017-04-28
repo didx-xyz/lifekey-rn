@@ -11,6 +11,7 @@ import { Text, View } from "react-native"
 import PropTypes from "prop-types"
 
 // internal dependencies
+import RcItemDetail from "./ResourceComponents/rc-DetailView"
 import MobileIcon from "../Components/MobileIcon"
 import LandlineIcon from "../Components/LandlineIcon"
 import EnvelopeIcon from "../Components/EnvelopeIcon"
@@ -18,12 +19,17 @@ import Design from "../DesignParameters"
 import Palette from "../Palette"
 
 class LcContactDetail extends Component {
+  
+  constructor(props) {
+    super(props)
+  }
+
   mobileIcon (listCardHeading) {
     switch (listCardHeading) {
-      case "Mobile":
+      case "Mobile Phone":
         return (<MobileIcon width={22} height={30} stroke="#666" />)
         break;
-      case "Home":
+      case "Landline":
         return (<LandlineIcon width={28} height={18} stroke="#666" />)
         break;
       case "Email":
@@ -31,28 +37,24 @@ class LcContactDetail extends Component {
         break;
       default:
         return (<EnvelopeIcon width={28} height={18} stroke="#666" />)
-    }
-  },
+    } 
+  }
+
   render () {
     
     const { expanded, listCardHeading, listCardPrimaryDetail, listCardSecondaryDetails } = this.props
 
-    if(!expanded)
+    if(expanded)
       return (
         <View style={styles.unexpandedListCard}>
-          <Text style={styles.unexpandedListCardCopy}> {listCardPrimaryDetail} and {listCardSecondaryDetails.length} more </Text>
+          <RcItemDetail objKey={listCardHeading} value={listCardPrimaryDetail}></RcItemDetail>
         </View>
       )
     else
-      return (
-
+      return (  
         <View style={styles.listCard}>
           <View style={styles.listImageContainer}>
-
-
-           { this.mobileIcon(listCardHeading) }
-
-
+           { this.mobileIcon(listCardHeading) }    
           </View>
           <View style={styles.listBody}>
             <Text style={styles.listBodySubtitle}> {listCardHeading} </Text>
@@ -62,7 +64,6 @@ class LcContactDetail extends Component {
             </View>
           </View>
         </View>
-
       )
   }
 }
@@ -94,9 +95,9 @@ const styles = {
   },
   "listBody":{
     "flex": 18,
-    "justifyContent": "space-around",
+    "justifyContent": "space-around",  
     "paddingTop": 5,
-    "paddingBottom": 5,
+    "paddingBottom": 5, 
   },
   "listBodyTitle":{
     "fontSize": 16,
@@ -125,3 +126,5 @@ const styles = {
 }
 
 export default LcContactDetail
+
+

@@ -58,7 +58,31 @@ function checkParameters(requiredKeys, receivedObject) {
 
 }
 
+const state = {}
+
 export default class Api {
+
+  static clearCached(key) {
+    delete state[key]
+  }
+
+  static getCached(key) {
+
+    if (state[key] && state[key].time >= Date.now()) {
+      return state[key].data
+    }
+
+    return null
+  }
+
+  static setCached(key, value, time = 300000 /* 5 minutes in milliseconds */) {
+    
+    const currentTime = new Date()
+    state[key] = {
+      "time": currentTime.setMilliseconds(currentTime.getMilliseconds() + time),
+      "data": value
+    }
+  }
 
   /*
    * Register a user
@@ -318,6 +342,7 @@ export default class Api {
 
   static allResourceTypes() {
     return request("http://schema.cnsnt.io/resources")
+    // return fetch('http://schema.cnsnt.io/resources').then(_ => _.json())
   }
 
   static getResourceForm(form) {
@@ -325,8 +350,18 @@ export default class Api {
   }
 
   // 0 GET /resource
-  static allResources() {
-    return request("/resource?all=1")
+  static allResources(milliseconds = 300000) {
+    let cached = Api.getCached("allResources")
+
+    if (cached !== null) {
+      return cached
+    }
+
+    cached = request("/resource?all=1")
+
+    Api.setCached("allResources", cached, milliseconds)
+
+    return cached
   }
 
   // 1 GET /resource/:resource_id
@@ -348,7 +383,8 @@ export default class Api {
       'entity',
       'attribute',
       'alias',
-      'value'
+      'value',
+      'schema'
     ]
 
     if (checkParameters(requiredFields, data)) {
@@ -489,13 +525,30 @@ export default class Api {
     }
   }
 
-  // 9 GET /profile
+  // 12 GET /profile
   static myProfile() {
 
     return request('/profile', {
       method: 'GET'
     })
   }
+
+  // 14 POST /facial-verfication token
+  // Get a Face pic after scanning a QR code
+  static facialVerificationQrScanResponse(user_did, token) {
+    return request(`/facial-verification/${user_did}/${token}`, { 
+      method: 'GET' 
+    }, false)
+  } 
+
+  // 15 POST /facial-verfication 
+  // User result on QR code verification
+  static facialVerificationResult(user_did, token, result) {
+    return request(`/facial-verification/${user_did}/${token}`, { 
+      method: 'POST',
+      body: JSON.stringify({ result : result })
+    })
+  } 
 
   // ##################
   // ##### DEBUG ######

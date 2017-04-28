@@ -7,52 +7,75 @@
 
 // external dependencies
 import React, { Component } from "react"
-import { Text, View } from "react-native"
+import { Text, View, Image } from "react-native"
 import PropTypes from "prop-types"
 
 // internal dependencies
 import Design from "../DesignParameters"
 import Palette from "../Palette"
+import RcItemDetail from "./ResourceComponents/rc-DetailView"
 
 class LcHomeAddress extends Component {
 
   render () {
 
-    const { expanded, address } = this.props
+    const { expanded, streetAddress, suburb, province, country, postOfficeBoxNumber, postalCode } = this.props
 
-    if(!expanded)
+    if(expanded)
       return (
         <View style={styles.unexpandedListCard}>
-          <Text style={styles.unexpandedListCardCopy}> {address} </Text>
+          { /* <Text style={styles.unexpandedListCardCopy}> {streetAddress},{suburb},{province},{country} </Text> */}
+          <RcItemDetail objKey={"Street Address"} value={streetAddress}></RcItemDetail>
+          <RcItemDetail objKey={"Suburb"} value={suburb}></RcItemDetail>
+          <RcItemDetail objKey={"Province"} value={province}></RcItemDetail>
+          <RcItemDetail objKey={"Country"} value={country}></RcItemDetail>
+          <RcItemDetail objKey={"PO Box"} value={postOfficeBoxNumber}></RcItemDetail>
+          <RcItemDetail objKey={"Postal Code"} value={postalCode}></RcItemDetail>
         </View>
       )
     else
       return (
-        <View style={styles.addressImage}>
-          {/* image here */}
-          <Text>+</Text>
-          <Text> {address} </Text>
+        <View style={styles.container}>
+          <View style={styles.addressImageContainer}>
+            {/* image here */}
+            <Image style={styles.image} source={{uri: "http://www.uwgb.edu/UWGBCMS/media/Maps/images/map-icon.jpg"}}>
+              <View style={styles.innerFrame}>
+                <Text style={styles.imageText}> {streetAddress},{suburb},{province},{country} </Text>
+              </View>
+            </Image>
+          </View>
         </View>
       )
   }
-})
-
-LcHomeAddress.propTypes = {
-  "expanded": PropTypes.bool,
-  "address": PropTypes.string
 }
 
 const styles = {
-  "addressImage": {
-    "flex": 1,
+  "container": {
     "width": "100%",
     "flexDirection": "row",
     "height": 150,
     "justifyContent": "center",
     "alignItems": "center",
-    "marginRight": -15,
-    "marginLeft": -15,
-    "backgroundColor": Palette.consentGrayLight
+  },
+  "addressImageContainer": {
+    "position": "absolute",
+    "top": 0,
+    "bottom": 0,
+    "right": -16,
+    "left": -16
+  },
+  "innerFrame": {
+      "flex": 1, 
+      "alignItems": "center", 
+      "justifyContent": "center",
+      "backgroundColor": "rgba(0, 0, 0, .5)", 
+  },
+  "image":{
+    "height": "100%",
+    "width": "100%" 
+  },
+  "imageText": {
+    "color": "white"
   },
   "unexpandedListCard": {
     "width": "100%",
@@ -62,6 +85,11 @@ const styles = {
     "fontSize": 12,
     "color": Palette.consentGrayDark
   }
+}
+
+LcHomeAddress.propTypes = {
+  "expanded": PropTypes.bool,
+  "address": PropTypes.string
 }
 
 export default LcHomeAddress

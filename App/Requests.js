@@ -24,6 +24,7 @@ const signedRequest = function(url, opts) {
 
   let userID = null
   let secureRandom = null
+
   return ConsentUser.get()
     .then(results => {
       if (results.id) {
@@ -42,8 +43,9 @@ const signedRequest = function(url, opts) {
     })
     .then(_secureRandom => {
       secureRandom = _secureRandom
+
       return Crypto.sign(
-        secureRandom,
+        _secureRandom,
         Config.keystore.privateKeyName,
         ConsentUser.getPasswordSync(),
         Crypto.SIG_SHA256_WITH_RSA
@@ -91,8 +93,9 @@ const onResponse = function(response) {
       Logger.error("500 Internal server error", "Api.js", response)
       return rejectionWithError("Internal server error")
     case 400:
+      alert(response.text())
       Logger.error("400 Bad request", "Api.js", response)
-      return rejectionWithError(JSON.parse(response._bodyText))
+      return rejectionWithError(response._bodyText)
     case 201:
       Logger.info("201 Created", "Api.js", response)
       return response.json()
