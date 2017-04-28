@@ -548,7 +548,12 @@ export default class Api {
       method: 'POST',
       body: JSON.stringify({ result : result })
     })
-  } 
+  }
+
+  // 16 GET /management/thanks/balance
+  static thanksBalance() {
+    return request(`/management/thanks/balance`)
+  }
 
   // ##################
   // ##### DEBUG ######
