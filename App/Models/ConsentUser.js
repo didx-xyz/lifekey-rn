@@ -265,7 +265,7 @@ export default class ConsentUser {
         plain: toSign,
         signature: signature,
         device_id: firebaseToken,
-        device_platform: `${Config.APP_NAME} ${Platform.OS} v${Config.version}`
+        device_platform: Platform.OS
       })
     })
     .then(response => {
