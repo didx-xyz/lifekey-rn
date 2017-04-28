@@ -20,6 +20,23 @@ class FirebaseHandler {
     if (message && message.type) {
       switch (message.type) {
 
+      case 'received_thanks':
+        Logger.firebase('received_thanks')
+        ConsentDiscoveredUser.get(
+          message.from_did
+        ).then(function(from_user) {
+          return ConsentThanksMessage.add({
+            amount: message.amount,
+            reason: message.reason,
+            from: from_user
+          })
+        }).then(function() {
+          // show a local notification??
+          alert('added new thanks message record')
+        }).catch(function(err) {
+          console.log('unable to access app storage')
+        })
+      break
       case 'received_did':
         Logger.firebase('received_did')
         ConsentUser.setDid(message.did_value)
