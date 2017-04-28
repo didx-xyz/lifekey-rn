@@ -7,10 +7,10 @@ const LOGTAG = 'ThanksMessage'
 
 class ConsentThanksMessage {
 
-  static add(from, amount, reason) {
+  static add(created_at, from, amount, reason) {
 
     var newThanksMessage = {
-      created_at: new Date,
+      created_at: created_at,
       from: from,
       amount: amount,
       reason: reason
