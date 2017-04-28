@@ -76,7 +76,7 @@ export default class Api {
   }
 
   static setCached(key, value, time = 300000 /* 5 minutes in milliseconds */) {
-    
+
     const currentTime = new Date()
     state[key] = {
       "time": currentTime.setMilliseconds(currentTime.getMilliseconds() + time),
@@ -351,11 +351,11 @@ export default class Api {
 
   // 0 GET /resource
   static allResources(milliseconds = 300000) {
-    let cached = Api.getCached("allResources")
-
-    if (cached !== null) {
-      return cached
-    }
+    // let cached = Api.getCached("allResources")
+    //
+    // if (cached !== null) {
+    //   return cached
+    // }
 
     cached = request("/resource?all=1")
 
@@ -536,19 +536,19 @@ export default class Api {
   // 14 POST /facial-verfication token
   // Get a Face pic after scanning a QR code
   static facialVerificationQrScanResponse(user_did, token) {
-    return request(`/facial-verification/${user_did}/${token}`, { 
-      method: 'GET' 
+    return request(`/facial-verification/${user_did}/${token}`, {
+      method: 'GET'
     }, false)
-  } 
+  }
 
-  // 15 POST /facial-verfication 
+  // 15 POST /facial-verfication
   // User result on QR code verification
   static facialVerificationResult(user_did, token, result) {
-    return request(`/facial-verification/${user_did}/${token}`, { 
+    return request(`/facial-verification/${user_did}/${token}`, {
       method: 'POST',
       body: JSON.stringify({ result : result })
     })
-  } 
+  }
 
   // ##################
   // ##### DEBUG ######

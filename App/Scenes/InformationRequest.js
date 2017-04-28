@@ -30,25 +30,57 @@ class InformationRequest extends Scene {
     this.onBoundPressHelp = this.onPressHelp.bind(this)
     this.onBoundPressShare = this.onPressShare.bind(this)
 
+    this.swaps = {}
     this.shared = []
   }
 
   componentDidMount() {
     const state = Session.getState()
 
-    console.log("isa", state.currentIsa)
-
     this.setState({
       "isa": state.currentIsa
     })
 
     Api.allResources().then(data => {
-      console.log("resources", data)
+      // console.log("resources", data)
 
       this.setState({
         "resources": data.body,
       })
     })
+
+    this.updateSwaps()
+  }
+
+  updateSwaps() {
+    const data = Session.getState()
+    // console.log("DATA", data)
+
+    if (data.swapFrom && data.swapTo) {
+      // console.log("SWAP", data.swapFrom, data.swapTo)
+
+      this.state.resources.some(resource => {
+        if (resource.id === data.swapTo) {
+          this.swaps["_" + data.swapFrom] = resource
+
+          Session.update({
+            "swapFrom": null,
+            "swapTo": null
+          })
+
+          // console.log("SWAPS", this.swaps)
+          // console.log("RESOURCES", this.state.resources)
+
+          return true
+        }
+      })
+    }
+  }
+
+  componentWillFocus() {
+    super.componentWillFocus()
+
+    this.updateSwaps()
   }
 
   onPressDecline() {
@@ -65,13 +97,26 @@ class InformationRequest extends Scene {
       "accepted": true,
       "permitted_resources": this.shared.map(shared => ({ "id": shared }))
     }).then(response => {
-      console.log("response", response)
+      // console.log("response", response)
+
       this.navigator.push(Routes.main)
     })
   }
 
+  onSwap(resource, key = null) {
+    Session.update({
+      "swapSchema": resource.schema,
+      "swapResources": this.state.resources,
+      "swapKey": key,
+      "swapFrom": resource.id
+    })
+
+    this.navigator.push(Routes.selectResourceOfType)
+  }
+
   render() {
     const missing = []
+    // console.log("ISA", this.state.isa)
 
     return (
       <Container>
@@ -85,35 +130,26 @@ class InformationRequest extends Scene {
                 <View style={styles.name}>
                   {/* logo here */}
                   <Text style={styles.nameText}>
-                    Absa Bank
+                    [name here]
                   </Text>
                 </View>
                 <View style={styles.description}>
                   <Text style={styles.descriptionText}>
-                    Would like to see the following information:
+                    [purpose here]
                   </Text>
                 </View>
                 {this.state.isa &&
                   <View>
-                    {this.state.isa.required_entities.map((entity, i) => {
-                      let component = null
-
+                    {this.state.isa.required_entities.map(entity => {
                       this.shared = []
 
+                      let component = null
+
                       this.state.resources.forEach(resource => {
-                        const value = JSON.parse(resource.value)
-                        const schema = value.form.split("_form").shift()
+                        const result = this.tryResource(entity, resource)
 
-                        if (schema === entity.address && value[entity.name].trim() !== "") {
-                          this.shared.push(resource.id)
-
-                          component = (
-                            <InformationRequestResource key={i} title={resource.alias}>
-                              <Text style={styles.itemText}>
-                                <Text style={styles.foundText}>{value[entity.name]}</Text>
-                              </Text>
-                            </InformationRequestResource>
-                          )
+                        if (result) {
+                          component = result
                         }
                       })
 
@@ -130,7 +166,7 @@ class InformationRequest extends Scene {
                     {missing.map((entity, i) => {
                       return (
                         <Text key={i} style={styles.missingItemsText}>
-                          You are missing a {entity.name}.
+                          You are missing {entity.name}.
                         </Text>
                       )
                     })}
@@ -180,6 +216,85 @@ class InformationRequest extends Scene {
           </View>
         </View>
       </Container>
+    )
+  }
+
+  tryResource(entity, resource) {
+    if (entity.address === resource.schema) {
+      const swappable = this.swaps["_" + resource.id]
+      // console.log("SWAPPABLE (RESOURCE)", swappable)
+
+      if (swappable) {
+        const result = this.tryResource(entity, swappable)
+        // console.log("SWAPPING", result)
+
+        if (result) {
+          this.shared.push(swappable.id)
+          return result
+        }
+      }
+
+      this.shared.push(resource.id)
+      return this.renderResource(resource)
+    }
+
+    const parts = entity.address.split("/")
+    const last = parts.pop()
+    const rest = parts.join("/")
+    const value = JSON.parse(resource.value)
+
+    if (rest === resource.schema && value[last].trim() !== "") {
+      const swappable = this.swaps["_" + resource.id]
+      // console.log("SWAPPABLE (PARTIAL RESOURCE)", swappable)
+
+      if (swappable) {
+        const result = this.tryResource(entity, swappable)
+        // console.log("SWAPPING", result)
+
+        if (result) {
+          this.shared.push(swappable.id)
+          return result
+        }
+      }
+
+      this.shared.push(resource.id)
+      return this.renderPartialResource(resource, last)
+    }
+  }
+
+  renderResource(resource) {
+    return (
+      <InformationRequestResource key={resource.id} title={resource.alias} onPress={() => this.onSwap(resource)}>
+        <Text style={styles.itemText}>
+          <Text style={styles.foundText}>
+            {/* customise this for different resource types */}
+            {Object.values(JSON.parse(resource.value)).filter(v => v.length <= 25 && v.indexOf("http") !== 0).map((v, i) => {
+              if (i > 0) {
+                return (
+                  <Text key={i}>
+                    <Text>, </Text>
+                    <Text key={i}>{v}</Text>
+                  </Text>
+                )
+              }
+
+              return (
+                <Text key={i}>{v}</Text>
+              )
+            })}
+          </Text>
+        </Text>
+      </InformationRequestResource>
+    )
+  }
+
+  renderPartialResource(resource, key) {
+    return (
+      <InformationRequestResource key={resource.id} title={resource.alias} onPress={() => this.onSwap(resource, key)}>
+        <Text style={styles.itemText}>
+          <Text style={styles.foundText}>{JSON.parse(resource.value)[key]}</Text>
+        </Text>
+      </InformationRequestResource>
     )
   }
 }

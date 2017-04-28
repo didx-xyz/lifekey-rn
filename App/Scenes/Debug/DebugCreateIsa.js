@@ -27,7 +27,7 @@ const fields = [
     "name": "entity1",
     "label": "Entity 1",
     "value": JSON.stringify({
-      "name": "firstName",
+      "name": "Your identity",
       "address": "http://schema.cnsnt.io/person"
     })
   },
@@ -35,8 +35,8 @@ const fields = [
     "name": "entity2",
     "label": "Entity 2",
     "value": JSON.stringify({
-      "name": "lastName",
-      "address": "http://schema.cnsnt.io/person"
+      "name": "The road on which you live",
+      "address": "http://schema.cnsnt.io/address/streetAddress"
     })
   }
 ]
