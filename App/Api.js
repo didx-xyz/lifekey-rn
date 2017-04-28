@@ -552,7 +552,7 @@ export default class Api {
 
   // 16 GET /management/thanks/balance
   static thanksBalance() {
-    return request(`/management/thanks/balance`)
+    return request('/management/thanks/balance')
   }
 
   // ##################
