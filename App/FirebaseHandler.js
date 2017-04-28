@@ -25,11 +25,12 @@ class FirebaseHandler {
         ConsentDiscoveredUser.get(
           message.from_did
         ).then(function(from_user) {
-          return ConsentThanksMessage.add({
-            amount: message.amount,
-            reason: message.reason,
-            from: from_user
-          })
+          return ConsentThanksMessage.add(
+            new Date,
+            message.amount,
+            message.reason,
+            from_user.nickname
+          )
         }).then(function() {
           // show a local notification??
           alert('added new thanks message record')
