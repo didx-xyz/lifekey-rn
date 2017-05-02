@@ -90,18 +90,12 @@ export default class Register extends Scene {
     }
   }
 
-  _onAttention() {
-    StatusBar.setHidden(true)
-  }
-
   componentWillMount() {
     super.componentWillMount()
-    this._onAttention()
   }
 
   componentWillFocus() {
     super.componentWillFocus()
-    this._onAttention()
   }
 
   componentDidFocus() {
@@ -449,6 +443,7 @@ export default class Register extends Scene {
       <Container>
         <Content keyboardShouldPersistTaps="always">
           <AndroidBackButton onPress={() => this._hardwareBackHandler()}/>
+          <StatusBar hidden={true} />
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <Grid>
               <Col style={[style.sceneColumn, { height: this.props.screenHeight }]}>
