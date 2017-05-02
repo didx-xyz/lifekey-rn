@@ -533,16 +533,14 @@ export default class ConsentUser {
       userID = jsonData.id
 
       // See what's currently in the DB
-      let userData = {}
-      userData[ConsentUser.storageKey] = {
+      return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
         id: userID,
         did: null, // will receive via firebase later
         display_name: username,
         email: email,
         firebaseToken: firebaseToken,
         registered: true  // We will get this later
-      }
-      return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(userData))
+      }))
     })
 
     // Check that writing went well and resolve
