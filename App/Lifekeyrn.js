@@ -21,7 +21,8 @@ import {
   Dimensions,
   Navigator,
   Platform,
-  StatusBar
+  StatusBar,
+  ToastAndroid
 } from 'react-native'
 import PropTypes from "prop-types"
 
@@ -188,11 +189,15 @@ class Lifekeyrn extends Component {
   initFirebaseHandlerEvents() {
     this.firebaseInternalEventEmitter.addListener(
       'user_connection_created',
-      () => this.navigator.push(Routes.connectionDetails)
+      () => {
+        ToastAndroid.show('Connection created', ToastAndroid.SHORT)
+      }
     )
     this.firebaseInternalEventEmitter.addListener(
       'app_activation_link_clicked',
-      () => this.navigator.push(Routes.main)
+      () => {
+        this.navigator.push(Routes.main)
+      }
     )
   }
 
