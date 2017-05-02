@@ -1,6 +1,12 @@
 // external dependencies
 import React from "react"
-import { Text, View, Dimensions } from "react-native"
+import {
+  Text,
+  View,
+  Dimensions,
+  ToastAndroid,
+  Image
+} from "react-native"
 import { Container } from "native-base"
 import * as Nachos from 'nachos-ui'
 // internal dependencies
@@ -13,6 +19,7 @@ import Touchable from "../Components/Touchable"
 import VerifiedIcon from "../Components/VerifiedIcon"
 import ConsentUser from '../Models/ConsentUser'
 import Api from '../Api'
+import Logger from '../Logger'
 
 class Connection extends Scene {
   constructor(...params) {
@@ -29,19 +36,18 @@ class Connection extends Scene {
   }
 
   onPressConnect() {
+
+    ToastAndroid.show(`Connecting to ${this.props.route.display_name}`, ToastAndroid.SHORT)
     this.setState({
       connecting: true
     }, () => {
       Api.requestConnection({ target: this.props.route.did })
       .then(() => {
-        setTimeout(() => {
-          this.setState({
-            connecting: false
-          })
-        }, 10000) // Wait max 10 seconds
+        this.navigator.pop()
       })
       .catch(error => {
-        alert(JSON.stringify(error))
+        alert('Could not connect')
+        Logger.warn(JSON.stringify(error))
         this.setState({
           connecting: false
         })
@@ -69,7 +75,8 @@ class Connection extends Scene {
             {/* logo goes here */}
           </View>
           <View style={styles.name}>
-            <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name || 'unknown')}</Text>
+            <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/>
+            <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text>
           </View>
 
           {this.state.isVerified &&
@@ -151,13 +158,15 @@ const styles = {
   },
   "name": {
     "height": "5%",
+    flexDirection: "column",
     "justifyContent": "center",
     "alignItems": "center"
   },
   "nameText": {
     "color": "#666",
-    "fontSize": 16,
-    "textAlign": "center"
+    "fontSize": 18,
+    "textAlign": "center",
+    marginTop: 5
   },
   "verified": {
     "height": "3%"
