@@ -73,18 +73,15 @@ class Connection extends Scene {
         <View style={styles.content}>
           <View style={styles.logo}>
             {/* logo goes here */}
+            <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/>
           </View>
           <View style={styles.name}>
-            <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/>
             <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text>
           </View>
 
           {this.state.isVerified &&
-            <View style={[styles.verified, {
-              position: 'relative',
-            }]}>
+            <View style={styles.verified}>
               <View style={{
-                position: 'absolute',
                 flexDirection: 'row',
                 width: 76,
                 marginLeft: screenWidth / 2 - 38
@@ -153,13 +150,12 @@ const styles = {
   },
   logo: {
     height: "13%",
-    justifyContent: "center",
+    justifyContent: "flex-end",
     alignItems: "center"
   },
   name: {
     height: "5%",
     flexDirection: "column",
-    justifyContent: "center",
     alignItems: "center"
   },
   nameText: {
@@ -231,7 +227,8 @@ const styles = {
   },
   declineText: {
     color: "#666",
-    textAlign: "right"
+    textAlign: "right",
+    fontSize: 18
   }
 }
 
