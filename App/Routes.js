@@ -81,7 +81,7 @@ export default {
     configuration: { scene: DebugConfiguration },
     connectionRequest: { scene: DebugConnectionRequest },
     asyncStorage: { scene: DebugAsyncStorage },
-    svg: { scene: DebugSvg }
+    svg: { scene: DebugSvg },
     createIsa: { scene: DebugCreateIsa },
     listIsas: { scene: DebugListIsas }
   }
