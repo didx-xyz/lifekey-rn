@@ -114,7 +114,6 @@ export default class Thanks extends Scene {
   }
   
   renderReceipt(receipt) {
-    alert(JSON.stringify(receipt))
     return (
       // FIXME `Card.key`
       <Card key={Date.now()} style={style.card}>
