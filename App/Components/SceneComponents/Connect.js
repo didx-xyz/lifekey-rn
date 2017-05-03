@@ -7,40 +7,33 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-import React from 'react'
-import Scene from '../Scene'
-import Session from '../Session'
-import Routes from '../Routes'
-import Api from '../Api'
-import Logger from "../Logger"
-import Config from '../Config'
-import Touchable from '../Components/Touchable'
-import ConsentUser from '../Models/ConsentUser'
+import React, { Component } from 'react'
+import Session from '../../Session'
+import Routes from '../../Routes'
+import Api from '../../Api'
+import Logger from "../../Logger"
+import Config from '../../Config'
+import Touchable from '../../Components/Touchable'
+import ConsentUser from '../../Models/ConsentUser'
 
 import { Text, View, Image } from 'react-native'
 import { Container, Content } from 'native-base'
 
 // internal dependencies
-import Design from "../DesignParameters"
-import Palette from '../Palette'
-import MvTemplate from "../Components/mv-Template"
-import BackIcon from "../Components/BackIcon"
-import HelpIcon from "../Components/HelpIcon"
-import LifekeyHeader from "../Components/LifekeyHeader"
-import LifekeyCard from "../Components/LifekeyCard"
+import Design from "../../DesignParameters"
+import Palette from '../../Palette'
+import MvTemplate from "../../Components/mv-Template"
+import BackIcon from "../../Components/BackIcon"
+import HelpIcon from "../../Components/HelpIcon"
+import LifekeyHeader from "../../Components/LifekeyHeader"
+import LifekeyCard from "../../Components/LifekeyCard"
 
-var person = {
-  mycode: '+',
-  facematch: '-',
-}
-
-export default class MeConnect extends Scene {
+class Connect extends Component  {
 
   constructor(...params) {
     super(...params)
 
     this.state = {
-      "tabName":  "Connect",
       "informationSource": "MY CODE"
     }
 
@@ -57,7 +50,12 @@ export default class MeConnect extends Scene {
     this.setState({ informationSource: "MY CODE" })
   }
   onPressFaceMatch() {
+    console.log("MY DID IS => ", ConsentUser.getDidSync())
     this.setState({ informationSource: "FACE MATCH" })   
+  }
+
+  onImageError(e){
+    console.log(e)
   }
 
   currentInformationState(){
@@ -65,7 +63,7 @@ export default class MeConnect extends Scene {
       return (
         <View>
           <View style={styles.qrCodeContainer}>
-            <Text>{person.mycode}</Text>
+            <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr/${ConsentUser.getDidSync()}` }} />
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text}>Invite other people to connect with you by sharing your unique ID code</Text>
@@ -84,7 +82,7 @@ export default class MeConnect extends Scene {
       return (
         <View>
           <View style={styles.qrCodeContainer}>
-            <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/facial-verification?user_did=${ConsentUser.getDidSync()}` }} />
+            <Image style={styles.qrImage} onError={this.onImageError.bind(this)} source={{ uri: `http://staging.api.lifekey.cnsnt.io/facial-verification?user_did=${ConsentUser.getDidSync()}&cachebust=${Date.now()}` }} />
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text}>Get someone else to scan this QR Code to verify your facial match</Text>
@@ -99,73 +97,34 @@ export default class MeConnect extends Scene {
   }
 
   render() {
-    return (
-      
-      <MvTemplate
-        tabName={this.state.tabName}
-        header={
-          () => <LifekeyHeader
-            icons={[
-              {
-                icon: <BackIcon {...Design.backIcon}/>,
-                onPress: () => this.navigator.pop()
-              },
-              {
-                icon: <Text>:)</Text>,
-                onPress: () => alert("test")
-              },
-              {
-                icon: <Text>+</Text>,
-                onPress: () => alert("test")
-              }
-            ]}
-            tabs={[
-              {
-                text: "Connect",
-                onPress: () => this.setTab(0),
-                active: this.state.activeTab === 0
-              },
-              {
-                text: "My Data",
-                onPress: () => this.setTab(1),
-                active: this.state.activeTab === 1
-              },
-              {
-                text: "Badges",
-                onPress: () => this.setTab(2),
-                active: this.state.activeTab === 2
-              }
-            ]}
-          />
-        }
-      >
-        <View style={styles.content}>
-          <View style={styles.switchButtonContainer}>
-            <View style={Object.assign({}, styles.switchButton, styles.switchButtonLeft, 
-              {"backgroundColor": this.state.informationSource === "MY CODE" ? Palette.consentBlue : Palette.consentGrayLightest})}>
-              <Touchable onPress={this.onBoundPressMyCode}>
-                <Text style={Object.assign({}, styles.switchButtonText, {"color": this.state.informationSource === "MY CODE" ? "white" : Palette.consentBlue})}>MY CODE</Text>
-              </Touchable>
-            </View>
-            <View style={Object.assign({}, styles.switchButton, styles.switchButtonRight, {"backgroundColor": this.state.informationSource === "FACE MATCH" ? Palette.consentBlue : Palette.consentGrayLightest})}>
-              <Touchable onPress={this.onBoundPressFaceMatch}>
-                <Text style={Object.assign({}, styles.switchButtonText, {"color": this.state.informationSource === "FACE MATCH" ? "white" : Palette.consentBlue})}>FACE MATCH</Text>
-              </Touchable>
-            </View>
+
+    return (    
+      <View style={styles.content}>
+        <View style={styles.switchButtonContainer}>
+          <View style={Object.assign({}, styles.switchButton, styles.switchButtonLeft, 
+            {"backgroundColor": this.state.informationSource === "MY CODE" ? Palette.consentBlue : Palette.consentGrayLightest})}>
+            <Touchable onPress={this.onBoundPressMyCode}>
+              <Text style={Object.assign({}, styles.switchButtonText, {"color": this.state.informationSource === "MY CODE" ? "white" : Palette.consentBlue})}>MY CODE</Text>
+            </Touchable>
           </View>
-          <View style={styles.informationContainer}>
-            { this.currentInformationState() }
+          <View style={Object.assign({}, styles.switchButton, styles.switchButtonRight, {"backgroundColor": this.state.informationSource === "FACE MATCH" ? Palette.consentBlue : Palette.consentGrayLightest})}>
+            <Touchable onPress={this.onBoundPressFaceMatch}>
+              <Text style={Object.assign({}, styles.switchButtonText, {"color": this.state.informationSource === "FACE MATCH" ? "white" : Palette.consentBlue})}>FACE MATCH</Text>
+            </Touchable>
           </View>
-          
         </View>
-      </MvTemplate> 
+        <View style={styles.informationContainer}>
+          { this.currentInformationState() }
+        </View>    
+      </View>
     )
   }
 }
 
 const styles = {
   "content": { 
-    "height": `${100 - Design.navigationContainerHeight}%`,
+    "height": 650,
+    "flex": 1,
     "backgroundColor": Palette.consentGrayLightest,
     "alignItems": "center",
     "justifyContent": "center",
@@ -239,3 +198,5 @@ const styles = {
   }
   
 }
+
+export default Connect

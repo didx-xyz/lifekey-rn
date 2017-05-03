@@ -13,6 +13,8 @@ import DebugConfiguration from './Scenes/Debug/DebugConfiguration'
 import DebugConnectionRequest from './Scenes/Debug/DebugConnectionRequest'
 import DebugAsyncStorage from './Scenes/Debug/DebugAsyncStorage'
 import DebugSvg from './Scenes/Debug/DebugSvg'
+import DebugCreateIsa from './Scenes/Debug/DebugCreateIsa'
+import DebugListIsas from './Scenes/Debug/DebugListIsas'
 
 // Main
 import Main from './Scenes/Main'
@@ -31,6 +33,7 @@ import Badges from './Scenes/Badges'
 import Messages from './Scenes/Messages'
 import BadgeDetail from './Scenes/BadgeDetail'
 import EditResource from './Scenes/EditResource'
+import Thanks from './Scenes/Thanks'
 
 import Locked from './Scenes/Onboarding/Locked'
 import Unlock from './Scenes/Onboarding/Unlock'
@@ -58,6 +61,7 @@ export default {
   messages: { scene: Messages },
   badgeDetail: { scene: BadgeDetail },
   editResource: { scene: EditResource },
+  thanks: {scene: Thanks},
   onboarding: {
     splashScreen: { scene: SplashScreen },
     register: { scene: Register },
@@ -78,5 +82,7 @@ export default {
     connectionRequest: { scene: DebugConnectionRequest },
     asyncStorage: { scene: DebugAsyncStorage },
     svg: { scene: DebugSvg }
+    createIsa: { scene: DebugCreateIsa },
+    listIsas: { scene: DebugListIsas }
   }
 }

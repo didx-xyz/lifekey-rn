@@ -7,7 +7,7 @@
  * @author Hein <hein@io.co.za>
  */
 
-import React from 'react'
+import React, { Component } from 'react'
 import Scene from '../Scene'
 import Session from '../Session'
 import Palette from '../Palette'
@@ -16,31 +16,17 @@ import Config from '../Config'
 import LifekeyHeader from '../Components/LifekeyHeader'
 import Touchable from '../Components/Touchable'
 import BackButton from "../Components/BackButton"
+import PropTypes from "prop-types"
 
-const { string } = React.PropTypes
 import { Text, View } from 'react-native'
 import { Container, Content } from 'native-base'
 
 // internal dependencies
 import Design from "../DesignParameters"
 
-const MvTemplate = React.createClass({
+class MvTemplate extends Component {
 
-  propTypes : {
-    tabName: string
-  },
   render () {
-
-    const styles = {
-      "container": {
-        "height" : "100%"
-      },
-      "headerContainer": {
-        height: `${Design.navigationContainerHeight}%`,
-        borderColor: Palette.consentGrayLightest,
-        borderBottomWidth: 1
-      }
-    }
 
     const { tabName } = this.props
 
@@ -56,9 +42,21 @@ const MvTemplate = React.createClass({
       </Container>
     )
   }
-})
+}
+
+MvTemplate.propTypes = {
+  "tabName": PropTypes.string
+}
+
+const styles = {
+  "container": {
+    "height" : "100%"
+  },
+  "headerContainer": {
+    "height": `${Design.navigationContainerHeight}%`,
+    "borderColor": Palette.consentGrayLightest,
+    "borderBottomWidth": 1
+  }
+}
 
 export default MvTemplate
-
-
-

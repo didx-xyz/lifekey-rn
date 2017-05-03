@@ -1,9 +1,12 @@
 // external dependencies
 import React from "react"
-import { Text, View } from "react-native"
+import { Text, View, Image } from "react-native"
 import { Container } from "native-base"
+import Routes from '../Routes'
 
 // internal dependencies
+import Api from '../Api'
+import ConsentUser from '../Models/ConsentUser'
 import BackButton from "../Components/BackButton"
 import BackIcon from "../Components/BackIcon"
 import Design from "../DesignParameters"
@@ -17,21 +20,51 @@ class FaceMatch extends Scene {
   constructor(...params) {
     super(...params)
 
+    this.state = {
+      "imageAvailable": false, 
+      "imageDataUrl": "" 
+    }
+
     this.onBoundPressYes = this.onPressYes.bind(this)
     this.onBoundPressNo = this.onPressNo.bind(this)
     this.onBoundPressUnsure = this.onPressUnsure.bind(this)
   }
 
-  onPressYes() {
-    alert("yes")
+  componentDidMount() {
+    this.loadImage()
   }
 
-  onPressNo() {
-    alert("no")
+  async onResultGiven(result){
+    const response = await Api.facialVerificationResult(this.state.userDid, this.state.userToken, result)
+    if(response.status === 200)
+      this.navigator.replace({
+        ...Routes.me
+      })
   }
 
-  onPressUnsure() {
-    alert("unsure")
+  async loadImage() {
+    try{
+
+      const urlPieces = this.props.route.url.split("/")
+      const userdid = urlPieces[urlPieces.length - 2]
+      const token = urlPieces[urlPieces.length - 1]
+
+      const response = await Api.facialVerificationQrScanResponse(userdid, token)
+      
+      const parsedValue = JSON.parse(response.body.value); 
+      const url = `data:image/jpeg;base64,${parsedValue.identityPhotograph}}`
+
+      this.setState({
+        "imageAvailable": true,
+        "imageDataUrl": url,
+        "userDid": userdid,
+        "userToken": token
+      })
+      
+    }
+    catch(e){
+      console.log("ERROR: ", e)
+    }
   }
 
   render() {
@@ -49,17 +82,17 @@ class FaceMatch extends Scene {
           </View>
           <View style={styles.image}>
             {/* Image goes here */}
-            <Text>+</Text>
+            { this.state.imageAvailable && <Image style={styles.profileImg} source={{ uri: this.state.imageDataUrl, scale: 1 }} /> }
           </View>
           <View style={styles.copyContainer}>
             <Text style={styles.copyText}>Is this the person who's QR Code you scanned?</Text>
           </View>
           <View style={styles.actions}>
-            <Button affirmative={false} buttonText={"No"} onClick={this.onBoundPressNo} />
-            <Button affirmative={true} buttonText={"Yes"} onClick={this.onBoundPressYes} />
+            <Button affirmative={false} buttonText={"No"} onClick={this.onResultGiven.bind(this, "no")} />
+            <Button affirmative={true} buttonText={"Yes"} onClick={this.onResultGiven.bind(this, "yes")} />
           </View>
           <View style={styles.footer}>
-            <Touchable onPress={this.onBoundPressUnsure}>
+            <Touchable onClick={this.onResultGiven.bind(this, "not sure")}>
               <Text style={styles.footerText}>I'm not sure</Text>
             </Touchable>
           </View>
@@ -97,6 +130,10 @@ const styles = {
     "fontSize": 28,
     "color": Palette.consentBlue,
     "fontWeight": "300"
+  },
+  "profileImg":{
+    "width": 75,
+    "height": 75
   },
   "image":{
     "flex": 1,

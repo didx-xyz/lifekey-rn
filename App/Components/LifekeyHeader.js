@@ -23,51 +23,57 @@ class LifekeyHeader extends Component {
     super(props)
   }
 
-  render() {
-
+  renderIcons() {
     return (
-        <View style={_.assign({}, style.header, { backgroundColor: this.props.backgroundColor })}>
-          { /* TOP SECTION */ }
-          <View style={style.navigation}>
-
-            { this.props.icons.map((icon, i) =>
+      <View style={style.navigation}>
+        {
+          this.props.icons.map((icon, i) => {
+            return (
               <View key={i}>
-                <Touchable
-                  onLongPress={() => icon.onLongPress && icon.onLongPress()}
-                  onPress={() => icon.onPress && icon.onPress()}>
+                <Touchable onLongPress={icon.onLongPress && icon.onLongPress}
+                           onPress={icon.onPress && icon.onPress}>
                   <View>{icon.icon}</View>
                 </Touchable>
               </View>
-            )}
+            )
+          })
+        }
+      </View>
+    )
+  }
 
-          </View>
+  renderTabs() {
+    return (
+      <View style={style.tabs}>
+        {
+          this.props.tabs.map((tab, i) => {
+            return (
+              <Touchable key={i} onPress={tab.onPress}>
+                <View style={
+                  tab.active ? (
+                    _.assign({}, style.tab, {borderBottomWidth: 2, borderColor: this.props.foregroundHighlightColor})
+                  ) : style.tab
+                }>
+                  <Text style={
+                    tab.active ? (
+                      _.assign({}, style.tabText, {color: this.props.foregroundHighlightColor})
+                    ) : style.tabText
+                  }>{tab.text.toUpperCase()}</Text>
+                </View>
+              </Touchable>
+            )
+          })
+        }
+      </View>
+    )
+  }
 
-          { /* BOTTOM SECTION */ }
-          <View style={ style.tabs }>
-
-            { /* The key for this map is the index. Which is a bad idea. */ }
-            { this.props.tabs.map((tab, i) => {
-
-              const tabStyle = tab.active ?
-                _.assign({}, style.tab, { borderBottomWidth: 2, borderColor: this.props.foregroundHighlightColor })
-              :
-                style.tab
-
-              const tabTextStyle = tab.active ?
-                _.assign({}, style.tabText, { color: this.props.foregroundHighlightColor })
-                :
-                  style.tabText
-
-              return (
-                <Touchable key={i} onPress={() => tab.onPress()}>
-                  <View style={ tabStyle }>
-                    <Text style={ tabTextStyle }>{tab.text.toUpperCase()}</Text>
-                  </View>
-                </Touchable>
-              )
-            })}
-          </View>
-        </View>
+  render() {
+    return (
+      <View style={_.assign({}, style.header, { backgroundColor: this.props.backgroundColor })}>
+        {this.renderIcons()}
+        {this.renderTabs()}
+      </View>
     )
   }
 }

@@ -69,7 +69,7 @@ class Connection extends Scene {
             {/* logo goes here */}
           </View>
           <View style={styles.name}>
-            <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text>
+            <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name || 'unknown')}</Text>
           </View>
 
           {this.state.isVerified &&

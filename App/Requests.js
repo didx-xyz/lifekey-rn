@@ -24,6 +24,7 @@ const signedRequest = function(url, opts) {
 
   let userID = null
   let secureRandom = null
+
   return ConsentUser.get()
     .then(results => {
       if (results.id) {
@@ -42,8 +43,9 @@ const signedRequest = function(url, opts) {
     })
     .then(_secureRandom => {
       secureRandom = _secureRandom
+
       return Crypto.sign(
-        secureRandom,
+        _secureRandom,
         Config.keystore.privateKeyName,
         ConsentUser.getPasswordSync(),
         Crypto.SIG_SHA256_WITH_RSA
@@ -69,7 +71,14 @@ const rejectionWithError = function(message) {
 }
 
 const wrappedFetch = function(url, options) {
+  if (url.indexOf("?") > -1) {
+    url += "&_=" + (new Date()).getTime()
+  } else {
+    url += "?_=" + (new Date()).getTime()
+  }
+
   Logger.networkRequest(options.method, url, options)
+
   return fetch(url, options).then(onResponse)
 }
 
