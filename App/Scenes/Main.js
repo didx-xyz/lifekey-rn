@@ -27,7 +27,8 @@ import {
   Text,
   View,
   Dimensions,
-  Image
+  Image,
+  StatusBar
 } from 'react-native'
 import {
   Container,
@@ -52,76 +53,70 @@ export default class Main extends Scene {
       suggestedConnections: Config.hardcodedSuggestedConnections
                             ? Config.suggestedConnections : []
     }
-    this.fetchingData = false;
   }
 
-  componentDidFocus() {
-    super.componentDidFocus()
-    this._onAttention()
-  }
-
-  async fetchServerData(connections) {
-    const profileStart = new Date().getTime()
-    // Get an array of requests for profiles
-    let requests = connections.map(connection =>
-      Api.profile({ did: connection.to_did }))
-
-    // Push annother request on
-    requests.push(Api.getActiveBots())
-
-    // Make requests
-    let responses = await Promise.all(requests)
-
-    // Pop the active bots response off the stack
-    const activeBotsResponse = responses.pop()
-
-    const updatedConnections = connections.map((connection, i) =>
-      _.assign(connection, { image_uri: responses[i].body.user.image_uri })
-    )
-
-    if (activeBotsResponse && typeof activeBotsResponse.body === 'object') {
-      this.setState({
-        connections: updatedConnections,
-        suggestedConnections: activeBotsResponse.body
-      }, () => {
-        Logger.info("Fetching data took " + (new Date().getTime() - profileStart) + " ms")
-      })
+  componentWillFocus() {
+    super.componentWillFocus()
+    try {
+      this.loadConnections()
+      this.loadActiveClients()
+    } catch (error) {
+      Logger.error(error)
     }
-
   }
 
-  _onAttention() {
-    if (!this.fetchingData) {
-      this.fetchingData = true
-      return ConsentConnection.all()
-      .then(result => {
-        if (_.isArray(result)) {
-          this.setState({
-            connections: result
-          }, () => {
-            try {
-              this.fetchServerData(this.state.connections)
-            } catch (error) {
-              Logger.warn(error)
-            }
-          })
+  async loadConnections(callback) {
+    const connections = await ConsentConnection.all()
+    this.setState({ connections: connections }, () => {
+      if (callback) { callback() }
+    })
+  }
+
+  async loadActiveClients(callback) {
+    const activeBots = await Api.getActiveBots()
+    if (activeBots && activeBots.body && _.isArray(activeBots.body)) {
+      const profileRequests = activeBots.body.map((bot) => Api.profile({ did: bot.did }))
+      const profileResponses = await Promise.all(profileRequests)
+      const updatedSuggestedConnections = profileResponses.map(response => {
+        if (response.body && response.body.user) {
+          return response.body.user
+        } else {
+          Logger.warn("Unexpected bot profile data")
+          return ({})
         }
       })
-
+      this.setState({ suggestedConnections: updatedSuggestedConnections }, () => {
+        if (callback) { callback() }
+      })
+    } else {
+      Logger.warn('Directory listing result unexpected')
     }
   }
-/*
-{"error":false,"status":200,"message":"ok","body":[{"display_name":null,"nickname":"trustbank-bot","did":"3e699ce5b77bc25e72826233bad77f463410764956d41d3a41cc0e67fbdd5ebf","actions_url":"https://ceaf6e6b.ngrok.io/actions"},{"display_name":"IDBot + TIM proof of residence, and -id","nickname":"idbot-rc1","did":"a367593a7a7b4ebf0ab938236d6285b2627b85a6627cd02e22a2da0cca24a1c1","actions_url":"http://port8505.dev.cnsnt.io/idbot-rc1-actions"}]}
-*/
-  componentWillMount() {
-    super.componentWillMount()
-    this._onAttention()
+
+  componentDidMount() {
+    super.componentDidMount()
+  }
+
+  componentWillUpdate(nextProps, nextState) {
+    super.componentWillUpdate()
   }
 
   setTab(tab) {
-    this.setState({
-      activeTab: tab,
-    })
+    try {
+      switch (tab) {
+      case TAB_CONNECTED:
+        this.loadConnections(() => {
+          this.setState({ activeTab: tab })
+        })
+        break
+      case TAB_SUGGESTED:
+        this.loadActiveClients(() => {
+          this.setState({ activeTab: tab })
+        })
+      }
+    } catch (error) {
+      Logger.warn(error)
+    }
   }
 
   updateSearch(text) {
@@ -141,11 +136,22 @@ export default class Main extends Scene {
     return false
   }
 
-  connect(connection) {
+  goToConnect(connection) {
     this.navigator.push({
       ...Routes.connection,
       did: connection.did,
-      display_name: connection.display_name
+      display_name: connection.display_name,
+      image_uri: connection.image_uri
+    })
+  }
+
+  goToConnectionDetails(connection) {
+    this.navigator.push({
+      ...Routes.connectionDetails,
+      user_did: connection.to_did,
+      id: connection.id,
+      display_name: connection.display_name,
+      image_uri: connection.image_uri
     })
   }
 
@@ -154,6 +160,7 @@ export default class Main extends Scene {
       <Container>
         <View style={style.headerWrapper}>
           <AndroidBackButton onPress={() => this._hardwareBack()} />
+          <StatusBar hidden={false} />
           <LifekeyHeader
             icons={[
               {
@@ -223,16 +230,15 @@ export default class Main extends Scene {
                       <ListItem
                         key={i}
                         style={style.listItem}
-                        onPress={() => this.navigator.push({
-                          ...Routes.connectionDetails,
-                          user_did: connection.to_did,
-                          id: connection.id,
-                          display_name: connection.display_name
-                        })}
+                        onPress={() => this.goToConnectionDetails(this.state.connections[i])}
                       >
-                        <Text>
-                          {`${connection.display_name}`}
-                        </Text>
+                        <View style={style.listItemWrapper}>
+                          <Image
+                            style={style.listItemImage}
+                            source={{ uri: connection.image_uri }}
+                          />
+                          <Text style={style.listItemText}>{connection.display_name}</Text>
+                        </View>
                       </ListItem>
                   ))}
 
@@ -244,9 +250,15 @@ export default class Main extends Scene {
                     <ListItem
                       key={i}
                       style={style.listItem}
-                      onPress={() => this.connect(this.state.suggestedConnections[i])}
+                      onPress={() => this.goToConnect(this.state.suggestedConnections[i])}
                     >
-                      <Text>{suggestedConnection.display_name}</Text>
+                        <View style={style.listItemWrapper}>
+                          <Image
+                            style={style.listItemImage}
+                            source={{ uri: suggestedConnection.image_uri }}
+                          />
+                          <Text style={style.listItemText}>{suggestedConnection.display_name}</Text>
+                        </View>
                     </ListItem>
                   ))}
                 </View>
@@ -273,11 +285,24 @@ const style = {
     height: Design.lifekeyHeaderHeight
   },
   listItem: {
-    flex: 1,
-    paddingLeft: 20
+    marginLeft: 10
   },
-  listItemLabel: {
-    backgroundColor: Palette.consentGrayDark
+  listItemWrapper: {
+    flex: 1,
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
+  },
+  listItemText: {
+    fontSize: 16,
+    flex: 1,
+    marginLeft: 10
+  },
+  listItemImage: {
+    width: 30,
+    height: 30,
+    borderRadius: 45,
+    marginLeft: 10
   },
   footer: {
     height: Dimensions.get('window').height / 6
