@@ -22,7 +22,8 @@ import {
   View,
   ScrollView,
   Dimensions,
-  Image
+  Image,
+  ToastAndroid
 } from "react-native"
 
 import {
@@ -32,6 +33,7 @@ import {
 import ISACard from '../Components/ISACard'
 import Icon from 'react-native-vector-icons/Ionicons'
 import HexagonIcon from '../Components/HexagonIcon'
+import Routes from '../Routes'
 
 const CONNECT = 0
 const ACTIVITY = 1
@@ -50,6 +52,7 @@ class ConnectionDetails extends Scene {
       image_uri: null,
       actions_url: null,
       address: null,
+      tel: null,
       email: null,
       actions: [],
       display_name: this.props.route.display_name,
@@ -62,12 +65,17 @@ class ConnectionDetails extends Scene {
   async loadActions(actions_url) {
     if (actions_url) {
       Logger.info('Fetching actions')
-      const actionsResponse = await fetch(actions_url, { method: 'GET' })
+      const requestOptions = { method: 'GET' }
+      Logger.networkRequest('GET', actions_url, requestOptions)
+      const actionsResponse = await fetch(actions_url, requestOptions)
+      Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
       const actionsJSON = JSON.parse(actionsResponse._bodyText)
       if (actionsJSON) {
         this.setState({
           actions: actionsJSON
-        })
+        }, () => Logger.info('Actions updated'))
+      } else {
+        Logger.warn('Could not parse JSON')
       }
     }
   }
@@ -81,12 +89,43 @@ class ConnectionDetails extends Scene {
         image_uri: response.body.user.image_uri,
         actions_url: response.body.actions_url,
         address: response.body.user.address,
+        tel: response.body.user.tel,
         email: response.body.user.email
       })
     } catch (error) {
       Logger.warn(error)
     }
 
+  }
+
+  async callAction(actionURL) {
+    // this.navigator.push({
+    //   ...Routes.informationRequest,
+    //   display_name: this.state.display_name,
+    //   colour: this.state.colour,
+    //   image_uri: this.state.image_uri,
+    //   actions_url: this.state.actions_url,
+    //   address: this.state.address,
+    //   tel: this.state.tel,
+    //   email: this.state.email
+    // })
+    try {
+      const myDid = Session.getState().user.did
+      const requestOptions = {
+        "method": "GET",
+        "headers": {
+          "x-cnsnt-id": myDid
+        }
+      }
+      Logger.networkRequest('GET', actionURL, requestOptions)
+      const response = await fetch(actionURL, requestOptions)
+      if (response) {
+        ToastAndroid.show('ISA requested', ToastAndroid.SHORT)
+        Logger.networkResponse(response.status, new Date(), JSON.stringify(response))
+      }
+    } catch (error) {
+      Logger.warn(error)
+    }
   }
 
   componentWillMount() {
@@ -96,7 +135,6 @@ class ConnectionDetails extends Scene {
 
   componentWillFocus() {
     super.componentWillFocus()
-    this.onAttention()
   }
 
   onHelpPress() {
@@ -180,10 +218,12 @@ class ConnectionDetails extends Scene {
             </View>
             <View style={styles.actionList}>
               {this.state.actions.map((action, i) =>
-                <View key={i} style={styles.actionItem}>
-                  <HexagonIcon width={65} height={65} fill={Palette.consentGrayDarkest}/>
-                  <Text style={styles.actionItemText}>{action.name}</Text>
-                </View>
+                <Touchable key={i} onPress={() => this.callAction(action.url)}>
+                  <View style={styles.actionItem}>
+                    <HexagonIcon width={65} height={65} fill={Palette.consentGrayDarkest}/>
+                    <Text style={styles.actionItemText}>{action.name}</Text>
+                  </View>
+                </Touchable>
               )}
             </View>
           </View>
@@ -257,6 +297,9 @@ class ConnectionDetails extends Scene {
               <Text>{'\n'}</Text>
               <Text style={{ fontWeight: 'bold'}}>Email </Text>
               <Text>{this.state.email}</Text>
+              <Text>{'\n'}</Text>
+              <Text style={{ fontWeight: 'bold'}}>Tel </Text>
+              <Text>{this.state.tel}</Text>
             </Text>
           </View>
         </View>
@@ -284,7 +327,7 @@ class ConnectionDetails extends Scene {
                         source={{ uri: this.state.image_uri }}
                         style={{ width: 36, height: 36, borderRadius: 45 }}
                       />
-                      <Text style={{ color: "#000", marginLeft: 8 }}>{this.state.display_name}</Text>
+                      <Text style={{ fontSize: 18, color: "#000", marginLeft: 8 }}>{this.state.display_name}</Text>
                     </View>,
               onPress: () => this.setState({ activeTab: ACTIVITY })
             },
@@ -392,7 +435,8 @@ const styles = {
     borderBottomRightRadius: 5
   },
   actionItem: {
-    width: "28%",
+    flex: 1,
+    // width: "28%",
     paddingTop: 15,
     paddingBottom: 15,
     alignItems: 'center'
