@@ -16,14 +16,16 @@ import MarketingIcon from "../Components/MarketingIcon"
 import Scene from "../Scene"
 import PeriodIcon from "../Components/PeriodIcon"
 import Touchable from "../Components/Touchable"
+import Logger from '../Logger'
 
 class InformationRequest extends Scene {
   constructor(...params) {
     super(...params)
 
     this.state = {
-      "isa": null,
-      "resources": []
+      isa: null,
+      resources: [],
+      isar_id: this.props.route.message.isar_id
     }
 
     this.onBoundPressDecline = this.onPressDecline.bind(this)
@@ -45,11 +47,17 @@ class InformationRequest extends Scene {
       // console.log("resources", data)
 
       this.setState({
-        "resources": data.body,
+        resources: data.body,
       })
     })
 
+    this.loadISAs()
+
     this.updateSwaps()
+  }
+
+  componentWillUpdate(p, n) {
+    console.log(this.state)
   }
 
   updateSwaps() {
@@ -112,6 +120,30 @@ class InformationRequest extends Scene {
     })
 
     this.navigator.push(Routes.selectResourceOfType)
+  }
+
+  async loadISAs() {
+    const response = await Api.allISAs()
+    if (response && !response.error) {
+      const unacked = response.body.unacked
+      const currentISA = unacked.find(isar => parseInt(isar.id, 10) === parseInt(this.state.isar_id, 10))
+      if (currentISA) {
+        // currentISA.required_entities
+        // currentISA.from_did
+        // purpose
+        // license
+        console.log('currentISA', currentISA)
+        this.setState({
+          isa: {
+            required_entities: currentISA.required_entities
+          }
+        }, () => { console.log('this.state', this.state)})
+      } else {
+        Logger.warn('Could not find corresponding ISA')
+      }
+    }
+
+    // match ids
   }
 
   render() {
