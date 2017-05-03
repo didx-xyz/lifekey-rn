@@ -123,6 +123,7 @@ export default class SplashScreen extends Scene {
       <Container>
         <Content>
           <BackButton navigator={this.navigator} onPress={() => false} />
+          <StatusBar hidden={true} />
           <Grid>
             <Col style={{ flex: 1, height: Dimensions.get('window').height }}>
 
