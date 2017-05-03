@@ -1,7 +1,7 @@
 // external dependencies
 import React, { Component } from "react"
 import { View, Text } from "react-native"
-import { Card } from "native-base"
+import { Card, CardItem } from "native-base"
 import PropTypes from "prop-types"
 
 // internal dependencies
@@ -30,40 +30,42 @@ class InformationRequestResource extends Component {
 
     return (
       <Card style={styles.card}>
-        <View style={styles.row}>
-          <View style={styles.left}>
-            <View style={title}>
-              <Text>
-                <Text style={styles.titleText}>
-                  {this.props.title.toUpperCase()}
-                </Text>
-                {this.props.meta &&
-                  <Text style={styles.metaText}>
-                    {" "}
-                    {this.props.meta.toUpperCase()}
+        <CardItem onPress={this.props.onPress}>
+          <View style={styles.row}>
+            <View style={styles.left}>
+              <View style={title}>
+                <Text>
+                  <Text style={styles.titleText}>
+                    {this.props.title.toUpperCase()}
                   </Text>
-                }
-              </Text>
+                  {this.props.meta &&
+                    <Text style={styles.metaText}>
+                      {" "}
+                      {this.props.meta.toUpperCase()}
+                    </Text>
+                  }
+                </Text>
+              </View>
+              {this.props.children &&
+                <View style={styles.children}>
+                  {this.props.children}
+                </View>
+              }
             </View>
-            {this.props.children &&
-              <View style={styles.children}>
-                {this.props.children}
+            {this.props.action &&
+              <View style={styles.right}>
+                <Touchable onPress={this.onBoundAction}>
+                  {this.props.action == "add" &&
+                    <Text>A</Text>
+                  }
+                  {this.props.action == "edit" &&
+                    <Text>E</Text>
+                  }
+                </Touchable>
               </View>
             }
           </View>
-          {this.props.action &&
-            <View style={styles.right}>
-              <Touchable onPress={this.onBoundAction}>
-                {this.props.action == "add" &&
-                  <Text>A</Text>
-                }
-                {this.props.action == "edit" &&
-                  <Text>E</Text>
-                }
-              </Touchable>
-            </View>
-          }
-        </View>
+        </CardItem>
       </Card>
     )
   }
@@ -74,8 +76,7 @@ const styles = {
     "marginTop": 10,
     "marginLeft": 10,
     "marginRight": 10,
-    "marginBottom": 0,
-    "padding": 15
+    "marginBottom": 0
   },
   "title": {
     "flexDirection": "row",
@@ -109,14 +110,16 @@ const styles = {
 }
 
 InformationRequestResource.defaultProps = {
-  "title": "heading not set"
+  "title": "heading not set",
+  "onPress": () => {}
 }
 
 InformationRequestResource.propTypes = {
   "title": PropTypes.string,
   "meta": PropTypes.string,
   "action": PropTypes.oneOf(["edit", "add"]),
-  "onAction": PropTypes.func
+  "onAction": PropTypes.func,
+  "onPress": PropTypes.func
 }
 
 export default InformationRequestResource
