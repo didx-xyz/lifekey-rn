@@ -21,14 +21,8 @@ export default {
   APP_NAME: APP_NAME,
 
   // First scene to show
-  initialRouteFromConfig: true, // Must be true to use route below
+  initialRouteFromConfig: false, // Must be true to use route below
   initialRoute: Routes.main,
-
-  // Allow requests from whitelisted user (testing on iOS, without login)
-  useWhitelistedUser: true,
-  whitelistedUserId: 2,
-  whitelistedUserPlain: "example",
-  whitelistedUserSigned: "example",
 
   // Debug
   DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
