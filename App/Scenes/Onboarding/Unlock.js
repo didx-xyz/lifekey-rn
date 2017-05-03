@@ -5,7 +5,8 @@ import {
   TextInput,
   Keyboard,
   Platform,
-  Image
+  Image,
+  StatusBar
 } from 'react-native'
 import { Container, Content, Grid, Col, Row } from 'native-base/backward'
 
@@ -132,6 +133,7 @@ class Unlocked extends Scene {
     return (
       <Container onTouchStart={this.onFocus} style={style.container}>
         <BackButton navigator={this.navigator} />
+        <StatusBar hidden={true} />
         <Content>
           <Grid>
             <Col style={Object.assign(style.col, { height: this.state.screenHeight })}>
