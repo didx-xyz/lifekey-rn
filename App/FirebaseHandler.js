@@ -102,6 +102,11 @@ class FirebaseHandler {
       case 'information_sharing_agreement_request':
         Logger.firebase('information_sharing_agreement_request', message)
         eventEmitter.emit('information_sharing_agreement_request', message)
+        // Session.update({
+        //   isas: {
+        //     unacked: [{ id: message.isar_id }]
+        //   }
+        // })
         break
 
       default:
