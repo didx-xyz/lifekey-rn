@@ -101,9 +101,9 @@ class InformationRequest extends Scene {
 
   onPressShare() {
     Api.respondISA({
-      "isa_id": this.state.isa.id,
-      "accepted": true,
-      "permitted_resources": this.shared.map(shared => ({ "id": shared }))
+      isa_id: this.state.isa.id,
+      accepted: true,
+      permitted_resources: this.shared.map(shared => ({ id: shared }))
     }).then(response => {
       // console.log("response", response)
 
@@ -113,10 +113,10 @@ class InformationRequest extends Scene {
 
   onSwap(resource, key = null) {
     Session.update({
-      "swapSchema": resource.schema,
-      "swapResources": this.state.resources,
-      "swapKey": key,
-      "swapFrom": resource.id
+      swapSchema: resource.schema,
+      swapResources: this.state.resources,
+      swapKey: key,
+      swapFrom: resource.id
     })
 
     this.navigator.push(Routes.selectResourceOfType)
@@ -332,107 +332,107 @@ class InformationRequest extends Scene {
 }
 
 const styles = {
-  "content": {
-    "flex": 1,
-    "backgroundColor": "#323a43"
+  content: {
+    flex: 1,
+    backgroundColor: "#323a43"
   },
-  "top": {
-    "height": "14%"
+  top: {
+    height: "14%"
   },
-  "middle": {
-    "height": "72%",
-    "paddingLeft": 10,
-    "paddingRight": 10
+  middle: {
+    height: "72%",
+    paddingLeft: 10,
+    paddingRight: 10
   },
-  "middleBackground": {
-    "flex": 1,
-    "borderRadius": 10,
-    "backgroundColor": "#f0f2f2",
-    "shadowColor": "#000000",
-    "shadowOpacity": 0.3,
-    "shadowRadius": 5,
-    "shadowOffset": {
-      "height": 4,
-      "width": 0
+  middleBackground: {
+    flex: 1,
+    borderRadius: 10,
+    backgroundColor: "#f0f2f2",
+    shadowColor: "#000000",
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    shadowOffset: {
+      height: 4,
+      width: 0
     }
   },
-  "name": {
-    "height": 60,
-    "alignItems": "center",
-    "justifyContent": "center",
-    "paddingLeft": "20%",
-    "paddingRight": "20%",
-    "paddingTop": 20
+  name: {
+    height: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingLeft: "20%",
+    paddingRight: "20%",
+    paddingTop: 20
   },
-  "nameText": {
-    "color": "#666",
-    "fontSize": 17
+  nameText: {
+    color: "#666",
+    fontSize: 17
   },
-  "description": {
-    "height": 50,
-    "paddingLeft": "20%",
-    "paddingRight": "20%"
+  description: {
+    height: 50,
+    paddingLeft: "20%",
+    paddingRight: "20%"
   },
-  "descriptionText": {
-    "color": "#666",
-    "fontSize": 15,
-    "textAlign": "center"
+  descriptionText: {
+    color: "#666",
+    fontSize: 15,
+    textAlign: "center"
   },
-  "itemText": {
-    "color": "#666"
+  itemText: {
+    color: "#666"
   },
-  "missingText": {
-    "color": "#ff5d62"
+  missingText: {
+    color: "#ff5d62"
   },
-  "meta": {
-    "flex": 1,
-    "flexDirection": "row",
-    "justifyContent": "center",
-    "alignItems": "center",
-    "marginTop": 10
+  meta: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10
   },
-  "metaItem": {
-    "color": "#666"
+  metaItem: {
+    color: "#666"
   },
-  "missingItems": {
-    "backgroundColor": "#ff2b33",
-    "padding": 15,
-    "margin": 15,
-    "borderRadius": 8
+  missingItems: {
+    backgroundColor: "#ff2b33",
+    padding: 15,
+    margin: 15,
+    borderRadius: 8
   },
-  "missingItemsText": {
-    "color": "#fff"
+  missingItemsText: {
+    color: "#fff"
   },
-  "foundText": {
-    "color": "#333",
-    "fontWeight": "bold"
+  foundText: {
+    color: "#333",
+    fontWeight: "bold"
   },
-  "bottom": {
-    "height": "14%",
-    "flexDirection": "row",
-    "paddingLeft": "12%",
-    "paddingRight": "12%"
+  bottom: {
+    height: "14%",
+    flexDirection: "row",
+    paddingLeft: "12%",
+    paddingRight: "12%"
   },
-  "decline": {
-    "flex": 1,
-    "alignItems": "flex-start",
-    "justifyContent": "center"
+  decline: {
+    flex: 1,
+    alignItems: "flex-start",
+    justifyContent: "center"
   },
-  "declineText": {
-    "color": "#fff",
-    "textAlign": "left",
-    "fontSize": 17
+  declineText: {
+    color: "#fff",
+    textAlign: "left",
+    fontSize: 17
   },
-  "help": {
-    "flex": 1,
-    "alignItems": "flex-end",
-    "justifyContent": "center"
+  help: {
+    flex: 1,
+    alignItems: "flex-end",
+    justifyContent: "center"
   },
-  "shareView": {
-    "alignItems": "center",
-    "justifyContent": "center",
-    "flex": 1,
-    "padding": 30
+  shareView: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    padding: 30
   }
 }
 
