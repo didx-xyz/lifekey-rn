@@ -138,7 +138,7 @@ export default class Main extends Scene {
               },
               {
                 icon: <Image source={require("../Images/smiley_speech_bubble.png")}/>,
-                onPress: () => alert('test')
+                onPress: () => this.navigator.push(Routes.thanks)
               }
             ]}
             tabs={[

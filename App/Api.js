@@ -550,6 +550,11 @@ export default class Api {
     })
   }
 
+  // 16 GET /management/thanks/balance
+  static thanksBalance() {
+    return request('/management/thanks/balance')
+  }
+
   // ##################
   // ##### DEBUG ######
   // ##################
@@ -560,8 +565,11 @@ export default class Api {
       if (!data.id && !data.email) {
         return Promise.reject(`ID or email must be specified. id: ${data.id}, email: ${data.email}`)
       }
-      const route = data.id ? `/debug/unregister/?user_id=${data.id}`
-                                 : `/debug/unregister/?email=${data.email}`
+      const route = data.id ? (
+        `/debug/unregister/?user_id=${data.id}`
+      ) : (
+        `/debug/unregister/?email=${data.email}`
+      )
       const options = {
         method: 'GET'
       }
