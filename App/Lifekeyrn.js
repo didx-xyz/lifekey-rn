@@ -199,6 +199,15 @@ class Lifekeyrn extends Component {
         this.navigator.push(Routes.main)
       }
     )
+    this.firebaseInternalEventEmitter.addListener(
+      'information_sharing_agreement_request',
+      (message) => {
+        this.navigator.push({
+        ...Routes.informationRequest,
+        message
+        })
+      }
+    )
   }
 
   /**
@@ -311,7 +320,7 @@ class Lifekeyrn extends Component {
                 onLayout={(event) => this._onScreenUpdate(event)}
                 style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}
               >
-                <StatusBar hidden={true} />
+                <StatusBar hidden={false} />
                 {React.createElement(
                   route.scene,
                   {
