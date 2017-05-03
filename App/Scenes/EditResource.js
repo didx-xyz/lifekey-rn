@@ -50,7 +50,8 @@ class EditResource extends Scene {
       }),
       "entity": this.state.label,
       "attribute": this.state.label,
-      "alias": this.state.label
+      "alias": this.state.label,
+      "schema": this.context.getEditResourceForm().split("_form")[0]
     }
 
     try {
@@ -70,7 +71,7 @@ class EditResource extends Scene {
 
     // handle promise rejections for validation errors
     catch (e) {
-      alert("Error saving resource")
+      alert("Error saving resource: " + e)
     }
   }
 
@@ -84,13 +85,19 @@ class EditResource extends Scene {
 
     Api.getResourceForm(form).then(this.onBoundForm)
 
-    this.listener = this.props._navigationEventEmitter.addListener("onDidFocusEditResource", () => {
-      const id = this.context.getEditResourceId()
+    this.loadResource()
+  }
 
-      if (id) {
-        Api.getResource({ id }).then(this.onBoundResource)
-      }
-    })
+  componentWillFocus() {
+    this.loadResource()
+  }
+
+  loadResource() {
+    const id = this.context.getEditResourceId()
+
+    if (id) {
+      Api.getResource({ id }).then(this.onBoundResource)
+    }
   }
 
   onResource(data) {
@@ -100,10 +107,6 @@ class EditResource extends Scene {
     }
 
     this.setState(state)
-  }
-
-  componentWillUnmount() {
-    this.listener.remove()
   }
 
   onForm(data) {
@@ -194,10 +197,14 @@ class EditResource extends Scene {
       <TextInput
         style={styles.textInput}
         value={this.state[entity.name]}
-        onChangeText={text => this.setState({[entity.name]: text})}
+        onChangeText={
+          text => this.setState({[entity.name]: text})
+          // text => console.log("TEXT: ", entity.name, " : ", text)
+        }
         autoCapitalize="none"
         autoCorrect={false}
         returnKeyType="done"
+        underlineColorAndroid="rgba(0, 0, 0, 0)"
       />
     )
   }
@@ -378,16 +385,19 @@ const styles = {
     "padding": 10
   },
   "formField": {
-    "paddingTop": 15,
-    "paddingBottom": 15,
+    "paddingTop": 5,
+    "paddingBottom": 5,
     "borderBottomWidth": 1,
     "borderBottomColor": "#efefef",
-    "flexDirection": "row"
+    "flexDirection": "row",
+    "alignItems": "center",
+    "justifyContent": "center",
   },
   "formFieldLabel": {
-    "height": 20,
+    "height": 40,
     "width": "35%",
-    "justifyContent": "center"
+    "justifyContent": "center",
+    "backgroundColor": "red"
   },
   "formFieldLabelText": {
     "fontWeight": "bold",
@@ -396,18 +406,22 @@ const styles = {
   },
   "formFieldInput": {
     "flex": 1,
-    "height": 20
+    "height": 40,
+    "borderBottomWidth": 0
   },
   "textInput": {
     "flex": 1,
+    "height": 40,
     "color": "#666",
     "fontWeight": "100",
-    "fontSize": 14
+    "fontSize": 14,
+    "height": 40
   },
   "countryLabel": {
+    "flex": 1,
+    "height": 40,
     "color": "#666",
     "fontWeight": "100",
-    "height": 20,
     "paddingTop": 10,
     "paddingBottom": 10,
     "fontSize": 14
@@ -415,36 +429,46 @@ const styles = {
   "dateInput": {
     "dateTouchBody": {
       "width": "100%",
-      "height": "100%"
+      "height": "100%",
+      "backgroundColor": "blue"
     },
     "dateInput": {
       "borderWidth": 0,
-      "alignItems": "flex-start",
-      "justifyContent": "center",
+      "alignItems": "center",
       "padding": 0,
-      "height": null
+      "height": null,
+      "alignItems": "center",
+      "justifyContent": "center",
     },
     "dateText": {
+      "flex": 1,
+      "height": 40,
       "color": "#666",
       "fontWeight": "100",
-      "fontSize": 14
+      "fontSize": 14,
     },
     "placeholderText": {
+      "flex": 1,
+      "backgroundColor": "yellow",
+      "height": 40,
       "color": "#666",
       "fontWeight": "100",
-      "fontSize": 14
+      "fontSize": 14,
+      "textAlign": "left",
     }
   },
   "languageLabel": {
+    "flex": 1,
+    "height": 40,
     "color": "#666",
     "fontWeight": "100",
-    "height": 20,
     "paddingTop": 10,
     "paddingBottom": 10,
     "fontSize": 14
   },
   "photographLabel": {
-    "height": 20,
+    "flex": 1,
+    "height": 40,
     "justifyContent": "center"
   },
   "photographLabelText": {

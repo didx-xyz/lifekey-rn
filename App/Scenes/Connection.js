@@ -76,7 +76,7 @@ class Connection extends Scene {
             <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/>
           </View>
           <View style={styles.name}>
-            <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text>
+            <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name || 'unknown')}</Text>
           </View>
 
           {this.state.isVerified &&

@@ -1,6 +1,7 @@
 // external dependencies
 import React from "react"
 import Svg, { Line, Path } from "react-native-svg"
+import PropTypes from "prop-types"
 
 const MobileIcon = (props) => {
   const dynamic = {
@@ -26,9 +27,9 @@ MobileIcon.defaultProps = {
 }
 
 MobileIcon.propTypes = {
-  "width": React.PropTypes.number.isRequired,
-  "height": React.PropTypes.number.isRequired,
-  "stroke": React.PropTypes.string
+  "width": PropTypes.number.isRequired,
+  "height": PropTypes.number.isRequired,
+  "stroke": PropTypes.string
 }
 
 const styles = {

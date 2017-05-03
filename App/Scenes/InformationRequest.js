@@ -40,7 +40,7 @@ class InformationRequest extends Scene {
     const state = Session.getState()
 
     this.setState({
-      isa: state.currentIsa
+      "isa": state.currentIsa
     })
 
     Api.allResources().then(data => {
@@ -59,7 +59,6 @@ class InformationRequest extends Scene {
   componentWillUpdate(p, n) {
     console.log(this.state)
   }
-
   updateSwaps() {
     const data = Session.getState()
     // console.log("DATA", data)
@@ -72,8 +71,8 @@ class InformationRequest extends Scene {
           this.swaps["_" + data.swapFrom] = resource
 
           Session.update({
-            swapFrom: null,
-            swapTo: null
+            "swapFrom": null,
+            "swapTo": null
           })
 
           // console.log("SWAPS", this.swaps)
@@ -121,6 +120,7 @@ class InformationRequest extends Scene {
 
     this.navigator.push(Routes.selectResourceOfType)
   }
+
   async loadISAs() {
     const response = await Api.allISAs()
     if (response && !response.error) {

@@ -41,7 +41,9 @@ class LifekeyCard extends Component {
             <View style={styles.cardHeader}>
               <Text style={styles.cardHeadingText}>{this.props.headingText.toUpperCase()}</Text>
               <Touchable onPress={this.onBoundPressSwitchExpand}>
-                <Icon style={Object.assign({}, styles.cardHeadingIcon, styles.cardHeadingIconLarge)} name="angle-down"  />
+                <View style={styles.buttonContainer}>
+                  <Icon style={Object.assign({}, styles.cardHeadingIcon, styles.cardHeadingIconLarge)} name="angle-down"  />
+                </View>
               </Touchable>
             </View>
           </CardItem>
@@ -77,7 +79,9 @@ class LifekeyCard extends Component {
           <View style={styles.cardHeader}>
             <Text style={styles.cardHeadingText}>{this.props.headingText.toUpperCase()}</Text>
             <Touchable onPress={this.onBoundPressSwitchExpand}>
-              <Icon style={Object.assign({}, styles.cardHeadingIcon, styles.cardHeadingIconSmall)}  name="angle-right"  />
+              <View style={styles.buttonContainer}>  
+                <Icon style={Object.assign({}, styles.cardHeadingIcon, styles.cardHeadingIconSmall)}  name="angle-right"  />
+              </View>
             </Touchable>
           </View>
         </CardItem>
@@ -105,10 +109,19 @@ const styles = {
     "fontWeight": "bold"
   },
   "cardHeadingIcon": {
-    "marginTop": -10,
+    // "marginTop": -10,
     "color": Palette.consentGrayDark
   },
+  "buttonContainer":{
+    "justifyContent": "center",
+    "alignItems": "center",
+    "backgroundColor": Palette.consentGrayLightest,
+    "borderRadius": 18,
+    "width": 36,
+    "height": 36
+  },
   "cardHeadingIconSmall": {
+    "marginLeft": 4,
     "fontSize": 30
   },
   "cardHeadingIconLarge": {
