@@ -21,11 +21,11 @@ export default {
   APP_NAME: APP_NAME,
 
   // First scene to show
-  initialRouteFromConfig: false, // Must be true to use route below
-  initialRoute: Routes.onboarding.splashScreen,
+  initialRouteFromConfig: true, // Must be true to use route below
+  initialRoute: Routes.main,
 
   // Allow requests from whitelisted user (testing on iOS, without login)
-  useWhitelistedUser: false,
+  useWhitelistedUser: true,
   whitelistedUserId: 2,
   whitelistedUserPlain: "example",
   whitelistedUserSigned: "example",
@@ -33,18 +33,17 @@ export default {
   // Debug
   DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
 
-  debugNetwork: true,         // Log API requests and responses
-  debugReact: true,          // Log the React Lifecycle events
-
+  debugNetwork: false,         // Log API requests and responses
+  debugReact: false,          // Log the React Lifecycle events
   debugNavigator: false,      // Log the current stack of Navigator routes
   debugFirebase: false,        // Log Firebase events
   debugAsyncStorage: false,
-  debugAutoLogin: false,
+  debugAutoLogin: true,
   debugAutoLoginPassword: '99999',
 
-  hardcodedSuggestedConnections: false,
+  hardcodedSuggestedConnections: true,
   suggestedConnections: [
-    { did: 'ade95e3f8014c3eb4067ce82b185b42b7b50edd8493748808a7e73fe86f7338e', display_name: 'Testing'}
+    { did: '7dc1ddd0c7452a96968d9604bee07edb60251efff189f841662ed4643797e1bc', display_name: 'Woolworths' }
   ],
 
   version: NPM_PACKAGE.version, // App version

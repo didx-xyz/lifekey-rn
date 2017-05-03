@@ -71,24 +71,22 @@ class ConsentConnection {
           to_did: to_did,
           display_name: display_name
         }])
-        return Promise.all([
-          AsyncStorage.setItem(STORAGE_KEY, connectionsItemJSON),
-          ConsentDiscoveredUser.add(user_id, to_did, display_name, colour)
-        ])
+        return AsyncStorage.setItem(STORAGE_KEY, connectionsItemJSON)
       }
 
       // Parse JSON to object
       const connections = JSON.parse(connectionsItem)
-
-      // Check if already connected
-      if (connections.find(connection => connection.to_did === to_did)) {
-        // Connection already exists
-        return Promise.reject(
-          new ConsentError(
-            `Connection ${to_did} already exists`,
-            E_CONNECTION_ALREADY_EXISTS
+      if (connections && connections.to_did) {
+        // Check if already connected
+        if (connections.find(connection => connection.to_did === to_did)) {
+          // Connection already exists
+          return Promise.reject(
+            new ConsentError(
+              `Connection ${to_did} already exists`,
+              E_CONNECTION_ALREADY_EXISTS
+            )
           )
-        )
+        }
       } else {
         // merge new data
         const updatedConnectionsItem = JSON.stringify(connections.concat({
@@ -96,22 +94,7 @@ class ConsentConnection {
           to: parseInt(to_did),
           display_name: display_name
         }))
-        return Promise.all([
-          AsyncStorage.setItem(STORAGE_KEY, updatedConnectionsItem),
-          ConsentDiscoveredUser.add(user_id, to_did, display_name, colour, image_uri)
-        ])
-      }
-    })
-    .then(result => {
-      if (result[0] && result[1]) {
-        return Promise.resolve(true)
-      } else {
-        return Promise.resolve(
-          new ConsentError(
-            `Error updating store ${STORAGE_KEY}`,
-            E_COULD_NOT_SET_ITEM
-          )
-        )
+        return AsyncStorage.setItem(STORAGE_KEY, updatedConnectionsItem)
       }
     })
   }

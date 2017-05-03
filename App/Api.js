@@ -1,6 +1,7 @@
 // internal dependencies
 import Config from "./Config"
 import Crypto from "./Crypto"
+import Session from "./Session"
 import Logger from "./Logger"
 import ConsentUser from "./Models/ConsentUser"
 import ConsentError, { ErrorCode } from "./ConsentError"
@@ -76,7 +77,7 @@ export default class Api {
   }
 
   static setCached(key, value, time = 300000 /* 5 minutes in milliseconds */) {
-    
+
     const currentTime = new Date()
     state[key] = {
       "time": currentTime.setMilliseconds(currentTime.getMilliseconds() + time),
@@ -144,8 +145,9 @@ export default class Api {
       'target'
     ]
     if (checkParameters(requiredFields, data)) {
+      const userDID = Session.getState().user.did
       return request('/management/connection', {
-        body: JSON.stringify({ target: data.target }),
+        body: JSON.stringify({ target: data.target, from_did: userDID }),
         method: 'POST'
       })
     } else {
@@ -279,10 +281,10 @@ export default class Api {
    // Demo QR code
   static qrCode(data) {
     const requiredFields = [
-      'user_id'
+      'user_did'
     ]
     if (checkParameters(requiredFields, data)) {
-      return request(`/management/qr/${data.user_id}`, {
+      return request(`/qr/${data.user_did}`, {
         method: 'GET'
       })
     } else {
@@ -351,11 +353,11 @@ export default class Api {
 
   // 0 GET /resource
   static allResources(milliseconds = 300000) {
-    let cached = Api.getCached("allResources")
-
-    if (cached !== null) {
-      return cached
-    }
+    // let cached = Api.getCached("allResources")
+    //
+    // if (cached !== null) {
+    //   return cached
+    // }
 
     cached = request("/resource?all=1")
 
@@ -536,15 +538,15 @@ export default class Api {
   // 14 POST /facial-verfication token
   // Get a Face pic after scanning a QR code
   static facialVerificationQrScanResponse(user_did, token) {
-    return request(`/facial-verification/${user_did}/${token}`, { 
-      method: 'GET' 
+    return request(`/facial-verification/${user_did}/${token}`, {
+      method: 'GET'
     }, false)
-  } 
+  }
 
-  // 15 POST /facial-verfication 
+  // 15 POST /facial-verfication
   // User result on QR code verification
   static facialVerificationResult(user_did, token, result) {
-    return request(`/facial-verification/${user_did}/${token}`, { 
+    return request(`/facial-verification/${user_did}/${token}`, {
       method: 'POST',
       body: JSON.stringify({ result : result })
     })
@@ -565,8 +567,11 @@ export default class Api {
       if (!data.id && !data.email) {
         return Promise.reject(`ID or email must be specified. id: ${data.id}, email: ${data.email}`)
       }
-      const route = data.id ? `/debug/unregister/?user_id=${data.id}`
-                                 : `/debug/unregister/?email=${data.email}`
+      const route = data.id ? (
+        `/debug/unregister/?user_id=${data.id}`
+      ) : (
+        `/debug/unregister/?email=${data.email}`
+      )
       const options = {
         method: 'GET'
       }
@@ -577,9 +582,7 @@ export default class Api {
   }
 
   static getActiveBots() {
-    const route = 'http://port8181.dev.cnsnt.io/active.php'
-    Logger.networkRequest('GET', route)
-    return fetch(route, {
+    return request('/directory', {
       method: 'GET'
     })
   }

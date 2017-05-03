@@ -16,7 +16,7 @@ import ConsentISA from './Models/ConsentISA'
 class FirebaseHandler {
 
   static messageReceived(message, eventEmitter) {
-    Logger.firebase('Message Received', message)
+    // Logger.firebase('Message Received', message)
     if (message && message.type) {
       switch (message.type) {
 
@@ -75,17 +75,17 @@ class FirebaseHandler {
         break
 
       case 'user_connection_created':
-        Logger.firebase('user_connection_created')
+        Logger.firebase('user_connection_created', message)
         ConsentConnection.add(
           message.user_connection_id,
           message.to_did
         )
         .then(() => {
-          Logger.info('Connection created')
+          Logger.info('Connection added successfully')
           eventEmitter.emit('user_connection_created')
         })
         .catch(error => {
-          Logger.error(error, this.filename, error)
+          Logger.warn("Could not add user connection", error)
         })
         break
 

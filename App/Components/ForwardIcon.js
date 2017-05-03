@@ -10,7 +10,7 @@ const ForwardIcon = (props) => {
 
   return (
     <Svg width={props.width} height={props.height} viewBox="0 0 9.4 17.7">
-      <polyline {...styles.cls1} {...dynamic} points="0.5,17.2 8.9,8.7 0.7,0.5"/>
+      <Polyline {...styles.cls1} {...dynamic} points="0.5,17.2 8.9,8.7 0.7,0.5"/>
     </Svg>
   )
 }

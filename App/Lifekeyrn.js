@@ -99,6 +99,12 @@ class Lifekeyrn extends Component {
     this.boundGetEditResourceForm = this.getEditResourceForm.bind(this)
     this.boundGetEditResourceId = this.getEditResourceId.bind(this)
     this.boundGetShouldClearResourceCache = this.getShouldClearResourceCache.bind(this)
+
+    this._messaging.getInitialNotification().then(notification => {
+      Logger.info('_messaging.getInitialNotification', notification)
+      // TODO check the structure of `notification`
+      // and decide which scene to dispatch
+    }).catch(console.log)
   }
 
   getEditResourceForm() {
