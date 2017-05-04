@@ -24,10 +24,6 @@ class FaceMatch extends Scene {
       "imageAvailable": false, 
       "imageDataUrl": "" 
     }
-
-    this.onBoundPressYes = this.onPressYes.bind(this)
-    this.onBoundPressNo = this.onPressNo.bind(this)
-    this.onBoundPressUnsure = this.onPressUnsure.bind(this)
   }
 
   componentDidMount() {
