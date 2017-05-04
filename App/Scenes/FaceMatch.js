@@ -47,7 +47,10 @@ class FaceMatch extends Scene {
 
       const response = await Api.facialVerificationQrScanResponse(userdid, token)
       
+      const time = new Date()
       const parsedValue = JSON.parse(response.body.value); 
+      console.log("Time spent waiting : ", (Date.now() - time.getTime())*1000)
+
       const url = `data:image/jpeg;base64,${parsedValue.identityPhotograph}}`
 
       this.setState({

@@ -5,6 +5,7 @@ import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
 
 // internal dependencies
+import Common from "../Common"
 import Api from "../Api"
 import Scene from "../Scene"
 import Palette from "../Palette"
@@ -86,6 +87,7 @@ class Me extends Scene {
       return {
         id: resource.id,
         alias: resource.alias,
+        schema: resource.schema, 
         ...JSON.parse(resource.value)
       }
     })
@@ -151,14 +153,47 @@ class Me extends Scene {
     })
   }
 
+
+
   sortMyData(resources, resourceTypes) {
+
+    console.log("##################################################ant FRESH RESOURCES: ", resources)
+
+    resources.forEach(resource => {
+      if(!resource.form && resource.schema){
+        resource.form = `${resource.schema}_form`
+      }
+    })
+
     resourceTypes.push({ name: 'Malformed', url: null, items: [] })
 
     resourceTypes.map(rt => {
-      rt.items = resources.filter(r => `${rt.url}_form` === r.form)
+
+      // rt.items = resources.filter(r => `${rt.url}_form` === r.form)
+
+      rt.items = resources.filter(r => {
+
+        console.log("################################################## RESOURCE ", JSON.stringify(r))
+
+        if(!!r.schema){
+          // const search = new RegExp(`^(https?\:\/\/)?${r.schema}$`, 'i')
+          // const result = search.test(rt.url) 
+          // console.log("##################################################ant RExp RESULT for ", r.schema, " : ", result)
+          return Common.schemaCheck(r.schema, rt.url)
+        }
+        else{
+          console.log("##################################################ant Hit the else branch for ", r.form)
+          return `${rt.url}_form` === r.form
+        }
+      })
+
+
+
+      // console.log("RT: ", rt)
 
       return rt
     })
+
 
     this.setState({
       "sortedResourceTypes": resourceTypes
