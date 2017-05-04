@@ -76,10 +76,7 @@ class Connection extends Scene {
             <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/>
           </View>
           <View style={styles.name}>
-<<<<<<< HEAD
-=======
             <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/>
->>>>>>> added image
             <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text>
           </View>
 
@@ -148,7 +145,6 @@ class Connection extends Scene {
 }
 
 const styles = {
-<<<<<<< HEAD
   "content": {
     "flex": 1,
     "backgroundColor": "#c6cdd3"
@@ -234,93 +230,6 @@ const styles = {
   "declineText": {
     "color": "#666",
     "textAlign": "right"
-=======
-  content: {
-    flex: 1,
-    backgroundColor: "#c6cdd3"
-  },
-  logo: {
-    height: "13%",
-    justifyContent: "flex-end",
-    alignItems: "center"
-  },
-  name: {
-    height: "5%",
-    flexDirection: "column",
-    alignItems: "center"
-  },
-  nameText: {
-    color: "#666",
-    fontSize: 18,
-    textAlign: "center",
-    marginTop: 5
-  },
-  verified: {
-    height: "3%"
-  },
-  verifiedText: {
-    color: "#666",
-  },
-  connected: {
-    height: "3%",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: "2%"
-  },
-  connectedText: {
-    color: "#666"
-  },
-  greeting: {
-    height: "17%",
-    justifyContent: "flex-end",
-    flexDirection: "column",
-    paddingLeft: "17%",
-    paddingRight: "17%",
-    paddingBottom: "5%"
-  },
-  greetingText: {
-    textAlign: "center",
-    width: "100%",
-    color: "#999",
-    fontSize: 15
-  },
-  actions: {
-    height: "17%",
-    alignItems: "center",
-    paddingLeft: "17%",
-    paddingRight: "17%"
-  },
-  actionsText: {
-    textAlign: "left",
-    width: "100%",
-    color: "#666",
-    marginTop: 5
-  },
-  connect: {
-    height: "25%",
-    justifyContent: "center",
-    alignItems: "center"
-  },
-  footer: {
-    height: "17%",
-    flexDirection: "row",
-    alignItems: "center",
-    paddingLeft: "12%",
-    paddingRight: "12%"
-  },
-  help: {
-    flex: 1,
-    justifyContent: "flex-start"
-  },
-  decline: {
-    flex: 1,
-    justifyContent: "flex-end"
-  },
-  declineText: {
-    color: "#666",
-    textAlign: "right",
-    fontSize: 18
->>>>>>> 13ce00fc1922d6ae81a777a084feea18457a4873
   }
 }
 
