@@ -83,7 +83,11 @@ class EditResource extends Scene {
   componentDidMount() {
     const form = this.context.getEditResourceForm()
 
-    Api.getResourceForm(form).then(this.onBoundForm)
+    Api.getResourceForm(form)
+       .then(this.onBoundForm)
+       .catch(error => {
+          console.log("############################################ Error in loading resource form: ", error)
+        })
 
     this.loadResource()
   }
@@ -96,7 +100,11 @@ class EditResource extends Scene {
     const id = this.context.getEditResourceId()
 
     if (id) {
-      Api.getResource({ id }).then(this.onBoundResource)
+      Api.getResource({ id })
+        .then(this.onBoundResource)
+        .catch(error => {
+          console.log("Error in loading resource: ", error)
+        })
     }
   }
 
@@ -419,12 +427,13 @@ const styles = {
   },
   "countryLabel": {
     "flex": 1,
-    "height": 40,
+    "height": "100%",
     "color": "#666",
     "fontWeight": "100",
     "paddingTop": 10,
     "paddingBottom": 10,
-    "fontSize": 14
+    "fontSize": 14,
+    "backgroundColor": "green"
   },
   "dateInput": {
     "dateTouchBody": {

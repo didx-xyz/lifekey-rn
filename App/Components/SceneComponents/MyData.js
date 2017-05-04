@@ -192,7 +192,7 @@ class MyData extends Component {
 			<View style={styles.addItemContainer}>
 				<View style={styles.addHeadingContainer}><Text style={styles.addHeading}>ADD DATA</Text></View>
 				{this.props.sortedResourceTypes.map((resourceType, i) => {
-				  if(resourceType.name !== "Malformed")
+				  if(resourceType.name !== "Malformed" && resourceType.name !== "Person")
 				    return (
 				      <LcAddCategoryButton  key={i} name={resourceType.name} form={resourceType.url + "_form"} onEditResource={this.context.onEditResource} />
 				    )

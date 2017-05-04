@@ -3,6 +3,7 @@ import Config from "./Config"
 import Crypto from "./Crypto"
 import Session from "./Session"
 import Logger from "./Logger"
+import Common from "./Common"
 import ConsentUser from "./Models/ConsentUser"
 import ConsentError, { ErrorCode } from "./ConsentError"
 import { request, rejectionWithError } from "./Requests"
@@ -348,6 +349,9 @@ export default class Api {
   }
 
   static getResourceForm(form) {
+    if(!Common.schemaHasProtocol(form)){
+      form = `http://${form}`
+    }
     return request(form)
   }
 
