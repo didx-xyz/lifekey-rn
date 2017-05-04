@@ -10,6 +10,7 @@ import Routes from "../../Routes"
 import Scene from "../../Scene"
 import Touchable from "../../Components/Touchable"
 import { request } from "../../Requests"
+import Logger from '../../Logger'
 
 class DebugListIsas extends Scene {
   constructor(...params) {
@@ -23,7 +24,7 @@ class DebugListIsas extends Scene {
   componentDidMount() {
     Api.allISAs().then(data => {
       this.setState({ "isas": data.body.unacked })
-    })
+    }).catch(error => { Logger.warn(error) })
   }
 
   render() {
