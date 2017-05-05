@@ -141,7 +141,8 @@ export default class Main extends Scene {
       ...Routes.connection,
       did: connection.did,
       display_name: connection.display_name,
-      image_uri: connection.image_uri
+      image_uri: connection.image_uri,
+      actions_url: connection.actions_url
     })
   }
 
