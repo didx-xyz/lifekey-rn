@@ -202,10 +202,13 @@ class Lifekeyrn extends Component {
     this.firebaseInternalEventEmitter.addListener(
       'information_sharing_agreement_request',
       (message) => {
-        this.navigator.push({
-        ...Routes.informationRequest,
-        message
-        })
+        setTimeout(() => {
+          this.navigator.push({
+          ...Routes.informationRequest,
+          message
+          })
+        }, 1000)
+        // this.navigator.push(Routes.informationRequest)
       }
     )
   }
