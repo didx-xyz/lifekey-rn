@@ -158,6 +158,12 @@ class Me extends Scene {
           "description": "Hello ",
           "image": require('../../App/Images/contact_mobile.png')
         }
+      } else if(v.form === "http://schema.cnsnt.io/verified_face_match"){
+        return {
+          "name": "Verified FaceMatch",
+          "description": "Hello ",
+          "image": require('../../App/Images/verified_face_match.png')
+        }
       } else {
         // FIXME
         return null
