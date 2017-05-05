@@ -1,6 +1,6 @@
 // external dependencies
 import React from "react"
-import { Text, View, Image } from "react-native"
+import { Text, View, Image, ScrollView } from "react-native"
 import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
 
@@ -38,7 +38,8 @@ class Me extends Scene {
       resourceTypes: [],
       sortedResourceTypes: [],
       sortedBadges: [],
-      informationSource: "MY CODE"
+      informationSource: "MY CODE",
+      scrollview: null
     }
 
     this.onBoundResourceTypes = this.onResourceTypes.bind(this)
@@ -72,6 +73,22 @@ class Me extends Scene {
     }).catch(error => {
       Logger.error(error)
     })
+  }
+
+  componentDidUpdate(){
+    // This is intended to ensure that the scrollview is always at Y : 0 when tabs are changed. 
+    // It needs a bit of TLC however...
+    this.scrollViewToTop()
+  }
+
+  scrollViewToTop() {
+    if(this.state.scrollview){
+      this.state.scrollview.scrollTo({x: 0, y: 0, animated: true})
+      console.log("SCROLLED!")
+    }
+    else{
+      console.log("Skipped the scroll")
+    }
   }
 
   onResourceTypes(data, then) {
@@ -128,6 +145,8 @@ class Me extends Scene {
         return null
       }
 
+      console.log("POTENTIAL BADGE: ", v.form)
+
       if (v.form === "http://schema.cnsnt.io/pirate_name_form") {
         return {
           "name": "Pirate Name",
@@ -158,7 +177,7 @@ class Me extends Scene {
           "description": "Hello ",
           "image": require('../../App/Images/contact_mobile.png')
         }
-      } else if(v.form === "http://schema.cnsnt.io/verified_face_match"){
+      } else if(v.form === "http://schema.cnsnt.io/verified_face_match_form"){
         return {
           "name": "Verified FaceMatch",
           "description": "Hello ",
@@ -266,15 +285,16 @@ class Me extends Scene {
             ]}
             />
         </View>
-        <Content style={style.contentContainer}>
+        <ScrollView ref={(sv) => { this.state.scrollview = sv }} style={style.contentContainer}>
           {this.renderTab()}
-        </Content>
+        </ScrollView>
 
       </Container>
     )
   }
 
   renderTab() {
+    
     switch (this.state.activeTab) {
 
     case CONNECT:
@@ -285,6 +305,7 @@ class Me extends Scene {
       return <Badges badges={this.state.sortedBadges}></Badges>
     }
   }
+
 }
 
 const style = {
