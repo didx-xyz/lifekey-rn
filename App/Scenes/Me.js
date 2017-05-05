@@ -98,8 +98,8 @@ class Me extends Scene {
 
     if (this.state.resourceTypes && this.state.resourceTypes.length) {
       this.sortChildData(updatedResources, this.state.resourceTypes)
-    }  
-    
+    }
+
     this.setState({
       resources: updatedResources
     })
@@ -272,8 +272,8 @@ class Me extends Scene {
     switch (this.state.activeTab) {
 
     case CONNECT:
-      return <Connect></Connect> 
-    case MY_DATA: 
+      return <Connect></Connect>
+    case MY_DATA:
       return <MyData sortedResourceTypes={this.state.sortedResourceTypes}></MyData>
     case BADGES:
       return <Badges badges={this.state.sortedBadges}></Badges>

@@ -10,6 +10,7 @@ import Api from '../Api'
 import Logger from '../Logger'
 import ConsentError from '../ConsentError'
 import ConsentDiscoveredUser from './ConsentDiscoveredUser'
+import _ from 'lodash'
 
 export const E_CONNECTION_ALREADY_EXISTS = 0x01
 export const E_COULD_NOT_FETCH_PROFILE = 0x02
@@ -31,70 +32,71 @@ class ConsentConnection {
    *                 E_COULD_NOT_SET_ITEM
    */
   static add(id, to_did) {
+    Logger.info('id - did', JSON.stringify({ id, to_did }))
+    if (!id ||
+        !to_did ||
+        typeof to_did !== 'string' ||
+        !(typeof id === 'string' || typeof id === 'number')) {
+      Promise.reject(new Error(`${id} is not a valid id or ${to_did} is not a valid did`))
+    }
+
+    // Fetch profile and load connections storage
     return Promise.all([
       Api.profile({ did: to_did }),
       AsyncStorage.getItem(STORAGE_KEY)
     ])
     .then(result => {
-
       // Rename for clarity
       const response = result[0]
-      const connectionsItem = result[1]
+      const connectionsItemJSON = result[1]
 
       // Check response is as expected
       if (!response || !response.body || response.status !== 200) {
-        // return Promise.reject('Unexpected response from server')
-        return Promise.reject(
-          new ConsentError(
-            'Unexpected response from server',
-            E_COULD_NOT_FETCH_PROFILE
-          )
-        )
+        Logger.warn(`Unexpected response from server. Profile for ${to_did} will not be updated.`)
       }
-      let display_name = null
-      // Grab display_name from API response and capitalize first letter
-      if (response.body.user.display_name) {
-        display_name = response.body.user.display_name
+
+      // Reassign for clarity
+      const fetched_image_uri = response.body.user.image_uri
+      const fetched_colour = response.body.user.colour
+      const fetched_display_name = response.body.user.display_name
+
+      // Build object
+      const newConnectionItem = {
+        id: parseInt(id, 10),
+        to_did: to_did
+      }
+
+      // Only add valid data
+      if (fetched_image_uri) { newConnectionItem.image_uri = fetched_image_uri }
+      if (fetched_colour) { newConnectionItem.colour = fetched_colour }
+      if (fetched_display_name) { newConnectionItem.display_name = fetched_display_name}
+
+
+      // If entry does not exist, create entire store from scratch
+      if (!connectionsItemJSON) {
+        const newConnectionsItemJSON = JSON.stringify([newConnectionItem])
+        return AsyncStorage.setItem(STORAGE_KEY, newConnectionsItemJSON)
       } else {
-        display_name = 'Mystery User'
-      }
+        // Parse database JSON
+        const storedConnections = JSON.parse(connectionsItemJSON)
 
-      // Keep these for later
-      const image_uri = response.body.user.image_uri
-      const user_id = response.body.user_id
-      const colour = response.body.colour
-
-      // If entry does not exist, create from scratch
-      if (!connectionsItem) {
-        const connectionsItemJSON = JSON.stringify([{
-          id: parseInt(id, 10),
-          to_did: to_did,
-          display_name: display_name
-        }])
-        return AsyncStorage.setItem(STORAGE_KEY, connectionsItemJSON)
-      }
-
-      // Parse JSON to object
-      const connections = JSON.parse(connectionsItem)
-      if (connections && connections.to_did) {
-        // Check if already connected
-        if (connections.find(connection => connection.to_did === to_did)) {
-          // Connection already exists
-          return Promise.reject(
-            new ConsentError(
-              `Connection ${to_did} already exists`,
-              E_CONNECTION_ALREADY_EXISTS
-            )
-          )
+        // The key is empty
+        if (_.isEmpty(storedConnections)) {
+          const newConnectionsItemJSON = JSON.stringify([newConnectionItem])
+          return AsyncStorage.setItem(STORAGE_KEY, newConnectionsItemJSON)
+        } else {
+          const exists = storedConnections.find(connection => connection.to_did === to_did)
+          if (exists) {
+            // TODO: Compare and update
+            // or now just warn and go on
+            return Promise.resolve()
+          } else {
+            // Add to stack
+            storedConnections.push(newConnectionItem)
+            const storedConnectionsJSON = JSON.stringify(storedConnections)
+            return AsyncStorage.setItem(STORAGE_KEY, storedConnectionsJSON)
+          }
         }
-      } else {
-        // merge new data
-        const updatedConnectionsItem = JSON.stringify(connections.concat({
-          id: parseInt(id, 10),
-          to: parseInt(to_did),
-          display_name: display_name
-        }))
-        return AsyncStorage.setItem(STORAGE_KEY, updatedConnectionsItem)
       }
     })
   }
@@ -171,7 +173,11 @@ class ConsentConnection {
     .then(itemJSON => {
       if (itemJSON) {
         const connections = JSON.parse(itemJSON)
-        return Promise.resolve(connections)
+        if (_.isEmpty(connections)) {
+          return Promise.resolve([])
+        } else {
+          return Promise.resolve(connections)
+        }
       } else {
         return Promise.resolve([])
       }

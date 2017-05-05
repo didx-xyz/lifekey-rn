@@ -1,6 +1,12 @@
 // external dependencies
 import React from "react"
-import { Text, View, Dimensions } from "react-native"
+import {
+  Text,
+  View,
+  Dimensions,
+  ToastAndroid,
+  Image
+} from "react-native"
 import { Container } from "native-base"
 import * as Nachos from 'nachos-ui'
 // internal dependencies
@@ -13,35 +19,59 @@ import Touchable from "../Components/Touchable"
 import VerifiedIcon from "../Components/VerifiedIcon"
 import ConsentUser from '../Models/ConsentUser'
 import Api from '../Api'
+import Logger from '../Logger'
 
 class Connection extends Scene {
+
   constructor(...params) {
     super(...params)
 
     this.state = {
-      "isVerified": true,
-      connecting: false
+      isVerified: true,
+      connecting: false,
+      actions: []
     }
-
     this.onBoundPressConnect = this.onPressConnect.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
     this.onBoundPressDecline = this.onPressDecline.bind(this)
   }
 
+  componentWillMount() {
+    super.componentWillMount()
+    this.loadActions(this.props.route.actions_url)
+  }
+
+  async loadActions(actions_url) {
+    if (actions_url) {
+      Logger.info('Fetching actions')
+      const requestOptions = { method: 'GET' }
+      Logger.networkRequest('GET', actions_url, requestOptions)
+      const actionsResponse = await fetch(actions_url, requestOptions)
+      Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
+      const actions = JSON.parse(actionsResponse._bodyText)
+      if (actions) {
+        this.setState({
+          actions: actions
+        }, () => Logger.info('Actions updated'))
+      } else {
+        Logger.warn('Could not parse JSON')
+      }
+    }
+  }
+
   onPressConnect() {
+
+    ToastAndroid.show(`Connecting to ${this.props.route.display_name}`, ToastAndroid.SHORT)
     this.setState({
       connecting: true
     }, () => {
       Api.requestConnection({ target: this.props.route.did })
       .then(() => {
-        setTimeout(() => {
-          this.setState({
-            connecting: false
-          })
-        }, 10000) // Wait max 10 seconds
+        this.navigator.pop()
       })
       .catch(error => {
-        alert(JSON.stringify(error))
+        alert('Could not connect')
+        Logger.warn(JSON.stringify(error))
         this.setState({
           connecting: false
         })
@@ -67,17 +97,15 @@ class Connection extends Scene {
         <View style={styles.content}>
           <View style={styles.logo}>
             {/* logo goes here */}
+            <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/>
           </View>
           <View style={styles.name}>
-            <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name || 'unknown')}</Text>
+            <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text>
           </View>
 
           {this.state.isVerified &&
-            <View style={[styles.verified, {
-              position: 'relative',
-            }]}>
+            <View style={styles.verified}>
               <View style={{
-                position: 'absolute',
                 flexDirection: 'row',
                 width: 76,
                 marginLeft: screenWidth / 2 - 38
@@ -106,9 +134,9 @@ class Connection extends Scene {
               style={styles.greetingText}>Hi there {Util.ucfirst(ConsentUser.getDisplayNameSync())}. Connecting with {Util.ucfirst(this.props.route.display_name)} will allow you to:</Text>
           </View>
           <View style={styles.actions}>
-            <Text style={styles.actionsText}>• Connect your existing accounts.</Text>
-            <Text style={styles.actionsText}>• Submit FICA documents in a snap.</Text>
-            <Text style={styles.actionsText}>• Open a Bitcoin Wallet.</Text>
+            { this.state.actions.map((action, i) =>
+              <Text key={i} style={styles.actionsText}>• {action.name}.</Text>
+            )}
           </View>
           <View style={styles.connect}>
             { this.state.connecting ?
@@ -151,13 +179,15 @@ const styles = {
   },
   "name": {
     "height": "5%",
+    flexDirection: "column",
     "justifyContent": "center",
     "alignItems": "center"
   },
   "nameText": {
     "color": "#666",
-    "fontSize": 16,
-    "textAlign": "center"
+    "fontSize": 18,
+    "textAlign": "center",
+    marginTop: 5
   },
   "verified": {
     "height": "3%"

@@ -95,13 +95,16 @@ const onResponse = function(response) {
     case 400:
       Logger.warn("400 Bad request", "Api.js", response)
       return rejectionWithError(JSON.parse(response._bodyText))
+    case 404:
+      Logger.warn("404 Not Found", response)
+      return rejectionWithError(JSON.parse(response._bodyText))
     case 201:
       return response.json()
     case 200:
       return response.json()
+    default:
+      return rejectionWithError("Server returned unexpected status " + response.status)
   }
-
-  return rejectionWithError(JSON.stringify(response))
 }
 
 const whitelistedSignedRequest = function(url, opts) {
