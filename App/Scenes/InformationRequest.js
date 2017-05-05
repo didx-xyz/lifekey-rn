@@ -349,7 +349,7 @@ class InformationRequest extends Scene {
               Object.values(
                 JSON.parse(resource.value)
               ).filter(item => {
-                return typeof item !== 'object' || (item.length || 0) > 20
+                return (typeof item === 'string' && item.length > 30) || typeof item !== 'object'
               }).join(', ')
             }
           </Text>
