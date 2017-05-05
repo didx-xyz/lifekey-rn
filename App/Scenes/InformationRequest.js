@@ -345,7 +345,13 @@ class InformationRequest extends Scene {
         <Text style={styles.itemText}>
           <Text style={styles.foundText}>
             {/* customise this for different resource types */}
-            { Object.values(JSON.parse(resource.value)).filter(item => typeof item !== 'object').join(', ')}
+            {
+              Object.values(
+                JSON.parse(resource.value)
+              ).filter(item => {
+                return typeof item !== 'object' || (item.length || 0) > 20
+              }).join(', ')
+            }
           </Text>
         </Text>
       </InformationRequestResource>
