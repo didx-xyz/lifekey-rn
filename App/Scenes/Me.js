@@ -48,10 +48,12 @@ class Me extends Scene {
   componentDidMount() {
     super.componentDidMount()
 
+    // const time = new Date()
     Promise.all([
       Api.allResourceTypes(),
       Api.allResources()
     ]).then(values => {
+      // console.log("Time spent waiting : ", (Date.now() - time.getTime()) / 1000)
       this.onBoundResourceTypes(values[0], () => {
         this.onBoundResources(values[1])
       })
@@ -83,11 +85,13 @@ class Me extends Scene {
   }
 
   onResources(data) {
+
     const updatedResources = data.body.map(resource => {
       return {
         id: resource.id,
         alias: resource.alias,
         schema: resource.schema, 
+        is_verifiable_claim: resource.is_verifiable_claim,
         ...JSON.parse(resource.value)
       }
     })
@@ -102,13 +106,28 @@ class Me extends Scene {
   }
 
   sortChildData(resources, resourceTypes){
+    this.verifyAndFixSchemaProperty(resources)
     this.sortBadges(resources)
     this.sortMyData(resources, this.state.resourceTypes)
+  }
+
+  verifyAndFixSchemaProperty(resources){
+    resources.forEach(resource => {  
+      resource.schema = Common.ensureUrlHasProtocol(resource.schema)
+      if(!resource.form){
+        resource.form = `${resource.schema}_form`
+      }
+    })
   }
 
   sortBadges(resources){
 
     var badges = Object.values(resources).map((v, i) => {
+
+      if(!v.claim || !v.claim.isCredential){
+        return null
+      }
+
       if (v.form === "http://schema.cnsnt.io/pirate_name_form") {
         return {
           "name": "Pirate Name",
@@ -157,40 +176,30 @@ class Me extends Scene {
 
   sortMyData(resources, resourceTypes) {
 
-    console.log("##################################################ant FRESH RESOURCES: ", resources)
-
-    resources.forEach(resource => {
-      if(!resource.form && resource.schema){
-        resource.form = `${resource.schema}_form`
-      }
-    })
-
     resourceTypes.push({ name: 'Malformed', url: null, items: [] })
+    resourceTypes.push({ name: 'Verifiable Claims', url: null, items: [] })
 
     resourceTypes.map(rt => {
 
-      // rt.items = resources.filter(r => `${rt.url}_form` === r.form)
+      if(rt.name === 'Verifiable Claims'){
+        rt.items = resources.filter(r => r.is_verifiable_claim)
+      }
+      else{
+        rt.items = resources.filter(r => {
 
-      rt.items = resources.filter(r => {
+          if(r.is_verifiable_claim){
+            return false
+          }
 
-        console.log("################################################## RESOURCE ", JSON.stringify(r))
-
-        if(!!r.schema){
-          // const search = new RegExp(`^(https?\:\/\/)?${r.schema}$`, 'i')
-          // const result = search.test(rt.url) 
-          // console.log("##################################################ant RExp RESULT for ", r.schema, " : ", result)
-          return Common.schemaCheck(r.schema, rt.url)
-        }
-        else{
-          console.log("##################################################ant Hit the else branch for ", r.form)
-          return `${rt.url}_form` === r.form
-        }
-      })
-
-
-
-      // console.log("RT: ", rt)
-
+          if(!!r.schema){
+            return Common.schemaCheck(r.schema, rt.url)
+          }
+          else{
+            return `${rt.url}_form` === r.form
+          }
+        })
+      }
+      
       return rt
     })
 

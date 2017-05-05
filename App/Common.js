@@ -9,4 +9,12 @@ export default class Common {
 		const search = new RegExp(`^https?\:\/\/`, 'i')
 		return search.test(match) 
 	}
+
+	static ensureUrlHasProtocol(url){
+		if(!Common.schemaHasProtocol(url)){
+	      url = `http://${url}`
+	    }
+
+	    return url
+	}
 }
