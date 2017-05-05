@@ -17,6 +17,8 @@ import Scene from "../Scene"
 import PeriodIcon from "../Components/PeriodIcon"
 import Touchable from "../Components/Touchable"
 import Logger from '../Logger'
+import Common from '../Common'
+import PropTypes from 'prop-types'
 
 class InformationRequest extends Scene {
   constructor(...params) {
@@ -37,6 +39,7 @@ class InformationRequest extends Scene {
 
     this.swaps = {}
     this.shared = []
+    this.i = 0
   }
 
   componentDidMount() {
@@ -47,7 +50,7 @@ class InformationRequest extends Scene {
     // })
 
     Api.allResources().then(data => {
-      // console.log("resources", data)
+      console.log("resources", data)
 
       this.setState({
         resources: data.body,
@@ -65,15 +68,15 @@ class InformationRequest extends Scene {
 
   componentWillUpdate(p, n) {
     super.componentWillUpdate()
-    // console.log('componentWillUpdate.this.state.', this.state)
+    console.log('componentWillUpdate.this.state.', this.state)
   }
 
   updateSwaps() {
     const data = Session.getState()
-    // console.log("DATA", data)
+    console.log("DATA", data)
 
     if (data.swapFrom && data.swapTo) {
-      // console.log("SWAP", data.swapFrom, data.swapTo)
+      console.log("SWAP", data.swapFrom, data.swapTo)
 
       this.state.resources.some(resource => {
         if (resource.id === data.swapTo) {
@@ -84,8 +87,8 @@ class InformationRequest extends Scene {
             "swapTo": null
           })
 
-          // console.log("SWAPS", this.swaps)
-          // console.log("RESOURCES", this.state.resources)
+          console.log("SWAPS", this.swaps)
+          console.log("RESOURCES", this.state.resources)
 
           return true
         }
@@ -97,6 +100,9 @@ class InformationRequest extends Scene {
     super.componentWillFocus()
 
     this.updateSwaps()
+    setTimeout(() => {
+      this.forceUpdate()
+    }, 100)
   }
 
   onPressDecline() {
@@ -158,6 +164,14 @@ class InformationRequest extends Scene {
     }
   }
 
+  onPressMissing(schema, id) {
+    console.log('SCHAMEA', schema)
+    schema = Common.ensureUrlHasProtocol(schema)
+    const form = schema + "_form"
+    this.context.onEditResource(form, null)
+    // this.navigator.push(Routes.editResource)
+  }
+
   render() {
     const missing = []
     // console.log("ISA", this.state.isa)
@@ -186,12 +200,14 @@ class InformationRequest extends Scene {
                   <View>
                     {this.state.isa.required_entities.map(entity => {
                       this.shared = []
-
+                      console.log('this.shared', JSON.stringify(this.shared))
                       let component = null
 
                       this.state.resources.forEach(resource => {
+                        console.log('resource', JSON.stringify(resource))
                         const result = this.tryResource(entity, resource)
 
+                        console.log('IF RESULT% %', result)
                         if (result) {
                           component = result
                         }
@@ -209,9 +225,11 @@ class InformationRequest extends Scene {
                   <View style={styles.missingItems}>
                     {missing.map((entity, i) => {
                       return (
-                        <Text key={i} style={styles.missingItemsText}>
-                          You are missing {entity.name}.
-                        </Text>
+                        <Touchable key={i} onPress={() => this.onPressMissing(entity.address, null)}>
+                          <Text style={styles.missingItemsText}>
+                            You are missing {entity.name}.
+                          </Text>
+                        </Touchable>
                       )
                     })}
                   </View>
@@ -264,6 +282,7 @@ class InformationRequest extends Scene {
   }
 
   tryResource(entity, resource) {
+    console.log('SOEMTHING OBVIOUSOFJ', this.i++)
     // check for http prefix
     if (entity.address.indexOf('http://') === 0) {
       entity.address = entity.address.slice(7)
@@ -275,11 +294,11 @@ class InformationRequest extends Scene {
 
     if (entity.address === resource.schema) {
       const swappable = this.swaps["_" + resource.id]
-      // console.log("SWAPPABLE (RESOURCE)", swappable)
+      console.log("SWAPPABLE (RESOURCE)", swappable)
 
-      if (swappable && this.state.isa.required_entities.length > 1) {
+      if (swappable) {
         const result = this.tryResource(entity, swappable)
-        // console.log("SWAPPING", result)
+        console.log("SWAPPING", result)
 
         if (result) {
           this.shared.push(swappable.id)
@@ -296,11 +315,13 @@ class InformationRequest extends Scene {
     const rest = parts.join("/")
     const value = JSON.parse(resource.value)
 
-    if (rest === resource.schema && value[last].trim() !== "") {
+    if (rest === resource.schema
+    // && value[last].trim() !== ""
+    ) {
       const swappable = this.swaps["_" + resource.id]
       // console.log("SWAPPABLE (PARTIAL RESOURCE)", swappable)
 
-      if (swappable) {
+      if (swappable && this.state.isa.required_entities.length > 1) {
         const result = this.tryResource(entity, swappable)
         // console.log("SWAPPING", result)
 
@@ -442,6 +463,15 @@ const styles = {
     flex: 1,
     padding: 30
   }
+}
+
+InformationRequest.contextTypes = {
+  // behavior
+  onEditResource: PropTypes.func,
+  onSaveResource: PropTypes.func,
+
+  // state
+  getShouldClearResourceCache: PropTypes.func
 }
 
 export default InformationRequest
