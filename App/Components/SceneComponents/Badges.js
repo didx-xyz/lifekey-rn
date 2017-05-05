@@ -38,7 +38,7 @@ class Badges extends Component  {
                 return (
                     <View key={i} style={styles.badge}>
                       <View style={styles.badgeImage}>
-                        <Image style={{"width" : "100%", "height": "100%"}} source={b.image} />
+                        <Image style={{"width" : 50, "height": 50}} source={b.image} />
                       </View>
                       <View style={styles.badgeContent}>
                         <View style={styles.badgeName}>
@@ -87,7 +87,7 @@ const styles = {
   },
   "badgeImage": {
     "flex": 1,
-    "width": 25,
+    "width": 50,
     "height": 50,
     "justifyContent": "center",
     "alignItems": "center"

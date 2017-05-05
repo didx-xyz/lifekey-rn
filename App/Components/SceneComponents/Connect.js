@@ -171,8 +171,8 @@ const styles = {
     "justifyContent": "center"
   },
   "qrImage": {
-    "width": "70%",
-    "height": "100%"
+    "width": 300,
+    "height": 300
   },
   "textContainer": {
     "flex": 2,

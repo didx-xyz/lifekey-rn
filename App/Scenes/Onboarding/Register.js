@@ -56,12 +56,14 @@ export default class Register extends Scene {
       {
         largeText: 'Create your username',
         smallText: 'Don\'t worry you can change this at any time',
-        bottomText: 'I already have a key'
+        // bottomText: 'I already have a key',
+        bottomText: ''
       },
       {
         largeText: 'Please enter your personal email address',
         smallText: 'To set up or recover your key',
-        bottomText: 'What\'s this?'
+        bottomText: '',
+        // bottomText: 'What\'s this?'
       },
       {
         largeText: 'Please enter a secure pin',
@@ -86,7 +88,9 @@ export default class Register extends Scene {
       bottomText: this._steps[0].bottomText,
       moveTransitionValue: new Animated.Value(300),
       fadeTransitionValue: new Animated.Value(0),
-      magicLinkRequested: false
+      magicLinkRequested: false,
+      screenHeight: this.props.screenHeight,
+      originalScreenHeight: this.props.screenHeight
     }
   }
 
@@ -160,10 +164,12 @@ export default class Register extends Scene {
   }
 
   _onKeyboardDidShow() {
+    this.setState({screenHeight: this.state.screenHeight - (this.state.originalScreenHeight * 0.2)})
     Logger.info('KeyboardDidShow', this.filename)
   }
 
   _onKeyboardDidHide() {
+    this.setState({screenHeight: this.state.screenHeight + (this.state.originalScreenHeight * 0.2)})
     Logger.info('KeyboardDidHide', this.filename)
   }
 
@@ -446,7 +452,7 @@ export default class Register extends Scene {
           <StatusBar hidden={true} />
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <Grid>
-              <Col style={[style.sceneColumn, { height: this.props.screenHeight }]}>
+              <Col style={[style.sceneColumn, { height: this.state.screenHeight }]}>
                 { /* Event timeline */}
                 <Touchable style={{ backgroundColor: 'red' }} onPress={() => this._toggleTimeline()}>
                   <Row style={[style.timelineRow, { flex: this.state.timelineExpanded ? 15 : 1 }]}>

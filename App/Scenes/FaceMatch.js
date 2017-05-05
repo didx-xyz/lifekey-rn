@@ -3,6 +3,7 @@ import React from "react"
 import { Text, View, Image } from "react-native"
 import { Container } from "native-base"
 import Routes from '../Routes'
+import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
 import Api from '../Api'
@@ -21,13 +22,10 @@ class FaceMatch extends Scene {
     super(...params)
 
     this.state = {
+      "progressCopy": "Loading...",
       "imageAvailable": false, 
       "imageDataUrl": "" 
     }
-
-    this.onBoundPressYes = this.onPressYes.bind(this)
-    this.onBoundPressNo = this.onPressNo.bind(this)
-    this.onBoundPressUnsure = this.onPressUnsure.bind(this)
   }
 
   componentDidMount() {
@@ -51,7 +49,10 @@ class FaceMatch extends Scene {
 
       const response = await Api.facialVerificationQrScanResponse(userdid, token)
       
+      const time = new Date()
       const parsedValue = JSON.parse(response.body.value); 
+      console.log("Time spent waiting : ", (Date.now() - time.getTime())*1000)
+
       const url = `data:image/jpeg;base64,${parsedValue.identityPhotograph}}`
 
       this.setState({
@@ -71,32 +72,41 @@ class FaceMatch extends Scene {
     return (
       <Container style={styles.container}>
         <View style={styles.header}>
-          <BackButton navigator={this.navigator} />
+          { /* <BackButton navigator={this.navigator} />
           <Touchable onPress={this.onPressBottomLeftButton}>
             <BackIcon { ...Design.backIcon } />
-          </Touchable>
-        </View>
-        <View style={styles.content}>
-          <View style={styles.title}>
-            <Text style={styles.titleText}>Facial Verification</Text>
+          </Touchable> */}
+        </View> 
+        {
+          this.state.imageAvailable ? 
+          <View style={styles.content}>
+            <View style={styles.title}>
+              <Text style={styles.titleText}>Facial Verification</Text>
+            </View>
+            
+              <View style={styles.image}>
+                {/* Image goes here */}
+                { this.state.imageAvailable && <Image style={styles.profileImg} source={{ uri: this.state.imageDataUrl, scale: 1 }} /> }
+              </View>
+              <View style={styles.copyContainer}>
+                <Text style={styles.copyText}>Is this the person who's QR Code you scanned?</Text>
+              </View>
+              <View style={styles.actions}>
+                <Button affirmative={false} buttonText={"No"} onClick={this.onResultGiven.bind(this, "no")} />
+                <Button affirmative={true} buttonText={"Yes"} onClick={this.onResultGiven.bind(this, "yes")} />
+              </View>
+              <View style={styles.footer}>
+                <Touchable onPress={this.onResultGiven.bind(this, "not sure")}>
+                  <Text style={styles.footerText}>I'm not sure</Text>
+                </Touchable>
+              </View>
           </View>
-          <View style={styles.image}>
-            {/* Image goes here */}
-            { this.state.imageAvailable && <Image style={styles.profileImg} source={{ uri: this.state.imageDataUrl, scale: 1 }} /> }
+        :
+          <View style={styles.progressContainer}>
+            <ActivityIndicator color={Palette.consentBlue} style={styles.progressIndicator}/> 
+            <Text style={styles.progressText}>{this.state.progressCopy}</Text>
           </View>
-          <View style={styles.copyContainer}>
-            <Text style={styles.copyText}>Is this the person who's QR Code you scanned?</Text>
-          </View>
-          <View style={styles.actions}>
-            <Button affirmative={false} buttonText={"No"} onClick={this.onResultGiven.bind(this, "no")} />
-            <Button affirmative={true} buttonText={"Yes"} onClick={this.onResultGiven.bind(this, "yes")} />
-          </View>
-          <View style={styles.footer}>
-            <Touchable onClick={this.onResultGiven.bind(this, "not sure")}>
-              <Text style={styles.footerText}>I'm not sure</Text>
-            </Touchable>
-          </View>
-        </View>
+        }
       </Container>
     )
   }
@@ -121,6 +131,18 @@ const styles = {
     "width": "75%",
     "justifyContent": "space-between"
   },
+  "progressContainer": {
+    "flex": 1,
+    "alignItems": "center",
+    "justifyContent": "center"
+  },
+  "progressIndicator": {
+    "width": 75,
+    "height": 75 
+  },
+  "progressText":{
+    "color": Palette.consentGrayDark
+  },
   "title":{
     "flex": 1,
     "justifyContent": "center",
@@ -132,8 +154,8 @@ const styles = {
     "fontWeight": "300"
   },
   "profileImg":{
-    "width": 75,
-    "height": 75
+    "width": 175,
+    "height": 175
   },
   "image":{
     "flex": 1,

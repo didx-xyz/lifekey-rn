@@ -6,6 +6,7 @@ import ModalPicker from "react-native-modal-picker"
 import DatePicker from "react-native-datepicker"
 import PropTypes from "prop-types"
 import ImagePicker from "react-native-image-picker"
+import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
 import Api from "../Api"
@@ -14,6 +15,7 @@ import Scene from "../Scene"
 import Touchable from "../Components/Touchable"
 import Countries from "../Countries"
 import Languages from "../Languages"
+import Palette from "../Palette"
 import Routes from "../Routes"
 
 class EditResource extends Scene {
@@ -21,7 +23,9 @@ class EditResource extends Scene {
     super(...params)
 
     this.state = {
-      "entities": []
+      "entities": [],
+      "progressCopy": "Loading...",
+      "asyncActionInProgress": true
     }
 
     this.onBoundPressCancel = this.onPressCancel.bind(this)
@@ -54,6 +58,14 @@ class EditResource extends Scene {
       "schema": this.context.getEditResourceForm().split("_form")[0]
     }
 
+    // Set UI state 
+    const state = {   
+      "progressCopy": "Saving...",
+      "asyncActionInProgress": true
+    }
+    this.setState(state)
+    //End set UI state
+
     try {
       if (this.state.id) {
         return Api
@@ -83,7 +95,11 @@ class EditResource extends Scene {
   componentDidMount() {
     const form = this.context.getEditResourceForm()
 
-    Api.getResourceForm(form).then(this.onBoundForm)
+    Api.getResourceForm(form)
+       .then(this.onBoundForm)
+       .catch(error => {
+          console.log("Error in loading resource form: ", error)
+        })
 
     this.loadResource()
   }
@@ -96,7 +112,11 @@ class EditResource extends Scene {
     const id = this.context.getEditResourceId()
 
     if (id) {
-      Api.getResource({ id }).then(this.onBoundResource)
+      Api.getResource({ id })
+        .then(this.onBoundResource)
+        .catch(error => {
+          console.log("Error in loading resource: ", error)
+        })
     }
   }
 
@@ -113,6 +133,7 @@ class EditResource extends Scene {
     // TODO: handle error conditions
 
     let state = {
+      "asyncActionInProgress": false,
       "entities": [
         {"label": "Label", "name": "label", "type": "string"},
         ...data.entities
@@ -197,10 +218,7 @@ class EditResource extends Scene {
       <TextInput
         style={styles.textInput}
         value={this.state[entity.name]}
-        onChangeText={
-          text => this.setState({[entity.name]: text})
-          // text => console.log("TEXT: ", entity.name, " : ", text)
-        }
+        onChangeText={text => this.setState({[entity.name]: text})}
         autoCapitalize="none"
         autoCorrect={false}
         returnKeyType="done"
@@ -221,6 +239,7 @@ class EditResource extends Scene {
     return (
       <ModalPicker
         data={data}
+        style={styles.countryPicker}
         initValue="Select a country"
         onChange={(option) => {
           this.setState({
@@ -319,20 +338,29 @@ class EditResource extends Scene {
       <Container>
         <BackButton navigator={this.navigator} />
         <View style={styles.content}>
-          <View style={styles.fields}>
-            <ScrollView style={styles.scroll}>
-              <View style={styles.card}>
-                {this.state.error !== "" &&
-                  <View style={styles.error}>
-                    <Text style={styles.errorText}>
-                      {this.state.error}
-                    </Text>
-                  </View>
-                }
-                {this.state.entities.map((entity, i) => this.renderEntity(entity, i))}
-              </View>
-            </ScrollView>
-          </View>
+                       
+            <View style={styles.fields}>
+            {
+              !this.state.asyncActionInProgress ? 
+                <ScrollView style={styles.scroll}>  
+                  <View style={styles.card}>
+                    {this.state.error !== "" &&
+                      <View style={styles.error}>
+                        <Text style={styles.errorText}>
+                          {this.state.error}
+                        </Text>
+                      </View>
+                    }
+                    {this.state.entities.map((entity, i) => this.renderEntity(entity, i))}
+                  </View> 
+                </ScrollView>
+              :
+                <View style={styles.progressContainer}>
+                  <ActivityIndicator color="white" style={styles.progressIndicator}/> 
+                  <Text style={styles.progressText}>{this.state.progressCopy}</Text>
+                </View>
+            }
+            </View> 
           <View style={styles.buttons}>
             <View style={styles.cancelButton}>
               <Touchable onPress={this.onBoundPressCancel}>
@@ -384,6 +412,19 @@ const styles = {
     "backgroundColor": "#fff",
     "padding": 10
   },
+  "progressContainer": {
+    // "backgroundColor": Palette.consentBlue,
+    "flex": 1,
+    "alignItems": "center",
+    "justifyContent": "center"
+  },
+  "progressIndicator": {
+    "width": 75,
+    "height": 75 
+  },
+  "progressText":{
+    "color": "white"
+  },
   "formField": {
     "paddingTop": 5,
     "paddingBottom": 5,
@@ -397,7 +438,7 @@ const styles = {
     "height": 40,
     "width": "35%",
     "justifyContent": "center",
-    "backgroundColor": "red"
+    // "backgroundColor": "red"
   },
   "formFieldLabelText": {
     "fontWeight": "bold",
@@ -417,6 +458,11 @@ const styles = {
     "fontSize": 14,
     "height": 40
   },
+  "countryPicker":{
+    "paddingTop": 10,
+    "height": 40,
+    // "backgroundColor": "orange"
+  },
   "countryLabel": {
     "flex": 1,
     "height": 40,
@@ -424,13 +470,14 @@ const styles = {
     "fontWeight": "100",
     "paddingTop": 10,
     "paddingBottom": 10,
-    "fontSize": 14
+    "fontSize": 14,
+    // "backgroundColor": "green"
   },
   "dateInput": {
     "dateTouchBody": {
       "width": "100%",
       "height": "100%",
-      "backgroundColor": "blue"
+      // "backgroundColor": "blue"
     },
     "dateInput": {
       "borderWidth": 0,
@@ -449,8 +496,9 @@ const styles = {
     },
     "placeholderText": {
       "flex": 1,
-      "backgroundColor": "yellow",
-      "height": 40,
+      "marginTop": 10,
+      // "backgroundColor": "yellow",
+      // "height": 20,
       "color": "#666",
       "fontWeight": "100",
       "fontSize": 14,

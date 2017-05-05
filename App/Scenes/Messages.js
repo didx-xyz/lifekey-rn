@@ -27,7 +27,7 @@ class Messages extends Scene {
   }
 
   onPressDone() {
-    alert("done")
+    this.navigator.pop()
   }
 
   render() {

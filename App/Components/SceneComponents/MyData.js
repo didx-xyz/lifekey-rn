@@ -125,16 +125,31 @@ class MyData extends Component {
     )
   }
 
+  VC_render(resourceType) {
+    if(!this.validResourceType(resourceType)) return
+    return ( 
+      <View>
+        { resourceType.items.map((resource, i) => {
+			   return (
+    				<LifekeyCard key={i} headingText={"resource " + resource.schema}>
+    					<Text>VC: {resource.schema}</Text>
+    				</LifekeyCard>
+    			) 
+        })}
+      </View>
+    )
+  }
+
   Malformed_render(resourceType) {
     if(!this.validResourceType(resourceType)) return
     return ( 
       <View>
         { resourceType.items.map((resource, i) => {
-			return (
-				<LifekeyCard key={i} headingText={"resource " + resource.id} onPressDelete={() => this.onPressDelete(resource.id)}>
-					<Text>{resource.id} (malformed)</Text>
-				</LifekeyCard>
-			) 
+      return (
+        <LifekeyCard key={i} headingText={"resource " + resource.id} onPressDelete={() => this.onPressDelete(resource.id)}>
+          <Text>{resource.id} (malformed)</Text>
+        </LifekeyCard>
+      ) 
         })}
         <LcAddCategoryButton name={resourceType.name} form={resourceType.url + "_form"} onEditResource={this.context.onEditResource} />
       </View>
@@ -145,16 +160,17 @@ class MyData extends Component {
 
     const sortedResourceTypes = this.props.sortedResourceTypes
 
-  	const person = sortedResourceTypes.find(rt => rt.name === "Person"); 
-    const identity = sortedResourceTypes.find(rt => rt.name === "Identity"); 
-    const email = sortedResourceTypes.find(rt => rt.name === "Email"); 
-    const mobile = sortedResourceTypes.find(rt => rt.name === "Mobile Phone"); 
-    const landline = sortedResourceTypes.find(rt => rt.name === "Landline"); 
-    const address = sortedResourceTypes.find(rt => rt.name === "Address"); 
-    const employment = sortedResourceTypes.find(rt => rt.name === "Employment"); 
-    const poIdentity = sortedResourceTypes.find(rt => rt.name === "Proof Of Identity"); 
-    const poResidence = sortedResourceTypes.find(rt => rt.name === "Proof Of Residence"); 
-    const malformed = sortedResourceTypes.find(rt => rt.name === "Malformed"); 
+  	const person = sortedResourceTypes.find(rt => rt.name === "Person")
+    const identity = sortedResourceTypes.find(rt => rt.name === "Identity")
+    const email = sortedResourceTypes.find(rt => rt.name === "Email")
+    const mobile = sortedResourceTypes.find(rt => rt.name === "Mobile Phone")
+    const landline = sortedResourceTypes.find(rt => rt.name === "Landline")
+    const address = sortedResourceTypes.find(rt => rt.name === "Address")
+    const employment = sortedResourceTypes.find(rt => rt.name === "Employment")
+    const poIdentity = sortedResourceTypes.find(rt => rt.name === "Proof Of Identity") 
+    const poResidence = sortedResourceTypes.find(rt => rt.name === "Proof Of Residence")
+    const verifiableClaims = sortedResourceTypes.find(rt => rt.name === "Verifiable Claims")
+    const malformed = sortedResourceTypes.find(rt => rt.name === "Malformed")
 
     return (
     
@@ -188,11 +204,17 @@ class MyData extends Component {
 				{ this.Employment_render(employment) }
 			</View>
 
+      {/* Verifiable Claims */}  
+      <View style={_.assign({}, styles.groupContainer, styles.groupContainerLight)}>
+        <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>VERIFIABLE CLAIMS</Text></View>
+        { this.VC_render(verifiableClaims) }
+      </View>
+
 			{/* Add additional items */}  
 			<View style={styles.addItemContainer}>
 				<View style={styles.addHeadingContainer}><Text style={styles.addHeading}>ADD DATA</Text></View>
 				{this.props.sortedResourceTypes.map((resourceType, i) => {
-				  if(resourceType.name !== "Malformed")
+				  if(resourceType.name !== "Malformed" && resourceType.name !== "Person" && resourceType.name !== "Verifiable Claims")
 				    return (
 				      <LcAddCategoryButton  key={i} name={resourceType.name} form={resourceType.url + "_form"} onEditResource={this.context.onEditResource} />
 				    )
