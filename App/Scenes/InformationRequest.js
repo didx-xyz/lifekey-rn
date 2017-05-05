@@ -105,7 +105,7 @@ class InformationRequest extends Scene {
     this.updateSwaps()
     setTimeout(() => {
       this.forceUpdate()
-    }, 100)
+    }, 4000)
   }
 
   onPressDecline() {
@@ -349,7 +349,7 @@ class InformationRequest extends Scene {
               Object.values(
                 JSON.parse(resource.value)
               ).filter(item => {
-                return (typeof item === 'string' && item.length > 30) || typeof item !== 'object'
+                return (typeof item === 'string' && item.length < 30) || typeof item !== 'object'
               }).join(', ')
             }
           </Text>
