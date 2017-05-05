@@ -103,9 +103,10 @@ class InformationRequest extends Scene {
     super.componentWillFocus()
 
     this.updateSwaps()
-    setTimeout(() => {
-      this.forceUpdate()
-    }, 4000)
+  }
+
+  componentDidFocus() {
+    this.forceUpdate()
   }
 
   onPressDecline() {
@@ -117,6 +118,7 @@ class InformationRequest extends Scene {
   }
 
   onPressShare() {
+    console.log('----------------',JSON.stringify(this.shared))
     Api.respondISA({
       isa_id: this.state.isa.id,
       accepted: true,
@@ -348,9 +350,7 @@ class InformationRequest extends Scene {
             {
               Object.values(
                 JSON.parse(resource.value)
-              ).filter(item => {
-                return (typeof item === 'string' && item.length < 30) || typeof item !== 'object'
-              }).join(', ')
+              ).filter(x => x && x.length && x.length < 50).join(', ')
             }
           </Text>
         </Text>
