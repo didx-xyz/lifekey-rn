@@ -127,7 +127,7 @@ class ConnectionDetails extends Scene {
       const requestOptions = {
         "method": "GET",
         "headers": {
-          "x-cnsnt-id": myDid
+          "x-cnsnt-did": myDid
         }
       }
       Logger.networkRequest('GET', actionURL, requestOptions)
