@@ -22,17 +22,41 @@ import Api from '../Api'
 import Logger from '../Logger'
 
 class Connection extends Scene {
+
   constructor(...params) {
     super(...params)
 
     this.state = {
       isVerified: true,
-      connecting: false
+      connecting: false,
+      actions: []
     }
-
     this.onBoundPressConnect = this.onPressConnect.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
     this.onBoundPressDecline = this.onPressDecline.bind(this)
+  }
+
+  componentWillMount() {
+    super.componentWillMount()
+    this.loadActions(this.props.route.actions_url)
+  }
+
+  async loadActions(actions_url) {
+    if (actions_url) {
+      Logger.info('Fetching actions')
+      const requestOptions = { method: 'GET' }
+      Logger.networkRequest('GET', actions_url, requestOptions)
+      const actionsResponse = await fetch(actions_url, requestOptions)
+      Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
+      const actions = JSON.parse(actionsResponse._bodyText)
+      if (actions) {
+        this.setState({
+          actions: actions
+        }, () => Logger.info('Actions updated'))
+      } else {
+        Logger.warn('Could not parse JSON')
+      }
+    }
   }
 
   onPressConnect() {
@@ -76,7 +100,6 @@ class Connection extends Scene {
             <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/>
           </View>
           <View style={styles.name}>
-            <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/>
             <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text>
           </View>
 
@@ -111,9 +134,9 @@ class Connection extends Scene {
               style={styles.greetingText}>Hi there {Util.ucfirst(ConsentUser.getDisplayNameSync())}. Connecting with {Util.ucfirst(this.props.route.display_name)} will allow you to:</Text>
           </View>
           <View style={styles.actions}>
-            <Text style={styles.actionsText}>• Connect your existing accounts.</Text>
-            <Text style={styles.actionsText}>• Submit FICA documents in a snap.</Text>
-            <Text style={styles.actionsText}>• Open a Bitcoin Wallet.</Text>
+            { this.state.actions.map((action, i) =>
+              <Text key={i} style={styles.actionsText}>• {action.name}.</Text>
+            )}
           </View>
           <View style={styles.connect}>
             { this.state.connecting ?
