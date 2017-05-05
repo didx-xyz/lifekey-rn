@@ -103,9 +103,10 @@ class InformationRequest extends Scene {
     super.componentWillFocus()
 
     this.updateSwaps()
-    setTimeout(() => {
-      this.forceUpdate()
-    }, 100)
+  }
+
+  componentDidFocus() {
+    this.forceUpdate()
   }
 
   onPressDecline() {
@@ -117,6 +118,7 @@ class InformationRequest extends Scene {
   }
 
   onPressShare() {
+    console.log('----------------',JSON.stringify(this.shared))
     Api.respondISA({
       isa_id: this.state.isa.id,
       accepted: true,
@@ -202,7 +204,7 @@ class InformationRequest extends Scene {
                 {this.state.isa &&
                   <View>
                     {this.state.isa.required_entities.map(entity => {
-                      this.shared = []
+                      // this.shared = []
                       console.log('this.shared', JSON.stringify(this.shared))
                       let component = null
 
@@ -304,11 +306,12 @@ class InformationRequest extends Scene {
         console.log("SWAPPING", result)
 
         if (result) {
+          console.log("3")
           this.shared.push(swappable.id)
           return result
         }
       }
-
+          console.log("4")
       this.shared.push(resource.id)
       return this.renderResource(resource)
     }
@@ -324,16 +327,19 @@ class InformationRequest extends Scene {
       const swappable = this.swaps["_" + resource.id]
       // console.log("SWAPPABLE (PARTIAL RESOURCE)", swappable)
 
-      if (swappable && this.state.isa.required_entities.length > 1) {
-        const result = this.tryResource(entity, swappable)
-        // console.log("SWAPPING", result)
+      // if (swappable
+      // //  && this.state.isa.required_entities.length > 1
+      // ) {
+      //   const result = this.tryResource(entity, swappable)
+      //   console.log("SWAPPING", result)
 
-        if (result) {
-          this.shared.push(swappable.id)
-          return result
-        }
-      }
-
+      //   if (result) {
+      //     console.log("1")
+      //     this.shared.push(swappable.id)
+      //     return result
+      //   }
+      // }
+      console.log("2")
       this.shared.push(resource.id)
       return this.renderPartialResource(resource, last)
     }
@@ -348,9 +354,7 @@ class InformationRequest extends Scene {
             {
               Object.values(
                 JSON.parse(resource.value)
-              ).filter(item => {
-                return (typeof item === 'string' && item.length < 100) || typeof item !== 'object'
-              }).join(', ')
+              ).filter(x => x && x.length && x.length < 50).join(', ')
             }
           </Text>
         </Text>
