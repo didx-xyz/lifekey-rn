@@ -20,6 +20,7 @@ import VerifiedIcon from "../Components/VerifiedIcon"
 import ConsentUser from '../Models/ConsentUser'
 import Api from '../Api'
 import Logger from '../Logger'
+import Session from '../Session'
 
 class Connection extends Scene {
 
@@ -44,7 +45,12 @@ class Connection extends Scene {
   async loadActions(actions_url) {
     if (actions_url) {
       Logger.info('Fetching actions')
-      const requestOptions = { method: 'GET' }
+      const requestOptions = {
+        "method": "GET",
+        "headers": {
+          "x-cnsnt-did": Session.getState().user.did
+        }
+      }
       Logger.networkRequest('GET', actions_url, requestOptions)
       const actionsResponse = await fetch(actions_url, requestOptions)
       Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
