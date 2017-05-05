@@ -349,9 +349,7 @@ export default class Api {
   }
 
   static getResourceForm(form) {
-    if(!Common.schemaHasProtocol(form)){
-      form = `http://${form}`
-    }
+    form = Common.ensureUrlHasProtocol(form)
     return request(form)
   }
 
