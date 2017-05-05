@@ -121,7 +121,6 @@ class Lifekeyrn extends Component {
       this.shouldClearResourceCache = false
       return true
     }
-
     return false
   }
 
@@ -207,7 +206,7 @@ class Lifekeyrn extends Component {
           ...Routes.informationRequest,
           message
           })
-        }, 1000)
+        }, 4000)
         // this.navigator.push(Routes.informationRequest)
       }
     )
