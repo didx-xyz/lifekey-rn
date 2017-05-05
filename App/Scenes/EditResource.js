@@ -47,15 +47,14 @@ class EditResource extends Scene {
     // combine keys and values into a single object
     keys.forEach((key, i) => data[key] = values[i])
 
-    var id = this.context.getEditResourceId()
     const options = {
       "value": JSON.stringify({
         "form": this.context.getEditResourceForm(),
         ...data
       }),
-      "entity": id,
-      "attribute": id,
-      "alias": id,
+      "entity": this.state.label,
+      "attribute": this.state.label,
+      "alias": this.state.label,
       "schema": this.context.getEditResourceForm().split("_form")[0]
     }
 
@@ -66,12 +65,15 @@ class EditResource extends Scene {
     }
     this.setState(state)
     //End set UI state
-
     
     if (this.state.id) {
+      var id = this.context.getEditResourceId()
       return Api.updateResource({
         "id": this.state.id,
         ...options,
+        entity: id,
+        attribute: id,
+        alias: id
       }).then(
         this.onBoundSave
       ).catch(console.log)
@@ -82,7 +84,6 @@ class EditResource extends Scene {
     ).then(
       this.onBoundSave
     ).catch(alert)
-    
   }
 
   onSave() {
