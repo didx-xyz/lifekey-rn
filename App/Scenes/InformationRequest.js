@@ -35,6 +35,9 @@ class InformationRequest extends Scene {
   }
 
   componentDidMount() {
+
+    console.log("COMPONENT MOUNTING")
+
     const state = Session.getState()
 
     this.setState({
