@@ -21,7 +21,8 @@ import {
   Dimensions,
   Navigator,
   Platform,
-  StatusBar
+  StatusBar,
+  ToastAndroid
 } from 'react-native'
 import PropTypes from "prop-types"
 
@@ -120,7 +121,6 @@ class Lifekeyrn extends Component {
       this.shouldClearResourceCache = false
       return true
     }
-
     return false
   }
 
@@ -188,11 +188,27 @@ class Lifekeyrn extends Component {
   initFirebaseHandlerEvents() {
     this.firebaseInternalEventEmitter.addListener(
       'user_connection_created',
-      () => this.navigator.push(Routes.connectionDetails)
+      () => {
+        ToastAndroid.show('Connection created', ToastAndroid.SHORT)
+      }
     )
     this.firebaseInternalEventEmitter.addListener(
       'app_activation_link_clicked',
-      () => this.navigator.push(Routes.main)
+      () => {
+        this.navigator.push(Routes.main)
+      }
+    )
+    this.firebaseInternalEventEmitter.addListener(
+      'information_sharing_agreement_request',
+      (message) => {
+        setTimeout(() => {
+          this.navigator.push({
+          ...Routes.informationRequest,
+          message
+          })
+        }, 4000)
+        // this.navigator.push(Routes.informationRequest)
+      }
     )
   }
 
@@ -306,7 +322,7 @@ class Lifekeyrn extends Component {
                 onLayout={(event) => this._onScreenUpdate(event)}
                 style={{ flex: 1, backgroundColor: Palette.sceneBackgroundColour }}
               >
-                <StatusBar hidden={true} />
+                <StatusBar hidden={false} />
                 {React.createElement(
                   route.scene,
                   {

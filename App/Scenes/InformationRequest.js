@@ -1,6 +1,6 @@
 // external dependencies
 import React from "react"
-import { Text, View, ScrollView } from "react-native"
+import { Text, View, ScrollView, ToastAndroid } from "react-native"
 import { Container } from "native-base"
 
 // internal dependencies
@@ -16,14 +16,21 @@ import MarketingIcon from "../Components/MarketingIcon"
 import Scene from "../Scene"
 import PeriodIcon from "../Components/PeriodIcon"
 import Touchable from "../Components/Touchable"
+import Logger from '../Logger'
+import Common from '../Common'
+import PropTypes from 'prop-types'
 
 class InformationRequest extends Scene {
   constructor(...params) {
     super(...params)
 
     this.state = {
-      "isa": null,
-      "resources": []
+      isa: {
+        purpose: null,
+        required_entities: []
+      },
+      resources: [],
+      isar_id: this.props.route.message.isar_id
     }
 
     this.onBoundPressDecline = this.onPressDecline.bind(this)
@@ -32,6 +39,7 @@ class InformationRequest extends Scene {
 
     this.swaps = {}
     this.shared = []
+    this.i = 0
   }
 
   componentDidMount() {
@@ -40,27 +48,38 @@ class InformationRequest extends Scene {
 
     const state = Session.getState()
 
-    this.setState({
-      "isa": state.currentIsa
-    })
+    // this.setState({
+    //   "isa": state.currentIsa
+    // })
 
     Api.allResources().then(data => {
-      // console.log("resources", data)
+      console.log("resources", data)
 
       this.setState({
-        "resources": data.body,
+        resources: data.body,
       })
     })
+    .catch((error) => Logger.warn(error))
+    try {
+      this.loadISAs()
+    } catch (error) {
+      Logger.warn(error)
+    }
 
     this.updateSwaps()
   }
 
+  componentWillUpdate(p, n) {
+    super.componentWillUpdate()
+    console.log('componentWillUpdate.this.state.', this.state)
+  }
+
   updateSwaps() {
     const data = Session.getState()
-    // console.log("DATA", data)
+    console.log("DATA", data)
 
     if (data.swapFrom && data.swapTo) {
-      // console.log("SWAP", data.swapFrom, data.swapTo)
+      console.log("SWAP", data.swapFrom, data.swapTo)
 
       this.state.resources.some(resource => {
         if (resource.id === data.swapTo) {
@@ -71,8 +90,8 @@ class InformationRequest extends Scene {
             "swapTo": null
           })
 
-          // console.log("SWAPS", this.swaps)
-          // console.log("RESOURCES", this.state.resources)
+          console.log("SWAPS", this.swaps)
+          console.log("RESOURCES", this.state.resources)
 
           return true
         }
@@ -84,6 +103,9 @@ class InformationRequest extends Scene {
     super.componentWillFocus()
 
     this.updateSwaps()
+    setTimeout(() => {
+      this.forceUpdate()
+    }, 100)
   }
 
   onPressDecline() {
@@ -96,25 +118,61 @@ class InformationRequest extends Scene {
 
   onPressShare() {
     Api.respondISA({
-      "isa_id": this.state.isa.id,
-      "accepted": true,
-      "permitted_resources": this.shared.map(shared => ({ "id": shared }))
+      isa_id: this.state.isa.id,
+      accepted: true,
+      permitted_resources: this.shared.map(shared => ({ id: shared }))
     }).then(response => {
       // console.log("response", response)
-
-      this.navigator.push(Routes.main)
+      if(parseInt(response.status) === 201) {
+        this.navigator.pop()
+        ToastAndroid.show("ISA established", ToastAndroid.SHORT)
+      } else {
+        Logger.warn("Could not establish ISA")
+        ToastAndroid.show("ISA established", ToastAndroid.SHORT)
+      }
     })
+    .catch(error => Logger.warn(error))
   }
 
   onSwap(resource, key = null) {
     Session.update({
-      "swapSchema": resource.schema,
-      "swapResources": this.state.resources,
-      "swapKey": key,
-      "swapFrom": resource.id
+      swapSchema: resource.schema,
+      swapResources: this.state.resources,
+      swapKey: key,
+      swapFrom: resource.id
     })
 
     this.navigator.push(Routes.selectResourceOfType)
+  }
+
+  async loadISAs() {
+    const response = await Api.allISAs()
+    if (response && !response.error) {
+      const unacked = response.body.unacked
+      const currentISA = unacked.find(isar => parseInt(isar.id, 10) === parseInt(this.state.isar_id, 10))
+      if (currentISA) {
+        // currentISA.required_entities
+        // currentISA.from_did
+        // purpose
+        // license
+        Logger.info('currentISA', currentISA)
+        setTimeout(() => {
+          this.setState({
+            isa: currentISA
+          })
+        }, 100)
+      } else {
+        Logger.warn('Could not find corresponding ISA')
+      }
+    }
+  }
+
+  onPressMissing(schema, id) {
+    console.log('SCHAMEA', schema)
+    schema = Common.ensureUrlHasProtocol(schema)
+    const form = schema + "_form"
+    this.context.onEditResource(form, null)
+    // this.navigator.push(Routes.editResource)
   }
 
   render() {
@@ -133,24 +191,26 @@ class InformationRequest extends Scene {
                 <View style={styles.name}>
                   {/* logo here */}
                   <Text style={styles.nameText}>
-                    [name here]
+                    {this.state.isa.purpose}
                   </Text>
                 </View>
                 <View style={styles.description}>
                   <Text style={styles.descriptionText}>
-                    [purpose here]
+                    Would like to see the following information
                   </Text>
                 </View>
                 {this.state.isa &&
                   <View>
                     {this.state.isa.required_entities.map(entity => {
                       this.shared = []
-
+                      console.log('this.shared', JSON.stringify(this.shared))
                       let component = null
 
                       this.state.resources.forEach(resource => {
+                        console.log('resource', JSON.stringify(resource))
                         const result = this.tryResource(entity, resource)
 
+                        console.log('IF RESULT% %', result)
                         if (result) {
                           component = result
                         }
@@ -168,9 +228,11 @@ class InformationRequest extends Scene {
                   <View style={styles.missingItems}>
                     {missing.map((entity, i) => {
                       return (
-                        <Text key={i} style={styles.missingItemsText}>
-                          You are missing {entity.name}.
-                        </Text>
+                        <Touchable key={i} onPress={() => this.onPressMissing(entity.address, null)}>
+                          <Text style={styles.missingItemsText}>
+                            You are missing {entity.name}.
+                          </Text>
+                        </Touchable>
                       )
                     })}
                   </View>
@@ -183,7 +245,7 @@ class InformationRequest extends Scene {
                   </Touchable>
                 }
                 <View style={styles.meta}>
-                  {/* TODO: This stuff needs to be styled properly
+                  {/* TODO: This stuff needs to ACTUALLY WORK
                   <View>
                     <View style={styles.metaItem}>
                       <PeriodIcon width={13} height={13} stroke="#666" />
@@ -223,13 +285,23 @@ class InformationRequest extends Scene {
   }
 
   tryResource(entity, resource) {
+    console.log('SOEMTHING OBVIOUSOFJ', this.i++)
+    // check for http prefix
+    if (entity.address.indexOf('http://') === 0) {
+      entity.address = entity.address.slice(7)
+    }
+
+    if (resource.schema.indexOf('http://') === 0) {
+      resource.schema = resource.schema.slice(7)
+    }
+
     if (entity.address === resource.schema) {
       const swappable = this.swaps["_" + resource.id]
-      // console.log("SWAPPABLE (RESOURCE)", swappable)
+      console.log("SWAPPABLE (RESOURCE)", swappable)
 
       if (swappable) {
         const result = this.tryResource(entity, swappable)
-        // console.log("SWAPPING", result)
+        console.log("SWAPPING", result)
 
         if (result) {
           this.shared.push(swappable.id)
@@ -246,11 +318,13 @@ class InformationRequest extends Scene {
     const rest = parts.join("/")
     const value = JSON.parse(resource.value)
 
-    if (rest === resource.schema && value[last].trim() !== "") {
+    if (rest === resource.schema
+    // && value[last].trim() !== ""
+    ) {
       const swappable = this.swaps["_" + resource.id]
       // console.log("SWAPPABLE (PARTIAL RESOURCE)", swappable)
 
-      if (swappable) {
+      if (swappable && this.state.isa.required_entities.length > 1) {
         const result = this.tryResource(entity, swappable)
         // console.log("SWAPPING", result)
 
@@ -271,20 +345,7 @@ class InformationRequest extends Scene {
         <Text style={styles.itemText}>
           <Text style={styles.foundText}>
             {/* customise this for different resource types */}
-            {Object.values(JSON.parse(resource.value)).filter(v => v.length <= 25 && v.indexOf("http") !== 0).map((v, i) => {
-              if (i > 0) {
-                return (
-                  <Text key={i}>
-                    <Text>, </Text>
-                    <Text key={i}>{v}</Text>
-                  </Text>
-                )
-              }
-
-              return (
-                <Text key={i}>{v}</Text>
-              )
-            })}
+            { Object.values(JSON.parse(resource.value)).filter(item => typeof item !== 'object').join(', ')}
           </Text>
         </Text>
       </InformationRequestResource>
@@ -303,108 +364,117 @@ class InformationRequest extends Scene {
 }
 
 const styles = {
-  "content": {
-    "flex": 1,
-    "backgroundColor": "#323a43"
+  content: {
+    flex: 1,
+    backgroundColor: "#323a43"
   },
-  "top": {
-    "height": "14%"
+  top: {
+    height: "14%"
   },
-  "middle": {
-    "height": "72%",
-    "paddingLeft": 10,
-    "paddingRight": 10
+  middle: {
+    height: "72%",
+    paddingLeft: 10,
+    paddingRight: 10
   },
-  "middleBackground": {
-    "flex": 1,
-    "borderRadius": 10,
-    "backgroundColor": "#f0f2f2",
-    "shadowColor": "#000000",
-    "shadowOpacity": 0.3,
-    "shadowRadius": 5,
-    "shadowOffset": {
-      "height": 4,
-      "width": 0
+  middleBackground: {
+    flex: 1,
+    borderRadius: 10,
+    backgroundColor: "#f0f2f2",
+    shadowColor: "#000000",
+    shadowOpacity: 0.3,
+    shadowRadius: 5,
+    shadowOffset: {
+      height: 4,
+      width: 0
     }
   },
-  "name": {
-    "height": 60,
-    "alignItems": "center",
-    "justifyContent": "center",
-    "paddingLeft": "20%",
-    "paddingRight": "20%",
-    "paddingTop": 20
+  name: {
+    height: 60,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingLeft: "20%",
+    paddingRight: "20%",
+    paddingTop: 20
   },
-  "nameText": {
-    "color": "#666",
-    "fontSize": 17
+  nameText: {
+    color: "#666",
+    fontSize: 17
   },
-  "description": {
-    "height": 50,
-    "paddingLeft": "20%",
-    "paddingRight": "20%"
+  description: {
+    height: 50,
+    paddingLeft: "20%",
+    paddingRight: "20%"
   },
-  "descriptionText": {
-    "color": "#666",
-    "fontSize": 15,
-    "textAlign": "center"
+  descriptionText: {
+    color: "#666",
+    fontSize: 15,
+    textAlign: "center"
   },
-  "itemText": {
-    "color": "#666"
+  itemText: {
+    color: "#666"
   },
-  "missingText": {
-    "color": "#ff5d62"
+  missingText: {
+    color: "#ff5d62"
   },
-  "meta": {
-    "flex": 1,
-    "flexDirection": "row",
-    "justifyContent": "center",
-    "alignItems": "center",
-    "marginTop": 10
+  meta: {
+    flex: 1,
+    flexDirection: "row",
+    justifyContent: "center",
+    alignItems: "center",
+    marginTop: 10
   },
-  "metaItem": {
-    "color": "#666"
+  metaItem: {
+    color: "#666"
   },
-  "missingItems": {
-    "backgroundColor": "#ff2b33",
-    "padding": 15,
-    "margin": 15,
-    "borderRadius": 8
+  missingItems: {
+    backgroundColor: "#ff2b33",
+    padding: 15,
+    margin: 15,
+    borderRadius: 8
   },
-  "missingItemsText": {
-    "color": "#fff"
+  missingItemsText: {
+    color: "#fff"
   },
-  "foundText": {
-    "color": "#333",
-    "fontWeight": "bold"
+  foundText: {
+    color: "#333",
+    fontWeight: "bold"
   },
-  "bottom": {
-    "height": "14%",
-    "flexDirection": "row",
-    "paddingLeft": "12%",
-    "paddingRight": "12%"
+  bottom: {
+    height: "14%",
+    flexDirection: "row",
+    paddingLeft: "12%",
+    paddingRight: "12%"
   },
-  "decline": {
-    "flex": 1,
-    "alignItems": "flex-start",
-    "justifyContent": "center"
+  decline: {
+    flex: 1,
+    alignItems: "flex-start",
+    justifyContent: "center"
   },
-  "declineText": {
-    "color": "#fff",
-    "textAlign": "left",
-    "fontSize": 17
+  declineText: {
+    color: "#fff",
+    textAlign: "left",
+    fontSize: 17
   },
-  "help": {
-    "flex": 1,
-    "alignItems": "flex-end",
-    "justifyContent": "center"
+  help: {
+    flex: 1,
+    alignItems: "flex-end",
+    justifyContent: "center"
   },
-  "shareView": {
-    "alignItems": "center",
-    "justifyContent": "center",
-    "flex": 1,
-    "padding": 30
+  shareView: {
+    alignItems: "center",
+    justifyContent: "center",
+    flex: 1,
+    padding: 30
   }
+}
+
+InformationRequest.contextTypes = {
+  // behavior
+  onEditResource: PropTypes.func,
+  onSaveResource: PropTypes.func,
+
+  // state
+  getShouldClearResourceCache: PropTypes.func
 }
 
 export default InformationRequest

@@ -22,7 +22,8 @@ import {
   View,
   ScrollView,
   Dimensions,
-  Image
+  Image,
+  ToastAndroid
 } from "react-native"
 
 import {
@@ -32,6 +33,7 @@ import {
 import ISACard from '../Components/ISACard'
 import Icon from 'react-native-vector-icons/Ionicons'
 import HexagonIcon from '../Components/HexagonIcon'
+import Routes from '../Routes'
 
 const CONNECT = 0
 const ACTIVITY = 1
@@ -50,8 +52,10 @@ class ConnectionDetails extends Scene {
       image_uri: null,
       actions_url: null,
       address: null,
+      tel: null,
       email: null,
       actions: [],
+      enabled_isas: [],
       display_name: this.props.route.display_name,
       current_user_display_name: Session.getState().user.display_name,
       connection_id: this.props.route.id, // id of the connection request
@@ -62,14 +66,31 @@ class ConnectionDetails extends Scene {
   async loadActions(actions_url) {
     if (actions_url) {
       Logger.info('Fetching actions')
-      const actionsResponse = await fetch(actions_url, { method: 'GET' })
-      const actionsJSON = JSON.parse(actionsResponse._bodyText)
-      if (actionsJSON) {
+      const requestOptions = { method: 'GET' }
+      Logger.networkRequest('GET', actions_url, requestOptions)
+      const actionsResponse = await fetch(actions_url, requestOptions)
+      Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
+      const actions = JSON.parse(actionsResponse._bodyText)
+      if (actions) {
         this.setState({
-          actions: actionsJSON
-        })
+          actions: actions
+        }, () => Logger.info('Actions updated'))
+      } else {
+        Logger.warn('Could not parse JSON')
       }
     }
+  }
+
+  async loadISAs() {
+    const response = await Api.allISAs()
+    const enabled_isa_ids = response.body.enabled
+    const requests = enabled_isa_ids.map(id => Api.getISA({ id }))
+    const responses = await Promise.all(requests)
+    const enabled_isas = responses.map(x => x.body)
+
+    this.setState({
+      enabled_isas: enabled_isas
+    }, () => Logger.info(JSON.stringify(this.state)))
   }
 
   async loadData() {
@@ -81,6 +102,7 @@ class ConnectionDetails extends Scene {
         image_uri: response.body.user.image_uri,
         actions_url: response.body.actions_url,
         address: response.body.user.address,
+        tel: response.body.user.tel,
         email: response.body.user.email
       })
     } catch (error) {
@@ -89,14 +111,44 @@ class ConnectionDetails extends Scene {
 
   }
 
+  async callAction(actionURL) {
+    // this.navigator.push({
+    //   ...Routes.informationRequest,
+    //   display_name: this.state.display_name,
+    //   colour: this.state.colour,
+    //   image_uri: this.state.image_uri,
+    //   actions_url: this.state.actions_url,
+    //   address: this.state.address,
+    //   tel: this.state.tel,
+    //   email: this.state.email
+    // })
+    try {
+      const myDid = Session.getState().user.did
+      const requestOptions = {
+        "method": "GET",
+        "headers": {
+          "x-cnsnt-id": myDid
+        }
+      }
+      Logger.networkRequest('GET', actionURL, requestOptions)
+      const response = await fetch(actionURL, requestOptions)
+      if (response) {
+        ToastAndroid.show('ISA requested', ToastAndroid.SHORT)
+        Logger.networkResponse(response.status, new Date(), JSON.stringify(response))
+      }
+    } catch (error) {
+      Logger.warn(error)
+    }
+  }
+
   componentWillMount() {
     super.componentWillMount()
     this.loadData()
+    // this.loadISAs()// do it on tab change to SHARED
   }
 
   componentWillFocus() {
     super.componentWillFocus()
-    this.onAttention()
   }
 
   onHelpPress() {
@@ -181,10 +233,12 @@ class ConnectionDetails extends Scene {
             </View>
             <View style={styles.actionList}>
               {this.state.actions.map((action, i) =>
-                <View key={i} style={styles.actionItem}>
-                  <HexagonIcon width={65} height={65} fill={Palette.consentGrayDarkest}/>
-                  <Text style={styles.actionItemText}>{action.name}</Text>
-                </View>
+                <Touchable key={i} onPress={() => this.callAction(action.url)}>
+                  <View style={styles.actionItem}>
+                    <HexagonIcon width={65} height={65} fill={Palette.consentGrayDarkest}/>
+                    <Text style={styles.actionItemText}>{action.name}</Text>
+                  </View>
+                </Touchable>
               )}
             </View>
           </View>
@@ -199,49 +253,22 @@ class ConnectionDetails extends Scene {
               {' ' + this.state.display_name}
             </Text>
           </Text>
+          { this.state.enabled_isas.map((x, i) =>
+            <ISACard
+              key={i}
+              title={x.information_sharing_agreement_request.purpose}
+              shared={JSON.parse(x.information_sharing_agreement_request.required_entities).map(y => y.name)}
+              terms={[
+                { icon: <PeriodIcon width={15} height={15}/>, text: "12 Months" },
+                { icon: <LocationIcon width={15} height={15}/>, text: "In SA" },
+                { icon: <MarketingIcon width={15} height={15}/>, text: "Marketing" }
+              ]}
+              date="23-02-2017"
+              expires="23-02-2018"
+            />
 
-          <ISACard
-            title="ONBOARDING AS A NEW CUSTOMER"
-            shared={[
-              "Personal Identity",
-              "Verified Identity"
-            ]}
-            terms={[
-              { icon: <PeriodIcon width={15} height={15}/>, text: "12 Months" },
-              { icon: <LocationIcon width={15} height={15}/>, text: "In SA" },
-              { icon: <MarketingIcon width={15} height={15}/>, text: "Marketing" }
-            ]}
-            date="23-02-2017"
-            expires="23-02-2018"
-          />
-          <ISACard
-            title="ANOTHER ITEM"
-            shared={[
-              "Some information",
-              "Some other information",
-              "Some more information"
-            ]}
-            terms={[
-              { icon: <Text>ic</Text>, text: "6 Months" },
-              { icon: <Text>ic</Text>, text: "Something" }
-            ]}
-            date="23-02-2017"
-            expires="23-02-2018"
-          />
-          <ISACard
-            title="ANOTHER ITEM"
-            shared={[
-              "Some information",
-              "Some other information",
-              "Some more information"
-            ]}
-            terms={[
-              { icon: <Text>ic</Text>, text: "6 Months" },
-              { icon: <Text>ic</Text>, text: "Something" }
-            ]}
-            date="23-02-2017"
-            expires="23-02-2018"
-          />
+          )}
+
         </View>
       )
       case HELP:
@@ -258,6 +285,9 @@ class ConnectionDetails extends Scene {
               <Text>{'\n'}</Text>
               <Text style={{ fontWeight: 'bold'}}>Email </Text>
               <Text>{this.state.email}</Text>
+              <Text>{'\n'}</Text>
+              <Text style={{ fontWeight: 'bold'}}>Tel </Text>
+              <Text>{this.state.tel}</Text>
             </Text>
           </View>
         </View>
@@ -285,7 +315,7 @@ class ConnectionDetails extends Scene {
                         source={{ uri: this.state.image_uri }}
                         style={{ width: 36, height: 36, borderRadius: 45 }}
                       />
-                      <Text style={{ color: "#000", marginLeft: 8 }}>{this.state.display_name}</Text>
+                      <Text style={{ fontSize: 18, color: "#000", marginLeft: 8 }}>{this.state.display_name}</Text>
                     </View>,
               onPress: () => this.setState({ activeTab: ACTIVITY })
             },
@@ -307,7 +337,10 @@ class ConnectionDetails extends Scene {
             },
             {
               text: 'Shared',
-              onPress: () => this.setState({ activeTab: SHARED }),
+              onPress: () => {
+                this.setState({ activeTab: SHARED })
+                this.loadISAs()
+              },
               active: this.state.activeTab === SHARED
             }
           ]}
@@ -393,7 +426,8 @@ const styles = {
     borderBottomRightRadius: 5
   },
   actionItem: {
-    width: "28%",
+    flex: 1,
+    // width: "28%",
     paddingTop: 15,
     paddingBottom: 15,
     alignItems: 'center'

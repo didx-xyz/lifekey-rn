@@ -98,8 +98,8 @@ class Me extends Scene {
 
     if (this.state.resourceTypes && this.state.resourceTypes.length) {
       this.sortChildData(updatedResources, this.state.resourceTypes)
-    }  
-    
+    }
+
     this.setState({
       resources: updatedResources
     })
@@ -134,7 +134,7 @@ class Me extends Scene {
           "description": "Hello ",
           "image": require('../../App/Images/pirate_name.png')
         }
-      } else if (v.form === "http://schema.cnsnt.io/edit/verified_identity_form") {
+      } else if (v.form === "http://schema.cnsnt.io/verified_identity_form") {
         return {
           "name": "Verified Identity",
           "description": "Hello ",
@@ -278,8 +278,8 @@ class Me extends Scene {
     switch (this.state.activeTab) {
 
     case CONNECT:
-      return <Connect></Connect> 
-    case MY_DATA: 
+      return <Connect></Connect>
+    case MY_DATA:
       return <MyData sortedResourceTypes={this.state.sortedResourceTypes}></MyData>
     case BADGES:
       return <Badges badges={this.state.sortedBadges}></Badges>

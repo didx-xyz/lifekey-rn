@@ -100,17 +100,13 @@ class FirebaseHandler {
         break
 
       case 'information_sharing_agreement_request':
-        Logger.firebase('information_sharing_agreement_request')
-        // Would you like to accept?
-        // if yes:
-        try {
-          ConsentISA.update(
-            message.isar_id,
-            message.from_did
-          )
-        } catch (e) {
-          Logger.error(e)
-        }
+        Logger.firebase('information_sharing_agreement_request', message)
+        eventEmitter.emit('information_sharing_agreement_request', message)
+        // Session.update({
+        //   isas: {
+        //     unacked: [{ id: message.isar_id }]
+        //   }
+        // })
         break
 
       default:
