@@ -306,7 +306,11 @@ class EditResource extends Scene {
 
   renderPhotographInput(entity, i) {
     const pick = () => {
-      ImagePicker.showImagePicker({}, (response) => {
+      ImagePicker.showImagePicker({
+        maxWidth: 1000,
+        maxHeight: 1000,
+        quality: 0.6
+      }, (response) => {
         if (response.fileSize > 1024 /* b → kb */ * 1024 /* kb → mb */ * 7.5) {
           alert("file is too big")
           return
