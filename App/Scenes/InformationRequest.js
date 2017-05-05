@@ -1,6 +1,6 @@
 // external dependencies
 import React from "react"
-import { Text, View, ScrollView } from "react-native"
+import { Text, View, ScrollView, ToastAndroid } from "react-native"
 import { Container } from "native-base"
 
 // internal dependencies
@@ -23,7 +23,10 @@ class InformationRequest extends Scene {
     super(...params)
 
     this.state = {
-      isa: null,
+      isa: {
+        purpose: null,
+        required_entities: []
+      },
       resources: [],
       isar_id: this.props.route.message.isar_id
     }
@@ -37,11 +40,11 @@ class InformationRequest extends Scene {
   }
 
   componentDidMount() {
-    const state = Session.getState()
+    // const state = Session.getState()
 
-    this.setState({
-      "isa": state.currentIsa
-    })
+    // this.setState({
+    //   "isa": state.currentIsa
+    // })
 
     Api.allResources().then(data => {
       // console.log("resources", data)
@@ -50,14 +53,19 @@ class InformationRequest extends Scene {
         resources: data.body,
       })
     })
-
-    this.loadISAs()
+    .catch((error) => Logger.warn(error))
+    try {
+      this.loadISAs()
+    } catch (error) {
+      Logger.warn(error)
+    }
 
     this.updateSwaps()
   }
 
   componentWillUpdate(p, n) {
-    console.log(this.state)
+    super.componentWillUpdate()
+    // console.log('componentWillUpdate.this.state.', this.state)
   }
 
   updateSwaps() {
@@ -106,9 +114,15 @@ class InformationRequest extends Scene {
       permitted_resources: this.shared.map(shared => ({ id: shared }))
     }).then(response => {
       // console.log("response", response)
-
-      this.navigator.push(Routes.main)
+      if(parseInt(response.status) === 201) {
+        this.navigator.pop()
+        ToastAndroid.show("ISA established", ToastAndroid.SHORT)
+      } else {
+        Logger.warn("Could not establish ISA")
+        ToastAndroid.show("ISA established", ToastAndroid.SHORT)
+      }
     })
+    .catch(error => Logger.warn(error))
   }
 
   onSwap(resource, key = null) {
@@ -132,18 +146,16 @@ class InformationRequest extends Scene {
         // currentISA.from_did
         // purpose
         // license
-        console.log('currentISA', currentISA)
-        this.setState({
-          isa: {
-            required_entities: currentISA.required_entities
-          }
-        }, () => { console.log('this.state', this.state)})
+        Logger.info('currentISA', currentISA)
+        setTimeout(() => {
+          this.setState({
+            isa: currentISA
+          })
+        }, 100)
       } else {
         Logger.warn('Could not find corresponding ISA')
       }
     }
-
-    // match ids
   }
 
   render() {
@@ -162,12 +174,12 @@ class InformationRequest extends Scene {
                 <View style={styles.name}>
                   {/* logo here */}
                   <Text style={styles.nameText}>
-                    [name here]
+                    {this.state.isa.purpose}
                   </Text>
                 </View>
                 <View style={styles.description}>
                   <Text style={styles.descriptionText}>
-                    [purpose here]
+                    Would like to see the following information
                   </Text>
                 </View>
                 {this.state.isa &&
@@ -212,7 +224,7 @@ class InformationRequest extends Scene {
                   </Touchable>
                 }
                 <View style={styles.meta}>
-                  {/* TODO: This stuff needs to be styled properly
+                  {/* TODO: This stuff needs to ACTUALLY WORK
                   <View>
                     <View style={styles.metaItem}>
                       <PeriodIcon width={13} height={13} stroke="#666" />
@@ -252,11 +264,20 @@ class InformationRequest extends Scene {
   }
 
   tryResource(entity, resource) {
+    // check for http prefix
+    if (entity.address.indexOf('http://') === 0) {
+      entity.address = entity.address.slice(7)
+    }
+
+    if (resource.schema.indexOf('http://') === 0) {
+      resource.schema = resource.schema.slice(7)
+    }
+
     if (entity.address === resource.schema) {
       const swappable = this.swaps["_" + resource.id]
       // console.log("SWAPPABLE (RESOURCE)", swappable)
 
-      if (swappable) {
+      if (swappable && this.state.isa.required_entities.length > 1) {
         const result = this.tryResource(entity, swappable)
         // console.log("SWAPPING", result)
 
@@ -300,20 +321,7 @@ class InformationRequest extends Scene {
         <Text style={styles.itemText}>
           <Text style={styles.foundText}>
             {/* customise this for different resource types */}
-            {Object.values(JSON.parse(resource.value)).filter(v => v.length <= 25 && v.indexOf("http") !== 0).map((v, i) => {
-              if (i > 0) {
-                return (
-                  <Text key={i}>
-                    <Text>, </Text>
-                    <Text key={i}>{v}</Text>
-                  </Text>
-                )
-              }
-
-              return (
-                <Text key={i}>{v}</Text>
-              )
-            })}
+            { Object.values(JSON.parse(resource.value)).filter(item => typeof item !== 'object').join(', ')}
           </Text>
         </Text>
       </InformationRequestResource>
