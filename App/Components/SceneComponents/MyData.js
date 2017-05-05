@@ -131,9 +131,7 @@ class MyData extends Component {
       <View>
         { resourceType.items.map((resource, i) => {
 			   return (
-    				<LifekeyCard key={i} headingText={"resource " + resource.schema}>
-    					<Text>VC: {resource.schema}</Text>
-    				</LifekeyCard>
+    				<Text>VC: {resource.schema}</Text>
     			) 
         })}
       </View>
