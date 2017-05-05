@@ -128,10 +128,10 @@ class MyData extends Component {
   VC_render(resourceType) {
     if(!this.validResourceType(resourceType)) return
     return ( 
-      <View>
+      <View style={styles.vcTextContainer}>
         { resourceType.items.map((resource, i) => {
 			   return (
-    				<Text>VC: {resource.schema}</Text>
+    				<Text key={i} style={styles.vcText}>VC: {resource.schema}</Text>
     			) 
         })}
       </View>
@@ -246,6 +246,12 @@ const styles = {
     "height": 50,
     "justifyContent": "center",
     "alignItems": "flex-start"
+  },
+  "vcTextContainer":{
+    "paddingLeft": 15,
+  },
+  "vcText":{
+    "color": Palette.consentGrayDark
   },
   "addHeading": {  
     "textAlign": "center",
