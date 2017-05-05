@@ -265,7 +265,7 @@ class EditResource extends Scene {
         placeholder="Select a date"
         format="YYYY-MM-DD"
         minDate="1916-01-01"
-        maxDate="2017-01-01"
+        maxDate="2099-01-01"
         confirmBtnText="Confirm"
         cancelBtnText="Cancel"
         showIcon={false}
