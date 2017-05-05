@@ -47,14 +47,15 @@ class EditResource extends Scene {
     // combine keys and values into a single object
     keys.forEach((key, i) => data[key] = values[i])
 
+    var id = this.context.getEditResourceId()
     const options = {
       "value": JSON.stringify({
         "form": this.context.getEditResourceForm(),
         ...data
       }),
-      "entity": this.state.label,
-      "attribute": this.state.label,
-      "alias": this.state.label,
+      "entity": id,
+      "attribute": id,
+      "alias": id,
       "schema": this.context.getEditResourceForm().split("_form")[0]
     }
 
@@ -66,25 +67,22 @@ class EditResource extends Scene {
     this.setState(state)
     //End set UI state
 
-    try {
-      if (this.state.id) {
-        return Api
-          .updateResource({
-            "id": this.state.id,
-            ...options
-          })
-          .then(this.onBoundSave)
-      }
-
-      return Api
-        .createResource(options)
-        .then(this.onBoundSave)
+    
+    if (this.state.id) {
+      return Api.updateResource({
+        "id": this.state.id,
+        ...options,
+      }).then(
+        this.onBoundSave
+      ).catch(console.log)
     }
 
-    // handle promise rejections for validation errors
-    catch (e) {
-      alert("Error saving resource: " + e)
-    }
+    return Api.createResource(
+      options
+    ).then(
+      this.onBoundSave
+    ).catch(alert)
+    
   }
 
   onSave() {
