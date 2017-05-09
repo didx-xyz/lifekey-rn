@@ -94,20 +94,15 @@ class EditResource extends Scene {
 
   componentDidMount() {
     const form = this.context.getEditResourceForm()
-    console.log('TRYING')
     Api.getResourceForm(form)
        .then(this.onBoundForm)
        .catch(error => {
-          console.log('CAUGHT')
           Logger.warn("Error in loading resource form: ", error)
-          console.log(form,'http://schema.cnsnt.io/verified_identity_form')
-          console.log(form == 'http://schema.cnsnt.io/verified_identity_form')
-          console.log(form === 'http://schema.cnsnt.io/verified_identity_form')
           if (form == 'http://schema.cnsnt.io/verified_identity_form') {
             alert('Please get verified_identity from Trust Bot first')
             this.navigator.pop()
           } else {
-            Logger.warn('GO TO HELL')
+            Logger.warn('Unexpected resource format')
           }
         })
 
