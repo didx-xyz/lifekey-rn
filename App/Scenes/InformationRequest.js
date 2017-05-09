@@ -43,9 +43,7 @@ class InformationRequest extends Scene {
   }
 
   componentDidMount() {
-
-    console.log("COMPONENT MOUNTING")
-
+    super.componentDidMount()
     const state = Session.getState()
 
     // this.setState({
@@ -53,7 +51,6 @@ class InformationRequest extends Scene {
     // })
 
     Api.allResources().then(data => {
-      console.log("resources", data)
 
       this.setState({
         resources: data.body,
@@ -71,15 +68,12 @@ class InformationRequest extends Scene {
 
   componentWillUpdate(p, n) {
     super.componentWillUpdate()
-    console.log('componentWillUpdate.this.state.', this.state)
   }
 
   updateSwaps() {
     const data = Session.getState()
-    console.log("DATA", data)
 
     if (data.swapFrom && data.swapTo) {
-      console.log("SWAP", data.swapFrom, data.swapTo)
 
       this.state.resources.some(resource => {
         if (resource.id === data.swapTo) {
@@ -89,9 +83,6 @@ class InformationRequest extends Scene {
             "swapFrom": null,
             "swapTo": null
           })
-
-          console.log("SWAPS", this.swaps)
-          console.log("RESOURCES", this.state.resources)
 
           return true
         }
@@ -118,13 +109,11 @@ class InformationRequest extends Scene {
   }
 
   onPressShare() {
-    console.log('----------------',JSON.stringify(this.shared))
     Api.respondISA({
       isa_id: this.state.isa.id,
       accepted: true,
       permitted_resources: this.shared.map(shared => ({ id: shared }))
     }).then(response => {
-      // console.log("response", response)
       if(parseInt(response.status) === 201) {
         this.navigator.pop()
         ToastAndroid.show("ISA established", ToastAndroid.SHORT)
@@ -170,7 +159,6 @@ class InformationRequest extends Scene {
   }
 
   onPressMissing(schema, id) {
-    console.log('SCHAMEA', schema)
     schema = Common.ensureUrlHasProtocol(schema)
     const form = schema + "_form"
     this.context.onEditResource(form, null)
@@ -205,14 +193,11 @@ class InformationRequest extends Scene {
                   <View>
                     {this.state.isa.required_entities.map(entity => {
                       // this.shared = []
-                      console.log('this.shared', JSON.stringify(this.shared))
                       let component = null
 
                       this.state.resources.forEach(resource => {
-                        console.log('resource', JSON.stringify(resource))
                         const result = this.tryResource(entity, resource)
 
-                        console.log('IF RESULT% %', result)
                         if (result) {
                           component = result
                         }
@@ -287,7 +272,7 @@ class InformationRequest extends Scene {
   }
 
   tryResource(entity, resource) {
-    console.log('SOEMTHING OBVIOUSOFJ', this.i++)
+
     // check for http prefix
     if (entity.address.indexOf('http://') === 0) {
       entity.address = entity.address.slice(7)
@@ -299,19 +284,16 @@ class InformationRequest extends Scene {
 
     if (entity.address === resource.schema) {
       const swappable = this.swaps["_" + resource.id]
-      console.log("SWAPPABLE (RESOURCE)", swappable)
 
       if (swappable) {
         const result = this.tryResource(entity, swappable)
-        console.log("SWAPPING", result)
 
         if (result) {
-          console.log("3")
           this.shared.push(swappable.id)
           return result
         }
       }
-          console.log("4")
+
       this.shared.push(resource.id)
       return this.renderResource(resource)
     }
@@ -339,7 +321,6 @@ class InformationRequest extends Scene {
       //     return result
       //   }
       // }
-      console.log("2")
       this.shared.push(resource.id)
       return this.renderPartialResource(resource, last)
     }
