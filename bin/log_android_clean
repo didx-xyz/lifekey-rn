@@ -1,2 +1,2 @@
 #!/usr/bin/env bash
-react-native log-android 
+react-native log-android | cut -c48-

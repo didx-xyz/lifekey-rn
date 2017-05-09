@@ -55,8 +55,8 @@ export default class Main extends Scene {
     }
   }
 
-  componentWillFocus() {
-    super.componentWillFocus()
+  componentDidFocus() {
+    super.componentDidFocus()
     try {
       this.loadConnections()
       this.loadActiveClients()
@@ -85,7 +85,10 @@ export default class Main extends Scene {
           return ({})
         }
       })
-      this.setState({ suggestedConnections: updatedSuggestedConnections }, () => {
+      const updatedSuggestedConnectionsWithoutConnected = updatedSuggestedConnections.filter(x =>
+        !this.state.connections.find(y => x.did === y.to_did)
+      )
+      this.setState({ suggestedConnections: updatedSuggestedConnectionsWithoutConnected }, () => {
         if (callback) { callback() }
       })
     } else {
