@@ -47,17 +47,17 @@ class EditResource extends Scene {
     // combine keys and values into a single object
     keys.forEach((key, i) => data[key] = values[i])
 
-    var id = this.context.getEditResourceId()
     const options = {
       "value": JSON.stringify({
         "form": this.context.getEditResourceForm(),
         ...data
       }),
-      "entity": id,
-      "attribute": id,
-      "alias": id,
+      "entity": this.state.label,
+      "attribute": this.state.label,
+      "alias": this.state.label,
       "schema": this.context.getEditResourceForm().split("_form")[0]
     }
+
 
     // Set UI state 
     const state = {   
@@ -206,6 +206,10 @@ class EditResource extends Scene {
       return this.renderPhotographInput(entity, i)
     }
 
+    if (entity.type === "select") {
+      return this.renderSelectInput(entity, i)
+    }
+
     return (
       <Text>unknown type</Text>
     )
@@ -286,6 +290,7 @@ class EditResource extends Scene {
     return (
       <ModalPicker
         data={data}
+        style={styles.languagePicker}
         initValue="Select a language"
         onChange={(option) => {
           this.setState({
@@ -332,6 +337,37 @@ class EditResource extends Scene {
           </Text>
         </View>
       </Touchable>
+    )
+  }
+
+  renderSelectInput(entity, i) {
+    const data = entity.options.map((value) => {
+      return {
+        "key": value,
+        "label": value,
+        "selected": this.state[entity.name] === value
+      }
+    })
+
+    return (
+      <ModalPicker
+        data={data}
+        style={styles.countryPicker}
+        initValue="Select a ID type"
+        onChange={(option) => {
+          this.setState({
+            [entity.name + "__label"]: option.label,
+            [entity.name]: option.key
+          })
+        }}
+      >
+        <TextInput
+          style={styles.countryLabel}
+          editable={false}
+          placeholder="Select an option"
+          value={this.state[entity.name + "__label"]}
+        />
+      </ModalPicker>
     )
   }
 
@@ -499,13 +535,15 @@ const styles = {
     "placeholderText": {
       "flex": 1,
       "marginTop": 10,
-      // "backgroundColor": "yellow",
-      // "height": 20,
       "color": "#666",
       "fontWeight": "100",
       "fontSize": 14,
       "textAlign": "left",
     }
+  },
+  "languagePicker":{
+    "paddingTop": 10,
+    "height": 40
   },
   "languageLabel": {
     "flex": 1,

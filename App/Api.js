@@ -383,6 +383,9 @@ export default class Api {
 
   // 2 POST /resource
   static createResource(data) {
+
+    console.log("CREATE RESOURCE: ", data)
+
     const requiredFields = [
       'entity',
       'attribute',

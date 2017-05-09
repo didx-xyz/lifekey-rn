@@ -21,7 +21,6 @@ import Common from '../Common'
 import PropTypes from 'prop-types'
 
 class InformationRequest extends Scene {
-  
   constructor(...params) {
     super(...params)
 
@@ -31,131 +30,82 @@ class InformationRequest extends Scene {
         required_entities: []
       },
       resources: [],
-      isar_id: this.props.route.message.isar_id,
-      complete: [],
-      partial: [],
-      missing: []
+      isar_id: this.props.route.message.isar_id
     }
 
     this.onBoundPressDecline = this.onPressDecline.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
     this.onBoundPressShare = this.onPressShare.bind(this)
 
-    this.onBoundISA = this.onISA.bind(this)
-    this.onBoundResources = this.onResources.bind(this)
-
+    this.swaps = {}
+    this.shared = []
+    this.i = 0
   }
-  
-  componentDidMount() {
-    super.componentDidMount()
 
-    // const time = new Date()
-    Promise.all([
-      Api.allISAs(),  
-      Api.allResources()
-    ]).then(values => {
-      // console.log("Time spent waiting : ", (Date.now() - time.getTime()) / 1000)
-      this.onBoundISA(values[0], () => {
-        this.onBoundResources(values[1])
+  componentDidMount() {
+
+    console.log("COMPONENT MOUNTING")
+
+    const state = Session.getState()
+
+    // this.setState({
+    //   "isa": state.currentIsa
+    // })
+
+    Api.allResources().then(data => {
+      console.log("resources", data)
+
+      this.setState({
+        resources: data.body,
       })
-    }).catch(error => {
-      Logger.error(error)
     })
+    .catch((error) => Logger.warn(error))
+    try {
+      this.loadISAs()
+    } catch (error) {
+      Logger.warn(error)
+    }
+
+    this.updateSwaps()
+  }
+
+  componentWillUpdate(p, n) {
+    super.componentWillUpdate()
+    console.log('componentWillUpdate.this.state.', this.state)
+  }
+
+  updateSwaps() {
+    const data = Session.getState()
+    console.log("DATA", data)
+
+    if (data.swapFrom && data.swapTo) {
+      console.log("SWAP", data.swapFrom, data.swapTo)
+
+      this.state.resources.some(resource => {
+        if (resource.id === data.swapTo) {
+          this.swaps["_" + data.swapFrom] = resource
+
+          Session.update({
+            "swapFrom": null,
+            "swapTo": null
+          })
+
+          console.log("SWAPS", this.swaps)
+          console.log("RESOURCES", this.state.resources)
+
+          return true
+        }
+      })
+    }
   }
 
   componentWillFocus() {
     super.componentWillFocus()
 
-    Promise.all([
-      Api.allResources()
-    ]).then(values => {
-      this.onBoundResources(values[0])
-    }).catch(error => {
-      Logger.error(error)
-    })
-  }
-
-  onISA(response, then) {
-    if (response && !response.error) {
-      const unacked = response.body.unacked
-      const currentISA = unacked.find(isar => parseInt(isar.id, 10) === parseInt(this.state.isar_id, 10))
-      if (currentISA) {
-        setTimeout(() => {
-          this.setState({
-            isa: currentISA
-          }, then)
-        }, 100)
-      } else {
-        Logger.warn('Could not find corresponding ISA')
-      }
-    }
-  }
-
-  onResources(data) {
-
-    const updatedResources = data.body.map(resource => {
-      return {
-        id: resource.id,
-        alias: resource.alias,
-        schema: resource.schema, 
-        is_verifiable_claim: resource.is_verifiable_claim,
-        ...JSON.parse(resource.value)
-      }
-    })
-
-    if (this.state.isa.required_entities.length) {
-      this.findMissingResourceProperties(updatedResources, this.state.isa.required_entities)
-    }
-
-    this.setState({
-      resources: updatedResources
-    })
-  }
-
-  findMissingResourceProperties(resources, required_entities){
-    this.verifyAndFixSchemaProperty(resources, required_entities)
-    this.sortMyData(resources, required_entities)
-  }
-
-  verifyAndFixSchemaProperty(resources, required_entities){
-    resources.forEach(resource => {  
-      resource.schema = Common.ensureUrlHasProtocol(resource.schema)
-    })
-    required_entities.forEach(re => {
-      re.address = Common.ensureUrlHasProtocol(re.address)
-    })
-  }
-
-  sortMyData(resources, required_entities) {
-
-    let complete = []
-    let partial = []
-    let missing = []
-
-    required_entities.forEach(re => {
-
-      // Set up UI-only entity
-      let entity = { name: re.name, id: null, form: `${re.address}_form`}
-      // Check if this resource is present 
-      const isRequiredAndPresent = resources.find(r => Common.schemaCheck(r.schema, re.address))
-      if(!!isRequiredAndPresent){
-        entity.id = isRequiredAndPresent.id
-        // Add missing fields, if any
-        entity.missingFields = Object.keys(isRequiredAndPresent).filter(k => isRequiredAndPresent[k] === null ) 
-        // Add this entity to complete or partial
-        entity.missingFields.length ? partial.push(entity) : complete.push(entity)
-      }
-      else{
-        // Add the missing entity to the missing collection
-        missing.push(entity)
-      }
-    })
-
-    this.setState({
-      complete: complete,
-      partial: partial,
-      missing: missing
-    })
+    this.updateSwaps()
+    setTimeout(() => {
+      this.forceUpdate()
+    }, 100)
   }
 
   onPressDecline() {
@@ -170,8 +120,7 @@ class InformationRequest extends Scene {
     Api.respondISA({
       isa_id: this.state.isa.id,
       accepted: true,
-      permitted_resources: this.state.complete.map(resource => ({ id: resource.id }))
-      // permitted_resources: this.shared.map(shared => ({ id: shared }))
+      permitted_resources: this.shared.map(shared => ({ id: shared }))
     }).then(response => {
       // console.log("response", response)
       if(parseInt(response.status) === 201) {
@@ -185,11 +134,51 @@ class InformationRequest extends Scene {
     .catch(error => Logger.warn(error))
   }
 
-  onPressMissing(form, id) {
-    this.context.onEditResource(form, id)
+  onSwap(resource, key = null) {
+    Session.update({
+      swapSchema: resource.schema,
+      swapResources: this.state.resources,
+      swapKey: key,
+      swapFrom: resource.id
+    })
+
+    this.navigator.push(Routes.selectResourceOfType)
+  }
+
+  async loadISAs() {
+    const response = await Api.allISAs()
+    if (response && !response.error) {
+      const unacked = response.body.unacked
+      const currentISA = unacked.find(isar => parseInt(isar.id, 10) === parseInt(this.state.isar_id, 10))
+      if (currentISA) {
+        // currentISA.required_entities
+        // currentISA.from_did
+        // purpose
+        // license
+        Logger.info('currentISA', currentISA)
+        setTimeout(() => {
+          this.setState({
+            isa: currentISA
+          })
+        }, 100)
+      } else {
+        Logger.warn('Could not find corresponding ISA')
+      }
+    }
+  }
+
+  onPressMissing(schema, id) {
+    console.log('SCHAMEA', schema)
+    schema = Common.ensureUrlHasProtocol(schema)
+    const form = schema + "_form"
+    this.context.onEditResource(form, null)
+    // this.navigator.push(Routes.editResource)
   }
 
   render() {
+    const missing = []
+    // console.log("ISA", this.state.isa)
+
     return (
       <Container>
         <BackButton navigator={this.navigator} />
@@ -207,51 +196,72 @@ class InformationRequest extends Scene {
                 </View>
                 <View style={styles.description}>
                   <Text style={styles.descriptionText}>
-                    PARTIAL
+                    Would like to see the following information
                   </Text>
                 </View>
-                {this.state.partial.length > 0 &&
-                  <View style={styles.missingItems}>
-                    { this.state.partial.map((entity, i) => {
-                      return (
-                        <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id)}>
-                          <Text style={styles.missingItemsText}>
-                            You need to complete {entity.name}... specifically the field(s):&nbsp; 
-                              { entity.missingFields.map((item, j) => { 
-                                return (j !== entity.missingFields.length - 1) ? `${item}, ` : `${item}` 
-                              }) 
-                            } 
-                          </Text>
-                        </Touchable>
-                      )
-                    }) }
+                {this.state.isa &&
+                  <View>
+                    {this.state.isa.required_entities.map(entity => {
+                      this.shared = []
+                      console.log('this.shared', JSON.stringify(this.shared))
+                      let component = null
+
+                      this.state.resources.forEach(resource => {
+                        console.log('resource', JSON.stringify(resource))
+                        const result = this.tryResource(entity, resource)
+
+                        console.log('IF RESULT% %', result)
+                        if (result) {
+                          component = result
+                        }
+                      })
+
+                      if (component) {
+                        return component
+                      }
+
+                      missing.push(entity)
+                    })}
                   </View>
                 }
-                <View style={styles.description}>
-                  <Text style={styles.descriptionText}>
-                    MISSING
-                  </Text>
-                </View>
-                {this.state.missing.length > 0 &&
+                {missing.length > 0 &&
                   <View style={styles.missingItems}>
-                    { this.state.missing.map((entity, i) => {
+                    {missing.map((entity, i) => {
                       return (
-                        <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id)}>
+                        <Touchable key={i} onPress={() => this.onPressMissing(entity.address, null)}>
                           <Text style={styles.missingItemsText}>
                             You are missing {entity.name}.
                           </Text>
                         </Touchable>
                       )
-                    }) }
+                    })}
                   </View>
                 }
-                {this.state.partial.length < 1 && this.state.missing.length < 1 &&
+                {missing.length < 1 &&
                   <Touchable onPress={this.onBoundPressShare}>
                     <View style={styles.shareView}>
                       <HexagonIcon width={100} height={100} textSize={19} textX={30} textY={43} text="Share" />
                     </View>
                   </Touchable>
                 }
+                <View style={styles.meta}>
+                  {/* TODO: This stuff needs to ACTUALLY WORK
+                  <View>
+                    <View style={styles.metaItem}>
+                      <PeriodIcon width={13} height={13} stroke="#666" />
+                      <Text style={styles.metaItemText}>{" "} 12 Months {"  "}</Text>
+                    </View>
+                    <View style={styles.metaItem}>
+                      <LocationIcon width={13} height={13} stroke="#666" />
+                      <Text style={styles.metaItemText}>{" "} In SA {"  "}</Text>
+                    </View>
+                    <View style={styles.metaItem}>
+                      <MarketingIcon width={13} height={13} stroke="#666" />
+                      <Text style={styles.metaItemText}>{" "} Marketing</Text>
+                    </View>
+                  </View>
+                  */}
+                </View>
               </ScrollView>
             </View>
           </View>
@@ -272,6 +282,61 @@ class InformationRequest extends Scene {
         </View>
       </Container>
     )
+  }
+
+  tryResource(entity, resource) {
+    console.log('SOEMTHING OBVIOUSOFJ', this.i++)
+    // check for http prefix
+    if (entity.address.indexOf('http://') === 0) {
+      entity.address = entity.address.slice(7)
+    }
+
+    if (resource.schema.indexOf('http://') === 0) {
+      resource.schema = resource.schema.slice(7)
+    }
+
+    if (entity.address === resource.schema) {
+      const swappable = this.swaps["_" + resource.id]
+      console.log("SWAPPABLE (RESOURCE)", swappable)
+
+      if (swappable) {
+        const result = this.tryResource(entity, swappable)
+        console.log("SWAPPING", result)
+
+        if (result) {
+          this.shared.push(swappable.id)
+          return result
+        }
+      }
+
+      this.shared.push(resource.id)
+      return this.renderResource(resource)
+    }
+
+    const parts = entity.address.split("/")
+    const last = parts.pop()
+    const rest = parts.join("/")
+    const value = JSON.parse(resource.value)
+
+    if (rest === resource.schema
+    // && value[last].trim() !== ""
+    ) {
+      const swappable = this.swaps["_" + resource.id]
+      // console.log("SWAPPABLE (PARTIAL RESOURCE)", swappable)
+
+      if (swappable && this.state.isa.required_entities.length > 1) {
+        const result = this.tryResource(entity, swappable)
+        // console.log("SWAPPING", result)
+
+        if (result) {
+          this.shared.push(swappable.id)
+          return result
+        }
+      }
+
+      this.shared.push(resource.id)
+      return this.renderPartialResource(resource, last)
+    }
   }
 
   renderResource(resource) {
