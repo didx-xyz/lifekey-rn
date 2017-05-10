@@ -167,6 +167,7 @@ class InformationRequest extends Scene {
   }
 
   onPressShare() {
+    console.log('----------------',JSON.stringify(this.shared))
     Api.respondISA({
       isa_id: this.state.isa.id,
       accepted: true,
@@ -273,14 +274,18 @@ class InformationRequest extends Scene {
       </Container>
     )
   }
-
+  
   renderResource(resource) {
     return (
       <InformationRequestResource key={resource.id} title={resource.alias} onPress={() => this.onSwap(resource)}>
         <Text style={styles.itemText}>
           <Text style={styles.foundText}>
             {/* customise this for different resource types */}
-            { Object.values(JSON.parse(resource.value)).filter(item => typeof item !== 'object').join(', ')}
+            {
+              Object.values(
+                JSON.parse(resource.value)
+              ).filter(x => x && x.length && x.length < 50).join(', ')
+            }
           </Text>
         </Text>
       </InformationRequestResource>

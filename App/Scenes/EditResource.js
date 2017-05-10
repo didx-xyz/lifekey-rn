@@ -66,12 +66,15 @@ class EditResource extends Scene {
     }
     this.setState(state)
     //End set UI state
-
     
     if (this.state.id) {
+      var id = this.context.getEditResourceId()
       return Api.updateResource({
         "id": this.state.id,
         ...options,
+        entity: id,
+        attribute: id,
+        alias: id
       }).then(
         this.onBoundSave
       ).catch(console.log)
@@ -82,7 +85,6 @@ class EditResource extends Scene {
     ).then(
       this.onBoundSave
     ).catch(alert)
-    
   }
 
   onSave() {
@@ -237,7 +239,7 @@ class EditResource extends Scene {
         placeholder="Select a date"
         format="YYYY-MM-DD"
         minDate="1916-01-01"
-        maxDate="2017-01-01"
+        maxDate="2099-01-01"
         confirmBtnText="Confirm"
         cancelBtnText="Cancel"
         showIcon={false}
