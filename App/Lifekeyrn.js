@@ -198,18 +198,18 @@ class Lifekeyrn extends Component {
         this.navigator.push(Routes.main)
       }
     )
-    this.firebaseInternalEventEmitter.addListener(
-      'information_sharing_agreement_request',
-      (message) => {
-        setTimeout(() => {
-          this.navigator.push({
-          ...Routes.informationRequest,
-          message
-          })
-        }, 4000)
-        // this.navigator.push(Routes.informationRequest)
-      }
-    )
+    // this.firebaseInternalEventEmitter.addListener(
+    //   'information_sharing_agreement_request',
+    //   (message) => {
+    //     setTimeout(() => {
+    //       this.navigator.push({
+    //       ...Routes.informationRequest,
+    //       message
+    //       })
+    //     }, 4000)
+    //     // this.navigator.push(Routes.informationRequest)
+    //   }
+    // )
   }
 
   /**
