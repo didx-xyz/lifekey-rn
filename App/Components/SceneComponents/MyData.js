@@ -36,6 +36,12 @@ class MyData extends Component {
 
   constructor(...params) {
     super(...params)
+
+    this.state = {
+      "progressCopy": "Loading...",
+      "asyncActionInProgress": true
+    }
+
   }
 
   onPressDelete(id) {
