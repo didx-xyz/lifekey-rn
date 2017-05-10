@@ -123,33 +123,35 @@ class ConnectionDetails extends Scene {
   }
 
   async callAction(actionURL) {
-    // this.navigator.push({
-    //   ...Routes.informationRequest,
-    //   display_name: this.state.display_name,
-    //   colour: this.state.colour,
-    //   image_uri: this.state.image_uri,
-    //   actions_url: this.state.actions_url,
-    //   address: this.state.address,
-    //   tel: this.state.tel,
-    //   email: this.state.email
-    // })
-    try {
-      const myDid = Session.getState().user.did
-      const requestOptions = {
-        "method": "GET",
-        "headers": {
-          "x-cnsnt-did": myDid
-        }
-      }
-      Logger.networkRequest('GET', actionURL, requestOptions)
-      const response = await fetch(actionURL, requestOptions)
-      if (response) {
-        ToastAndroid.show('ISA requested', ToastAndroid.SHORT)
-        Logger.networkResponse(response.status, new Date(), JSON.stringify(response))
-      }
-    } catch (error) {
-      Logger.warn(error)
-    }
+    this.navigator.push({
+      ...Routes.informationRequest,
+      display_name: this.state.display_name,
+      colour: this.state.colour,
+      image_uri: this.state.image_uri,
+      actions_url: this.state.actions_url,
+      address: this.state.address,
+      tel: this.state.tel,
+      email: this.state.email,
+      actions: this.state.actions
+    })
+    // try {
+    //   const myDid = Session.getState().user.did
+    //   const requestOptions = {
+    //     "method": "GET",
+    //     "headers": {
+    //       "x-cnsnt-did": myDid
+    //     }
+    //   }
+    //   Logger.networkRequest('GET', actionURL, requestOptions)
+    //   const response = await fetch(actionURL, requestOptions)
+    //   if (response) {
+    //     ToastAndroid.show('ISA requested', ToastAndroid.SHORT)
+    //     Logger.networkResponse(response.status, new Date(), JSON.stringify(response))
+    //   }
+    // } catch (error) {
+    //   Logger.warn(error)
+    // }
+
   }
 
   componentWillMount() {
