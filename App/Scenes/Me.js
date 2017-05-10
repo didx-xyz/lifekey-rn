@@ -3,6 +3,7 @@ import React from "react"
 import { Text, View, Image, ScrollView } from "react-native"
 import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
+import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
 import Common from "../Common"
@@ -39,6 +40,8 @@ class Me extends Scene {
       sortedResourceTypes: [],
       sortedBadges: [],
       informationSource: "MY CODE",
+      "progressCopy": "Loading...",
+      "asyncActionInProgress": true,
       scrollview: null
     }
 
@@ -228,9 +231,9 @@ class Me extends Scene {
       return rt
     })
 
-
     this.setState({
-      "sortedResourceTypes": resourceTypes
+      "sortedResourceTypes": resourceTypes,
+      "asyncActionInProgress": false
     })
   }
 
@@ -286,7 +289,16 @@ class Me extends Scene {
             />
         </View>
         <ScrollView ref={(sv) => { this.state.scrollview = sv }} style={style.contentContainer}>
-          {this.renderTab()}
+          {
+            !this.state.asyncActionInProgress ? 
+              this.renderTab()
+            :
+              <View style={style.progressContainer}>
+                <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/> 
+                <Text style={style.progressText}>{this.state.progressCopy}</Text>
+              </View>
+          }
+          
         </ScrollView>
 
       </Container>
@@ -328,6 +340,19 @@ const style = {
     "justifyContent": "center",
     "paddingRight": Design.paddingRight,
     "paddingLeft": Design.paddingLeft,
+  },
+  "progressContainer": {
+    // "backgroundColor": Palette.consentBlue,
+    "flex": 1,
+    "alignItems": "center",
+    "justifyContent": "center"
+  },
+  "progressIndicator": {
+    "width": 75,
+    "height": 75 
+  },
+  "progressText":{
+    "color": Palette.consentGrayDark
   },
   "switchButtonContainer":{
     "flex": 2,
