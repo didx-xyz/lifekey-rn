@@ -42,6 +42,15 @@ class InformationRequest extends Scene {
     this.i = 0
   }
 
+  async loadResources() {
+    const response = await Api.allResources()
+    this.setState({
+      resources: response.body
+    }, () => {
+      this.loadISAs()
+    })
+  }
+
   componentDidMount() {
     super.componentDidMount()
     const state = Session.getState()
@@ -92,13 +101,13 @@ class InformationRequest extends Scene {
 
   componentWillFocus() {
     super.componentWillFocus()
-
+    this.loadResources()
     this.updateSwaps()
   }
 
-  componentDidFocus() {
-    this.forceUpdate()
-  }
+  // componentDidFocus() {
+  //   this.forceUpdate()
+  // }
 
   onPressDecline() {
     this.navigator.pop()
