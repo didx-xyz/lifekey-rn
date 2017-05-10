@@ -24,7 +24,7 @@ class RcAddress extends Component {
     const { resourceType, onPressEdit, onPressDelete, onEditResource } = this.props
     return (
       <View>
-        { resourceType.items.map((resource, i) => { 
+        { resourceType.items.map((resource, i) => {
           return (
             <LifekeyCard key={i} headingText={resourceType.name} onPressEdit={() => onPressEdit(resource.form, resource.id)} onPressDelete={() => onPressDelete(resource.id)} >
               <LcHomeAddress {...resource} expanded={ false }/>
