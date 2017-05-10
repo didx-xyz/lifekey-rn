@@ -132,8 +132,6 @@ class InformationRequest extends Scene {
     let partial = []
     let missing = []
 
-    console.log("REQUIRED ENTITIES: ", required_entities)
-
     required_entities.forEach(re => {
 
       // Set up UI-only entity
