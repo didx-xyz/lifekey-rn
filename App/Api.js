@@ -562,6 +562,27 @@ export default class Api {
     return request('/management/thanks/balance')
   }
 
+  // 17 POST /management/isa/:user_did/:action_name
+  /**
+   * 
+   * @param {*} with_user_did the did of the user with whom you want to establish an ISA
+   * @param {*} action_name the name of the action stored by the user with whom you want to establish an ISA
+   * @param {*} permitted_resources either an array of objects with integer id properties or an array of integer id values
+   */
+  static establishISA(with_user_did, action_name, permitted_resources) {
+    if (Array.isArray(permitted_resources)) {
+      if (permitted_resources[0].id) {
+        permitted_resources = permitted_resources.map(pr => pr.id)
+      }
+    }
+    return request(`/management/isa/${with_user_did}/${action_name}`, {
+      method: 'post',
+      body: JSON.stringify({
+        entities: permitted_resources
+      })
+    })
+  }
+
   // ##################
   // ##### DEBUG ######
   // ##################
