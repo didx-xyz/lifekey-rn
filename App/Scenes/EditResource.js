@@ -192,24 +192,24 @@ class EditResource extends Scene {
       return this.renderStringInput(entity, i)
     }
 
-    if (entity.type === "country") {
-      return this.renderCountryInput(entity, i)
-    }
-
     if (entity.type === "date") {
       return this.renderDateInput(entity, i)
-    }
-
-    if (entity.type === "language") {
-      return this.renderLanguageInput(entity, i)
     }
 
     if (entity.type === "photograph") {
       return this.renderPhotographInput(entity, i)
     }
 
+    if (entity.type === "country") {
+      return this.renderCountryInput(entity, i)
+    }
+
+    if (entity.type === "language") {
+      return this.renderLanguageInput(entity, i)
+    }
+
     if (entity.type === "select") {
-      return this.renderSelectInput(entity, i)
+      return this.renderNativeSelectDataInput(entity, i)
     }
 
     return (
@@ -231,37 +231,6 @@ class EditResource extends Scene {
     )
   }
 
-  renderCountryInput(entity, i) {
-    const data = Countries.map((country) => {
-      return {
-        "key": country["alpha-2"],
-        "label": country["name"],
-        "selected": this.state[entity.name] === country["alpha-2"]
-      }
-    })
-
-    return (
-      <ModalPicker
-        data={data}
-        style={styles.countryPicker}
-        initValue="Select a country"
-        onChange={(option) => {
-          this.setState({
-            [entity.name + "__label"]: option.label,
-            [entity.name]: option.key
-          })
-        }}
-      >
-        <TextInput
-          style={styles.countryLabel}
-          editable={false}
-          placeholder="Select a country"
-          value={this.state[entity.name + "__label"]}
-        />
-      </ModalPicker>
-    )
-  }
-
   renderDateInput(entity, i) {
     return (
       <DatePicker
@@ -277,37 +246,6 @@ class EditResource extends Scene {
         customStyles={styles.dateInput}
         onDateChange={date => {this.setState({[entity.name]: date})}}
       />
-    )
-  }
-
-  renderLanguageInput(entity, i) {
-    const data = Languages.map((country) => {
-      return {
-        "key": country["alpha3-b"],
-        "label": country["English"],
-        "selected": this.state[entity.name] === country["alpha3-b"]
-      }
-    })
-
-    return (
-      <ModalPicker
-        data={data}
-        style={styles.languagePicker}
-        initValue="Select a language"
-        onChange={(option) => {
-          this.setState({
-            [entity.name + "__label"]: option.label,
-            [entity.name]: option.key
-          })
-        }}
-      >
-        <TextInput
-          style={styles.languageLabel}
-          editable={false}
-          placeholder="Select a language"
-          value={this.state[entity.name + "__label"]}
-        />
-      </ModalPicker>
     )
   }
 
@@ -330,7 +268,6 @@ class EditResource extends Scene {
       })
     }
 
-
     return (
       <Touchable onPress={pick}>
         <View style={styles.photographLabel}>
@@ -342,7 +279,36 @@ class EditResource extends Scene {
     )
   }
 
-  renderSelectInput(entity, i) {
+  renderCountryInput(entity, i) {
+    const data = Countries.map((country) => {
+      return {
+        "key": country["alpha-2"],
+        "label": country["name"],
+        "selected": this.state[entity.name] === country["alpha-2"]
+      }
+    })
+
+    const chosenCountry = Countries.find(country => country["alpha-2"] === this.state[entity.name])
+    const initialStringValue = !!chosenCountry ? chosenCountry.name : 'Select a country'
+    return this.renderSelectInput(entity, data, initialStringValue)
+
+  }
+
+  renderLanguageInput(entity, i) {
+    const data = Languages.map((country) => {
+      return {
+        "key": country["alpha3-b"],
+        "label": country["English"],
+        "selected": this.state[entity.name] === country["alpha3-b"]
+      }
+    })
+
+    const chosenLanguage = Languages.find(language => language["alpha3-b"] === this.state[entity.name])
+    const initialStringValue = !!chosenLanguage ? chosenLanguage.name : 'Select a language'
+    return this.renderSelectInput(entity, data, initialStringValue)
+  }
+
+  renderNativeSelectDataInput(entity, i){
     const data = entity.options.map((value) => {
       return {
         "key": value,
@@ -351,25 +317,30 @@ class EditResource extends Scene {
       }
     })
 
-    return (
+    const chosenOption = entity.options.find(option => {
+      console.log("OPTION: ", option, " | " , this.state[entity.name])
+      return option === this.state[entity.name]
+    })
+    const initialStringValue = !!chosenOption ? chosenOption : 'Select a option'
+    return this.renderSelectInput(entity, data, initialStringValue)
+  }
+
+  renderSelectInput(entity, data, initialStringValue) {
+    
+    // const currentStateClass = !!this.state[entity.name + "__label"] ? styles.selectPickerWithValue : styles.selectPickerWithoutValue
+    return (      
       <ModalPicker
-        data={data}
-        style={styles.countryPicker}
-        initValue="Select a ID type"
-        onChange={(option) => {
-          this.setState({
-            [entity.name + "__label"]: option.label,
-            [entity.name]: option.key
-          })
-        }}
-      >
-        <TextInput
-          style={styles.countryLabel}
-          editable={false}
-          placeholder="Select an option"
-          value={this.state[entity.name + "__label"]}
-        />
-      </ModalPicker>
+          data={data}
+          style={styles.selectElement}
+          selectStyle={styles.selectPickerWithValue}
+          selectTextStyle={styles.textInput}
+          initValue={initialStringValue}
+          onChange={(option) => {
+            this.setState({
+              [entity.name + "__label"]: option.label,
+              [entity.name]: option.key
+            })
+          }} />
     )
   }
 
@@ -391,7 +362,7 @@ class EditResource extends Scene {
                         </Text>
                       </View>
                     }
-                    {this.state.entities.map((entity, i) => this.renderEntity(entity, i))}
+                    {this.state.entities.map((entity, i) => this.renderEntity(entity, i)) }
                   </View> 
                 </ScrollView>
               :
@@ -450,7 +421,7 @@ const styles = {
   },
   "card": {
     "backgroundColor": "#fff",
-    "padding": 10
+    "padding": 10,
   },
   "progressContainer": {
     // "backgroundColor": Palette.consentBlue,
@@ -477,8 +448,7 @@ const styles = {
   "formFieldLabel": {
     "height": 40,
     "width": "35%",
-    "justifyContent": "center",
-    // "backgroundColor": "red"
+    "justifyContent": "center"
   },
   "formFieldLabelText": {
     "fontWeight": "bold",
@@ -496,7 +466,19 @@ const styles = {
     "color": "#666",
     "fontWeight": "100",
     "fontSize": 14,
-    "height": 40
+    "textAlign": "center"
+  },
+  "selectElement":{
+    "flex": 1, 
+    "flexDirection": "row", 
+    "justifyContent": "space-around", 
+    "alignItems": "stretch"
+  },
+  "selectPickerWithoutValue":{
+    "backgroundColor": Palette.consentGrayLightest
+  },
+  "selectPickerWithValue":{
+    "borderWidth": 0
   },
   "countryPicker":{
     "paddingTop": 10,
@@ -511,32 +493,32 @@ const styles = {
     "paddingTop": 10,
     "paddingBottom": 10,
     "fontSize": 14,
-    // "backgroundColor": "green"
+    "backgroundColor": "green"
+  },
+  "datePicker":{
+    "backgroundColor": "magenta"
   },
   "dateInput": {
     "dateTouchBody": {
       "width": "100%",
       "height": "100%",
-      // "backgroundColor": "blue"
+      "alignItems": "center",
+      "justifyContent": "center",
     },
     "dateInput": {
       "borderWidth": 0,
       "alignItems": "center",
       "padding": 0,
-      "height": null,
+      "flex": 1,
       "alignItems": "center",
       "justifyContent": "center",
     },
     "dateText": {
-      "flex": 1,
-      "height": 40,
       "color": "#666",
       "fontWeight": "100",
       "fontSize": 14,
     },
     "placeholderText": {
-      "flex": 1,
-      "marginTop": 10,
       "color": "#666",
       "fontWeight": "100",
       "fontSize": 14,
@@ -559,7 +541,8 @@ const styles = {
   "photographLabel": {
     "flex": 1,
     "height": 40,
-    "justifyContent": "center"
+    "justifyContent": "center",
+    "alignItems": "center"
   },
   "photographLabelText": {
     "fontWeight": "100",
