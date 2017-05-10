@@ -21,14 +21,15 @@ import Common from '../Common'
 import PropTypes from 'prop-types'
 
 class InformationRequest extends Scene {
-  
+
   constructor(...params) {
     super(...params)
 
     this.state = {
       isa: {
         purpose: null,
-        required_entities: []
+        required_entities: this.props.route.actions.required_entities ||
+                           this.props.route.actions.entities
       },
       resources: [],
       isar_id: this.props.route.message.isar_id,
@@ -45,14 +46,14 @@ class InformationRequest extends Scene {
     this.onBoundResources = this.onResources.bind(this)
 
   }
-  
+
   componentDidMount() {
     super.componentDidMount()
 
-    // const time = new Date()
+    const time = new Date()
     Promise.all([
-      Api.allISAs(),  
-      Api.allResources()
+      Api.allISAs(),
+      // Api.allResources()
     ]).then(values => {
       // console.log("Time spent waiting : ", (Date.now() - time.getTime()) / 1000)
       this.onBoundISA(values[0], () => {
@@ -80,9 +81,11 @@ class InformationRequest extends Scene {
       const unacked = response.body.unacked
       const currentISA = unacked.find(isar => parseInt(isar.id, 10) === parseInt(this.state.isar_id, 10))
       if (currentISA) {
+        // remove required_entities FIX
+        const fixedISA = currentISA.filter(x => !x.required_entities && !x.entities)
         setTimeout(() => {
           this.setState({
-            isa: currentISA
+            isa: fixedISA
           }, then)
         }, 100)
       } else {
@@ -97,7 +100,7 @@ class InformationRequest extends Scene {
       return {
         id: resource.id,
         alias: resource.alias,
-        schema: resource.schema, 
+        schema: resource.schema,
         is_verifiable_claim: resource.is_verifiable_claim,
         ...JSON.parse(resource.value)
       }
@@ -119,7 +122,7 @@ class InformationRequest extends Scene {
   }
 
   verifyAndFixSchemaProperty(resources, required_entities){
-    resources.forEach(resource => {  
+    resources.forEach(resource => {
       resource.schema = Common.ensureUrlHasProtocol(resource.schema)
     })
     required_entities.forEach(re => {
@@ -137,12 +140,12 @@ class InformationRequest extends Scene {
 
       // Set up UI-only entity
       let entity = { name: re.name, id: null, form: `${re.address}_form`}
-      // Check if this resource is present 
+      // Check if this resource is present
       const isRequiredAndPresent = resources.find(r => Common.schemaCheck(r.schema, re.address))
       if(!!isRequiredAndPresent){
         entity.id = isRequiredAndPresent.id
         // Add missing fields, if any
-        entity.missingFields = Object.keys(isRequiredAndPresent).filter(k => isRequiredAndPresent[k] === null ) 
+        entity.missingFields = Object.keys(isRequiredAndPresent).filter(k => isRequiredAndPresent[k] === null )
         // Add this entity to complete or partial
         entity.missingFields.length ? partial.push(entity) : complete.push(entity)
       }
@@ -168,21 +171,23 @@ class InformationRequest extends Scene {
   }
 
   onPressShare() {
-    Api.respondISA({
-      isa_id: this.state.isa.id,
-      accepted: true,
-      permitted_resources: this.state.complete.map(resource => ({ id: resource.id }))
-      // permitted_resources: this.shared.map(shared => ({ id: shared }))
-    }).then(response => {
-      if(parseInt(response.status) === 201) {
-        this.navigator.pop()
-        ToastAndroid.show("ISA established", ToastAndroid.SHORT)
-      } else {
-        Logger.warn("Could not establish ISA")
-        ToastAndroid.show("ISA established", ToastAndroid.SHORT)
-      }
-    })
-    .catch(error => Logger.warn(error))
+    // Api.respondISA({
+    //   isa_id: this.state.isa.id,
+    //   accepted: true,
+    //   permitted_resources: this.state.complete.map(resource => ({ id: resource.id }))
+    //   // permitted_resources: this.shared.map(shared => ({ id: shared }))
+    // }).then(response => {
+    //   if(parseInt(response.status) === 201) {
+    //     this.navigator.pop()
+    //     ToastAndroid.show("ISA established", ToastAndroid.SHORT)
+    //   } else {
+    //     Logger.warn("Could not establish ISA")
+    //     ToastAndroid.show("ISA established", ToastAndroid.SHORT)
+    //   }
+    // })
+    // .catch(error => Logger.warn(error))
+
+    Api.establishISA('with_user_did', 'action_name', 'permitted_resources')
   }
 
   onPressMissing(form, id) {
@@ -216,11 +221,11 @@ class InformationRequest extends Scene {
                       return (
                         <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id)}>
                           <Text style={styles.missingItemsText}>
-                            You need to complete {entity.name}... specifically the field(s):&nbsp; 
-                              { entity.missingFields.map((item, j) => { 
-                                return (j !== entity.missingFields.length - 1) ? `${item}, ` : `${item}` 
-                              }) 
-                            } 
+                            You need to complete {entity.name}... specifically the field(s):&nbsp;
+                              { entity.missingFields.map((item, j) => {
+                                return (j !== entity.missingFields.length - 1) ? `${item}, ` : `${item}`
+                              })
+                            }
                           </Text>
                         </Touchable>
                       )
@@ -273,7 +278,7 @@ class InformationRequest extends Scene {
       </Container>
     )
   }
-  
+
   renderResource(resource) {
     return (
       <InformationRequestResource key={resource.id} title={resource.alias} onPress={() => this.onSwap(resource)}>
