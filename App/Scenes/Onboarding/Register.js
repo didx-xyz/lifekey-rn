@@ -6,6 +6,7 @@
  */
 
 import React from 'react'
+import PropTypes from "prop-types"
 import Scene from '../../Scene'
 import Palette from '../../Palette'
 // import Routes from '../../Routes'
@@ -47,8 +48,9 @@ const STEP_USERNAME = 0
 const STEP_EMAIL = 1
 const STEP_PIN = 2
 const STEP_MAGIC_LINK = 3
+const STEP_WAITING_FOR_DID = 4
 
-export default class Register extends Scene {
+class Register extends Scene {
 
   constructor(props) {
     super(props)
@@ -74,6 +76,11 @@ export default class Register extends Scene {
         largeText: 'Check your mail for a magic link',
         smallText: 'The link will be valid for 24 hours',
         bottomText: 'Resend link'
+      },
+      {
+        largeText: 'Thanks for activating!',
+        smallText: 'Please wait while we generate your unique decentralized identifier...',
+        bottomText: ''
       }
     ]
     this.state = {
@@ -113,7 +120,23 @@ export default class Register extends Scene {
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => this._onKeyboardDidShow())
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => this._onKeyboardDidHide())
     this._fadeTextIn()
+
+    this.context.userHasActivated(this.registrationCallback.bind(this))
     this._eventTimeline.pushEvent('Started registration')
+  }
+
+  registrationCallback() {
+
+    // Originally called this._steopForward() but could not get this to work smoothly within in the switch statement. 
+
+    this._fadeTextOut(() => {
+      this._fadeTextIn(() => {
+        this.setState({
+          step: STEP_WAITING_FOR_DID,
+          textInputValue: ''
+        })
+      })
+    })
   }
 
   _fadeTextIn(callback) {
@@ -391,48 +414,53 @@ export default class Register extends Scene {
 
   renderInputView() {
     switch (this.state.step) {
-    case STEP_USERNAME:
-      return (<OnboardingTextInputAndroid
-                onChangeText={(text) => this.setState({ textInputValue: text })}
-                value={this.state.textInputValue}
-                ref={oti => { this._oti = oti }}
-                onSubmit={() => this._stepForward()}
-              />)
+      case STEP_USERNAME:
+        return (<OnboardingTextInputAndroid
+                  onChangeText={(text) => this.setState({ textInputValue: text })}
+                  value={this.state.textInputValue}
+                  ref={oti => { this._oti = oti }}
+                  onSubmit={() => this._stepForward()}
+                />)
 
-    case STEP_EMAIL:
-      return (<OnboardingTextInputAndroid
-                onChangeText={(text) => this.setState({ textInputValue: text })}
-                value={this.state.textInputValue}
-                ref={oti => { this._oti = oti }}
-                onSubmit={() => this._stepForward()}
-              />)
+      case STEP_EMAIL:
+        return (<OnboardingTextInputAndroid
+                  onChangeText={(text) => this.setState({ textInputValue: text })}
+                  value={this.state.textInputValue}
+                  ref={oti => { this._oti = oti }}
+                  onSubmit={() => this._stepForward()}
+                />)
 
-    case STEP_PIN:
-      return (<Touchable style={{ flex: 1 }} onPress={() => this.pinInput.focus()}>
-                <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                  {!this.state.magicLinkRequested ?
-                    <HexagonDots
-                      current={this.state.textInputValue.length < 5 ? this.state.textInputValue.length : 4}
+      case STEP_PIN:
+        return (<Touchable style={{ flex: 1 }} onPress={() => this.pinInput.focus()}>
+                  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+                    {!this.state.magicLinkRequested ?
+                      <HexagonDots
+                        current={this.state.textInputValue.length < 5 ? this.state.textInputValue.length : 4}
+                      />
+                    :
+                      <Nachos.Spinner color='blue'/>
+                    }
+                    <Dots current={this.state.textInputValue.length} />
+                    <TextInput
+                      ref={(_ref) => this.pinInput = _ref }
+                      autoFocus={true}
+                      returnKeyType="done"
+                      keyboardType="phone-pad"
+                      onChangeText={(text) => this._onPinChanged(text)}
+                      style={[style.pinInput]}
                     />
-                  :
-                    <Nachos.Spinner color='blue'/>
-                  }
-                  <Dots current={this.state.textInputValue.length} />
-                  <TextInput
-                    ref={(_ref) => this.pinInput = _ref }
-                    autoFocus={true}
-                    returnKeyType="done"
-                    keyboardType="phone-pad"
-                    onChangeText={(text) => this._onPinChanged(text)}
-                    style={[style.pinInput]}
-                  />
-                </View>
-              </Touchable>)
+                  </View>
+                </Touchable>)
 
-    case STEP_MAGIC_LINK:
-      return (<View style={{ flex: 1 }}>
-                <Text>Please check the inbox of {this.state.email} for a link to activate your account</Text>
-              </View>)
+      case STEP_MAGIC_LINK:
+        return (<View style={{ flex: 1 }}>
+                  <Text>Please check the inbox of {this.state.email} for a link to activate your account</Text>
+                </View>)
+      case STEP_WAITING_FOR_DID:
+        return (<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+                  <Nachos.Spinner color='blue'/>
+                  <Text style={{ textAlign: "center" }}>Waiting for the DID</Text>
+                </View>)
     }
   }
 
@@ -470,7 +498,7 @@ export default class Register extends Scene {
                       opacity: this.state.fadeTransitionValue,
                       marginBottom: this.state.moveTransitionValue
                     }}>
-                      <Text style={{ fontSize: 38 }}>{this._steps[this.state.step].largeText}</Text>
+                      <Text style={{ fontSize: 38, textAlign: 'center' }}>{this._steps[this.state.step].largeText}</Text>
                     </Animated.View>
                   </Row>
 
@@ -480,14 +508,14 @@ export default class Register extends Scene {
                       opacity: this.state.fadeTransitionValue,
                       flex: 1
                     }}>
-                      <Text style={{ fontSize: 18, textAlign: 'justify' }}>{this._steps[this.state.step].smallText}</Text>
+                      <Text style={{ fontSize: 18, textAlign: 'center' }}>{this._steps[this.state.step].smallText}</Text>
                     </Animated.View>
                   </Row>
 
                   { /* TEXT INPUT */}
                   <Row style= {[
                     style.textInputRow,
-                    { backgroundColor: this.state.step < STEP_PIN ? null : Palette.consentOffWhite }
+                    { backgroundColor: this.state.step < STEP_WAITING_FOR_DID ? null : Palette.consentOffWhite }
                   ]}>
                     { this.renderInputView() }
                   </Row>
@@ -571,3 +599,10 @@ const style = StyleSheet.create({
     top: -1000
   }
 })
+
+Register.contextTypes = {
+  // state
+  userHasActivated: PropTypes.func
+}
+
+export default Register

@@ -13,9 +13,11 @@ import ConsentConnectionRequest from './Models/ConsentConnectionRequest'
 import ConsentDiscoveredUser from './Models/ConsentDiscoveredUser'
 import ConsentISA from './Models/ConsentISA'
 
+
 class FirebaseHandler {
 
   static messageReceived(message, eventEmitter) {
+
     // Logger.firebase('Message Received', message)
     if (message && message.type) {
       switch (message.type) {
@@ -43,6 +45,7 @@ class FirebaseHandler {
         ConsentUser.setDid(message.did_value)
         .then(did => {
           Logger.info(`DID set to ${did}`, this.filename)
+          eventEmitter.emit('received_did')
         })
         .catch(error => {
           Logger.error('Could not set DID', this.filename, error)

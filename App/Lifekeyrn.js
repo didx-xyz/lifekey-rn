@@ -39,7 +39,8 @@ class Lifekeyrn extends Component {
       // state
       "getEditResourceForm": this.boundGetEditResourceForm,
       "getEditResourceId": this.boundGetEditResourceId,
-      "getShouldClearResourceCache": this.boundGetShouldClearResourceCache
+      "getShouldClearResourceCache": this.boundGetShouldClearResourceCache,
+      "userHasActivated": this.boundUserHasActivated
     }
   }
 
@@ -61,7 +62,8 @@ class Lifekeyrn extends Component {
       screenWidth: null,
       screenHeight: null,
       scale: null,
-      fontScale: null
+      fontScale: null,
+      userHasActivatedCallback: null
     }
     Logger.info(` === ${Config.APP_NAME}  v${Config.version} === `, this.filename)
 
@@ -100,6 +102,7 @@ class Lifekeyrn extends Component {
     this.boundGetEditResourceForm = this.getEditResourceForm.bind(this)
     this.boundGetEditResourceId = this.getEditResourceId.bind(this)
     this.boundGetShouldClearResourceCache = this.getShouldClearResourceCache.bind(this)
+    this.boundUserHasActivated = this.userHasActivated.bind(this)
 
     this._messaging.getInitialNotification().then(notification => {
       Logger.info('_messaging.getInitialNotification', notification)
@@ -122,6 +125,17 @@ class Lifekeyrn extends Component {
       return true
     }
     return false
+  }
+
+  userHasActivated(callback) {
+    // console.log("USER HAS ACTIVATED CALLED: callback => ", callback, " typeof ", typeof callback )
+    if (this.state.userHasActivatedCallback && typeof this.state.userHasActivatedCallback === "function") {
+      console.log("Calling given callback from state: ", this.state.userHasActivatedCallback )
+      this.state.userHasActivatedCallback()
+    }
+    else{
+      this.setState({ "userHasActivatedCallback": callback })
+    }
   }
 
   onEditResource(form, id) {
@@ -193,9 +207,17 @@ class Lifekeyrn extends Component {
       }
     )
     this.firebaseInternalEventEmitter.addListener(
+      'received_did',
+      () => {
+        console.log("LIFEKEYRN: received_did event")
+        this.setState({ "userDidPresent" : true }, this.checkDidAndActivation)
+      }
+    )
+    this.firebaseInternalEventEmitter.addListener(
       'app_activation_link_clicked',
       () => {
-        this.navigator.push(Routes.main)
+        console.log("LIFEKEYRN: userHasActivated event")
+        this.setState({ "userHasActivated" : true }, this.checkDidAndActivation)
       }
     )
     this.firebaseInternalEventEmitter.addListener(
@@ -210,6 +232,19 @@ class Lifekeyrn extends Component {
         // this.navigator.push(Routes.informationRequest)
       }
     )
+  }
+
+  // Check for the existence of a DID and that the user has activated, if so then navigate to main. 
+  checkDidAndActivation(did, activation){
+
+    console.log("checkDidAndActivation callback: did => ", this.state.userDidPresent, " | activated => ", this.state.userHasActivated)
+
+    if(this.state.userDidPresent && this.state.userHasActivated){
+      this.navigator.push(Routes.main)
+    }
+    else if(this.state.userHasActivated){
+      this.userHasActivated(null)
+    }
   }
 
   /**
@@ -360,7 +395,9 @@ Lifekeyrn.childContextTypes = {
   // state
   "getEditResourceForm": PropTypes.func,
   "getEditResourceId": PropTypes.func,
-  "getShouldClearResourceCache": PropTypes.func
+  "getShouldClearResourceCache": PropTypes.func,
+
+  "userHasActivated": PropTypes.func
 }
 
 export default Lifekeyrn
