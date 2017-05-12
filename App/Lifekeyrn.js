@@ -8,6 +8,7 @@
 import * as Lifecycle from './Lifecycle'
 import Logger from './Logger'
 import Palette from './Palette'
+import Api from './Api'
 import Session from './Session'
 import Routes from './Routes'
 import Config from './Config'
@@ -198,18 +199,39 @@ class Lifekeyrn extends Component {
         this.navigator.push(Routes.main)
       }
     )
-    // this.firebaseInternalEventEmitter.addListener(
-    //   'information_sharing_agreement_request',
-    //   (message) => {
-    //     setTimeout(() => {
-    //       this.navigator.push({
-    //       ...Routes.informationRequest,
-    //       message
-    //       })
-    //     }, 4000)
-    //     // this.navigator.push(Routes.informationRequest)
-    //   }
-    // )
+    this.firebaseInternalEventEmitter.addListener(
+      'information_sharing_agreement_request',
+      (message) => {
+  //        { isar_id: '437',
+  //  type: 'information_sharing_agreement_request',
+  //  from_did: 'did:cnsnt:0x032729f5f29a3b384b6c396ec5f8a5270a5e63b5',
+  //  fcm:
+  //   { action: null,
+  //     tag: null,
+  //     icon: null,
+  //     color: null,
+  //     body: 'New information sharing agreement',
+  //     title: 'New Information Sharing Agreement' },
+  //  finish: [Function: finish] }
+        Logger.info("Auto responding to ISA")
+        Api.allResources()
+        .then(response => {
+          const verified_identity = response.body.find(row => row.schema === 'http://schema.cnsnt.io/verified_identity')
+          return Api.respondISA({
+            isa_id: message.isar_id,
+            accepted: true,
+            permitted_resources: [{ id: verified_identity.id }]
+          })
+        }).then(response => {
+          if (response) {
+            Logger.info(response)
+          }
+        })
+        .catch(error => Logger.warn(error))
+
+        // this.navigator.push(Routes.informationRequest)
+      }
+    )
   }
 
   /**

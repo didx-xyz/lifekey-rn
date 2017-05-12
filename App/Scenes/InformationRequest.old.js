@@ -43,8 +43,7 @@ class InformationRequest extends Scene {
   }
 
   componentDidMount() {
-
-    console.log("COMPONENT MOUNTING")
+    super.componentDidMount()
 
     const state = Session.getState()
 
@@ -67,11 +66,6 @@ class InformationRequest extends Scene {
     }
 
     this.updateSwaps()
-  }
-
-  componentWillUpdate(p, n) {
-    super.componentWillUpdate()
-    console.log('componentWillUpdate.this.state.', this.state)
   }
 
   updateSwaps() {

@@ -9,6 +9,7 @@ import React, { Component } from 'react'
 import Scene from '../Scene'
 import Palette from '../Palette'
 import Api from '../Api'
+import Session from '../Session'
 import Config from '../Config'
 import Logger from '../Logger'
 import Routes from '../Routes'
@@ -88,6 +89,14 @@ export default class Main extends Scene {
       const updatedSuggestedConnectionsWithoutConnected = updatedSuggestedConnections.filter(x =>
         !this.state.connections.find(y => x.did === y.to_did)
       )
+      // .filter(x => {
+      //   const has_verified_identity = Session.getState().has_verified_identity
+      //   if (x.display_name === "Trustbank" && !has_verified_identity) {
+      //     return false
+      //   } else {
+      //     return true
+      //   }
+      // })
       this.setState({ suggestedConnections: updatedSuggestedConnectionsWithoutConnected }, () => {
         if (callback) { callback() }
       })
