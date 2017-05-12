@@ -122,7 +122,7 @@ class ConnectionDetails extends Scene {
 
   }
 
-  async callAction(actionURL) {
+  async callAction(action) {
     this.navigator.push({
       ...Routes.informationRequest,
       display_name: this.state.display_name,
@@ -132,7 +132,9 @@ class ConnectionDetails extends Scene {
       address: this.state.address,
       tel: this.state.tel,
       email: this.state.email,
-      actions: this.state.actions
+      action: action,
+      actions: this.state.actions,
+      did: this.state.user_did
     })
     // try {
     //   const myDid = Session.getState().user.did
@@ -187,6 +189,16 @@ class ConnectionDetails extends Scene {
   onHardwareBack() {
     this.goBack()
     return true
+  }
+
+  parseISA(isar) {
+    let entities = null
+    if(isar.entities) {
+      entities = isar.entities
+    } else {
+      entities = isar.required_entities
+    }
+    return JSON.parse(entities)
   }
 
   renderTab() {
@@ -246,7 +258,7 @@ class ConnectionDetails extends Scene {
             </View>
             <View style={styles.actionList}>
               {this.state.actions.map((action, i) =>
-                <Touchable key={i} onPress={() => this.callAction(action.url)}>
+                <Touchable key={i} onPress={() => this.callAction(action)}>
                   <View style={styles.actionItem}>
                     <HexagonIcon width={65} height={65} fill={Palette.consentGrayDarkest}/>
                     <Text style={styles.actionItemText}>{action.name}</Text>
@@ -270,7 +282,7 @@ class ConnectionDetails extends Scene {
             <ISACard
               key={i}
               title={x.information_sharing_agreement_request.purpose}
-              shared={JSON.parse(x.information_sharing_agreement_request.required_entities).map(y => y.name)}
+              shared={this.parseISA(x.information_sharing_agreement_request).map(y => y.name)}
               terms={[
                 { icon: <PeriodIcon width={15} height={15}/>, text: "12 Months" },
                 { icon: <LocationIcon width={15} height={15}/>, text: "In SA" },
