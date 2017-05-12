@@ -32,7 +32,6 @@ class InformationRequest extends Scene {
                            this.props.route.actions.entities
       },
       resources: [],
-      isar_id: this.props.route.message.isar_id,
       complete: [],
       partial: [],
       missing: []
@@ -51,14 +50,10 @@ class InformationRequest extends Scene {
     super.componentDidMount()
 
     const time = new Date()
-    Promise.all([
-      Api.allISAs(),
-      // Api.allResources()
-    ]).then(values => {
-      // console.log("Time spent waiting : ", (Date.now() - time.getTime()) / 1000)
-      this.onBoundISA(values[0], () => {
-        this.onBoundResources(values[1])
-      })
+
+      Api.allResources()
+      .then(values => {
+        this.onBoundResources(values)
     }).catch(error => {
       Logger.error(error)
     })
@@ -106,9 +101,9 @@ class InformationRequest extends Scene {
       }
     })
 
-    if (this.state.isa.required_entities.length) {
-      this.findMissingResourceProperties(updatedResources, this.state.isa.required_entities)
-    }
+    // if (this.state.isa.required_entities.length) {
+      this.findMissingResourceProperties(updatedResources, this.props.route.action.entities)
+    // }
 
     this.setState({
       resources: updatedResources
@@ -171,23 +166,15 @@ class InformationRequest extends Scene {
   }
 
   onPressShare() {
-    // Api.respondISA({
-    //   isa_id: this.state.isa.id,
-    //   accepted: true,
-    //   permitted_resources: this.state.complete.map(resource => ({ id: resource.id }))
-    //   // permitted_resources: this.shared.map(shared => ({ id: shared }))
-    // }).then(response => {
-    //   if(parseInt(response.status) === 201) {
-    //     this.navigator.pop()
-    //     ToastAndroid.show("ISA established", ToastAndroid.SHORT)
-    //   } else {
-    //     Logger.warn("Could not establish ISA")
-    //     ToastAndroid.show("ISA established", ToastAndroid.SHORT)
-    //   }
-    // })
-    // .catch(error => Logger.warn(error))
-
-    Api.establishISA('with_user_did', 'action_name', 'permitted_resources')
+    Api.establishISA(
+      this.props.route.did,
+      this.props.route.action.name,
+      this.state.complete
+    )
+    .then(response => {
+      this.navigator.pop()
+      ToastAndroid.show("Shared", ToastAndroid.SHORT)
+    })
   }
 
   onPressMissing(form, id) {
