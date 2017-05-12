@@ -148,8 +148,6 @@ class Me extends Scene {
         return null
       }
 
-      console.log("POTENTIAL BADGE: ", v.form)
-
       if (v.form === "http://schema.cnsnt.io/pirate_name_form") {
         return {
           "name": "Pirate Name",
