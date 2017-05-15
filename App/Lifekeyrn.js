@@ -240,7 +240,7 @@ class Lifekeyrn extends Component {
     console.log("checkDidAndActivation callback: did => ", this.state.userDidPresent, " | activated => ", this.state.userHasActivated)
 
     if(this.state.userDidPresent && this.state.userHasActivated){
-      this.navigator.push(Routes.main)
+      this.navigator.push(Routes.helpScreens)
     }
     else if(this.state.userHasActivated){
       this.userHasActivated(null)

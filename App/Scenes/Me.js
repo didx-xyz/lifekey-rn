@@ -9,6 +9,7 @@ import ActivityIndicator from "ActivityIndicator"
 import Common from "../Common"
 import Api from "../Api"
 import Scene from "../Scene"
+import Routes from "../Routes"
 import Palette from "../Palette"
 import LifekeyHeader from "../Components/LifekeyHeader"
 import LifekeyCard from "../Components/LifekeyCard"
@@ -296,7 +297,7 @@ class Me extends Scene {
                 <Text style={style.progressText}>{this.state.progressCopy}</Text>
               </View>
           }
-          
+
         </ScrollView>
 
       </Container>
