@@ -77,9 +77,15 @@ class ConnectionDetails extends Scene {
       Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
       const actions = JSON.parse(actionsResponse._bodyText)
       if (actions) {
-        this.setState({
-          actions: actions
-        }, () => Logger.info('Actions updated'))
+        if (actions.body) {
+          this.setState({
+            actions: actions.body
+          }, () => Logger.info('Actions updated'))
+        } else {
+          this.setState({
+            actions: actions
+          }, () => Logger.info('Actions updated'))
+        }
       } else {
         Logger.warn('Could not parse JSON')
       }
@@ -116,34 +122,38 @@ class ConnectionDetails extends Scene {
 
   }
 
-  async callAction(actionURL) {
-    // this.navigator.push({
-    //   ...Routes.informationRequest,
-    //   display_name: this.state.display_name,
-    //   colour: this.state.colour,
-    //   image_uri: this.state.image_uri,
-    //   actions_url: this.state.actions_url,
-    //   address: this.state.address,
-    //   tel: this.state.tel,
-    //   email: this.state.email
-    // })
-    try {
-      const myDid = Session.getState().user.did
-      const requestOptions = {
-        "method": "GET",
-        "headers": {
-          "x-cnsnt-did": myDid
-        }
-      }
-      Logger.networkRequest('GET', actionURL, requestOptions)
-      const response = await fetch(actionURL, requestOptions)
-      if (response) {
-        ToastAndroid.show('ISA requested', ToastAndroid.SHORT)
-        Logger.networkResponse(response.status, new Date(), JSON.stringify(response))
-      }
-    } catch (error) {
-      Logger.warn(error)
-    }
+  async callAction(action) {
+    this.navigator.push({
+      ...Routes.informationRequest,
+      display_name: this.state.display_name,
+      colour: this.state.colour,
+      image_uri: this.state.image_uri,
+      actions_url: this.state.actions_url,
+      address: this.state.address,
+      tel: this.state.tel,
+      email: this.state.email,
+      action: action,
+      actions: this.state.actions,
+      did: this.state.user_did
+    })
+    // try {
+    //   const myDid = Session.getState().user.did
+    //   const requestOptions = {
+    //     "method": "GET",
+    //     "headers": {
+    //       "x-cnsnt-did": myDid
+    //     }
+    //   }
+    //   Logger.networkRequest('GET', actionURL, requestOptions)
+    //   const response = await fetch(actionURL, requestOptions)
+    //   if (response) {
+    //     ToastAndroid.show('ISA requested', ToastAndroid.SHORT)
+    //     Logger.networkResponse(response.status, new Date(), JSON.stringify(response))
+    //   }
+    // } catch (error) {
+    //   Logger.warn(error)
+    // }
+
   }
 
   componentWillMount() {
@@ -179,6 +189,16 @@ class ConnectionDetails extends Scene {
   onHardwareBack() {
     this.goBack()
     return true
+  }
+
+  parseISA(isar) {
+    let entities = null
+    if(isar.entities) {
+      entities = isar.entities
+    } else {
+      entities = isar.required_entities
+    }
+    return JSON.parse(entities)
   }
 
   renderTab() {
@@ -238,7 +258,7 @@ class ConnectionDetails extends Scene {
             </View>
             <View style={styles.actionList}>
               {this.state.actions.map((action, i) =>
-                <Touchable key={i} onPress={() => this.callAction(action.url)}>
+                <Touchable key={i} onPress={() => this.callAction(action)}>
                   <View style={styles.actionItem}>
                     <HexagonIcon width={65} height={65} fill={Palette.consentGrayDarkest}/>
                     <Text style={styles.actionItemText}>{action.name}</Text>
@@ -262,7 +282,7 @@ class ConnectionDetails extends Scene {
             <ISACard
               key={i}
               title={x.information_sharing_agreement_request.purpose}
-              shared={JSON.parse(x.information_sharing_agreement_request.required_entities).map(y => y.name)}
+              shared={this.parseISA(x.information_sharing_agreement_request).map(y => y.name)}
               terms={[
                 { icon: <PeriodIcon width={15} height={15}/>, text: "12 Months" },
                 { icon: <LocationIcon width={15} height={15}/>, text: "In SA" },

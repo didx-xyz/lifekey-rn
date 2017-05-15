@@ -17,6 +17,7 @@ import Countries from "../Countries"
 import Languages from "../Languages"
 import Palette from "../Palette"
 import Routes from "../Routes"
+import Logger from '../Logger'
 
 class EditResource extends Scene {
   constructor(...params) {
@@ -58,15 +59,14 @@ class EditResource extends Scene {
       "schema": this.context.getEditResourceForm().split("_form")[0]
     }
 
-
-    // Set UI state 
-    const state = {   
+    // Set UI state
+    const state = {
       "progressCopy": "Saving...",
       "asyncActionInProgress": true
     }
     this.setState(state)
     //End set UI state
-    
+
     if (this.state.id) {
       var id = this.context.getEditResourceId()
       return Api.updateResource({
@@ -94,11 +94,16 @@ class EditResource extends Scene {
 
   componentDidMount() {
     const form = this.context.getEditResourceForm()
-
     Api.getResourceForm(form)
        .then(this.onBoundForm)
        .catch(error => {
-          console.log("Error in loading resource form: ", error)
+          Logger.warn("Error in loading resource form: ", error)
+          if (form == 'http://schema.cnsnt.io/verified_identity_form') {
+            alert('Please get verified_identity from Trust Bot first')
+            this.navigator.pop()
+          } else {
+            Logger.warn('Unexpected resource format')
+          }
         })
 
     this.loadResource()
@@ -110,12 +115,12 @@ class EditResource extends Scene {
 
   loadResource() {
     const id = this.context.getEditResourceId()
-
+    const form = this.context.getEditResourceForm()
     if (id) {
       Api.getResource({ id })
         .then(this.onBoundResource)
         .catch(error => {
-          console.log("Error in loading resource: ", error)
+          Logger.warn("Error in loading resource: ", error)
         })
     }
   }
@@ -326,9 +331,9 @@ class EditResource extends Scene {
   }
 
   renderSelectInput(entity, data, initialStringValue) {
-    
+
     // const currentStateClass = !!this.state[entity.name + "__label"] ? styles.selectPickerWithValue : styles.selectPickerWithoutValue
-    return (      
+    return (
       <ModalPicker
           data={data}
           style={styles.selectElement}
@@ -349,11 +354,11 @@ class EditResource extends Scene {
       <Container>
         <BackButton navigator={this.navigator} />
         <View style={styles.content}>
-                       
+
             <View style={styles.fields}>
             {
-              !this.state.asyncActionInProgress ? 
-                <ScrollView style={styles.scroll}>  
+              !this.state.asyncActionInProgress ?
+                <ScrollView style={styles.scroll}>
                   <View style={styles.card}>
                     {this.state.error !== "" &&
                       <View style={styles.error}>
@@ -363,15 +368,15 @@ class EditResource extends Scene {
                       </View>
                     }
                     {this.state.entities.map((entity, i) => this.renderEntity(entity, i)) }
-                  </View> 
+                  </View>
                 </ScrollView>
               :
                 <View style={styles.progressContainer}>
-                  <ActivityIndicator color="white" style={styles.progressIndicator}/> 
+                  <ActivityIndicator color="white" style={styles.progressIndicator}/>
                   <Text style={styles.progressText}>{this.state.progressCopy}</Text>
                 </View>
             }
-            </View> 
+            </View>
           <View style={styles.buttons}>
             <View style={styles.cancelButton}>
               <Touchable onPress={this.onBoundPressCancel}>
@@ -431,7 +436,7 @@ const styles = {
   },
   "progressIndicator": {
     "width": 75,
-    "height": 75 
+    "height": 75
   },
   "progressText":{
     "color": "white"
@@ -469,9 +474,9 @@ const styles = {
     "textAlign": "center"
   },
   "selectElement":{
-    "flex": 1, 
-    "flexDirection": "row", 
-    "justifyContent": "space-around", 
+    "flex": 1,
+    "flexDirection": "row",
+    "justifyContent": "space-around",
     "alignItems": "stretch"
   },
   "selectPickerWithoutValue":{

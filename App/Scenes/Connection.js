@@ -56,9 +56,15 @@ class Connection extends Scene {
       Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
       const actions = JSON.parse(actionsResponse._bodyText)
       if (actions) {
-        this.setState({
-          actions: actions
-        }, () => Logger.info('Actions updated'))
+        if (actions.body) {
+          this.setState({
+            actions: actions.body
+          }, () => Logger.info('Actions updated'))
+        } else {
+          this.setState({
+            actions: actions
+          }, () => Logger.info('Actions updated'))
+        }
       } else {
         Logger.warn('Could not parse JSON')
       }

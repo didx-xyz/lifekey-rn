@@ -8,6 +8,7 @@
 import * as Lifecycle from './Lifecycle'
 import Logger from './Logger'
 import Palette from './Palette'
+import Api from './Api'
 import Session from './Session'
 import Routes from './Routes'
 import Config from './Config'
@@ -222,15 +223,7 @@ class Lifekeyrn extends Component {
     )
     this.firebaseInternalEventEmitter.addListener(
       'information_sharing_agreement_request',
-      (message) => {
-        setTimeout(() => {
-          this.navigator.push({
-          ...Routes.informationRequest,
-          message
-          })
-        }, 4000)
-        // this.navigator.push(Routes.informationRequest)
-      }
+      (message) => {}
     )
   }
 

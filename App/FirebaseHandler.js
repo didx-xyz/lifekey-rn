@@ -7,11 +7,14 @@
 
 import Logger from './Logger'
 import Api from './Api'
+import Session from './Session'
 import ConsentConnection from './Models/ConsentConnection'
 import ConsentUser from './Models/ConsentUser'
 import ConsentConnectionRequest from './Models/ConsentConnectionRequest'
 import ConsentDiscoveredUser from './Models/ConsentDiscoveredUser'
 import ConsentISA from './Models/ConsentISA'
+import ConsentThanksMessage from './Models/ConsentThanksMessage'
+import ToastAndroid from 'react-native'
 
 
 class FirebaseHandler {
@@ -27,17 +30,16 @@ class FirebaseHandler {
         ConsentDiscoveredUser.get(
           message.from_did
         ).then(function(from_user) {
-          return ConsentThanksMessage.add(
+          ConsentThanksMessage.add(
             new Date,
             message.amount,
             message.reason,
             from_user.nickname
           )
         }).then(function() {
-          // show a local notification??
-          alert('added new thanks message record')
+          ToastAndroid.show('added new thanks message record', ToastAndroid.SHORT)
         }).catch(function(err) {
-          console.log('unable to access app storage')
+          Logger.warn('Unable to access app storage. Thanks not saved.', err)
         })
       break
       case 'received_did':
@@ -112,6 +114,23 @@ class FirebaseHandler {
         // })
         break
 
+      case 'resource_pushed':
+      // {"type":"resource_pushed","resource_ids":"[784,785,786]","isa_id":"138","fcm":{"action":null,"tag":null,"icon":null,"color":null,"body":"One or more resources were pushed to you","title":"ISA Resources Pushed"}}
+      // console.log('$$$$$$$$$$$$$', message)
+        message.resource_ids = JSON.parse(message.resource_ids)
+        let verified_identity = null
+        Promise.all(message.resource_ids.map(id =>
+          Api.getResource({ id })
+        ))
+        .then(results => {
+          verified_identity = results.find(result => result.body.schema === "http://schema.cnsnt.io/verified_identity")
+        })
+        if (verified_identity) {
+          Session.update({
+            has_verified_identity: true
+          })
+        }
+        break
       default:
         Logger.firebase(JSON.stringify(message))
         if (message.notification) {

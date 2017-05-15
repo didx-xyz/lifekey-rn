@@ -564,7 +564,6 @@ export default class Api {
 
   // 17 POST /management/isa/:user_did/:action_name
   /**
-   * 
    * @param {*} with_user_did the did of the user with whom you want to establish an ISA
    * @param {*} action_name the name of the action stored by the user with whom you want to establish an ISA
    * @param {*} permitted_resources either an array of objects with integer id properties or an array of integer id values
@@ -576,7 +575,7 @@ export default class Api {
       }
     }
     return request(`/management/isa/${with_user_did}/${action_name}`, {
-      method: 'post',
+      method: 'POST',
       body: JSON.stringify({
         entities: permitted_resources
       })
