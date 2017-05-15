@@ -10,7 +10,7 @@ const EnvelopeIcon = (props) => {
   }
 
   return (
-    <Svg width={props.width} height={props.height} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.2 24.2">
+    <Svg width={props.width} height={props.height} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26.2 26.2">
 	    <G>
         <Path {...styles.cls1} {...dynamic} d="M28.8,22.5
           c0,1.1-0.9,2-2,2H5.5c-1.3,0-2.3-1.1-2.3-2.4V9.5c0-1.1,0.9-2,2-2h21.6c1.1,0,2,0.9,2,2V22.5z"/>

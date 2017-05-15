@@ -30,9 +30,8 @@ class LifekeyHeader extends Component {
           this.props.icons.map((icon, i) => {
             return (
               <View key={i}>
-                <Touchable onLongPress={icon.onLongPress && icon.onLongPress}
-                           onPress={icon.onPress && icon.onPress}>
-                  <View>{icon.icon}</View>
+                <Touchable onLongPress={icon.onLongPress && icon.onLongPress} onPress={icon.onPress && icon.onPress}>
+                  <View style={style.headerIcon}>{icon.icon}</View>
                 </Touchable>
               </View>
             )
@@ -82,6 +81,15 @@ const style = {
   header: {
     // backgroundColor: "white",
     flex: 1
+  },
+  headerIcon: {
+    backgroundColor: "red", 
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    overflow: "hidden",
+    justifyContent: "center",
+    alignItems: "center"
   },
   navigation: {
     flex: 2,

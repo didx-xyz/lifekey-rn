@@ -138,7 +138,7 @@ export default class SplashScreen extends Scene {
                     >
                       <Image
                         style={{ width: 150, height: 150 }}
-                        source={require('../../../App/Images/consent_logo.png')}
+                        source={require('../../../App/Images/logo_big.png')}
                       />
                     </Touchable>
                     :

@@ -10,7 +10,7 @@ const LandlineIcon = (props) => {
   }
 
   return (
-    <Svg width={props.width} height={props.height} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.2 24.2">
+    <Svg width={props.width} height={props.height} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26.2 28.2">
 	    <Path {...styles.cls1} {...dynamic} d="M27.5,5
 			c1.8,0.4,3.2,1.9,3.2,3.7l0,1.7c0,1.4-1.2,2.5-2.6,2.5l-3.8,0c-1.4,0-2.7-1.1-2.7-2.5l0-1C17.8,9,14.2,9,10.4,9.4l0,1
 			c0,1.4-1.2,2.5-2.6,2.5l-4,0c-1.4,0-2.5-1.1-2.5-2.5l0-1.7c0-1.8,1.4-3.4,3.2-3.7C11.8,3.5,19.6,3.4,27.5,5z"/>

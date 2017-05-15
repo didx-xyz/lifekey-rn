@@ -102,8 +102,9 @@ class Connection extends Scene {
         <BackButton navigator={this.navigator} />
         <View style={styles.content}>
           <View style={styles.logo}>
-            {/* logo goes here */}
-            <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/>
+            {/* logo goes here 
+            <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/> */}
+            <Image style={{height: "100%", width: "100%"}} source={{ uri: this.props.route.image_uri }}/> 
           </View>
           <View style={styles.name}>
             <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text>

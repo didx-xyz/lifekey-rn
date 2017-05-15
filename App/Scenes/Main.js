@@ -6,6 +6,7 @@
  */
 
 import React, { Component } from 'react'
+import AppLogo from '../Images/logo_big.png'
 import Scene from '../Scene'
 import Palette from '../Palette'
 import Api from '../Api'
@@ -172,7 +173,7 @@ export default class Main extends Scene {
                 onPress: () => this.navigator.push(Routes.messages)
               },
               {
-                icon: <HexagonIcon fill={ ConsentUser.getDidSync() ? Palette.consentBlue : 'red' }/>,
+                icon: <Image style={{height: "100%", width: "100%"}} source={AppLogo}/>,
                 onPress: () => alert('test'),
                 onLongPress: () => {
                   if (Config.DEBUG) {

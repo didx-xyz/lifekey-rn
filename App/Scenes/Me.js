@@ -230,10 +230,21 @@ class Me extends Scene {
       return rt
     })
 
+    // Set profile pic
+
+    const person = resourceTypes.find(rt => rt.url === "http://schema.cnsnt.io/person")
+    console.log("PERSON: ", JSON.stringify(person))
+    const identityPhotographUri = person && `data:image/jpg;base64,${person.identityPhotograph}`
+
+    // End set profile pic 
+
     this.setState({
+      "profilePicUrl": identityPhotographUri,
       "sortedResourceTypes": resourceTypes,
       "asyncActionInProgress": false
     })
+
+
   }
 
   onPressDelete(id) {
@@ -254,7 +265,7 @@ class Me extends Scene {
         onPress: () => this.navigator.pop()
       },
       {
-        icon: <Image source={require('../Images/smiley_speech_bubble.png')}/>,
+        icon: <Image source={{ uri: this.state.profilePicUrl }} style={{ width: "100%", height: "100%" }} />
       },
       {
         icon: <Text>+</Text>,

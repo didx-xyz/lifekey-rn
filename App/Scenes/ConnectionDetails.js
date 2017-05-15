@@ -110,6 +110,8 @@ class ConnectionDetails extends Scene {
         tel: response.body.user.tel,
         email: response.body.user.email
       })
+
+      console.log("URI ************* ", this.state.image_uri)
     } catch (error) {
       Logger.warn(error)
     }
@@ -316,9 +318,11 @@ class ConnectionDetails extends Scene {
             },
             {
               icon: <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Image
+                      { /*<Image
                         source={{ uri: this.state.image_uri }}
                         style={{ width: 36, height: 36, borderRadius: 45 }}
+                      /> */}
+                      <Image source={{ uri: this.state.image_uri }} style={{ width: "100%", height: "100%" }}
                       />
                       <Text style={{ fontSize: 18, color: "#000", marginLeft: 8 }}>{this.state.display_name}</Text>
                     </View>,
