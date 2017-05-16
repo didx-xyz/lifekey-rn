@@ -41,7 +41,7 @@ class LcContactDetail extends Component {
   }
 
   render () {
-    
+  
     const { expanded, listCardHeading, listCardPrimaryDetail, listCardSecondaryDetails } = this.props
 
     if(expanded)
@@ -58,7 +58,7 @@ class LcContactDetail extends Component {
           </View>
           <View style={styles.listBody}>
             <Text style={styles.listBodySubtitle}> {listCardHeading} </Text>
-            <Text style={styles.listBodyPrimaryContent}> {listCardPrimaryDetail} </Text>
+            <Text style={styles.listBodyPrimaryContent}> { listCardPrimaryDetail.length > 18 ? `${listCardPrimaryDetail.substring(0, 17)}...` : listCardPrimaryDetail } </Text>
             <View>
               { this.props.listCardSecondaryDetails.map((sdetail, i) => <Text key={i} style={ styles.listBodySecondaryContent }> {sdetail} </Text> )}
             </View>

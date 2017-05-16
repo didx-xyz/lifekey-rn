@@ -130,32 +130,28 @@ export default class SplashScreen extends Scene {
                 <Row
                   style={[style.firstRow, { backgroundColor: this.state.tokenAvailable ? null : 'red' }]}
                 >
-                  { this.state.ready ?
-                    <Touchable
-                      style={{ flex: 1 }}
-                      delayLongPress={500}
-                      onLongPress={() => this.navigator.push(Routes.debug.main)}
-                    >
-                      <Image
-                        style={{ width: 150, height: 150 }}
-                        source={require('../../../App/Images/logo_big.png')}
-                      />
-                    </Touchable>
-                    :
-                    <Spinner color="blue"/>
-                  }
+                  <Touchable
+                    style={{ flex: 1 }}
+                    delayLongPress={500}
+                    onLongPress={() => this.navigator.push(Routes.debug.main)}
+                  >
+                    <Image
+                      style={{ width: 150, height: 150 }}
+                      source={require('../../../App/Images/logo_big.png')}
+                    />
+                  </Touchable>
                 </Row>
 
 
               <Row style={[style.secondRow]}>
                 <Row style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
                   <View style={{ flex: 1, padding: 20, paddingTop: 40, paddingBottom: 40 }}>
+                    
                     <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 2 }}>
+                      { !this.state.ready && <Spinner color="blue"/> }
                       <Text style={{ fontSize: 20, textAlign: 'center' }}>Securely store and verify personal information.</Text>
                     </View>
-                    <View style={{ flex: 1, alignItems: 'center', paddingTop: 2 }}>
-                      <Text style={{ fontSize: 16 }}>Carousel between 3 opening lines</Text>
-                    </View>
+
                   </View>
                 </Row>
               </Row>

@@ -31,7 +31,10 @@ class LifekeyHeader extends Component {
             return (
               <View key={i}>
                 <Touchable onLongPress={icon.onLongPress && icon.onLongPress} onPress={icon.onPress && icon.onPress}>
-                  <View style={style.headerIcon}>{icon.icon}</View>
+                  <View>
+                    <View style={style.headerIcon}>{icon.icon}</View>
+                    <View style={Object.assign({}, style.fixCircleClipping, {"borderColor": icon.borderColor})}/>
+                  </View>
                 </Touchable>
               </View>
             )
@@ -83,13 +86,22 @@ const style = {
     flex: 1
   },
   headerIcon: {
-    backgroundColor: "red", 
     width: 50,
     height: 50,
     borderRadius: 25,
     overflow: "hidden",
     justifyContent: "center",
     alignItems: "center"
+  },
+  fixCircleClipping: {
+    // https://github.com/facebook/react-native/issues/3198
+    position: 'absolute',
+    top: -25,
+    bottom: -25,
+    right: -25,
+    left: -25,
+    borderRadius: 50 / 2 + 25 / 2,
+    borderWidth: 25
   },
   navigation: {
     flex: 2,
@@ -98,12 +110,6 @@ const style = {
     paddingLeft: Design.paddingLeft,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center"
-  },
-  profileImageContainer: {
-    height: "100%",
-    marginRight: Design.paddingRight,
-    justifyContent: "space-around",
     alignItems: "center"
   },
   tabs: {

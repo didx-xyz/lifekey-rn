@@ -32,7 +32,7 @@ export default {
   debugNavigator: false,      // Log the current stack of Navigator routes
   debugFirebase: false,        // Log Firebase events
   debugAsyncStorage: false,
-  debugAutoLogin: false,
+  debugAutoLogin: true,
   debugAutoLoginPassword: '99999',
 
   hardcodedSuggestedConnections: true,
