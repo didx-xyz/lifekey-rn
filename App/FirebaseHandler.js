@@ -12,14 +12,15 @@ import ConsentUser from './Models/ConsentUser'
 import ConsentConnectionRequest from './Models/ConsentConnectionRequest'
 import ConsentDiscoveredUser from './Models/ConsentDiscoveredUser'
 import ConsentISA from './Models/ConsentISA'
-
+import ConsentMessage from './Models/ConsentMessage'
 
 class FirebaseHandler {
 
   static messageReceived(message, eventEmitter) {
 
-    // Logger.firebase('Message Received', message)
     if (message && message.type) {
+      Logger.firebase('message.type', message.type)
+
       switch (message.type) {
 
       case 'received_thanks':
@@ -120,7 +121,13 @@ class FirebaseHandler {
         break
 
       }
-
+      ConsentMessage.add(
+        'FROM',
+        message.type,
+        new Date()
+      )
+      .then(() => Logger.info('Message saved'))
+      .catch(error => Logger.warn(error))
     } else {
       // Just a normal notification
       if (message.notification) {
