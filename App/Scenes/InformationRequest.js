@@ -30,9 +30,14 @@ class InformationRequest extends Scene {
     this.state = {
       isa: {
         purpose: null,
-        required_entities: this.props.route.actions.required_entities ||
-                           this.props.route.actions.entities
+        required_entities: this.props.route.required_entities
       },
+      //MOCK
+      // isa: {
+      //   purpose: null,
+      //   required_entities: [ { name: "Verify ID", action_name: "verify_id", entities: [ { name: "Person", address: "http://schema.cnsnt.io/person" } ] } ]
+      // },
+      // END MOCK
       resources: [],
       complete: [],
       partial: [],
@@ -40,7 +45,7 @@ class InformationRequest extends Scene {
       asyncActionInProgress: true
     }
 
-    console.log("CONSTRUCTOR REQ ENTITIES: ", this.props.route.actions)
+    console.log("CONSTRUCTOR REQ ENTITIES: ", this.props.route.required_entities)
 
     this.onBoundPressDecline = this.onPressDecline.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
@@ -106,7 +111,9 @@ class InformationRequest extends Scene {
       }
     })
 
-    this.findMissingResourceProperties(updatedResources, this.state.isa.required_entities)
+    console.log("JJJJJJJJ => ", this.props.route.required_entities)
+
+    this.findMissingResourceProperties(updatedResources, this.props.route.required_entities)
 
     this.setState({
       resources: updatedResources
@@ -144,6 +151,7 @@ class InformationRequest extends Scene {
       // Check if this resource is present
       const isRequiredAndPresent = resources.find(r => Common.schemaCheck(r.schema, re.address))
       if(!!isRequiredAndPresent){
+        
         entity.id = isRequiredAndPresent.id
         // Add missing fields, if any
         entity.missingFields = Object.keys(isRequiredAndPresent).filter(k => isRequiredAndPresent[k] === null )
@@ -173,9 +181,14 @@ class InformationRequest extends Scene {
   }
 
   onPressShare() {
+    
+    console.log("******************** ", this.props.route.did,
+      this.props.route.action.action_name,
+      this.state.complete)
+
     Api.establishISA(
       this.props.route.did,
-      this.props.route.action.name,
+      this.props.route.action.action_name,
       this.state.complete
     )
     .then(response => {
@@ -207,7 +220,52 @@ class InformationRequest extends Scene {
                         {this.state.isa.purpose}
                       </Text>
                     </View>
-                    
+
+                    <View>
+                      <View style={styles.description}>
+                        <Text style={styles.descriptionText}>
+                          This BOT would like to see the following information: 
+                        </Text>
+                      </View>
+                      <View style={styles.wantedItems}>
+                        
+                        { this.props.route.required_entities.map((entity, i) => {
+                          return (
+                            <View key={i} style={styles.wantedItemContainer}>
+                              <Text  style={styles.wantedItemsText}>
+                                { entity.name }
+                              </Text>
+                            </View>
+                          )
+                        }) }
+                      </View>
+                    </View>
+
+                    { /* this.state.complete.length > 0 && 
+                      <View>
+                        <View style={styles.description}>
+                          <Text style={styles.descriptionText}>
+                            COMPLETE
+                          </Text>
+                        </View>
+                        <View style={styles.missingItems}>
+                          { this.state.complete.map((entity, i) => {
+                            return (
+                              <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id)}>
+                                <Text style={styles.missingItemsText}>
+                                  You need to complete {entity.name}... specifically the field(s):&nbsp;
+                                    { entity.missingFields.map((item, j) => {
+                                      return (j !== entity.missingFields.length - 1) ? `${item}, ` : `${item}`
+                                    })
+                                  }
+                                </Text>
+                              </Touchable>
+                            )
+                          }) }
+                        </View>
+                      </View>
+                    */ }                  
+  
                     {this.state.partial.length > 0 &&
                       <View>
                         <View style={styles.description}>
@@ -232,22 +290,25 @@ class InformationRequest extends Scene {
                         </View>
                       </View>
                     }
-                    <View style={styles.description}>
-                      <Text style={styles.descriptionText}>
-                        MISSING
-                      </Text>
-                    </View>
+                    
                     {this.state.missing.length > 0 &&
-                      <View style={styles.missingItems}>
-                        { this.state.missing.map((entity, i) => {
-                          return (
-                            <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id)}>
-                              <Text style={styles.missingItemsText}>
-                                You are missing {entity.name}.
-                              </Text>
-                            </Touchable>
-                          )
-                        }) }
+                      <View>
+                        <View style={styles.description}>
+                          <Text style={styles.descriptionText}>
+                            MISSING
+                          </Text>
+                        </View>
+                        <View style={styles.missingItems}>
+                          { this.state.missing.map((entity, i) => {
+                            return (
+                              <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id)}>
+                                <Text style={styles.missingItemsText}>
+                                  You are missing {entity.name}.
+                                </Text>
+                              </Touchable>
+                            )
+                          }) }
+                        </View>
                       </View>
                     }
                     {
@@ -390,6 +451,18 @@ const styles = {
   },
   metaItem: {
     color: "#666"
+  },
+  wantedItems: {
+    backgroundColor: Palette.consentGrayLight,
+    padding: 15,
+    margin: 15
+  },
+  wantedItemContainer: {
+    backgroundColor: Palette.consentGray,
+    padding: 5,
+  },
+  wantedItemsText: {
+    color: Palette.consentGrayDark
   },
   missingItems: {
     backgroundColor: "#ff2b33",

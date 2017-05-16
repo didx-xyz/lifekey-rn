@@ -123,8 +123,9 @@ class ConnectionDetails extends Scene {
 
   }
 
-  async callAction(action) {
-
+  async callAction(name, action) {
+    
+    console.log("CALL ACTION NAME: ", name)
     console.log("CALL ACTION PARAM: ", JSON.stringify(action))
 
     this.navigator.push({
@@ -137,7 +138,7 @@ class ConnectionDetails extends Scene {
       tel: this.state.tel,
       email: this.state.email,
       action: action,
-      actions: this.state.actions,
+      required_entities: action.entities,
       did: this.state.user_did
     })
     // try {
@@ -262,7 +263,7 @@ class ConnectionDetails extends Scene {
             </View>
             <View style={styles.actionList}>
               {this.state.actions.map((action, i) =>
-                <Touchable key={i} onPress={() => this.callAction(action)}>
+                <Touchable key={i} onPress={() => this.callAction(action.name, action)}>
                   <View style={styles.actionItem}>
                     <HexagonIcon width={65} height={65} fill={Palette.consentGrayDarkest}/>
                     <Text style={styles.actionItemText}>{action.name}</Text>
