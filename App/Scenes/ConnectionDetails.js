@@ -123,6 +123,9 @@ class ConnectionDetails extends Scene {
   }
 
   async callAction(action) {
+
+    console.log("CALL ACTION PARAM: ", JSON.stringify(action))
+
     this.navigator.push({
       ...Routes.informationRequest,
       display_name: this.state.display_name,
