@@ -2,11 +2,13 @@
 import React from "react"
 import { Text, View, ScrollView, ToastAndroid } from "react-native"
 import { Container } from "native-base"
+import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
 import Api from "../Api"
 import Session from "../Session"
 import Routes from "../Routes"
+import Palette from "../Palette"
 import BackButton from "../Components/BackButton"
 import HelpIcon from "../Components/HelpIcon"
 import HexagonIcon from "../Components/HexagonIcon"
@@ -34,27 +36,30 @@ class InformationRequest extends Scene {
       resources: [],
       complete: [],
       partial: [],
-      missing: []
+      missing: [],
+      asyncActionInProgress: true
     }
+
+    console.log("CONSTRUCTOR REQ ENTITIES: ", this.props.route.actions)
 
     this.onBoundPressDecline = this.onPressDecline.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
     this.onBoundPressShare = this.onPressShare.bind(this)
 
-    this.onBoundISA = this.onISA.bind(this)
+    // this.onBoundISA = this.onISA.bind(this)
     this.onBoundResources = this.onResources.bind(this)
 
   }
 
   componentDidMount() {
+
     super.componentDidMount()
 
-    const time = new Date()
-
-      Api.allResources()
-      .then(values => {
-        this.onBoundResources(values)
-    }).catch(error => {
+    Api.allResources()
+    .then(values => {
+      this.onBoundResources(values)
+    })
+    .catch(error => {
       Logger.error(error)
     })
   }
@@ -71,23 +76,23 @@ class InformationRequest extends Scene {
     })
   }
 
-  onISA(response, then) {
-    if (response && !response.error) {
-      const unacked = response.body.unacked
-      const currentISA = unacked.find(isar => parseInt(isar.id, 10) === parseInt(this.state.isar_id, 10))
-      if (currentISA) {
-        // remove required_entities FIX
-        const fixedISA = currentISA.filter(x => !x.required_entities && !x.entities)
-        setTimeout(() => {
-          this.setState({
-            isa: fixedISA
-          }, then)
-        }, 100)
-      } else {
-        Logger.warn('Could not find corresponding ISA')
-      }
-    }
-  }
+  // onISA(response, then) {
+  //   if (response && !response.error) {
+  //     const unacked = response.body.unacked
+  //     const currentISA = unacked.find(isar => parseInt(isar.id, 10) === parseInt(this.state.isar_id, 10))
+  //     if (currentISA) {
+  //       // remove required_entities FIX
+  //       const fixedISA = currentISA.filter(x => !x.required_entities && !x.entities)
+  //       setTimeout(() => {
+  //         this.setState({
+  //           isa: fixedISA
+  //         }, then)
+  //       }, 100)
+  //     } else {
+  //       Logger.warn('Could not find corresponding ISA')
+  //     }
+  //   }
+  // }
 
   onResources(data) {
 
@@ -101,9 +106,7 @@ class InformationRequest extends Scene {
       }
     })
 
-    // if (this.state.isa.required_entities.length) {
-      this.findMissingResourceProperties(updatedResources, this.props.route.action.entities)
-    // }
+    this.findMissingResourceProperties(updatedResources, this.state.isa.required_entities)
 
     this.setState({
       resources: updatedResources
@@ -112,6 +115,9 @@ class InformationRequest extends Scene {
 
 
   findMissingResourceProperties(resources, required_entities){
+
+    console.log("REQ ENTITIES: ", required_entities)
+
     this.verifyAndFixSchemaProperty(resources, required_entities)
     this.sortMyData(resources, required_entities)
   }
@@ -153,7 +159,8 @@ class InformationRequest extends Scene {
     this.setState({
       complete: complete,
       partial: partial,
-      missing: missing
+      missing: missing,
+      asyncActionInProgress: false
     })
   }
 
@@ -188,65 +195,79 @@ class InformationRequest extends Scene {
         <View style={styles.content}>
           <View style={styles.top}>
           </View>
-          <View style={styles.middle}>
-            <View style={styles.middleBackground}>
-              <ScrollView>
-                <View style={styles.name}>
-                  {/* logo here */}
-                  <Text style={styles.nameText}>
-                    {this.state.isa.purpose}
-                  </Text>
-                </View>
-                <View style={styles.description}>
-                  <Text style={styles.descriptionText}>
-                    PARTIAL
-                  </Text>
-                </View>
-                {this.state.partial.length > 0 &&
-                  <View style={styles.missingItems}>
-                    { this.state.partial.map((entity, i) => {
-                      return (
-                        <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id)}>
-                          <Text style={styles.missingItemsText}>
-                            You need to complete {entity.name}... specifically the field(s):&nbsp;
-                              { entity.missingFields.map((item, j) => {
-                                return (j !== entity.missingFields.length - 1) ? `${item}, ` : `${item}`
-                              })
-                            }
-                          </Text>
-                        </Touchable>
-                      )
-                    }) }
-                  </View>
-                }
-                <View style={styles.description}>
-                  <Text style={styles.descriptionText}>
-                    MISSING
-                  </Text>
-                </View>
-                {this.state.missing.length > 0 &&
-                  <View style={styles.missingItems}>
-                    { this.state.missing.map((entity, i) => {
-                      return (
-                        <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id)}>
-                          <Text style={styles.missingItemsText}>
-                            You are missing {entity.name}.
-                          </Text>
-                        </Touchable>
-                      )
-                    }) }
-                  </View>
-                }
-                {this.state.partial.length < 1 && this.state.missing.length < 1 &&
-                  <Touchable onPress={this.onBoundPressShare}>
-                    <View style={styles.shareView}>
-                      <HexagonIcon width={100} height={100} textSize={19} textX={30} textY={43} text="Share" />
+
+          {
+            !this.state.asyncActionInProgress ? 
+              <View style={styles.middle}>
+                <View style={styles.middleBackground}>
+                  <ScrollView>
+                    <View style={styles.name}>
+                      {/* logo here */}
+                      <Text style={styles.nameText}>
+                        {this.state.isa.purpose}
+                      </Text>
                     </View>
-                  </Touchable>
-                }
-              </ScrollView>
-            </View>
-          </View>
+                    
+                    {this.state.partial.length > 0 &&
+                      <View>
+                        <View style={styles.description}>
+                          <Text style={styles.descriptionText}>
+                            PARTIAL
+                          </Text>
+                        </View>
+                        <View style={styles.missingItems}>
+                          { this.state.partial.map((entity, i) => {
+                            return (
+                              <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id)}>
+                                <Text style={styles.missingItemsText}>
+                                  You need to complete {entity.name}... specifically the field(s):&nbsp;
+                                    { entity.missingFields.map((item, j) => {
+                                      return (j !== entity.missingFields.length - 1) ? `${item}, ` : `${item}`
+                                    })
+                                  }
+                                </Text>
+                              </Touchable>
+                            )
+                          }) }
+                        </View>
+                      </View>
+                    }
+                    <View style={styles.description}>
+                      <Text style={styles.descriptionText}>
+                        MISSING
+                      </Text>
+                    </View>
+                    {this.state.missing.length > 0 &&
+                      <View style={styles.missingItems}>
+                        { this.state.missing.map((entity, i) => {
+                          return (
+                            <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id)}>
+                              <Text style={styles.missingItemsText}>
+                                You are missing {entity.name}.
+                              </Text>
+                            </Touchable>
+                          )
+                        }) }
+                      </View>
+                    }
+                    {
+                      this.state.partial.length < 1 && this.state.missing.length < 1 &&
+                      <Touchable onPress={this.onBoundPressShare}>
+                        <View style={styles.shareView}>
+                          <HexagonIcon width={100} height={100} textSize={19} textX={30} textY={43} text="Share" />
+                        </View>
+                      </Touchable>
+                    }
+                  </ScrollView>
+                </View>
+              </View>
+            :
+              <View style={styles.progressContainer}>
+                <ActivityIndicator color={Palette.consentGrayDark} style={styles.progressIndicator}/> 
+                <Text style={styles.progressText}>Loading...</Text>
+              </View>
+          }
+          
           <View style={styles.bottom}>
             <View style={styles.decline}>
               <Touchable onPress={this.onBoundPressDecline}>
@@ -266,38 +287,51 @@ class InformationRequest extends Scene {
     )
   }
 
-  renderResource(resource) {
-    return (
-      <InformationRequestResource key={resource.id} title={resource.alias} onPress={() => this.onSwap(resource)}>
-        <Text style={styles.itemText}>
-          <Text style={styles.foundText}>
-            {/* customise this for different resource types */}
-            {
-              Object.values(
-                JSON.parse(resource.value)
-              ).filter(x => x && x.length && x.length < 50).join(', ')
-            }
-          </Text>
-        </Text>
-      </InformationRequestResource>
-    )
-  }
+  // renderResource(resource) {
+  //   return (
+  //     <InformationRequestResource key={resource.id} title={resource.alias} onPress={() => this.onSwap(resource)}>
+  //       <Text style={styles.itemText}>
+  //         <Text style={styles.foundText}>
+  //           {/* customise this for different resource types */}
+  //           {
+  //             Object.values(
+  //               JSON.parse(resource.value)
+  //             ).filter(x => x && x.length && x.length < 50).join(', ')
+  //           }
+  //         </Text>
+  //       </Text>
+  //     </InformationRequestResource>
+  //   )
+  // }
 
-  renderPartialResource(resource, key) {
-    return (
-      <InformationRequestResource key={resource.id} title={resource.alias} onPress={() => this.onSwap(resource, key)}>
-        <Text style={styles.itemText}>
-          <Text style={styles.foundText}>{JSON.parse(resource.value)[key]}</Text>
-        </Text>
-      </InformationRequestResource>
-    )
-  }
+  // renderPartialResource(resource, key) {
+  //   return (
+  //     <InformationRequestResource key={resource.id} title={resource.alias} onPress={() => this.onSwap(resource, key)}>
+  //       <Text style={styles.itemText}>
+  //         <Text style={styles.foundText}>{JSON.parse(resource.value)[key]}</Text>
+  //       </Text>
+  //     </InformationRequestResource>
+  //   )
+  // }
 }
 
 const styles = {
   content: {
     flex: 1,
     backgroundColor: "#323a43"
+  },
+  "progressContainer": {
+    // "backgroundColor": Palette.consentBlue,
+    "flex": 1,
+    "alignItems": "center",
+    "justifyContent": "center"
+  },
+  "progressIndicator": {
+    "width": 75,
+    "height": 75 
+  },
+  "progressText":{
+    "color": Palette.consentGrayDark
   },
   top: {
     height: "14%"

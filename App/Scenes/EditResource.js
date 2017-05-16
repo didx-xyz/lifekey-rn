@@ -228,7 +228,7 @@ class EditResource extends Scene {
         style={styles.textInput}
         value={this.state[entity.name]}
         onChangeText={text => this.setState({[entity.name]: text})}
-        autoCapitalize="none"
+        autoCapitalize="sentences"
         autoCorrect={false}
         returnKeyType="done"
         underlineColorAndroid="rgba(0, 0, 0, 0)"
