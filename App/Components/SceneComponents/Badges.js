@@ -42,9 +42,7 @@ class Badges extends Component  {
                       </View>
                       <View style={styles.badgeContent}>
                         <View style={styles.badgeName}>
-                          
-                            <Text style={styles.badgeNameText}>{b.name}</Text>
-                          
+                          <Text style={styles.badgeNameText}>{b.name}</Text>                      
                         </View>
                         { /* <View style={styles.badgeDescription}>
                           <Text style={styles.badgeDescriptionText}>
@@ -94,11 +92,13 @@ const styles = {
   },
   "badgeContent": {
     "flex": 4,
-    "flexDirection": "column"
+    "flexDirection": "column",
   },
   "badgeName": {
     "flex": 1,
-    "paddingLeft": 20
+    "paddingLeft": 20,
+    "alignItems": "flex-start",
+    "justifyContent": "center",
   },
   "badgeNameText": {
     "fontWeight": "bold",

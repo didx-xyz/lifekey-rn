@@ -47,7 +47,7 @@ class ConnectionDetails extends Scene {
     this.state = {
       activeTab: ACTIVITY,
       showHelp: false,
-      colour: null,
+      colour: "white",
       foregroundColor: 'white',
       image_uri: null,
       actions_url: null,
@@ -116,6 +116,7 @@ class ConnectionDetails extends Scene {
         tel: response.body.user.tel,
         email: response.body.user.email
       })
+
     } catch (error) {
       Logger.warn(error)
     }
@@ -332,21 +333,26 @@ class ConnectionDetails extends Scene {
           icons={[
             {
               icon: <BackIcon width={16} height={16} stroke="#000" />,
-              onPress: () => this.onBackIconPress()
+              onPress: () => this.onBackIconPress(),
+              borderColor: this.state.colour
             },
             {
               icon: <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      <Image
+                      { /*<Image
                         source={{ uri: this.state.image_uri }}
                         style={{ width: 36, height: 36, borderRadius: 45 }}
+                      /> */}
+                      <Image source={{ uri: this.state.image_uri }} style={{ width: "100%", height: "100%" }}
                       />
                       <Text style={{ fontSize: 18, color: "#000", marginLeft: 8 }}>{this.state.display_name}</Text>
                     </View>,
-              onPress: () => this.setState({ activeTab: ACTIVITY })
+              onPress: () => this.setState({ activeTab: ACTIVITY }),
+              borderColor: this.state.colour
             },
             {
               icon: <InfoIcon width={24} height={24} stroke="#000" />,
-              onPress: () => this.setState({ activeTab: HELP })
+              onPress: () => this.setState({ activeTab: HELP }),
+              borderColor: this.state.colour
             }
           ]}
           tabs={[

@@ -9,7 +9,7 @@ const MobileIcon = (props) => {
   }
 
   return (
-    <Svg width={props.width} height={props.height} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24.2 24.2">
+    <Svg width={props.width} height={props.height} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26.2 26.2">
       <Path {...styles.cls1} {...dynamic} d="M22.4,22.7c0,0.5-0.4,0.9-0.9,0.9l-11.2,0
         c-0.5,0-0.9-0.4-0.9-0.9l0-13.6c0-0.5,0.4-0.9,0.9-0.9l11.2,0c0.5,0,0.9,0.4,0.9,0.9L22.4,22.7z"/>
       <Path {...styles.cls1} {...dynamic} d="M24.2,25.9c0,1.4-1.2,2.6-2.6,2.6l-11.2,0
