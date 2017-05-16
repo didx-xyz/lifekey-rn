@@ -8,6 +8,9 @@ import BackButton from "../Components/BackButton"
 import HelpIcon from "../Components/HelpIcon"
 import Scene from "../Scene"
 import Touchable from "../Components/Touchable"
+import ConsentMessage from '../Models/ConsentMessage'
+import Logger from '../Logger'
+
 const MESSAGES = 0
 const ACTIVITY = 1
 
@@ -16,29 +19,17 @@ class Messages extends Scene {
     super(props)
     this.state = {
       activeTab: MESSAGES,
-      messages: [
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-        { from_name: 'Vocacom', message_text: 'Hello world', timestamp: '12 Jan 2020' },
-      ],
+      messages: [],
       activities: []
     }
+  }
+
+  componentDidFocus() {
+    super.componentDidFocus()
+    ConsentMessage.all()
+    .then(messages => {
+      this.setState({ messages })
+    })
   }
 
   onPressActivity() {
@@ -53,14 +44,22 @@ class Messages extends Scene {
     this.navigator.pop()
   }
 
-  renderMessages(messages) {
-    return (
-      <View style={{ flex: 1 }}>
-        {messages.map((x, i) =>
-          this.renderMessage(x.from_name, x.message_text, x.timestamp, i)
-        )}
-      </View>
-    )
+  renderMessages() {
+    if (this.state.messages.length > 0) {
+      return (
+        <View style={{ flex: 1 }}>
+          {this.state.messages.map((x, i) =>
+            this.renderMessage(x.from_name, x.message_text, x.timestamp, i)
+          )}
+        </View>
+      )
+    } else {
+      return (
+        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+          <Text>No Messages yet</Text>
+        </View>
+      )
+    }
   }
 
   renderMessage(from_name, message_text, timestamp, key) {
@@ -88,24 +87,50 @@ class Messages extends Scene {
   }
 
   renderActivities() {
-    return (
-      <View>
-        <Text> Activities</Text>
-      </View>
-    )
+    if (this.state.activities.length > 0) {
+      return (
+        <View style={{ flex: 1 }}>
+          {this.state.activities.map((x, i) =>
+            this.renderMessage(x.from_name, x.message_text, x.timestamp, i)
+          )}
+        </View>
+      )
+    } else {
+      return (
+        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+          <Text>No notifications yet yet</Text>
+        </View>
+      )
+    }
   }
 
   renderTop() {
     return (
       <View style={styles.top}>
-        <View style={styles.topLeft}>
+
+      { /* Left Tab Button */ }
+        <View style={styles.topButton}>
           <Touchable onPress={() => this.setState({ activeTab: MESSAGES })}>
-            <Text style={styles.topLeftText}>MESSAGES</Text>
+            <Text
+              style={[
+                styles.topButtonText,
+                this.state.activeTab === MESSAGES ? { color: "#1e76ff" } : {}
+            ]}>
+              MESSAGES
+            </Text>
           </Touchable>
         </View>
-        <View style={styles.topRight}>
+
+        { /* Right Tab Button */ }
+        <View style={styles.topButton}>
           <Touchable onPress={() => this.setState({ activeTab: ACTIVITY })}>
-            <Text style={styles.topRightText}>ACTIVITY</Text>
+            <Text
+              style={[
+                styles.topButtonText,
+                this.state.activeTab === ACTIVITY ? { color: "#1e76ff" } : {}
+            ]}>
+              ACTIVITY
+            </Text>
           </Touchable>
         </View>
       </View>
@@ -139,7 +164,7 @@ class Messages extends Scene {
         <Content style={{ flex: 8 }}>
           <View style={{ flex: 8 }}>
             {this.state.activeTab === MESSAGES ?
-              this.renderMessages(this.state.messages)
+              this.renderMessages()
             :
               this.renderActivities()
             }
@@ -167,14 +192,13 @@ const styles = {
     flexDirection: 'row',
     justifyContent: 'space-between'
   },
-  topLeft: {
+  topButton: {
     paddingTop: 30,
     paddingRight: 45,
     paddingBottom: 30,
     paddingLeft: 45
   },
-  topLeftText: {
-    color: "#1e76ff",
+  topButtonText: {
     fontSize: 12,
     fontWeight: "bold"
   },
