@@ -180,7 +180,7 @@ export default class Main extends Scene {
           <LifekeyHeader
             icons={[
               {
-                icon: (<SlipIcon width={Design.headerIconWidth} height={Design.headerIconHeight} />),
+                icon: (<SlipIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Palette.consentGrayDark} />),
                 onPress: () => this.navigator.push(Routes.messages),
                 borderColor: "white"
               },
@@ -195,7 +195,7 @@ export default class Main extends Scene {
                 borderColor: "white"
               },
               {
-                icon: (<ThanksIcon width={Design.headerIconWidth} height={Design.headerIconHeight} />),
+                icon: (<ThanksIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Palette.consentGrayDark} />),
                 onPress: () => this.navigator.push(Routes.thanks),
                 borderColor: "white"
               }

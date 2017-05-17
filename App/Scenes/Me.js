@@ -248,7 +248,6 @@ class Me extends Scene {
       "asyncActionInProgress": false
     })
 
-
   }
 
   onPressDelete(id) {

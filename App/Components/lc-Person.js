@@ -91,13 +91,12 @@ const styles = {
     "flex": 1,
     "marginRight": Design.paddingRight,
     "justifyContent": "space-around",
-    "alignItems": "center",
-    "backgroundColor": Palette.consentGrayMedium
+    "alignItems": "center"
   },
   "image":{
     "height": "100%",
     "width": "100%",
-    "resizeMode": "cover",
+    "resizeMode": "contain",
   },
   "listBody":{
     "flex": 4,
