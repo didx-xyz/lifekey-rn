@@ -193,16 +193,19 @@ export default class Thanks extends Scene {
       {
         // back button
         icon: (<BackIcon width={20} height={20} />),
-        onPress: this.hardwareBack.bind(this)
+        onPress: this.hardwareBack.bind(this),
+        borderColor: "white"
       },
       {
         // smiling face in conversation bubble
-        icon: (<Image source={require('../Images/smiley_speech_bubble.png')} />)
+        icon: (<Image source={require('../Images/smiley_speech_bubble.png')} />),
+        borderColor: "white"
       },
       {
         // thanks balance number
         icon: (<Text style={{fontSize: 22}}>{this.state.thanksBalanceAmount}</Text>),
-        onPress: this.refreshThanksBalance.bind(this)
+        onPress: this.refreshThanksBalance.bind(this),
+        borderColor: "white"
       }
     ], tabs = [
       {

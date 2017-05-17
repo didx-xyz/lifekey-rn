@@ -33,6 +33,7 @@
     "react-native-datepicker": "^1.4.7",
     "react-native-dialogs": "0.0.19",
     "react-native-firebase": "^1.0.0-alpha12",
+    "react-native-geocoder": "^0.4.8",
     "react-native-gesture-view": "^0.1.2",
     "react-native-google-analytics-bridge": "^5.0.0",
     "react-native-image-picker": "^0.26.3",

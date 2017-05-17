@@ -46,6 +46,7 @@ public class MainApplication extends Application implements ReactApplication {
               new CryptoPackage(),
               new RNFirebasePackage(),
               new ReactNativeDialogsPackage()
+              new RNGeocoderPackage() // <------ https://github.com/devfd/react-native-geocoder
       );
     }
   };

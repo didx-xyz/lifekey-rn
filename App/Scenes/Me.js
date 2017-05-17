@@ -4,6 +4,10 @@ import { Text, View, Image, ScrollView } from "react-native"
 import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
 import ActivityIndicator from "ActivityIndicator"
+import Geocoder from 'react-native-geocoder';
+Geocoder.fallbackToGoogle(AIzaSyD3bNxXlWgAjLc5SS35xKRIKfNhuYX1sFw);
+
+
 
 // internal dependencies
 import Common from "../Common"
@@ -65,6 +69,12 @@ class Me extends Scene {
     }).catch(error => {
       Logger.error(error)
     })
+
+    // Address Geocoding
+    Geocoder.geocodeAddress('New York').then(res => {
+        console.log("GEOCODE: ", res)
+    })
+    .catch(err => console.log(err))
   }
 
   componentWillFocus() {
