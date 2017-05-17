@@ -63,6 +63,9 @@ class ISACard extends Component {
           </View>
 
           <View style={styles.revokeWrapper}>
+            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+              <Text style={{ fontSize: 10 }}>{this.formatTx(this.props.transactionHash)}</Text>
+            </View>
             <Touchable onPress={() => alert('todo')}>
               <Text style={styles.revokeText}>
                 REVOKE
@@ -73,6 +76,12 @@ class ISACard extends Component {
         </View>
       </View>
     )
+  }
+
+  formatTx(tx) {
+    const line1 = tx.substring(0, tx.length / 2)
+    const line2 = tx.substring(tx.length / 2, tx.length)
+    return "0x" + line1 + "\n" + line2
   }
 }
 
