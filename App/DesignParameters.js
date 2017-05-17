@@ -19,5 +19,7 @@ export default {
 		"width": 18,
 		"height": 18
 	},
-  "lifekeyHeaderHeight": 115
+  "lifekeyHeaderHeight": 115,
+  "headerIconWidth": 38,
+  "headerIconHeight": 38
 }

@@ -4,8 +4,7 @@ import { Text, View, Image, ScrollView } from "react-native"
 import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
 import ActivityIndicator from "ActivityIndicator"
-import Geocoder from 'react-native-geocoder';
-Geocoder.fallbackToGoogle(AIzaSyD3bNxXlWgAjLc5SS35xKRIKfNhuYX1sFw);
+
 
 
 
@@ -23,6 +22,7 @@ import BackButton from "../Components/BackButton"
 import BackIcon from "../Components/BackIcon"
 import HelpIcon from "../Components/HelpIcon"
 import Design from "../DesignParameters"
+import Anonymous from "../Images/anonymous_person"
 import Logger from "../Logger"
 
 import MyData from "../Components/SceneComponents/MyData"
@@ -69,12 +69,6 @@ class Me extends Scene {
     }).catch(error => {
       Logger.error(error)
     })
-
-    // Address Geocoding
-    Geocoder.geocodeAddress('New York').then(res => {
-        console.log("GEOCODE: ", res)
-    })
-    .catch(err => console.log(err))
   }
 
   componentWillFocus() {
@@ -243,8 +237,8 @@ class Me extends Scene {
     // Set profile pic
 
     const person = resourceTypes.find(rt => rt.url === "http://schema.cnsnt.io/person").items[0]
-    console.log("PERSON: ", JSON.stringify(person))
-    const identityPhotographUri = person && `data:image/jpg;base64,${person.identityPhotograph}`
+    // console.log("PERSON: ", JSON.stringify(person))
+    const identityPhotographUri = person && person.identityPhotograph ? `data:image/jpg;base64,${person.identityPhotograph}` : Anonymous.uri
 
     // End set profile pic 
 

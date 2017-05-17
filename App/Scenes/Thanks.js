@@ -2,6 +2,7 @@
 import React, {Component} from 'react'
 import Scene from '../Scene'
 import Palette from '../Palette'
+import Design from '../DesignParameters'
 import Config from '../Config'
 import Logger from '../Logger'
 import Routes from '../Routes'
@@ -11,6 +12,7 @@ import Touchable from '../Components/Touchable'
 import BackIcon from '../Components/BackIcon'
 import AndroidBackButton from 'react-native-android-back-button'
 import ConsentThanksMessage from '../Models/ConsentThanksMessage'
+import ThanksIcon from '../Components/ThanksIcon'
 
 import {
   Text,
@@ -198,7 +200,8 @@ export default class Thanks extends Scene {
       },
       {
         // smiling face in conversation bubble
-        icon: (<Image source={require('../Images/smiley_speech_bubble.png')} />),
+        // icon: (<Image source={require('../Images/smiley_speech_bubble.png')} />),
+        icon: (<ThanksIcon width={Design.headerIconWidth} height={Design.headerIconHeight} />),
         borderColor: "white"
       },
       {

@@ -23,6 +23,8 @@ import Design from '../DesignParameters'
 import HexagonIcon from '../Components/HexagonIcon'
 import ConsentUser from '../Models/ConsentUser'
 import SearchBox from '../Components/SearchBox'
+import ThanksIcon from '../Components/ThanksIcon'
+import SlipIcon from '../Components/SlipIcon'
 import _ from 'lodash'
 
 import {
@@ -178,7 +180,7 @@ export default class Main extends Scene {
           <LifekeyHeader
             icons={[
               {
-                icon: <Image source={require("../Images/torn_page.png")}/>,
+                icon: (<SlipIcon width={Design.headerIconWidth} height={Design.headerIconHeight} />),
                 onPress: () => this.navigator.push(Routes.messages),
                 borderColor: "white"
               },
@@ -193,7 +195,7 @@ export default class Main extends Scene {
                 borderColor: "white"
               },
               {
-                icon: <Image source={require("../Images/smiley_speech_bubble.png")}/>,
+                icon: (<ThanksIcon width={Design.headerIconWidth} height={Design.headerIconHeight} />),
                 onPress: () => this.navigator.push(Routes.thanks),
                 borderColor: "white"
               }
