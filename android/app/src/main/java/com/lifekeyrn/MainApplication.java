@@ -20,6 +20,9 @@ import java.util.List;
 
 import za.co.io.reactnativecrypto.CryptoPackage;
 
+// AIRBNB GOOGLE MAPS
+import com.airbnb.android.react.maps.MapsPackage;
+
 public class MainApplication extends Application implements ReactApplication {
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
@@ -45,7 +48,8 @@ public class MainApplication extends Application implements ReactApplication {
               // new GoogleAnalyticsBridgePackage(),
               new CryptoPackage(),
               new RNFirebasePackage(),
-              new ReactNativeDialogsPackage()
+              new ReactNativeDialogsPackage(),
+              new MapsPackage()
       );
     }
   };

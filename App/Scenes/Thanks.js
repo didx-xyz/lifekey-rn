@@ -2,6 +2,7 @@
 import React, {Component} from 'react'
 import Scene from '../Scene'
 import Palette from '../Palette'
+import Design from '../DesignParameters'
 import Config from '../Config'
 import Logger from '../Logger'
 import Routes from '../Routes'
@@ -11,6 +12,7 @@ import Touchable from '../Components/Touchable'
 import BackIcon from '../Components/BackIcon'
 import AndroidBackButton from 'react-native-android-back-button'
 import ConsentThanksMessage from '../Models/ConsentThanksMessage'
+import ThanksIcon from '../Components/ThanksIcon'
 
 import {
   Text,
@@ -192,17 +194,21 @@ export default class Thanks extends Scene {
     var icons = [
       {
         // back button
-        icon: (<BackIcon width={20} height={20} />),
-        onPress: this.hardwareBack.bind(this)
+        icon: (<BackIcon width={20} height={20} stroke={Palette.consentGrayDarkest}/>),
+        onPress: this.hardwareBack.bind(this),
+        borderColor: "white"
       },
       {
         // smiling face in conversation bubble
-        icon: (<Image source={require('../Images/smiley_speech_bubble.png')} />)
+        // icon: (<Image source={require('../Images/smiley_speech_bubble.png')} />),
+        icon: (<ThanksIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Palette.consentGrayDarkest}/>),
+        borderColor: "white"
       },
       {
         // thanks balance number
-        icon: (<Text style={{fontSize: 22}}>{this.state.thanksBalanceAmount}</Text>),
-        onPress: this.refreshThanksBalance.bind(this)
+        icon: (<Text style={{fontSize: 22, color: Palette.consentGrayDarkest}}>{this.state.thanksBalanceAmount}</Text>),
+        onPress: this.refreshThanksBalance.bind(this),
+        borderColor: "white"
       }
     ], tabs = [
       {

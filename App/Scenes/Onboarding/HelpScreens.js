@@ -88,7 +88,7 @@ class HelpScreens extends Scene {
   }
 
   skipOrFinish(){
-    this.navigator.replace({...Routes.me})
+    this.navigator.resetTo({...Routes.main})
   }
 
 }

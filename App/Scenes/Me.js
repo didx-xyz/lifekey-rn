@@ -5,6 +5,9 @@ import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
 import ActivityIndicator from "ActivityIndicator"
 
+
+
+
 // internal dependencies
 import Common from "../Common"
 import Api from "../Api"
@@ -19,6 +22,7 @@ import BackButton from "../Components/BackButton"
 import BackIcon from "../Components/BackIcon"
 import HelpIcon from "../Components/HelpIcon"
 import Design from "../DesignParameters"
+import Anonymous from "../Images/anonymous_person"
 import Logger from "../Logger"
 
 import MyData from "../Components/SceneComponents/MyData"
@@ -88,7 +92,6 @@ class Me extends Scene {
   scrollViewToTop() {
     if(this.state.scrollview){
       this.state.scrollview.scrollTo({x: 0, y: 0, animated: true})
-      console.log("SCROLLED!")
     }
     else{
       console.log("Skipped the scroll")
@@ -233,8 +236,8 @@ class Me extends Scene {
     // Set profile pic
 
     const person = resourceTypes.find(rt => rt.url === "http://schema.cnsnt.io/person").items[0]
-    console.log("PERSON: ", JSON.stringify(person))
-    const identityPhotographUri = person && `data:image/jpg;base64,${person.identityPhotograph}`
+    // console.log("PERSON: ", JSON.stringify(person))
+    const identityPhotographUri = person && person.identityPhotograph ? `data:image/jpg;base64,${person.identityPhotograph}` : Anonymous.uri
 
     // End set profile pic 
 
@@ -243,7 +246,6 @@ class Me extends Scene {
       "sortedResourceTypes": resourceTypes,
       "asyncActionInProgress": false
     })
-
 
   }
 
@@ -282,25 +284,25 @@ class Me extends Scene {
         <View style={style.headerWrapper}>
           <BackButton navigator={this.navigator} />
           <LifekeyHeader
-            icons={headerIcons}
-            tabs={[
-              {
-                text: "Connect",
-                onPress: () => this.setState({ activeTab: CONNECT }),
-                active: this.state.activeTab === CONNECT
-              },
-              {
-                text: "My Data",
-                onPress: () => this.setState({ activeTab: MY_DATA }),
-                active: this.state.activeTab === MY_DATA
-              },
-              {
-                text: "Badges",
-                onPress: () => this.setState({ activeTab: BADGES }),
-                active: this.state.activeTab === BADGES
-              }
-            ]}
-            />
+          icons={headerIcons}
+          tabs={[
+            {
+              text: "Connect",
+              onPress: () => this.setState({ activeTab: CONNECT }),
+              active: this.state.activeTab === CONNECT
+            },
+            {
+              text: "My Data",
+              onPress: () => this.setState({ activeTab: MY_DATA }),
+              active: this.state.activeTab === MY_DATA
+            },
+            {
+              text: "Badges",
+              onPress: () => this.setState({ activeTab: BADGES }),
+              active: this.state.activeTab === BADGES
+            }
+          ]}
+          />
         </View>
         <ScrollView ref={(sv) => { this.state.scrollview = sv }} style={style.contentContainer}>
           {
