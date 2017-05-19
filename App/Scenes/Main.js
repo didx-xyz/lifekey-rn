@@ -148,7 +148,7 @@ export default class Main extends Scene {
 
   _hardwareBack() {
     // Quit
-    return false
+    return true // was false, changed it to avoid app closing. 
   }
 
   goToConnect(connection) {

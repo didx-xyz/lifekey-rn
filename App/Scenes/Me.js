@@ -92,7 +92,6 @@ class Me extends Scene {
   scrollViewToTop() {
     if(this.state.scrollview){
       this.state.scrollview.scrollTo({x: 0, y: 0, animated: true})
-      console.log("SCROLLED!")
     }
     else{
       console.log("Skipped the scroll")
@@ -285,25 +284,25 @@ class Me extends Scene {
         <View style={style.headerWrapper}>
           <BackButton navigator={this.navigator} />
           <LifekeyHeader
-            icons={headerIcons}
-            tabs={[
-              {
-                text: "Connect",
-                onPress: () => this.setState({ activeTab: CONNECT }),
-                active: this.state.activeTab === CONNECT
-              },
-              {
-                text: "My Data",
-                onPress: () => this.setState({ activeTab: MY_DATA }),
-                active: this.state.activeTab === MY_DATA
-              },
-              {
-                text: "Badges",
-                onPress: () => this.setState({ activeTab: BADGES }),
-                active: this.state.activeTab === BADGES
-              }
-            ]}
-            />
+          icons={headerIcons}
+          tabs={[
+            {
+              text: "Connect",
+              onPress: () => this.setState({ activeTab: CONNECT }),
+              active: this.state.activeTab === CONNECT
+            },
+            {
+              text: "My Data",
+              onPress: () => this.setState({ activeTab: MY_DATA }),
+              active: this.state.activeTab === MY_DATA
+            },
+            {
+              text: "Badges",
+              onPress: () => this.setState({ activeTab: BADGES }),
+              active: this.state.activeTab === BADGES
+            }
+          ]}
+          />
         </View>
         <ScrollView ref={(sv) => { this.state.scrollview = sv }} style={style.contentContainer}>
           {

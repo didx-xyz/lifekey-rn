@@ -141,30 +141,12 @@ class ConnectionDetails extends Scene {
       required_entities: action.entities,
       did: this.state.user_did
     })
-    // try {
-    //   const myDid = Session.getState().user.did
-    //   const requestOptions = {
-    //     "method": "GET",
-    //     "headers": {
-    //       "x-cnsnt-did": myDid
-    //     }
-    //   }
-    //   Logger.networkRequest('GET', actionURL, requestOptions)
-    //   const response = await fetch(actionURL, requestOptions)
-    //   if (response) {
-    //     ToastAndroid.show('ISA requested', ToastAndroid.SHORT)
-    //     Logger.networkResponse(response.status, new Date(), JSON.stringify(response))
-    //   }
-    // } catch (error) {
-    //   Logger.warn(error)
-    // }
 
   }
 
   componentWillMount() {
     super.componentWillMount()
     this.loadData()
-    // this.loadISAs()// do it on tab change to SHARED
   }
 
   componentWillFocus() {
@@ -337,7 +319,7 @@ class ConnectionDetails extends Scene {
           icons={[
             {
               icon: <BackIcon width={16} height={16} stroke="#000" />,
-              onPress: () => this.onBackIconPress(),
+              onPress: () => this.navigator.pop(),
               borderColor: this.state.colour
             },
             {
@@ -348,7 +330,7 @@ class ConnectionDetails extends Scene {
                       /> */}
                       <Image source={{ uri: this.state.image_uri }} style={{ width: "100%", height: "100%" }}
                       />
-                      <Text style={{ fontSize: 18, color: "#000", marginLeft: 8 }}>{this.state.display_name}</Text>
+                      
                     </View>,
               onPress: () => this.setState({ activeTab: ACTIVITY }),
               borderColor: this.state.colour
