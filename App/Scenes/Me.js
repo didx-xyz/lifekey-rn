@@ -1,9 +1,10 @@
 // external dependencies
 import React from "react"
-import { Text, View, Image, ScrollView } from "react-native"
+import { Text, View, Image, ScrollView, TouchableHighlight } from "react-native"
 import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
 import ActivityIndicator from "ActivityIndicator"
+import ModalDropdown from 'react-native-modal-dropdown';
 
 // internal dependencies
 import Common from "../Common"
@@ -22,8 +23,6 @@ import GearIcon from "../Components/GearIcon"
 import Design from "../DesignParameters"
 import Anonymous from "../Images/anonymous_person"
 import Logger from "../Logger"
-
-import ContextDropdown from "../Components/ContextDropdown"
 
 import MyData from "../Components/SceneComponents/MyData"
 import Connect from "../Components/SceneComponents/Connect"
@@ -46,21 +45,23 @@ class Me extends Scene {
     super(...params)
 
     this.state = {
-      activeTab: MY_DATA,
-      tabName: "My Data",
-      resources: [],
-      resourceTypes: [],
-      sortedResourceTypes: [],
-      sortedBadges: [],
-      informationSource: "MY CODE",
+      "activeTab": MY_DATA,
+      "tabName": "My Data",
+      "resources": [],
+      "resourceTypes": [],
+      "sortedResourceTypes": [],
+      "sortedBadges": [],
+      "informationSource": "MY CODE",
       "progressCopy": "Loading...",
       "asyncActionInProgress": true,
-      scrollview: null
+      "scrollview": null
     }
 
     this.onBoundResourceTypes = this.onResourceTypes.bind(this)
     this.onBoundResources = this.onResources.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
+
+    this.onBoundShowContextMenu = this.onShowContextMenu.bind(this)
   }
 
   onPressDelete(id) {
@@ -268,6 +269,28 @@ class Me extends Scene {
 
   }
 
+  onShowContextMenu(){
+    this.contextMenu && this.contextMenu.show()
+  }
+
+  renderContextMenuRow(rowData, rowID, highlighted){
+    let evenRow = rowID % 2;
+    
+    return (
+      <TouchableHighlight>
+        <View style={[style.contextMenuOptions, { "backgroundColor": evenRow ? Palette.consentGrayLightest : "white" }]}>
+          <Text style={[ highlighted && { "color": Palette.consentBlue } ]}>
+            {`${rowData.value}`}
+          </Text>
+        </View>
+      </TouchableHighlight>
+    );
+  }
+
+  onContextMenuItemSelect(index, option){
+    option.onClick()
+  }
+
   render() {
     const profilepic = this.state.profilePicUrl ? <Image source={{ uri: this.state.profilePicUrl }} style={{ width: "100%", height: "100%" }} /> : <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/>
     const headerIcons = [
@@ -281,8 +304,22 @@ class Me extends Scene {
         borderColor: "white"
       },
       {
-        icon: <GearIcon width={38} height={38} stroke={Palette.consentGrayDark} />,
-        onPress: () => { this.onBoundPressHelp("me", helpScreens, "pop") },
+        icon: (
+               <ModalDropdown 
+                ref={el => this.contextMenu = el}
+                options={[
+                  { "value":'Help', onClick: this.onPressHelp.bind(this, "me", helpScreens, "pop") }, 
+                  { "value":'Legal', onClick: () => { alert("Navigate to legal") }}, 
+                  { "value":'Logout', onClick: () => { alert("Logout...") }}
+                ]}
+                dropdownStyle={style.contextMenu}
+                renderRow={this.renderContextMenuRow.bind(this)}
+                onSelect={ (idx, value) => this.onContextMenuItemSelect(idx, value) }
+               >
+                <GearIcon width={38} height={38} stroke={Palette.consentGrayDark} />
+               </ModalDropdown>
+              ),
+        onPress: () => { this.onBoundShowContextMenu() },
         borderColor: "white"
       }
     ]
@@ -345,7 +382,17 @@ class Me extends Scene {
 }
 
 const style = {
-
+  "contextMenu":{
+    "width": 150,
+    "height": 150
+  },
+  "contextMenuOptions":{
+    "flex": 1,
+    "flexDirection": "row",
+    "height": 50,
+    "justifyContent": "flex-start",
+    "alignItems": "center",
+  },
   "headerWrapper": {
     "borderColor": Palette.consentGrayDark,
     "height": Design.lifekeyHeaderHeight
