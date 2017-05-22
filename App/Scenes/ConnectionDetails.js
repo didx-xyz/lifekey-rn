@@ -97,7 +97,12 @@ class ConnectionDetails extends Scene {
     const enabled_isa_ids = response.body.enabled
     const requests = enabled_isa_ids.map(id => Api.getISA({ id }))
     const responses = await Promise.all(requests)
-    const enabled_isas = responses.map(x => x.body)
+    const enabled_isas = responses.map(x => {
+      // Parse the nested JSON
+      x.body.information_sharing_agreement_request.required_entities =
+      this.parseEntities(x.body.information_sharing_agreement_request)
+      return x.body
+    })
 
     this.setState({
       enabled_isas: enabled_isas
@@ -124,9 +129,6 @@ class ConnectionDetails extends Scene {
   }
 
   async callAction(name, action) {
-    
-    console.log("CALL ACTION NAME: ", name)
-    console.log("CALL ACTION PARAM: ", JSON.stringify(action))
 
     this.navigator.push({
       ...Routes.informationRequest,
@@ -141,7 +143,6 @@ class ConnectionDetails extends Scene {
       required_entities: action.entities,
       did: this.state.user_did
     })
-
   }
 
   componentWillMount() {
@@ -178,14 +179,16 @@ class ConnectionDetails extends Scene {
     return true
   }
 
-  parseISA(isar) {
-    let entities = null
+  parseEntities(isar) {
+    let entitiesJSON = null
     if(isar.entities) {
-      entities = isar.entities
+      entitiesJSON = isar.entities
     } else {
-      entities = isar.required_entities
+      entitiesJSON = isar.required_entities
     }
-    return JSON.parse(entities)
+    const entities = JSON.parse(entitiesJSON)
+    Logger.info('entitiesJSON', entities)
+    return entities
   }
 
   renderTab() {
@@ -269,7 +272,7 @@ class ConnectionDetails extends Scene {
             <ISACard
               key={i}
               title={x.information_sharing_agreement_request.purpose}
-              shared={this.parseISA(x.information_sharing_agreement_request).map(y => y.name)}
+              shared={JSON.parse(x.information_sharing_agreement_request.required_entities).map(y => y.name)}
               terms={[
                 { icon: <PeriodIcon width={15} height={15}/>, text: "12 Months" },
                 { icon: <LocationIcon width={15} height={15}/>, text: "In SA" },
@@ -277,6 +280,7 @@ class ConnectionDetails extends Scene {
               ]}
               date="23-02-2017"
               expires="23-02-2018"
+              transactionHash={x.information_sharing_agreement.transaction_hash}
             />
 
           )}
