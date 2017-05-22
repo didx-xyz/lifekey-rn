@@ -148,7 +148,6 @@ class ConnectionDetails extends Scene {
   componentWillMount() {
     super.componentWillMount()
     this.loadData()
-    // this.loadISAs()// do it on tab change to SHARED
   }
 
   componentWillFocus() {
@@ -324,7 +323,7 @@ class ConnectionDetails extends Scene {
           icons={[
             {
               icon: <BackIcon width={16} height={16} stroke="#000" />,
-              onPress: () => this.onBackIconPress(),
+              onPress: () => this.navigator.pop(),
               borderColor: this.state.colour
             },
             {
@@ -335,7 +334,7 @@ class ConnectionDetails extends Scene {
                       /> */}
                       <Image source={{ uri: this.state.image_uri }} style={{ width: "100%", height: "100%" }}
                       />
-                      <Text style={{ fontSize: 18, color: "#000", marginLeft: 8 }}>{this.state.display_name}</Text>
+                      
                     </View>,
               onPress: () => this.setState({ activeTab: ACTIVITY }),
               borderColor: this.state.colour

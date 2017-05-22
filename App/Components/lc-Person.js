@@ -11,8 +11,11 @@ import { Text, View, Image } from "react-native"
 import PropTypes from "prop-types"
 
 // internal dependencies
+import Countries from "../Countries"
+import Languages from "../Languages"
 import Design from "../DesignParameters"
 import Palette from "../Palette"
+import Anonymous from "../Images/anonymous_person"
 import RcItemDetail from "./ResourceComponents/rc-DetailView"
 
 class LcPerson extends Component {
@@ -39,7 +42,9 @@ class LcPerson extends Component {
       preferredLanguage  
     } = this.props
 
-    const identityPhotographUri = `data:image/jpg;base64,${identityPhotograph}`
+    const nationalityName = nationality ? Countries.find(c => c["alpha-2"] === nationality).name : "Not yet set"
+    const preferredLanguageName = preferredLanguage ? Languages.find(l => l["alpha3-b"] === preferredLanguage).English : "Not yet set"
+    const identityPhotographUri = identityPhotograph ? `data:image/jpg;base64,${identityPhotograph}` : Anonymous.uri
 
     if(expanded)
       return (
@@ -47,14 +52,18 @@ class LcPerson extends Component {
           <RcItemDetail objKey={"Title"} value={title}></RcItemDetail>
           <RcItemDetail objKey={"First Name"} value={firstName}></RcItemDetail>
           <RcItemDetail objKey={"Last Name"} value={lastName}></RcItemDetail>
-          <RcItemDetail objKey={"Nationality"} value={nationality}></RcItemDetail>
+          <RcItemDetail objKey={"Nationality"} value={nationalityName}></RcItemDetail>
           <RcItemDetail objKey={"Birth Place"} value={birthPlace}></RcItemDetail>
           <RcItemDetail objKey={"Birth Date"} value={birthDate}></RcItemDetail>
           <RcItemDetail objKey={"Avatar"} value={avatar} type={"image"}></RcItemDetail>
-          <RcItemDetail objKey={"ID Photo"} value={identityPhotographUri} type={"image"}></RcItemDetail>
+          { /* 
+            <RcItemDetail objKey={"ID Photo"} value={identityPhotographUri} type={"image"}></RcItemDetail> 
+            <RcItemDetail objKey={"Nationality"} value={nationalityName}></RcItemDetail>
+            <RcItemDetail objKey={"Preferred Language"} value={preferredLanguageName}></RcItemDetail>
+          */}
           <RcItemDetail objKey={"Marital Status"} value={maritalStatus}></RcItemDetail>
           <RcItemDetail objKey={"Marital Contract Type"} value={maritalContractType}></RcItemDetail>
-          <RcItemDetail objKey={"Preferred Language"} value={preferredLanguage}></RcItemDetail>
+          <RcItemDetail objKey={"Preferred Language"} value={preferredLanguageName}></RcItemDetail>
         </View>
       )
     else
@@ -64,9 +73,9 @@ class LcPerson extends Component {
             <Image style={styles.image} source={{ uri: identityPhotographUri, scale: 1 }}></Image>
           </View>
           <View style={styles.listBody}>
-            <Text style={styles.listBodyTitle}> {title} {firstName} {lastName} </Text>
-            <Text style={styles.listBodySubtitle}> {nationality} </Text>
-            <Text style={styles.listBodyContent}> {preferredLanguage} </Text>
+            <Text style={styles.listBodyContent}>{firstName} {lastName}</Text>
+            <Text style={styles.listBodyTitle}>{preferredLanguageName}</Text>
+            <Text style={styles.listBodySubtitle}>{nationalityName}</Text>
           </View>
         </View>
       )
@@ -82,12 +91,11 @@ const styles = {
     "flex": 1,
     "marginRight": Design.paddingRight,
     "justifyContent": "space-around",
-    "alignItems": "center",
-    "backgroundColor": Palette.consentGrayMedium
+    "alignItems": "center"
   },
   "image":{
-    "height": 50,
-    "width": 50,
+    "height": "100%",
+    "width": "100%",
     "resizeMode": "contain",
   },
   "listBody":{

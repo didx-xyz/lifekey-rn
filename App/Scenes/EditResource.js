@@ -308,8 +308,10 @@ class EditResource extends Scene {
       }
     })
 
+    console.log(" ******************* LANGUAGE ******************* : ", this.state[entity.name])
+
     const chosenLanguage = Languages.find(language => language["alpha3-b"] === this.state[entity.name])
-    const initialStringValue = !!chosenLanguage ? chosenLanguage.name : 'Select a language'
+    const initialStringValue = !!chosenLanguage ? chosenLanguage.English : 'Select a language'
     return this.renderSelectInput(entity, data, initialStringValue)
   }
 
@@ -471,12 +473,12 @@ const styles = {
     "color": "#666",
     "fontWeight": "100",
     "fontSize": 14,
-    "textAlign": "center"
+    "textAlign": "left"
   },
   "selectElement":{
     "flex": 1,
     "flexDirection": "row",
-    "justifyContent": "space-around",
+    "justifyContent": "flex-start",
     "alignItems": "stretch"
   },
   "selectPickerWithoutValue":{
