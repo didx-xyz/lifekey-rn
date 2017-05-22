@@ -223,8 +223,6 @@ class Me extends Scene {
     })
   }
 
-
-
   sortMyData(resources, resourceTypes) {
 
     resourceTypes.push({ name: 'Malformed', url: null, items: [] })
@@ -269,13 +267,14 @@ class Me extends Scene {
 
   }
 
+  // Context Menu functionality 
+
   onShowContextMenu(){
     this.contextMenu && this.contextMenu.show()
   }
 
   renderContextMenuRow(rowData, rowID, highlighted){
-    let evenRow = rowID % 2;
-    
+    let evenRow = rowID % 2; 
     return (
       <TouchableHighlight>
         <View style={[style.contextMenuOptions, { "backgroundColor": evenRow ? Palette.consentGrayLightest : "white" }]}>
@@ -290,6 +289,8 @@ class Me extends Scene {
   onContextMenuItemSelect(index, option){
     option.onClick()
   }
+
+  // End Context Menu functionality 
 
   render() {
     const profilepic = this.state.profilePicUrl ? <Image source={{ uri: this.state.profilePicUrl }} style={{ width: "100%", height: "100%" }} /> : <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/>

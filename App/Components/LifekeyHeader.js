@@ -28,8 +28,7 @@ class LifekeyHeader extends Component {
       <View style={style.navigation}>
         {
           this.props.icons.map((icon, i) => {
-
-            const temp = 
+            return
             (
               <View key={i}>
                 <Touchable onLongPress={icon.onLongPress && icon.onLongPress} onPress={icon.onPress && icon.onPress}>
@@ -40,33 +39,11 @@ class LifekeyHeader extends Component {
                 </Touchable>
               </View>
             )
-
-            return temp
           })
         }
       </View>
     )
   }
-
-  // this.props.icons.map((icon, i) => {
-  //   <View key={i}>
-  //     <Touchable onLongPress={icon.onLongPress && icon.onLongPress} onPress={icon.onPress && icon.onPress}>
-  //       <View>
-  //         <View style={style.headerIcon}>{icon.icon}</View>
-  //         <View style={Object.assign({}, style.fixCircleClipping, {"borderColor": icon.borderColor})}/>
-  //       </View>
-  //     </Touchable>
-  //   </View>
-  //   icon.expanded &&
-  //   <View style={style.contextMenu}>
-  //     {
-  //       icon.links.map((l, i) => {
-  //         return (
-  //           <Text key={i}>{l}</Text>
-  //         )
-  //       })
-  //     }
-  //   </View>
 
   renderTabs() {
     return (
@@ -106,7 +83,6 @@ class LifekeyHeader extends Component {
 
 const style = {
   header: {
-    // backgroundColor: "white",
     flex: 1
   },
   headerIcon: {
@@ -135,15 +111,6 @@ const style = {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
-    "zIndex": 2
-  },
-  "contextMenu":{
-    "position" : "absolute",
-    "backgroundColor": "red",
-    "top": 50,
-    "right": 0,
-    "width": 150,
-    "height": 150,
     "zIndex": 2
   },
   tabs: {
