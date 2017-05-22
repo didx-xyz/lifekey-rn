@@ -28,6 +28,10 @@ import HelpIcon from "../../Components/HelpIcon"
 import LifekeyHeader from "../../Components/LifekeyHeader"
 import LifekeyCard from "../../Components/LifekeyCard"
 
+const helpScreens = [ 
+  { "image": require("../../Images/qr.png"), "heading": "Connect", "copy": "Qi Code connects me in a snap & replaces paperwork" }
+]
+
 class Connect extends Component  {
 
   constructor(...params) {
@@ -39,6 +43,8 @@ class Connect extends Component  {
 
     this.onBoundPressMyCode= this.onPressMyCode.bind(this)
     this.onBoundPressFaceMatch = this.onPressFaceMatch.bind(this)
+    this.onBoundPressShare = this.onPressShare.bind(this)
+    this.onBoundPressHelp = this.onPressHelp.bind(this)
   }
 
   _hardwareBack() {
@@ -50,8 +56,14 @@ class Connect extends Component  {
     this.setState({ informationSource: "MY CODE" })
   }
   onPressFaceMatch() {
-    console.log("MY DID IS => ", ConsentUser.getDidSync())
     this.setState({ informationSource: "FACE MATCH" })   
+  }
+  
+  onPressShare() {
+    alert("SHARE")
+  }
+  onPressHelp() {
+    this.props.onPressHelp("me", helpScreens, "pop")
   }
 
   onImageError(e){
@@ -69,10 +81,11 @@ class Connect extends Component  {
             <Text style={styles.text}>Invite other people to connect with you by sharing your unique ID code</Text>
           </View>
           <View style={styles.footer}>
-            <Touchable onPress={this.onBoundPressHelp}>
-              <HelpIcon width={32} height={32} stroke="#666" />
+            <Touchable onPress={ this.onBoundPressHelp }>
+              { /* <HelpIcon width={32} height={32} stroke="#666" /> // TODO: This icon nullifys the touchable event. */ }
+              <Text style={styles.footerText}>Help</Text>
             </Touchable>
-            <Touchable onPress={this.onBoundPressShare}>
+            <Touchable onPress={ this.onBoundPressShare }>
               <Text style={styles.footerText}>Share</Text>
             </Touchable>
           </View>
@@ -88,8 +101,8 @@ class Connect extends Component  {
             <Text style={styles.text}>Get someone else to scan this QR Code to verify your facial match</Text>
           </View>
           <View style={styles.footer}>
-            <Touchable onPress={this.onBoundPressHelp}>
-              <HelpIcon width={32} height={32} stroke="#666" />
+            <Touchable onPress={ this.onBoundPressShare }>
+              <HelpIcon style={styles.footerButton} width={32} height={32} stroke="#666" />
             </Touchable>
           </View>
         </View>
@@ -191,6 +204,10 @@ const styles = {
     "flexDirection": "row",
     "alignItems": "center",
     "justifyContent": "space-between"
+  },
+  "footerButton": {
+    "backgroundColor": "green",
+    "flex": 1
   },
   "footerText": {
     "fontSize": 16,

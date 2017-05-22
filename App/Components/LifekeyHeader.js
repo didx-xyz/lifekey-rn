@@ -28,7 +28,9 @@ class LifekeyHeader extends Component {
       <View style={style.navigation}>
         {
           this.props.icons.map((icon, i) => {
-            return (
+
+            const temp = 
+            (
               <View key={i}>
                 <Touchable onLongPress={icon.onLongPress && icon.onLongPress} onPress={icon.onPress && icon.onPress}>
                   <View>
@@ -38,11 +40,33 @@ class LifekeyHeader extends Component {
                 </Touchable>
               </View>
             )
+
+            return temp
           })
         }
       </View>
     )
   }
+
+  // this.props.icons.map((icon, i) => {
+  //   <View key={i}>
+  //     <Touchable onLongPress={icon.onLongPress && icon.onLongPress} onPress={icon.onPress && icon.onPress}>
+  //       <View>
+  //         <View style={style.headerIcon}>{icon.icon}</View>
+  //         <View style={Object.assign({}, style.fixCircleClipping, {"borderColor": icon.borderColor})}/>
+  //       </View>
+  //     </Touchable>
+  //   </View>
+  //   icon.expanded &&
+  //   <View style={style.contextMenu}>
+  //     {
+  //       icon.links.map((l, i) => {
+  //         return (
+  //           <Text key={i}>{l}</Text>
+  //         )
+  //       })
+  //     }
+  //   </View>
 
   renderTabs() {
     return (
@@ -89,7 +113,7 @@ const style = {
     width: 50,
     height: 50,
     borderRadius: 25,
-    overflow: "hidden",
+    // overflow: "hidden",
     justifyContent: "center",
     alignItems: "center"
   },
@@ -110,17 +134,29 @@ const style = {
     paddingLeft: Design.paddingLeft,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center"
+    alignItems: "center",
+    "zIndex": 2
+  },
+  "contextMenu":{
+    "position" : "absolute",
+    "backgroundColor": "red",
+    "top": 50,
+    "right": 0,
+    "width": 150,
+    "height": 150,
+    "zIndex": 2
   },
   tabs: {
     flex: 1,
     flexDirection: "row",
-    justifyContent: "space-around"
+    justifyContent: "space-around",
+    "zIndex": 0
   },
   tab: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    "zIndex": 0
   },
   tabText: {
     fontSize: Design.navigationTabFontSize,

@@ -5,9 +5,6 @@ import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
 import ActivityIndicator from "ActivityIndicator"
 
-
-
-
 // internal dependencies
 import Common from "../Common"
 import Api from "../Api"
@@ -21,9 +18,12 @@ import Touchable from "../Components/Touchable"
 import BackButton from "../Components/BackButton"
 import BackIcon from "../Components/BackIcon"
 import HelpIcon from "../Components/HelpIcon"
+import GearIcon from "../Components/GearIcon"
 import Design from "../DesignParameters"
 import Anonymous from "../Images/anonymous_person"
 import Logger from "../Logger"
+
+import ContextDropdown from "../Components/ContextDropdown"
 
 import MyData from "../Components/SceneComponents/MyData"
 import Connect from "../Components/SceneComponents/Connect"
@@ -32,6 +32,14 @@ import Badges from "../Components/SceneComponents/Badges"
 const CONNECT = 0
 const MY_DATA = 1
 const BADGES = 2
+
+const helpScreens = [ 
+  { "image": require("../Images/onboarding_test.png"), "heading": "Identify", "copy": "Qi Identity is my digital passport" }, 
+  { "image": require("../Images/qr.png"), "heading": "Connect", "copy": "Qi Code connects me in a snap & replaces paperwork" }, 
+  { "image": require("../Images/phone.png"), "heading": "Access", "copy": "Qi Access magically logs me in without usernames & passwords" }, 
+  { "image": require("../Images/share.png"), "heading": "Secure", "copy": "Qi Safe secures my personal information under my control" }, 
+  { "image": require("../Images/rewards.png"), "heading": "Rewards", "copy": "Qi Rewards give me Thanks Points and personalised offers" }
+]
 
 class Me extends Scene {
   constructor(...params) {
@@ -52,17 +60,31 @@ class Me extends Scene {
 
     this.onBoundResourceTypes = this.onResourceTypes.bind(this)
     this.onBoundResources = this.onResources.bind(this)
+    this.onBoundPressHelp = this.onPressHelp.bind(this)
+  }
+
+  onPressDelete(id) {
+    Api.deleteResource({ id })
+    .catch(error => Logger.error(error))
+    // refresh the list
+    this.context.onSaveResource()
+  }
+
+  onPressEdit(form, id = null) {
+    this.context.onEditResource(form, id)
+  }
+
+  onPressHelp(destination, helpScreens, navigationType) {
+    this.navigator.push({...Routes.helpGeneral, "destination": destination, "screens": helpScreens, "navigationType": navigationType })
   }
 
   componentDidMount() {
     super.componentDidMount()
 
-    // const time = new Date()
     Promise.all([
       Api.allResourceTypes(),
       Api.allResources()
     ]).then(values => {
-      // console.log("Time spent waiting : ", (Date.now() - time.getTime()) / 1000)
       this.onBoundResourceTypes(values[0], () => {
         this.onBoundResources(values[1])
       })
@@ -195,8 +217,6 @@ class Me extends Scene {
     })
     .filter(v => !!v)
 
-    console.log("BADGES: ", badges)
-
     this.setState({
       "sortedBadges": badges
     })
@@ -236,7 +256,6 @@ class Me extends Scene {
     // Set profile pic
 
     const person = resourceTypes.find(rt => rt.url === "http://schema.cnsnt.io/person").items[0]
-    // console.log("PERSON: ", JSON.stringify(person))
     const identityPhotographUri = person && person.identityPhotograph ? `data:image/jpg;base64,${person.identityPhotograph}` : Anonymous.uri
 
     // End set profile pic 
@@ -247,17 +266,6 @@ class Me extends Scene {
       "asyncActionInProgress": false
     })
 
-  }
-
-  onPressDelete(id) {
-    Api.deleteResource({ id })
-    .catch(error => Logger.error(error))
-    // refresh the list
-    this.context.onSaveResource()
-  }
-
-  onPressEdit(form, id = null) {
-    this.context.onEditResource(form, id)
   }
 
   render() {
@@ -273,8 +281,8 @@ class Me extends Scene {
         borderColor: "white"
       },
       {
-        icon: <Text>+</Text>,
-        onPress: () => alert("test"),
+        icon: <GearIcon width={38} height={38} stroke={Palette.consentGrayDark} />,
+        onPress: () => { this.onBoundPressHelp("me", helpScreens, "pop") },
         borderColor: "white"
       }
     ]
@@ -326,7 +334,7 @@ class Me extends Scene {
     switch (this.state.activeTab) {
 
     case CONNECT:
-      return <Connect></Connect>
+      return <Connect onPressHelp={ this.onBoundPressHelp }></Connect>
     case MY_DATA:
       return <MyData sortedResourceTypes={this.state.sortedResourceTypes}></MyData>
     case BADGES:

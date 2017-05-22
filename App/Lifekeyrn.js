@@ -30,6 +30,15 @@ import PropTypes from "prop-types"
 const PORTRAIT = 0
 const LANDSCAPE = 1
 
+// These are fed to the help page. They contain orientating info and pics for a new user. 
+const orientationScreens = [
+  { "image": require("./Images/onboarding_test.png"), "heading": "Identify", "copy": "Qi Identity is my digital passport" }, 
+  { "image": require("./Images/qr.png"), "heading": "Connect", "copy": "Qi Code connects me in a snap & replaces paperwork" }, 
+  { "image": require("./Images/phone.png"), "heading": "Access", "copy": "Qi Access magically logs me in without usernames & passwords" }, 
+  { "image": require("./Images/share.png"), "heading": "Secure", "copy": "Qi Safe secures my personal information under my control" }, 
+  { "image": require("./Images/rewards.png"), "heading": "Rewards", "copy": "Qi Rewards give me Thanks Points and personalised offers" }
+]
+
 class Lifekeyrn extends Component {
   getChildContext() {
     return {
@@ -233,7 +242,8 @@ class Lifekeyrn extends Component {
     console.log("checkDidAndActivation callback: did => ", this.state.userDidPresent, " | activated => ", this.state.userHasActivated)
 
     if(this.state.userDidPresent && this.state.userHasActivated){
-      this.navigator.push(Routes.helpScreens)
+      // this.navigator.push(Routes.helpScreens)
+      this.navigator.push({...Routes.helpGeneral, "destination": "main", "screens": orientationScreens, "navigationType": "resetTo" })
     }
     else if(this.state.userHasActivated){
       this.userHasActivated(null)

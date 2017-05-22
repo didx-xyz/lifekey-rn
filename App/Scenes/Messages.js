@@ -7,7 +7,12 @@ import { Container } from "native-base"
 import BackButton from "../Components/BackButton"
 import HelpIcon from "../Components/HelpIcon"
 import Scene from "../Scene"
+import Routes from "../Routes"
 import Touchable from "../Components/Touchable"
+
+const helpScreens = [ 
+  { "image": require("../Images/qr.png"), "heading": "Connect", "copy": "Qi Code connects me in a snap & replaces paperwork" }
+]
 
 class Messages extends Scene {
   constructor(...params) {
@@ -23,7 +28,7 @@ class Messages extends Scene {
   }
 
   onPressHelp() {
-    alert("help")
+    this.navigator.push({...Routes.helpGeneral, "destination": "messages", "screens": helpScreens, "navigationType": "pop" })
   }
 
   onPressDone() {
@@ -91,7 +96,8 @@ class Messages extends Scene {
           <View style={styles.bottom}>
             <View style={styles.bottomLeft}>
               <Touchable onPress={this.onBoundPressHelp}>
-                <HelpIcon width={24} height={24} stroke="#666" />
+                {/* <HelpIcon width={24} height={24} stroke="#666" /> */}
+                <Text style={styles.footerText}>Help</Text>
               </Touchable>
             </View>
             <View style={styles.bottomRight}>
