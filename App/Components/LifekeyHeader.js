@@ -28,7 +28,7 @@ class LifekeyHeader extends Component {
       <View style={style.navigation}>
         {
           this.props.icons.map((icon, i) => {
-            return
+            const template = 
             (
               <View key={i}>
                 <Touchable onLongPress={icon.onLongPress && icon.onLongPress} onPress={icon.onPress && icon.onPress}>
@@ -39,6 +39,7 @@ class LifekeyHeader extends Component {
                 </Touchable>
               </View>
             )
+            return template
           })
         }
       </View>
@@ -83,6 +84,7 @@ class LifekeyHeader extends Component {
 
 const style = {
   header: {
+    // backgroundColor: "white",
     flex: 1
   },
   headerIcon: {
@@ -110,20 +112,25 @@ const style = {
     paddingLeft: Design.paddingLeft,
     flexDirection: "row",
     justifyContent: "space-between",
-    alignItems: "center",
-    "zIndex": 2
+    alignItems: "center"
+  },
+  "contextMenu":{
+    "position" : "absolute",
+    "backgroundColor": "red",
+    "top": 50,
+    "right": 0,
+    "width": 150,
+    "height": 150,
   },
   tabs: {
     flex: 1,
     flexDirection: "row",
-    justifyContent: "space-around",
-    "zIndex": 0
+    justifyContent: "space-around"
   },
   tab: {
     flex: 1,
     justifyContent: "center",
-    alignItems: "center",
-    "zIndex": 0
+    alignItems: "center"
   },
   tabText: {
     fontSize: Design.navigationTabFontSize,
