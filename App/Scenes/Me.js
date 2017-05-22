@@ -1,12 +1,10 @@
 // external dependencies
 import React from "react"
-import { Text, View, Image, ScrollView } from "react-native"
+import { Text, View, Image, ScrollView, TouchableHighlight } from "react-native"
 import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
 import ActivityIndicator from "ActivityIndicator"
-
-
-
+import ModalDropdown from 'react-native-modal-dropdown';
 
 // internal dependencies
 import Common from "../Common"
@@ -21,6 +19,7 @@ import Touchable from "../Components/Touchable"
 import BackButton from "../Components/BackButton"
 import BackIcon from "../Components/BackIcon"
 import HelpIcon from "../Components/HelpIcon"
+import GearIcon from "../Components/GearIcon"
 import Design from "../DesignParameters"
 import Anonymous from "../Images/anonymous_person"
 import Logger from "../Logger"
@@ -33,36 +32,60 @@ const CONNECT = 0
 const MY_DATA = 1
 const BADGES = 2
 
+const helpScreens = [ 
+  { "image": require("../Images/onboarding_test.png"), "heading": "Identify", "copy": "Qi Identity is my digital passport" }, 
+  { "image": require("../Images/qr.png"), "heading": "Connect", "copy": "Qi Code connects me in a snap & replaces paperwork" }, 
+  { "image": require("../Images/phone.png"), "heading": "Access", "copy": "Qi Access magically logs me in without usernames & passwords" }, 
+  { "image": require("../Images/share.png"), "heading": "Secure", "copy": "Qi Safe secures my personal information under my control" }, 
+  { "image": require("../Images/rewards.png"), "heading": "Rewards", "copy": "Qi Rewards give me Thanks Points and personalised offers" }
+]
+
 class Me extends Scene {
   constructor(...params) {
     super(...params)
 
     this.state = {
-      activeTab: MY_DATA,
-      tabName: "My Data",
-      resources: [],
-      resourceTypes: [],
-      sortedResourceTypes: [],
-      sortedBadges: [],
-      informationSource: "MY CODE",
+      "activeTab": MY_DATA,
+      "tabName": "My Data",
+      "resources": [],
+      "resourceTypes": [],
+      "sortedResourceTypes": [],
+      "sortedBadges": [],
+      "informationSource": "MY CODE",
       "progressCopy": "Loading...",
       "asyncActionInProgress": true,
-      scrollview: null
+      "scrollview": null
     }
 
     this.onBoundResourceTypes = this.onResourceTypes.bind(this)
     this.onBoundResources = this.onResources.bind(this)
+    this.onBoundPressHelp = this.onPressHelp.bind(this)
+
+    this.onBoundShowContextMenu = this.onShowContextMenu.bind(this)
+  }
+
+  onPressDelete(id) {
+    Api.deleteResource({ id })
+    .catch(error => Logger.error(error))
+    // refresh the list
+    this.context.onSaveResource()
+  }
+
+  onPressEdit(form, id = null) {
+    this.context.onEditResource(form, id)
+  }
+
+  onPressHelp(destination, helpScreens, navigationType) {
+    this.navigator.push({...Routes.helpGeneral, "destination": destination, "screens": helpScreens, "navigationType": navigationType })
   }
 
   componentDidMount() {
     super.componentDidMount()
 
-    // const time = new Date()
     Promise.all([
       Api.allResourceTypes(),
       Api.allResources()
     ]).then(values => {
-      // console.log("Time spent waiting : ", (Date.now() - time.getTime()) / 1000)
       this.onBoundResourceTypes(values[0], () => {
         this.onBoundResources(values[1])
       })
@@ -195,14 +218,10 @@ class Me extends Scene {
     })
     .filter(v => !!v)
 
-    console.log("BADGES: ", badges)
-
     this.setState({
       "sortedBadges": badges
     })
   }
-
-
 
   sortMyData(resources, resourceTypes) {
 
@@ -236,7 +255,6 @@ class Me extends Scene {
     // Set profile pic
 
     const person = resourceTypes.find(rt => rt.url === "http://schema.cnsnt.io/person").items[0]
-    // console.log("PERSON: ", JSON.stringify(person))
     const identityPhotographUri = person && person.identityPhotograph ? `data:image/jpg;base64,${person.identityPhotograph}` : Anonymous.uri
 
     // End set profile pic 
@@ -249,16 +267,30 @@ class Me extends Scene {
 
   }
 
-  onPressDelete(id) {
-    Api.deleteResource({ id })
-    .catch(error => Logger.error(error))
-    // refresh the list
-    this.context.onSaveResource()
+  // Context Menu functionality 
+
+  onShowContextMenu(){
+    this.contextMenu && this.contextMenu.show()
   }
 
-  onPressEdit(form, id = null) {
-    this.context.onEditResource(form, id)
+  renderContextMenuRow(rowData, rowID, highlighted){
+    let evenRow = rowID % 2; 
+    return (
+      <TouchableHighlight>
+        <View style={[style.contextMenuOptions, { "backgroundColor": evenRow ? Palette.consentGrayLightest : "white" }]}>
+          <Text style={[ highlighted && { "color": Palette.consentBlue } ]}>
+            {`${rowData.value}`}
+          </Text>
+        </View>
+      </TouchableHighlight>
+    );
   }
+
+  onContextMenuItemSelect(index, option){
+    option.onClick()
+  }
+
+  // End Context Menu functionality 
 
   render() {
     const profilepic = this.state.profilePicUrl ? <Image source={{ uri: this.state.profilePicUrl }} style={{ width: "100%", height: "100%" }} /> : <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/>
@@ -273,8 +305,22 @@ class Me extends Scene {
         borderColor: "white"
       },
       {
-        icon: <Text>+</Text>,
-        onPress: () => alert("test"),
+        icon: (
+               <ModalDropdown 
+                ref={el => this.contextMenu = el}
+                options={[
+                  { "value":'Help', onClick: this.onPressHelp.bind(this, "me", helpScreens, "pop") }, 
+                  { "value":'Legal', onClick: () => { alert("Navigate to legal") }}, 
+                  { "value":'Logout', onClick: () => { alert("Logout...") }}
+                ]}
+                dropdownStyle={style.contextMenu}
+                renderRow={this.renderContextMenuRow.bind(this)}
+                onSelect={ (idx, value) => this.onContextMenuItemSelect(idx, value) }
+               >
+                <GearIcon width={38} height={38} stroke={Palette.consentGrayDark} />
+               </ModalDropdown>
+              ),
+        onPress: () => { this.onBoundShowContextMenu() },
         borderColor: "white"
       }
     ]
@@ -326,7 +372,7 @@ class Me extends Scene {
     switch (this.state.activeTab) {
 
     case CONNECT:
-      return <Connect></Connect>
+      return <Connect onPressHelp={ this.onBoundPressHelp }></Connect>
     case MY_DATA:
       return <MyData sortedResourceTypes={this.state.sortedResourceTypes}></MyData>
     case BADGES:
@@ -337,7 +383,17 @@ class Me extends Scene {
 }
 
 const style = {
-
+  "contextMenu":{
+    "width": 150,
+    "height": 150
+  },
+  "contextMenuOptions":{
+    "flex": 1,
+    "flexDirection": "row",
+    "height": 50,
+    "justifyContent": "flex-start",
+    "alignItems": "center",
+  },
   "headerWrapper": {
     "borderColor": Palette.consentGrayDark,
     "height": Design.lifekeyHeaderHeight

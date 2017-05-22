@@ -7,12 +7,17 @@ import { Container, Content, Footer, Header } from "native-base"
 import BackButton from "../Components/BackButton"
 import HelpIcon from "../Components/HelpIcon"
 import Scene from "../Scene"
+import Routes from "../Routes"
 import Touchable from "../Components/Touchable"
 import ConsentMessage from '../Models/ConsentMessage'
 import Logger from '../Logger'
 
 const MESSAGES = 0
 const ACTIVITY = 1
+
+const helpScreens = [ 
+  { "image": require("../Images/qr.png"), "heading": "Connect", "copy": "Qi Code connects me in a snap & replaces paperwork" }
+]
 
 class Messages extends Scene {
   constructor(props) {
@@ -37,7 +42,7 @@ class Messages extends Scene {
   }
 
   onPressHelp() {
-    alert("help")
+    this.navigator.push({...Routes.helpGeneral, "destination": "messages", "screens": helpScreens, "navigationType": "pop" })
   }
 
   onPressDone() {
@@ -142,7 +147,8 @@ class Messages extends Scene {
       <View style={styles.bottom}>
         <View style={styles.bottomLeft}>
           <Touchable onPress={() => this.onPressHelp()}>
-            <HelpIcon width={24} height={24} stroke="#666" />
+            {/* <HelpIcon width={24} height={24} stroke="#666" /> */}
+            <Text style={styles.bottomRightText}>Help</Text>
           </Touchable>
         </View>
         <View style={styles.bottomRight}>
@@ -170,7 +176,7 @@ class Messages extends Scene {
             }
           </View>
         </Content>
-        <View style= {{ height: 80 }}>
+        <View style={{ height: 80 }}>
           <View style={{ flex: 1 }}>
             {this.renderBottom()}
           </View>

@@ -19,6 +19,7 @@ import DebugListIsas from './Scenes/Debug/DebugListIsas'
 // Main
 import Main from './Scenes/Main'
 import Me from './Scenes/Me'
+import HelpGeneral from './Scenes/HelpGeneral'
 import HelpScreens from './Scenes/Onboarding/HelpScreens'
 import MeConnect from './Scenes/MeConnect'
 import FaceMatch from './Scenes/FaceMatch'
@@ -50,6 +51,7 @@ import SelfieCam from './Scenes/Camera/SelfieCam'
 export default {
   main: { scene: Main },
   me: { scene: Me },
+  helpGeneral: { scene: HelpGeneral },
   helpScreens: { scene: HelpScreens },
   meConnect: { scene: MeConnect },
   faceMatch: { scene: FaceMatch },
