@@ -191,6 +191,22 @@ export default class Logger {
   }
 
   /**
+   * Log an AppState info
+   * @param {string} message to log
+   * @param {string} data to log
+   * @returns {undefind}
+   */
+  static appState = (message, data) => {
+    const prefix = `${ANSI.bgBlack.open}${ANSI.cyan.open}[AppState]${ANSI.cyan.close}${ANSI.bgBlack.close}`
+    if (Config.DEBUG && Config.debugAppState) {
+      console.log(`${prefix}${ANSI.white.open} ${message}${ANSI.white.close}`)
+      if (data) {
+        console.log(data)
+      }
+    }
+  }
+
+  /**
    * Log a React lifecycle method
    * @param {string} filename The filename to log
    * @param {string} event The react event to log

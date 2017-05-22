@@ -14,7 +14,9 @@ class DebugAsyncStorage extends Component {
     this.keys = [
       'user',
       'connections',
-      'discovered_users'
+      'discovered_users',
+      'activity',
+      'message'
     ]
 
     this.state = {
