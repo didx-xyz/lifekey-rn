@@ -582,21 +582,6 @@ export default class Api {
     })
   }
 
-  static geocodeRequest(address) {
-    console.log(" +++++++++++++++++++ ADDRESS: ", address)
-    // const url = `https://maps.googleapis.com/maps/api/geocode/json?address=1600+Amphitheatre+Parkway,+Mountain+View,+CA&key=AIzaSyBRbL0z5NgbnbMRFWxRPUTO2RCr-2vNnkY`
-    const url = `https://maps.googleapis.com/maps/api/geocode/json?address=${address}&key=AIzaSyBRbL0z5NgbnbMRFWxRPUTO2RCr-2vNnkY`
-
-    const options = {
-      "method": "GET",
-      "headers": {
-        "content-type": "application/json"
-      }
-    }
-
-    return fetch(url, options)
-  }
-
   // ##################
   // ##### DEBUG ######
   // ##################
