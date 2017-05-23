@@ -10,7 +10,6 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
-// import com.idehub.GoogleAnalyticsBridge.GoogleAnalyticsBridgePackage;
 import com.lwansbrough.RCTCamera.RCTCameraPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import io.invertase.firebase.RNFirebasePackage;
@@ -19,9 +18,6 @@ import java.util.Arrays;
 import java.util.List;
 
 import za.co.io.reactnativecrypto.CryptoPackage;
-
-// AIRBNB GOOGLE MAPS
-import com.airbnb.android.react.maps.MapsPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
@@ -45,11 +41,9 @@ public class MainApplication extends Application implements ReactApplication {
               new SvgPackage(),
               new RCTCameraPackage(),
               new VectorIconsPackage(),
-              // new GoogleAnalyticsBridgePackage(),
               new CryptoPackage(),
               new RNFirebasePackage(),
-              new ReactNativeDialogsPackage(),
-              new MapsPackage()
+              new ReactNativeDialogsPackage()
       );
     }
   };
