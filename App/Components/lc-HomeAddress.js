@@ -19,55 +19,19 @@ import RcItemDetail from "./ResourceComponents/rc-DetailView"
 
 class LcHomeAddress extends Component {
 
-  constructor() {
-    super()
-
-    this.state = {
-        latitudeDelta: 0.0922,
-        longitudeDelta: 0.0421,  
-    }
-  }
-
-  componentDidMount() {
-
-    let { streetAddress, suburb, province, country, postOfficeBoxNumber, postalCode } = this.props
-    streetAddress = streetAddress ? streetAddress.replace(/ /g, '+') : null
-    suburb = suburb ? suburb.replace(/ /g, '+') : null
-    province = province ? province.replace(/ /g, '+') : null
-    country = country ? country.replace(/ /g, '+') : null
-    
-    const address = `${streetAddress},${suburb},${province},${country}`
-    
-    Api.geocodeRequest(address).then(res => {
-      
-      const results = JSON.parse(res._bodyInit)
-      
-      this.setState({ 
-        latitude: results.results[0].geometry.location.lat, 
-        longitude: results.results[0].geometry.location.lng
-      })
-
-      // const snapshot = this.refs.map.takeSnapshot({
-      //   format: 'png',   // image formats: 'png', 'jpg' (default: 'png')
-      //   quality: 0.8,    // image quality: 0..1 (only relevant for jpg, default: 1)
-      //   result: 'file'   // result types: 'file', 'base64' (default: 'file')
-      // });
-      // console.log("SNAPSHOT: ", snapshot)
-      // snapshot.then((uri) => {
-      //   this.setState({ mapSnapshot: uri });
-      //   console.log("SNAPSHOT: ", uri)
-      // });
-    })
-  }
-
   render () {
 
     const { expanded, streetAddress, suburb, province, country, postOfficeBoxNumber, postalCode } = this.props
+    const astreetAddress = streetAddress ? streetAddress.replace(/ /g, '+') : null
+    const asuburb = suburb ? suburb.replace(/ /g, '+') : null
+    const aprovince = province ? province.replace(/ /g, '+') : null
+    const acountry = country ? country.replace(/ /g, '+') : null
+    
+    let address = `https://maps.googleapis.com/maps/api/staticmap?center=${astreetAddress},${asuburb},${aprovince},${acountry}&zoom=14&size=400x400&${get_static_style(mapStyle)}&key=AIzaSyBRbL0z5NgbnbMRFWxRPUTO2RCr-2vNnkY`
 
     if(expanded)
       return (
         <View style={styles.unexpandedListCard}>
-          { /* <Text style={styles.unexpandedListCardCopy}> {streetAddress},{suburb},{province},{country} </Text> */}
           <RcItemDetail objKey={"Street Address"} value={streetAddress}></RcItemDetail>
           <RcItemDetail objKey={"Suburb"} value={suburb}></RcItemDetail>
           <RcItemDetail objKey={"Province"} value={province}></RcItemDetail>
@@ -79,45 +43,12 @@ class LcHomeAddress extends Component {
     else
       return (
         <View style={styles.container}>
-          { this.renderMap() }
+          <Image style={styles.map} source={{ uri: `${address}` }} />
           <View style={styles.innerFrame}>
             <Text style={styles.imageText}> {streetAddress},{suburb},{province},{country} </Text>
           </View>
-             {/* 
-              <Image source={{ uri: this.state.mapSnapshot.uri }} />
-          <TouchableOpacity onPress={this.takeSnapshot}>
-            Take Snapshot
-          </TouchableOpacity>
-
-             <<View style={styles.container}>
-          <View style={styles.addressImageContainer}>
-            <Image style={styles.image} source={{uri: "http://www.uwgb.edu/UWGBCMS/media/Maps/images/map-icon.jpg"}}> 
-              <View style={styles.innerFrame}>
-                <Text style={styles.imageText}> {streetAddress},{suburb},{province},{country} </Text>
-              </View>
-            </Image> 
-            
-          </View>
-        </View>  */}
         </View>    
       )
-  }
-
-  renderMap(){
-    if(this.state.latitude){
-      return (
-        <MapView
-          ref="map"
-          style={styles.map}
-          initialRegion={ this.state }
-          customMapStyle={mapStyle}
-        >
-        </MapView>
-      )
-    }
-    else{
-      return null
-    }
   }
 }
 
@@ -140,7 +71,6 @@ const styles = {
       "flex": 1, 
       "alignItems": "center", 
       "justifyContent": "center",
-      // "backgroundColor": "rgba(0, 0, 0, .5)", 
   },
   "image":{
     "height": "100%",
@@ -157,6 +87,28 @@ const styles = {
     "fontSize": 12,
     "color": Palette.consentGrayDark
   }
+}
+
+function get_static_style(styles) {
+    var result = [];
+    styles.forEach(function(v, i, a){
+        
+        var style='';
+        if( v.stylers ) { // only if there is a styler object
+            if (v.stylers.length > 0) { // Needs to have a style rule to be valid.
+                style += (v.hasOwnProperty('featureType') ? 'feature:' + v.featureType : 'feature:all') + '|';
+                style += (v.hasOwnProperty('elementType') ? 'element:' + v.elementType : 'element:all') + '|';
+                v.stylers.forEach(function(val, i, a){
+                    var propertyname = Object.keys(val)[0];
+                    var propertyval = val[propertyname].toString().replace('#', '0x');
+                    style += propertyname + ':' + propertyval + '|';
+                });
+            }
+        }
+        result.push('style='+encodeURIComponent(style));
+    });
+    
+    return result.join('&');
 }
 
 const mapStyle = [
