@@ -1,0 +1,56 @@
+#!/usr/bin/env bash
+
+pkg_version=$(jq -M -c -r '.version' package.json)
+rn_version=$(jq -M -c -r '.dependencies | .["react-native"]' package.json)
+
+config_struct="export default {
+  \"APP_NAME\": \"Lifekey\",
+  \"initialRouteFromConfig\": false,
+  \"initialRoute\": {},
+  \"DEBUG\": false,
+  \"debugNetwork\": false,
+  \"debugReact\": false,
+  \"debugNavigator\": false,
+  \"debugFirebase\": false,
+  \"debugAsyncStorage\": false,
+  \"debugAutoLogin\": false,
+  \"debugAutoLoginPassword\": \"99999\",
+  \"hardcodedSuggestedConnections\": false,
+  \"suggestedConnections\": [],
+  \"version\": \"$pkg_version\",
+  \"rnVersion\": \"${rn_version:1}\",
+  \"sceneConfig\": {
+    \"gestures\": {
+      \"pop\": {
+        \"isDetachable\": false,
+        \"gestureDetectMovement\": 2,
+        \"notMoving\": 0.3,
+        \"directionRatio\": 0.66,
+        \"snapVelocity\": 2,
+        \"edgeHitWidth\": 30,
+        \"stillCompletionRatio\": 0.6,
+        \"fullDistance\": 384,
+        \"direction\": \"left-to-right\"
+      }
+    },
+    \"springFriction\": 26,
+    \"springTension\": 200,
+    \"defaultTransitionVelocity\": 1.5,
+    \"animationInterpolators\": {}
+  },
+  \"progressBarColor\": \"#216BFF\",
+  \"http\": {
+    \"server\": \"staging.api.lifekey.cnsnt.io\",
+    \"baseUrl\": \"http://staging.api.lifekey.cnsnt.io\"
+  },
+  \"keystore\": {
+    \"name\": \"lifekey\",
+    \"pemCertificatePath\": \"rsa-example.pem\",
+    \"keyName\": \"lifekey\",
+    \"privateKeyName\": \"privatelifekey\",
+    \"publicKeyName\": \"publiclifekey\",
+    \"publicKeyAlgorithm\": \"rsa\"
+  }
+}"
+
+echo "${config_struct}"
