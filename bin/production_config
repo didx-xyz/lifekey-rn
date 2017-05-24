@@ -3,7 +3,7 @@
 pkg_version=$(jq -M -c -r '.version' package.json)
 rn_version=$(jq -M -c -r '.dependencies | .["react-native"]' package.json)
 
-config_struct="{
+config_struct="export default {
   \"APP_NAME\": \"Lifekey\",
   \"initialRouteFromConfig\": false,
   \"initialRoute\": {},
@@ -53,6 +53,4 @@ config_struct="{
   }
 }"
 
-production_config="exports default $config_struct"
-
-echo "${production_config}"
+echo "${config_struct}"
