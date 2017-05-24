@@ -138,6 +138,32 @@ class MyData extends Component {
     )
   }
 
+  DID_render(resourceType) {
+    if(!this.validResourceType(resourceType)) return
+    return ( 
+      <View style={styles.vcTextContainer}>
+        { resourceType.items.map((resource, i) => {
+         return (
+            <Text key={i} style={styles.vcText}>{resource.decentralisedIdentifier}</Text>
+          ) 
+        })}
+      </View>
+    )
+  }
+
+  // Misc_render(resourceType) {
+  //   if(!this.validResourceType(resourceType)) return
+  //   return ( 
+  //     <View style={styles.vcTextContainer}>
+  //       { resourceType.items.map((resource, i) => {
+  //        return (
+  //           <Text key={i} style={styles.vcText}>{resource.schema}</Text>
+  //         ) 
+  //       })}
+  //     </View>
+  //   )
+  // }
+
   Malformed_render(resourceType) {
     if(!this.validResourceType(resourceType)) return
     return ( 
@@ -168,18 +194,26 @@ class MyData extends Component {
     const poIdentity = sortedResourceTypes.find(rt => rt.name === "Proof Of Identity") 
     const poResidence = sortedResourceTypes.find(rt => rt.name === "Proof Of Residence")
     const verifiableClaims = sortedResourceTypes.find(rt => rt.name === "Verifiable Claims")
+    const did = sortedResourceTypes.find(rt => rt.name === "Decentralized Identifier")
+    const misc = sortedResourceTypes.find(rt => rt.name === "Miscellaneous")
     const malformed = sortedResourceTypes.find(rt => rt.name === "Malformed")
 
     return (
     
 		<View>
-			{/* Who you are */}
-			<View style={_.assign({}, styles.groupContainer, styles.groupContainerLight)}>
-				<View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>IDENTITY</Text></View>
-				{ this.Person_render(person) }
-				{ this.Identity_render(identity)}
-        { this.ProofOfIdentity_render(poIdentity) }
+			{/* You are just a number now */}
+			<View style={_.assign({}, styles.groupContainer, styles.groupContainerDark)}>
+				<View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>DID</Text></View>
+				{ this.DID_render(did) }
 			</View>
+
+      {/* Who you are */}
+      <View style={_.assign({}, styles.groupContainer, styles.groupContainerLight)}>
+        <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>IDENTITY</Text></View>
+        { this.Person_render(person) }
+        { this.Identity_render(identity)}
+        { this.ProofOfIdentity_render(poIdentity) }
+      </View>
 
 			{/* How to reach you */}
 			<View style={_.assign({}, styles.groupContainer, styles.groupContainerDark)}> 
@@ -206,6 +240,12 @@ class MyData extends Component {
       <View style={_.assign({}, styles.groupContainer, styles.groupContainerLight)}>
         <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>VERIFIABLE CLAIMS</Text></View>
         { this.VC_render(verifiableClaims) }
+      </View>
+
+    {/* Miscellaneous Items */}  
+      <View style={_.assign({}, styles.groupContainer, styles.groupContainerDark)}>
+        <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>MISCELLANEOUS</Text></View>
+        { this.VC_render(misc) }
       </View>
 
 			{/* Add additional items */}  

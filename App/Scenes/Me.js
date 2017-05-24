@@ -225,9 +225,13 @@ class Me extends Scene {
 
   sortMyData(resources, resourceTypes) {
 
+    // Add logically seperate resources types that aren't persisted in server 
     resourceTypes.push({ name: 'Malformed', url: null, items: [] })
     resourceTypes.push({ name: 'Verifiable Claims', url: null, items: [] })
+    resourceTypes.push({ name: 'Decentralized Identifier', url: 'http://schema.cnsnt.io/decentralised_identifier', items: [] })
+    resourceTypes.push({ name: 'Miscellaneous', url: null, items: [] })
 
+    // Sort known items and verifiable claims  
     resourceTypes.map(rt => {
 
       if(rt.name === 'Verifiable Claims'){
@@ -252,12 +256,13 @@ class Me extends Scene {
       return rt
     })
 
-    // Set profile pic
+    // Sort miscellaneous resources 
+    let misc = resourceTypes.find(rt => rt.name === 'Miscellaneous')
+    misc.items = resources.filter(r => !resourceTypes.some(rt => Common.schemaCheck(r.schema, rt.url)))
 
+    // Set profile pic
     const person = resourceTypes.find(rt => rt.url === "http://schema.cnsnt.io/person").items[0]
     const identityPhotographUri = person && person.identityPhotograph ? `data:image/jpg;base64,${person.identityPhotograph}` : Anonymous.uri
-
-    // End set profile pic 
 
     this.setState({
       "profilePicUrl": identityPhotographUri,
