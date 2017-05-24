@@ -3,7 +3,10 @@
 pkg_version=$(jq -M -c -r '.version' package.json)
 rn_version=$(jq -M -c -r '.dependencies | .["react-native"]' package.json)
 
-config_struct="export default {
+config_struct="
+import {Navigator} from 'react-native'
+
+export default {
   \"APP_NAME\": \"Lifekey\",
   \"initialRouteFromConfig\": false,
   \"initialRoute\": {},
@@ -19,25 +22,7 @@ config_struct="export default {
   \"suggestedConnections\": [],
   \"version\": \"$pkg_version\",
   \"rnVersion\": \"${rn_version:1}\",
-  \"sceneConfig\": {
-    \"gestures\": {
-      \"pop\": {
-        \"isDetachable\": false,
-        \"gestureDetectMovement\": 2,
-        \"notMoving\": 0.3,
-        \"directionRatio\": 0.66,
-        \"snapVelocity\": 2,
-        \"edgeHitWidth\": 30,
-        \"stillCompletionRatio\": 0.6,
-        \"fullDistance\": 384,
-        \"direction\": \"left-to-right\"
-      }
-    },
-    \"springFriction\": 26,
-    \"springTension\": 200,
-    \"defaultTransitionVelocity\": 1.5,
-    \"animationInterpolators\": {}
-  },
+  \"sceneConfig\": Navigator.SceneConfigs.FloatFromRight,
   \"progressBarColor\": \"#216BFF\",
   \"http\": {
     \"server\": \"staging.api.lifekey.cnsnt.io\",
