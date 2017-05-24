@@ -55,4 +55,4 @@ config_struct="{
 
 production_config="exports default $config_struct"
 
-echo "${production_config}" > App/Config.js
+echo "${production_config}"
