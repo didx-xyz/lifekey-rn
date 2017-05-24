@@ -9,7 +9,6 @@
 import React, { Component } from "react"
 import { Text, View, Image } from "react-native"
 import PropTypes from "prop-types"
-import MapView from 'react-native-maps';
 
 // internal dependencies
 import Api from "../Api"
