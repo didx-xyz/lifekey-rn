@@ -18,7 +18,7 @@ class AddCategoryButton extends Component {
   }
 
   onPressEdit() {
-    this.props.onEditResource(this.props.form)
+    this.props.onEditResource(this.props.form, null, this.props.name)
   }
 
   render() {

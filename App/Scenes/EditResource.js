@@ -116,6 +116,7 @@ class EditResource extends Scene {
   loadResource() {
     const id = this.context.getEditResourceId()
     const form = this.context.getEditResourceForm()
+    
     if (id) {
       Api.getResource({ id })
         .then(this.onBoundResource)
@@ -123,9 +124,14 @@ class EditResource extends Scene {
           Logger.warn("Error in loading resource: ", error)
         })
     }
+    else{
+      this.setState({"label": `My ${this.context.getEditResourceName()}`})
+    }
+
   }
 
   onResource(data) {
+
     const state = {
       "id": data.body.id,
       ...JSON.parse(data.body.value)
@@ -223,10 +229,13 @@ class EditResource extends Scene {
   }
 
   renderStringInput(entity, i) {
+
+    const value = (!this.state[entity.name] && entity.name === "label") ? this.state.label : this.state[entity.name]
+
     return (
       <TextInput
         style={styles.textInput}
-        value={this.state[entity.name]}
+        value={value}
         onChangeText={text => this.setState({[entity.name]: text})}
         autoCapitalize="sentences"
         autoCorrect={false}
@@ -308,8 +317,6 @@ class EditResource extends Scene {
       }
     })
 
-    console.log(" ******************* LANGUAGE ******************* : ", this.state[entity.name])
-
     const chosenLanguage = Languages.find(language => language["alpha3-b"] === this.state[entity.name])
     const initialStringValue = !!chosenLanguage ? chosenLanguage.English : 'Select a language'
     return this.renderSelectInput(entity, data, initialStringValue)
@@ -356,8 +363,10 @@ class EditResource extends Scene {
       <Container>
         <BackButton navigator={this.navigator} />
         <View style={styles.content}>
-
-            <View style={styles.fields}>
+          <View style={styles.heading}>
+            <Text style={styles.headingText}>{this.context.getEditResourceName().toUpperCase()}</Text>
+          </View>
+          <View style={styles.fields}>
             {
               !this.state.asyncActionInProgress ?
                 <ScrollView style={styles.scroll}>
@@ -378,7 +387,7 @@ class EditResource extends Scene {
                   <Text style={styles.progressText}>{this.state.progressCopy}</Text>
                 </View>
             }
-            </View>
+          </View>
           <View style={styles.buttons}>
             <View style={styles.cancelButton}>
               <Touchable onPress={this.onBoundPressCancel}>
@@ -412,15 +421,26 @@ EditResource.contextTypes = {
 
   // state
   "getEditResourceForm": PropTypes.func,
-  "getEditResourceId": PropTypes.func
+  "getEditResourceId": PropTypes.func,
+  "getEditResourceName": PropTypes.func
 }
 
 const styles = {
   "content": {
     "backgroundColor": "#323a43"
   },
+  "heading": {
+    "height": "10%",
+    "alignItems": "center",
+    "justifyContent": "center"
+  },
+  "headingText": {
+    "textAlign": "left",
+    "color": "white",
+    "fontSize": 16
+  },
   "fields": {
-    "height": "90%",
+    "height": "80%",
     "width": "100%"
   },
   "scroll": {
@@ -428,7 +448,8 @@ const styles = {
   },
   "card": {
     "backgroundColor": "#fff",
-    "padding": 10,
+    "paddingLeft": 10,
+    "paddingRight": 10,
   },
   "progressContainer": {
     // "backgroundColor": Palette.consentBlue,

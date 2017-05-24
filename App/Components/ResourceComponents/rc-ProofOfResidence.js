@@ -26,7 +26,7 @@ class RcProofOfResidence extends Component {
       <View>
         { resourceType.items.map((resource, i) => { 
           return (
-            <LifekeyCard key={i} headingText={resourceType.name} onPressEdit={() => onPressEdit(resource.form, resource.id)} onPressDelete={() => onPressDelete(resource.id)} >
+            <LifekeyCard key={i} headingText={resourceType.name} onPressEdit={() => onPressEdit(resource.form, resource.id, resourceType.name)} onPressDelete={() => onPressDelete(resource.id)} >
               <LcImageDocument title={"Proof Of Residence"} documentIdentifier={"proofOfResidence"} {...resource} expanded={ false }/>
             </LifekeyCard>
           )

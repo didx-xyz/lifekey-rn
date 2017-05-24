@@ -47,8 +47,8 @@ class MyData extends Component {
     Api.clearCached("allResources")
   }
 
-  onPressEdit(form, id = null) {
-    this.context.onEditResource(form, id)
+  onPressEdit(form, id = null, name = null) {
+    this.context.onEditResource(form, id, name)
   }
 
   validResourceType(resourceType){

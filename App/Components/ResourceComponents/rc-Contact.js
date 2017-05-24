@@ -40,7 +40,7 @@ class RcContact extends Component {
       <View>
         { resourceType.items.map((resource, i) => { 
           return (
-            <LifekeyCard key={i} headingText={resourceType.name} onPressEdit={() => onPressEdit(resource.form, resource.id)} onPressDelete={() => onPressDelete(resource.id)} >
+            <LifekeyCard key={i} headingText={resourceType.name} onPressEdit={() => onPressEdit(resource.form, resource.id, resourceType.name)} onPressDelete={() => onPressDelete(resource.id)} >
               <LcContactDetail listCardHeading={resourceType.name} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={i === 0} />
             </LifekeyCard>
           )

@@ -49,6 +49,7 @@ class Lifekeyrn extends Component {
       // state
       "getEditResourceForm": this.boundGetEditResourceForm,
       "getEditResourceId": this.boundGetEditResourceId,
+      "getEditResourceName": this.boundGetEditResourceName,
       "getShouldClearResourceCache": this.boundGetShouldClearResourceCache,
       "userHasActivated": this.boundUserHasActivated
     }
@@ -109,8 +110,10 @@ class Lifekeyrn extends Component {
     this.shouldClearResourceCache = true
     this.editResourceForm = null
     this.editResourceId = null
+    this.editResourceName = null
     this.boundGetEditResourceForm = this.getEditResourceForm.bind(this)
     this.boundGetEditResourceId = this.getEditResourceId.bind(this)
+    this.boundGetEditResourceName = this.getEditResourceName.bind(this)
     this.boundGetShouldClearResourceCache = this.getShouldClearResourceCache.bind(this)
     this.boundUserHasActivated = this.userHasActivated.bind(this)
 
@@ -127,6 +130,10 @@ class Lifekeyrn extends Component {
 
   getEditResourceId() {
     return this.editResourceId
+  }
+
+  getEditResourceName() {
+    return this.editResourceName
   }
 
   getShouldClearResourceCache() {
@@ -148,9 +155,10 @@ class Lifekeyrn extends Component {
     }
   }
 
-  onEditResource(form, id) {
+  onEditResource(form, id, name) {
     this.editResourceForm = form
     this.editResourceId = id
+    this.editResourceName = name
 
     this.navigator.push(Routes.editResource)
   }
@@ -398,6 +406,7 @@ Lifekeyrn.childContextTypes = {
   // state
   "getEditResourceForm": PropTypes.func,
   "getEditResourceId": PropTypes.func,
+  "getEditResourceName": PropTypes.func,
   "getShouldClearResourceCache": PropTypes.func,
 
   "userHasActivated": PropTypes.func
