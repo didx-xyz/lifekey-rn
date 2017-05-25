@@ -72,13 +72,16 @@ class InformationRequest extends Scene {
   componentWillFocus() {
     super.componentWillFocus()
 
-    Promise.all([
-      Api.allResources()
-    ]).then(values => {
-      this.onBoundResources(values[0])
-    }).catch(error => {
-      Logger.error(error)
+    this.setState({"asyncActionInProgress": true, "progressCopy": "Loading..."}, async () => {
+      Promise.all([
+        Api.allResources()
+      ]).then(values => {
+        this.onBoundResources(values[0])
+      }).catch(error => {
+        Logger.error(error)
+      })
     })
+
   }
 
   // onISA(response, then) {
@@ -111,8 +114,6 @@ class InformationRequest extends Scene {
       }
     })
 
-    console.log("JJJJJJJJ => ", this.props.route.required_entities)
-
     this.findMissingResourceProperties(updatedResources, this.props.route.required_entities)
 
     this.setState({
@@ -122,8 +123,6 @@ class InformationRequest extends Scene {
 
 
   findMissingResourceProperties(resources, required_entities){
-
-    console.log("REQ ENTITIES: ", required_entities)
 
     this.verifyAndFixSchemaProperty(resources, required_entities)
     this.sortMyData(resources, required_entities)
@@ -197,8 +196,8 @@ class InformationRequest extends Scene {
     })
   }
 
-  onPressMissing(form, id) {
-    this.context.onEditResource(form, id)
+  onPressMissing(form, id, name) {
+    this.context.onEditResource(form, id, name)
   }
 
   render() {
@@ -276,7 +275,7 @@ class InformationRequest extends Scene {
                         <View style={styles.missingItems}>
                           { this.state.partial.map((entity, i) => {
                             return (
-                              <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id)}>
+                              <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id, entity.name)}>
                                 <Text style={styles.missingItemsText}>
                                   You need to complete {entity.name}... specifically the field(s):&nbsp;
                                     { entity.missingFields.map((item, j) => {
@@ -301,7 +300,7 @@ class InformationRequest extends Scene {
                         <View style={styles.missingItems}>
                           { this.state.missing.map((entity, i) => {
                             return (
-                              <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id)}>
+                              <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id, entity.name)}>
                                 <Text style={styles.missingItemsText}>
                                   You are missing {entity.name}.
                                 </Text>
@@ -347,39 +346,12 @@ class InformationRequest extends Scene {
       </Container>
     )
   }
-
-  // renderResource(resource) {
-  //   return (
-  //     <InformationRequestResource key={resource.id} title={resource.alias} onPress={() => this.onSwap(resource)}>
-  //       <Text style={styles.itemText}>
-  //         <Text style={styles.foundText}>
-  //           {/* customise this for different resource types */}
-  //           {
-  //             Object.values(
-  //               JSON.parse(resource.value)
-  //             ).filter(x => x && x.length && x.length < 50).join(', ')
-  //           }
-  //         </Text>
-  //       </Text>
-  //     </InformationRequestResource>
-  //   )
-  // }
-
-  // renderPartialResource(resource, key) {
-  //   return (
-  //     <InformationRequestResource key={resource.id} title={resource.alias} onPress={() => this.onSwap(resource, key)}>
-  //       <Text style={styles.itemText}>
-  //         <Text style={styles.foundText}>{JSON.parse(resource.value)[key]}</Text>
-  //       </Text>
-  //     </InformationRequestResource>
-  //   )
-  // }
 }
 
 const styles = {
   content: {
     flex: 1,
-    backgroundColor: "#323a43"
+    "backgroundColor": Palette.consentOffBlack
   },
   "progressContainer": {
     // "backgroundColor": Palette.consentBlue,
