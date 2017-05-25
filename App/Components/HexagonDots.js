@@ -8,19 +8,19 @@ const HexagonDots  = function(props) {
 
   switch (props.current) {
     case 0:
-      image = require("../Images/blue_dots_1.png")
+      image = require("../Images/dots-01.png")
       break
     case 1:
-      image = require("../Images/blue_dots_2.png")
+      image = require("../Images/dots-02.png")
       break
     case 2:
-      image = require("../Images/blue_dots_3.png")
+      image = require("../Images/dots-03.png")
       break
     case 3:
-      image = require("../Images/blue_dots_4.png")
+      image = require("../Images/dots-04.png")
       break
     default:
-      image = require("../Images/blue_dots_5.png")
+      image = require("../Images/dots-05.png")
       break
   }
 
