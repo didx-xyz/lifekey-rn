@@ -80,8 +80,9 @@ export default class OnboardingTextInputAndroid extends Component {
             value={this.props.value}
             style={{
               flex: 1,
-              fontSize: 30
+              fontSize: 28
             }}
+            autoCapitalize={this.props.autoCapitalize}
             underlineColorAndroid="transparent"
             scrollEnabled={false}
             onSubmitEditing={() => this.props.onSubmit()}
