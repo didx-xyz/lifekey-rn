@@ -80,7 +80,7 @@ export default class OnboardingTextInputAndroid extends Component {
             value={this.props.value}
             style={{
               flex: 1,
-              fontSize: 28
+              fontSize: this.props.fontSize
             }}
             autoCapitalize={this.props.autoCapitalize}
             underlineColorAndroid="transparent"

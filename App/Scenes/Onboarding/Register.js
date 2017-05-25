@@ -418,6 +418,7 @@ class Register extends Scene {
         return (<OnboardingTextInputAndroid
                   onChangeText={(text) => this.setState({ textInputValue: text })}
                   autoCapitalize="sentences"
+                  fontSize={30}
                   value={this.state.textInputValue}
                   ref={oti => { this._oti = oti }}
                   onSubmit={() => this._stepForward()}
@@ -427,6 +428,7 @@ class Register extends Scene {
         return (<OnboardingTextInputAndroid
                   onChangeText={(text) => this.setState({ textInputValue: text })}
                   autoCapitalize="none"
+                  fontSize={24}
                   value={this.state.textInputValue}
                   ref={oti => { this._oti = oti }}
                   onSubmit={() => this._stepForward()}
