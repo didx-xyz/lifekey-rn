@@ -458,7 +458,7 @@ class Register extends Scene {
 
       case STEP_MAGIC_LINK:
         return (<View style={{ flex: 1 }}>
-                  <Text style={{ textAlign: "center" }>Please check the inbox of {this.state.email} for a link to activate your account</Text>
+                  <Text style={{ textAlign: "center" }}>Please check the inbox of {this.state.email} for a link to activate your account</Text>
                 </View>)
       case STEP_WAITING_FOR_DID:
         return (<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
