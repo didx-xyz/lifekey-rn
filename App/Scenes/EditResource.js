@@ -25,7 +25,7 @@ class EditResource extends Scene {
 
     this.state = {
       "entities": [],
-      "progressCopy": "Loading...",
+      "progressCopy": "Loading form and resources...",
       "asyncActionInProgress": true
     }
 
