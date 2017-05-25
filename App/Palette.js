@@ -14,5 +14,6 @@ export default {
   consentGrayDark: '#9e9e9e',
   consentGrayDarkest: '#8a8a8a',
   sceneBackgroundColour: 'white',
-  consentOffWhite: '#F9FAFA'
+  consentOffWhite: '#F9FAFA',
+  consentOffBlack: '#323a43'
 }

@@ -97,13 +97,15 @@ class Me extends Scene {
   componentWillFocus() {
     super.componentWillFocus()
 
-    Promise.all([
+    this.setState({"asyncActionInProgress" : true, "progressCopy" : "Loading new resources..."}, () => {
+      Promise.all([
       Api.allResources()
-    ]).then(values => {
-      this.onBoundResources(values[0])
-    }).catch(error => {
-      Logger.error(error)
-    })
+      ]).then(values => {
+        this.onBoundResources(values[0])
+      }).catch(error => {
+        Logger.error(error)
+      })
+    }) 
   }
 
   componentDidUpdate(){
