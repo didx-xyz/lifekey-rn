@@ -32,7 +32,7 @@ class EditResource extends Scene {
     this.onBoundPressCancel = this.onPressCancel.bind(this)
     this.onBoundPressSave = this.onPressSave.bind(this)
     this.onBoundSave = this.onSave.bind(this)
-    this.onBoundForm = this.onForm.bind(this)
+    // this.onBoundForm = this.onForm.bind(this)
     this.onBoundResource = this.onResource.bind(this)
   }
 
@@ -93,84 +93,90 @@ class EditResource extends Scene {
   }
 
   componentDidMount() {
-    const form = this.context.getEditResourceForm()
-    this.setState({"asyncActionInProgress": true, "progressCopy": "Loading form..."}, () => {
-      Api.getResourceForm(form)
-       .then(this.onBoundForm)
-       .catch(error => {
-          Logger.warn("Error in loading resource form: ", error)
-          if (form == 'http://schema.cnsnt.io/verified_identity_form') {
-            alert('Please get verified_identity from Trust Bot first')
-            this.navigator.pop()
-          } else {
-            Logger.warn('Unexpected resource format')
-          }
-        })
-    })
 
-    this.loadResource()
-  }
-
-  componentWillFocus() {
-    this.loadResource()
-  }
-
-  loadResource() {
     const id = this.context.getEditResourceId()
     const form = this.context.getEditResourceForm()
     
-    if (id) {
-      this.setState({"asyncActionInProgress": true, "progressCopy": "Loading existing resources..."}, () => {
-        Api.getResource({ id })
-        .then(this.onBoundResource)
-        .catch(error => {
-          Logger.warn("Error in loading resource: ", error)
-        })
+    Promise.all([
+      Api.getResourceForm(form),
+      this.loadResource(id)
+    ]).then(values => {
+
+      let formData = values[0]
+      let resourceData = values[1]
+
+      // // Initiate state with relevant data
+      let state = resourceData ? { "id": resourceData.body.id, ...JSON.parse(resourceData.body.value) } 
+                               : { "label" : `My ${this.context.getEditResourceName()}` }
+
+      // Push all relevant form data into state 
+      state.entities = [
+        {"label": "Label", "name": "label", "type": "string"},
+        ...formData.entities
+      ]
+
+      formData.entities.forEach((entity) => {
+        if (entity.type === "country") {
+          state[entity.name + "__shown"] = false
+          state[entity.name + "__label"] = "Select a country"
+        }
+
+        if (entity.type === "language") {
+          state[entity.name + "__shown"] = false
+          state[entity.name + "__label"] = "Select a language"
+        }
+
+        if (entity.type === "photograph") {
+          state[entity.name + "__label"] = "Select a photograph"
+        }
       })
+
+      // Switch off loading state 
+      state.asyncActionInProgress = false
+
+      //Set state 
+      this.setState(state)
+
+    }).catch(error => {
+      Logger.warn("Error in loading resource form: ", error)
+      if (form == 'http://schema.cnsnt.io/verified_identity_form') {
+        alert('Please get verified_identity from Trust Bot first')
+        this.navigator.pop()
+      } else {
+        Logger.warn('Unexpected resource format')
+      }
+    })
+  }
+
+  componentWillFocus() {
+
+    this.setState({"asyncActionInProgress": true, "progressCopy": "Loading existing resources..."}, async () => {
+      const resources = await this.loadResource(this.context.getEditResourceId())
+      if(resources){
+        this.onBoundResource(resources)
+      }
+      else{
+        this.setState({"asyncActionInProgress": false, "label": `My ${this.context.getEditResourceName()}`})
+      }
+    })
+
+  }
+
+  async loadResource(id) {     
+    if (id) {
+      return Api.getResource({ id })
     }
     else{
-      this.setState({"asyncActionInProgress": false, "label": `My ${this.context.getEditResourceName()}`})
-    }
-
+      return Promise.resolve()
+    }  
   }
 
   onResource(data) {
 
     const state = {
-      "asyncActionInProgress": false,
       "id": data.body.id,
       ...JSON.parse(data.body.value)
     }
-
-    this.setState(state)
-  }
-
-  onForm(data) {
-    // TODO: handle error conditions
-
-    let state = {
-      // "asyncActionInProgress": false,
-      "entities": [
-        {"label": "Label", "name": "label", "type": "string"},
-        ...data.entities
-      ]
-    }
-
-    data.entities.forEach((entity) => {
-      if (entity.type === "country") {
-        state[entity.name + "__shown"] = false
-        state[entity.name + "__label"] = "Select a country"
-      }
-
-      if (entity.type === "language") {
-        state[entity.name + "__shown"] = false
-        state[entity.name + "__label"] = "Select a language"
-      }
-
-      if (entity.type === "photograph") {
-        state[entity.name + "__label"] = "Select a photograph"
-      }
-    })
 
     this.setState(state)
   }
@@ -432,7 +438,8 @@ EditResource.contextTypes = {
 
 const styles = {
   "content": {
-    "backgroundColor": "#323a43"
+    "height": "100%",
+    "backgroundColor": Palette.consentOffBlack
   },
   "heading": {
     "height": "10%",
