@@ -417,6 +417,7 @@ class Register extends Scene {
       case STEP_USERNAME:
         return (<OnboardingTextInputAndroid
                   onChangeText={(text) => this.setState({ textInputValue: text })}
+                  autoCapitalize="sentences"
                   value={this.state.textInputValue}
                   ref={oti => { this._oti = oti }}
                   onSubmit={() => this._stepForward()}
@@ -425,6 +426,7 @@ class Register extends Scene {
       case STEP_EMAIL:
         return (<OnboardingTextInputAndroid
                   onChangeText={(text) => this.setState({ textInputValue: text })}
+                  autoCapitalize="none"
                   value={this.state.textInputValue}
                   ref={oti => { this._oti = oti }}
                   onSubmit={() => this._stepForward()}
