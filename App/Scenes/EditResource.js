@@ -94,7 +94,8 @@ class EditResource extends Scene {
 
   componentDidMount() {
     const form = this.context.getEditResourceForm()
-    Api.getResourceForm(form)
+    this.setState({"asyncActionInProgress": true, "progressCopy": "Loading form..."}, () => {
+      Api.getResourceForm(form)
        .then(this.onBoundForm)
        .catch(error => {
           Logger.warn("Error in loading resource form: ", error)
@@ -105,6 +106,7 @@ class EditResource extends Scene {
             Logger.warn('Unexpected resource format')
           }
         })
+    })
 
     this.loadResource()
   }
@@ -118,14 +120,16 @@ class EditResource extends Scene {
     const form = this.context.getEditResourceForm()
     
     if (id) {
-      Api.getResource({ id })
+      this.setState({"asyncActionInProgress": true, "progressCopy": "Loading existing resources..."}, () => {
+        Api.getResource({ id })
         .then(this.onBoundResource)
         .catch(error => {
           Logger.warn("Error in loading resource: ", error)
         })
+      })
     }
     else{
-      this.setState({"label": `My ${this.context.getEditResourceName()}`})
+      this.setState({"asyncActionInProgress": false, "label": `My ${this.context.getEditResourceName()}`})
     }
 
   }
@@ -133,6 +137,7 @@ class EditResource extends Scene {
   onResource(data) {
 
     const state = {
+      "asyncActionInProgress": false,
       "id": data.body.id,
       ...JSON.parse(data.body.value)
     }
@@ -144,7 +149,7 @@ class EditResource extends Scene {
     // TODO: handle error conditions
 
     let state = {
-      "asyncActionInProgress": false,
+      // "asyncActionInProgress": false,
       "entities": [
         {"label": "Label", "name": "label", "type": "string"},
         ...data.entities
@@ -231,7 +236,7 @@ class EditResource extends Scene {
   renderStringInput(entity, i) {
 
     const value = (!this.state[entity.name] && entity.name === "label") ? this.state.label : this.state[entity.name]
-
+    console.log("RENDER STRING ----------------------> ", value)
     return (
       <TextInput
         style={styles.textInput}
