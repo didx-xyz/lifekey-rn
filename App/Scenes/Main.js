@@ -6,6 +6,7 @@
  */
 
 import React, { Component } from 'react'
+import ActivityIndicator from "ActivityIndicator"
 import AppLogo from '../Images/logo_big.png'
 import Scene from '../Scene'
 import Palette from '../Palette'
@@ -55,7 +56,9 @@ export default class Main extends Scene {
       connections: [],
       profiles: [],
       suggestedConnections: Config.hardcodedSuggestedConnections
-                            ? Config.suggestedConnections : []
+                            ? Config.suggestedConnections : [],
+      "progressCopy": "Loading...",
+      "asyncActionInProgress": true
     }
   }
 
@@ -71,62 +74,74 @@ export default class Main extends Scene {
 
   async loadConnections(callback) {
     const connections = await ConsentConnection.all()
-    this.setState({ connections: connections }, () => {
+    this.setState({ connections: connections, "asyncActionInProgress": false }, () => {
       if (callback) { callback() }
     })
   }
 
   async loadActiveClients(callback) {
-    const activeBots = await Api.getActiveBots()
-    if (activeBots && activeBots.body && _.isArray(activeBots.body)) {
-      const profileRequests = activeBots.body.map((bot) => Api.profile({ did: bot.did }))
-      const profileResponses = await Promise.all(profileRequests)
-      const updatedSuggestedConnections = profileResponses.map(response => {
-        if (response.body && response.body.user) {
-          return response.body.user
-        } else {
-          Logger.warn("Unexpected bot profile data")
-          return ({})
-        }
-      })
-      const updatedSuggestedConnectionsWithoutConnected = updatedSuggestedConnections.filter(x =>
-        !this.state.connections.find(y => x.did === y.to_did)
-      )
-      // .filter(x => {
-      //   const has_verified_identity = Session.getState().has_verified_identity
-      //   if (x.display_name === "Trustbank" && !has_verified_identity) {
-      //     return false
-      //   } else {
-      //     return true
-      //   }
-      // })
-      this.setState({ suggestedConnections: updatedSuggestedConnectionsWithoutConnected }, () => {
-        if (callback) { callback() }
-      })
-    } else {
-      Logger.warn('Directory listing result unexpected')
-    }
+
+    // this.setState({"progressCopy": "Loading...", "asyncActionInProgress": true }, () => {
+      const activeBots = await Api.getActiveBots()
+      if (activeBots && activeBots.body && _.isArray(activeBots.body)) {
+        
+        this.setState({"progressCopy": "Sorting suggestions..."}, async () => {
+
+          const profileRequests = activeBots.body.map((bot) => Api.profile({ did: bot.did }))
+          
+          const profileResponses = await Promise.all(profileRequests)
+
+          const updatedSuggestedConnections = profileResponses.map(response => {
+            if (response.body && response.body.user) {
+              return response.body.user
+            } else {
+              Logger.warn("Unexpected bot profile data")
+              return ({})
+            }
+          })
+
+          const updatedSuggestedConnectionsWithoutConnected = updatedSuggestedConnections.filter(x =>
+            !this.state.connections.find(y => x.did === y.to_did)
+          )
+         
+          this.setState({ "asyncActionInProgress": false , "suggestedConnections": updatedSuggestedConnectionsWithoutConnected }, () => {
+            if (callback) { callback() }
+          })
+
+        })  
+        
+      } else {
+        Logger.warn('Directory listing result unexpected')
+      }
+      
+    // })
   }
 
-  componentDidMount() {
-    super.componentDidMount()
-  }
+  // componentDidMount() {
+  //   super.componentDidMount()
+  // }
 
-  componentWillUpdate(nextProps, nextState) {
-    super.componentWillUpdate()
-  }
+  // componentWillUpdate(nextProps, nextState) {
+  //   super.componentWillUpdate()
+  // }
 
   setTab(tab) {
     try {
       switch (tab) {
       case TAB_CONNECTED:
-        this.loadConnections(() => {
-          this.setState({ activeTab: tab })
+        this.setState({
+          "activeTab": tab, 
+          "progressCopy": "Loading connections...", 
+          "asyncActionInProgress": true }, () => {
+          this.loadConnections()
         })
         break
       case TAB_SUGGESTED:
-        this.loadActiveClients(() => {
-          this.setState({ activeTab: tab })
+        this.setState({
+          "activeTab": tab, 
+          "progressCopy": "Loading suggestions...", 
+          "asyncActionInProgress": true }, () => {
+          this.loadActiveClients()
         })
       }
     } catch (error) {
@@ -217,72 +232,82 @@ export default class Main extends Scene {
         </View>
         <Content>
           <Col style={{ flex: 1 }}>
-            <View style={{ flex: 10, backgroundColor: Palette.consentGrayLightest }}>
-              { this.state.activeTab === 0 ?
+            {
+              !this.state.asyncActionInProgress ? 
+                <View style={{ flex: 10, backgroundColor: Palette.consentGrayLightest }}>
+                  { this.state.activeTab === 0 ?
 
-                /* CONNECTED TAB */
+                    /* CONNECTED TAB */
 
-                <View style={{ flex: 1 }}>
+                    <View style={{ flex: 1 }}>
 
-                  <SearchBox
-                    text={this.state.searchText}
-                    onChangeText={(text) => this.updateSearch(text)}
-                  />
+                      <SearchBox
+                        text={this.state.searchText}
+                        onChangeText={(text) => this.updateSearch(text)}
+                      />
 
-                  { /* LIST OF CONNECTIONS */ }
-                  {this.state.connections.filter((connection) => {
-                    // If not empty
-                    if (this.state.searchText !== '') {
-                      // uppercase connection name and substring name to search text length
-                      const connectionSubUpper = connection.display_name
-                                                 .substr(0, this.state.searchText.length)
-                                                 .toUpperCase()
-                      // uppsercase search text
-                      const searchTextUpper = this.state.searchText.toUpperCase()
-                      // compare
-                      return connectionSubUpper === searchTextUpper
-                    } else {
-                      // match because no search text
-                      return true
-                    }
-                  }).map((connection, i) => (
-                      <ListItem
-                        key={i}
-                        style={style.listItem}
-                        onPress={() => this.goToConnectionDetails(this.state.connections[i])}
-                      >
-                        <View style={style.listItemWrapper}>
-                          <Image
-                            style={style.listItemImage}
-                            source={{ uri: connection.image_uri }}
-                          />
-                          <Text style={style.listItemText}>{connection.display_name}</Text>
-                        </View>
-                      </ListItem>
-                  ))}
+                      { /* LIST OF CONNECTIONS */ }
+                      {this.state.connections.filter((connection) => {
+                        // If not empty
+                        if (this.state.searchText !== '') {
+                          // uppercase connection name and substring name to search text length
+                          const connectionSubUpper = connection.display_name
+                                                     .substr(0, this.state.searchText.length)
+                                                     .toUpperCase()
+                          // uppsercase search text
+                          const searchTextUpper = this.state.searchText.toUpperCase()
+                          // compare
+                          return connectionSubUpper === searchTextUpper
+                        } else {
+                          // match because no search text
+                          return true
+                        }
+                      }).map((connection, i) => (
+                          <ListItem
+                            key={i}
+                            style={style.listItem}
+                            onPress={() => this.goToConnectionDetails(this.state.connections[i])}
+                          >
+                            <View style={style.listItemWrapper}>
+                              <Image
+                                style={style.listItemImage}
+                                source={{ uri: connection.image_uri }}
+                              />
+                              <Text style={style.listItemText}>{connection.display_name}</Text>
+                            </View>
+                          </ListItem>
+                      ))}
 
+                    </View>
+                    :
+                    /* SUGGESTED TAB */
+                    <View style={{ flex: 1 }}>
+                      { this.state.suggestedConnections.map((suggestedConnection, i) => (
+                        <ListItem
+                          key={i}
+                          style={style.listItem}
+                          onPress={() => this.goToConnect(this.state.suggestedConnections[i])}
+                        >
+                            <View style={style.listItemWrapper}>
+                              <Image
+                                style={style.listItemImage}
+                                source={{ uri: suggestedConnection.image_uri }}
+                              />
+                              <Text style={style.listItemText}>{suggestedConnection.display_name}</Text>
+                            </View>
+                        </ListItem>
+                      ))}
+                    </View>
+                  }
                 </View>
-                :
-                /* SUGGESTED TAB */
-                <View style={{ flex: 1 }}>
-                  { this.state.suggestedConnections.map((suggestedConnection, i) => (
-                    <ListItem
-                      key={i}
-                      style={style.listItem}
-                      onPress={() => this.goToConnect(this.state.suggestedConnections[i])}
-                    >
-                        <View style={style.listItemWrapper}>
-                          <Image
-                            style={style.listItemImage}
-                            source={{ uri: suggestedConnection.image_uri }}
-                          />
-                          <Text style={style.listItemText}>{suggestedConnection.display_name}</Text>
-                        </View>
-                    </ListItem>
-                  ))}
+              :
+                <View style={style.progressContainer}>
+                  <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/> 
+                  <Text style={style.progressText}>{this.state.progressCopy}</Text>
                 </View>
-              }
-            </View>
+            }
+
+
           </Col>
         </Content>
         <Footer style={style.footer}>
@@ -325,5 +350,18 @@ const style = {
   },
   footer: {
     height: Dimensions.get('window').height / 6
-  }
+  },
+  "progressContainer": {
+    // "backgroundColor": Palette.consentBlue,
+    "flex": 1,
+    "alignItems": "center",
+    "justifyContent": "center"
+  },
+  "progressIndicator": {
+    "width": 75,
+    "height": 75 
+  },
+  "progressText":{
+    "color": Palette.consentGrayDark
+  },
 }
