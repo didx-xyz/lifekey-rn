@@ -79,7 +79,7 @@ class Register extends Scene {
       },
       {
         largeText: 'Thanks for activating!',
-        smallText: 'Please wait while we generate your unique decentralized identifier...',
+        smallText: 'Please wait while we create your Decentralised Identifier on the Consent Blockchain...',
         bottomText: ''
       }
     ]
@@ -459,7 +459,7 @@ class Register extends Scene {
       case STEP_WAITING_FOR_DID:
         return (<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                   <Nachos.Spinner color='blue'/>
-                  <Text style={{ textAlign: "center" }}>Waiting for the DID</Text>
+                  {/* <Text style={{ textAlign: "center" }}>Please wait while we create your Decentralised Identifier on the Consent Blockchain</Text> */}
                 </View>)
     }
   }
@@ -513,10 +513,7 @@ class Register extends Scene {
                   </Row>
 
                   { /* TEXT INPUT */}
-                  <Row style= {[
-                    style.textInputRow,
-                    { backgroundColor: this.state.step < STEP_WAITING_FOR_DID ? null : Palette.consentOffWhite }
-                  ]}>
+                  <Row style= {style.textInputRow}>
                     { this.renderInputView() }
                   </Row>
                 </Row>
