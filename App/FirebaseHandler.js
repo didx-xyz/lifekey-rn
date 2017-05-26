@@ -45,12 +45,12 @@ class FirebaseHandler {
       break
       case 'received_did':
         Logger.firebase('received_did')
-        ConsentUser.setDid(message.did_value)
-        .then(did => {
+        ConsentUser.setDid(
+          message.did_value
+        ).then(did => {
           Logger.info(`DID set to ${did}`, this.filename)
           eventEmitter.emit('received_did')
-        })
-        .catch(error => {
+        }).catch(error => {
           Logger.error('Could not set DID', this.filename, error)
         })
         break
@@ -66,16 +66,14 @@ class FirebaseHandler {
             message.from_did,
             message.from_nickname
           )
-        ])
-        .then(result => {
+        ]).then(result => {
           const {
             response,
             connectionRequests,
             discoveredUsers
           } = result
           Logger.info('Connection Request Accepted')
-        })
-        .catch(error => {
+        }).catch(error => {
           Logger.error(error)
         })
         break
@@ -85,12 +83,10 @@ class FirebaseHandler {
         ConsentConnection.add(
           message.user_connection_id,
           message.to_did
-        )
-        .then(() => {
+        ).then(_ => {
           Logger.info('Connection added successfully')
           eventEmitter.emit('user_connection_created')
-        })
-        .catch(error => {
+        }).catch(error => {
           Logger.warn("Could not add user connection", error)
         })
         break
@@ -108,29 +104,28 @@ class FirebaseHandler {
       case 'information_sharing_agreement_request':
         Logger.firebase('information_sharing_agreement_request', message)
         eventEmitter.emit('information_sharing_agreement_request', message)
-        // Session.update({
-        //   isas: {
-        //     unacked: [{ id: message.isar_id }]
-        //   }
-        // })
         break
 
       case 'resource_pushed':
-      // {"type":"resource_pushed","resource_ids":"[784,785,786]","isa_id":"138","fcm":{"action":null,"tag":null,"icon":null,"color":null,"body":"One or more resources were pushed to you","title":"ISA Resources Pushed"}}
-      // console.log('$$$$$$$$$$$$$', message)
         message.resource_ids = JSON.parse(message.resource_ids)
-        let verified_identity = null
-        Promise.all(message.resource_ids.map(id =>
-          Api.getResource({ id })
-        ))
-        .then(results => {
-          verified_identity = results.find(result => result.body.schema === "http://schema.cnsnt.io/verified_identity")
-        })
-        if (verified_identity) {
-          Session.update({
-            has_verified_identity: true
-          })
-        }
+        Promise.all(
+          message.resource_ids.map(id => Api.getResource({id: id}))
+        ).then(results => {
+          return Promise.resolve(
+            results.find(
+              result => result.body.schema === "http://schema.cnsnt.io/verified_identity"
+            )
+          )
+        }).then(verified_identity => {
+          Session.update({has_verified_identity: !!verified_identity})
+        }).catch(console.log)
+        break
+      case 'user_message_received':
+        ConsentMessage.add(
+          message.from_did,
+          message.message,
+          new Date
+        ).catch(console.log)
         break
       default:
         Logger.firebase(JSON.stringify(message))
@@ -138,7 +133,6 @@ class FirebaseHandler {
           Logger.info(message.notification.title + ' - ' + message.notification.body, this.filename)
         }
         break
-
       }
       ConsentMessage.add(
         'FROM',
