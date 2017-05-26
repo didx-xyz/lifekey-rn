@@ -1,6 +1,8 @@
+
 import React from "react"
 import Scene from "../Scene"
 import Palette from "../Palette"
+import ActivityIndicator from "ActivityIndicator"
 import Touchable from "../Components/Touchable"
 import AndroidBackButton from 'react-native-android-back-button'
 import BackIcon from "../Components/BackIcon"
@@ -11,6 +13,7 @@ import MarketingIcon from "../Components/MarketingIcon"
 import PeriodIcon from "../Components/PeriodIcon"
 import Api from '../Api'
 import ConsentDiscoveredUser from '../Models/ConsentDiscoveredUser'
+import ConsentMessage from '../Models/ConsentMessage'
 import Logger from "../Logger"
 import Session from "../Session"
 import _ from 'lodash'
@@ -59,7 +62,8 @@ class ConnectionDetails extends Scene {
       display_name: this.props.route.display_name,
       current_user_display_name: Session.getState().user.display_name,
       connection_id: this.props.route.id, // id of the connection request
-      user_did: this.props.route.user_did // did of the user connected to
+      user_did: this.props.route.user_did, // did of the user connected to
+      messages: []
     }
   }
 
@@ -76,20 +80,9 @@ class ConnectionDetails extends Scene {
       const actionsResponse = await fetch(actions_url, requestOptions)
       Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
       const actions = JSON.parse(actionsResponse._bodyText)
-      if (actions) {
-        if (actions.body) {
-          this.setState({
-            actions: actions.body
-          }, () => Logger.info('Actions updated'))
-        } else {
-          this.setState({
-            actions: actions
-          }, () => Logger.info('Actions updated'))
-        }
-      } else {
-        Logger.warn('Could not parse JSON')
-      }
+      return Promise.resolve(actions.body || actions || [])
     }
+    return Promise.resolve([])
   }
 
   async loadISAs() {
@@ -109,23 +102,35 @@ class ConnectionDetails extends Scene {
     }, () => Logger.info(JSON.stringify(this.state)))
   }
 
-  async loadData() {
-    try {
-      const response = await Api.profile({ did: this.state.user_did })
-      this.loadActions(response.body.user.actions_url)
+  loadData() {
+    var actions_url
+    Promise.all([
+      Api.profile({did: this.state.user_did}),
+      ConsentMessage.from(this.state.user_did)
+    ]).then(res => {
+      var [profile, messages] = res
+      actions_url = profile.body.user.actions_url
       this.setState({
-        colour: response.body.user.colour,
-        image_uri: response.body.user.image_uri,
-        actions_url: response.body.actions_url,
-        address: response.body.user.address,
-        tel: response.body.user.tel,
-        email: response.body.user.email
+        colour: profile.body.user.colour,
+        image_uri: profile.body.user.image_uri,
+        actions_url: actions_url,
+        address: profile.body.user.address,
+        tel: profile.body.user.tel,
+        email: profile.body.user.email,
+        messages: messages
       })
-
-    } catch (error) {
-      Logger.warn(error)
-    }
-
+      return Promise.resolve()
+    }).then(_ => {
+      return this.loadActions(actions_url)
+    }).then(axns => {
+      this.setState({
+        actions: axns,
+        loading_cxn_details: false
+      })
+    }).catch(err => {
+      alert('Unable to load connection data')
+      this.navigator.pop()
+    })
   }
 
   async callAction(name, action) {
@@ -145,8 +150,9 @@ class ConnectionDetails extends Scene {
     })
   }
 
-  componentWillMount() {
-    super.componentWillMount()
+  componentDidMount() {
+    super.componentDidMount()
+    this.setState({loading_cxn_details: true})
     this.loadData()
   }
 
@@ -189,6 +195,21 @@ class ConnectionDetails extends Scene {
     const entities = JSON.parse(entitiesJSON)
     Logger.info('entitiesJSON', entities)
     return entities
+  }
+
+  renderConnectionMessages() {
+    return this.state.messages.map(msg => {
+      return (
+        <View key={msg.key} style={styles.message}>
+          <Text style={styles.messageText}>
+            {msg.message_text}
+          </Text>
+          <Text style={styles.messageTime}>
+            {new Date(msg.timestamp).toDateString()}
+          </Text>
+        </View>
+      )
+    })
   }
 
   renderTab() {
@@ -257,6 +278,7 @@ class ConnectionDetails extends Scene {
               )}
             </View>
           </View>
+          {this.renderConnectionMessages()}
         </ScrollView>
         )
       case SHARED:
@@ -312,70 +334,86 @@ class ConnectionDetails extends Scene {
   }
 
   render() {
-
     return (
-      <Container>
+      this.state.loading_cxn_details ? (
+        <Container>
+          <View style={styles.progressContainer}>
+            <ActivityIndicator color={Palette.consentGrayDark} style={styles.progressIndicator}/> 
+            <Text style={styles.progressText}>Loading Connection Details...</Text>
+          </View>
+        </Container>
+      ) : (
+        <Container>
         <View style={styles.headerWrapper}>
-        <AndroidBackButton onPress={() => this.onHardwareBack()} />
-        <LifekeyHeader
-          backgroundColor={this.state.colour}
-          foregroundHighlightColor={this.state.foregroundColor}
-          icons={[
-            {
-              icon: <BackIcon width={16} height={16} stroke="#000" />,
-              onPress: () => this.navigator.pop(),
-              borderColor: this.state.colour
-            },
-            {
-              icon: <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                      { /*<Image
-                        source={{ uri: this.state.image_uri }}
-                        style={{ width: 36, height: 36, borderRadius: 45 }}
-                      /> */}
-                      <Image source={{ uri: this.state.image_uri }} style={{ width: "100%", height: "100%" }}
-                      />
-                      
-                    </View>,
-              onPress: () => this.setState({ activeTab: ACTIVITY }),
-              borderColor: this.state.colour
-            },
-            {
-              icon: <InfoIcon width={24} height={24} stroke="#000" />,
-              onPress: () => this.setState({ activeTab: HELP }),
-              borderColor: this.state.colour
-            }
-          ]}
-          tabs={[
-            {
-              text: 'Connect',
-              onPress: () => this.setState({ activeTab: CONNECT }),
-              active: this.state.activeTab === CONNECT
-            },
-            {
-              text: 'Activity',
-              onPress: () => this.setState({ activeTab: ACTIVITY }),
-              active: this.state.activeTab === ACTIVITY
-            },
-            {
-              text: 'Shared',
-              onPress: () => {
-                this.setState({ activeTab: SHARED })
-                this.loadISAs()
+          <AndroidBackButton onPress={() => this.onHardwareBack()} />
+          <LifekeyHeader
+            backgroundColor={this.state.colour}
+            foregroundHighlightColor={this.state.foregroundColor}
+            icons={[
+              {
+                icon: (<BackIcon width={16} height={16} stroke="#000" />),
+                onPress: this.navigator.pop,
+                borderColor: this.state.colour
               },
-              active: this.state.activeTab === SHARED
-            }
-          ]}
-        />
+              {
+                icon: (
+                  <View style={styles.centredRow}>
+                    <Image source={{uri: this.state.image_uri}}
+                          style={styles.fullWidthHeight} />
+                  </View>
+                ),
+                onPress: () => this.setState({activeTab: ACTIVITY}),
+                borderColor: this.state.colour
+              },
+              {
+                icon: <InfoIcon width={24} height={24} stroke="#000" />,
+                onPress: () => this.setState({activeTab: HELP}),
+                borderColor: this.state.colour
+              }
+            ]}
+            tabs={[
+              {
+                text: 'Connect',
+                onPress: () => this.setState({activeTab: CONNECT}),
+                active: this.state.activeTab === CONNECT
+              },
+              {
+                text: 'Activity',
+                onPress: () => this.setState({activeTab: ACTIVITY}),
+                active: this.state.activeTab === ACTIVITY
+              },
+              {
+                text: 'Shared',
+                onPress: () => this.setState({activeTab: SHARED}, this.loadISAs.bind(this)),
+                active: this.state.activeTab === SHARED
+              }
+            ]} />
         </View>
         <Content style={styles.content}>
           {this.renderTab()}
         </Content>
-      </Container>
+        </Container>
+      )
     )
   }
 }
 
 const styles = {
+  "progressContainer": {
+    // "backgroundColor": Palette.consentBlue,
+    "flex": 1,
+    "alignItems": "center",
+    "justifyContent": "center"
+  },
+  "progressIndicator": {
+    "width": 75,
+    "height": 75 
+  },
+  "progressText":{
+    "color": Palette.consentGrayDark
+  },
+  centredRow: {flexDirection: 'row', alignItems: 'center'},
+  fullWidthHeight: {width: "100%", height: "100%"},
   headerWrapper: {
     borderColor: Palette.consentGrayDark,
     height: Design.lifekeyHeaderHeight
