@@ -387,7 +387,7 @@ const styles = {
     "height": 75 
   },
   "progressText":{
-    "color": Palette.consentGrayDark
+    "color": "white"
   },
   "resourceItemContainer": {
     "borderRadius": 10,

@@ -14,6 +14,7 @@ import BackButton from "../Components/BackButton"
 import HelpIcon from "../Components/HelpIcon"
 import HexagonIcon from "../Components/HexagonIcon"
 import Scene from "../Scene"
+import Routes from "../Routes"
 import Util from "../Util"
 import Touchable from "../Components/Touchable"
 import VerifiedIcon from "../Components/VerifiedIcon"
@@ -79,10 +80,16 @@ class Connection extends Scene {
     }, () => {
       Api.requestConnection({ target: this.props.route.did })
       .then(() => {
-        this.navigator.pop()
+        this.navigator.push({
+          ...Routes.connectionDetails,
+          user_did: this.props.route.did,
+          display_name: this.props.route.display_name,
+          image_uri: this.props.route.image_uri
+        })
       })
       .catch(error => {
-        alert('Could not connect')
+        ToastAndroid.show(`Could not connect...`, ToastAndroid.SHORT)
+        console.log("--------------------------------- ERROR: ", error)
         Logger.warn(JSON.stringify(error))
         this.setState({
           connecting: false
