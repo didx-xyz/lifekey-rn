@@ -1,6 +1,6 @@
 // external dependencies
 import React from "react"
-import { Text, View, ScrollView, ToastAndroid } from "react-native"
+import { Text, View, ScrollView, ToastAndroid, Image } from "react-native"
 import { Container } from "native-base"
 import ActivityIndicator from "ActivityIndicator"
 
@@ -9,8 +9,10 @@ import Api from "../Api"
 import Session from "../Session"
 import Routes from "../Routes"
 import Palette from "../Palette"
+import Design from "../DesignParameters"
 import BackButton from "../Components/BackButton"
 import HelpIcon from "../Components/HelpIcon"
+import CircularImage from "../Components/CircularImage"
 import HexagonIcon from "../Components/HexagonIcon"
 import InformationRequestResource from "../Components/InformationRequestResource"
 import LocationIcon from "../Components/LocationIcon"
@@ -32,12 +34,8 @@ class InformationRequest extends Scene {
         purpose: null,
         required_entities: this.props.route.required_entities
       },
-      //MOCK
-      // isa: {
-      //   purpose: null,
-      //   required_entities: [ { name: "Verify ID", action_name: "verify_id", entities: [ { name: "Person", address: "http://schema.cnsnt.io/person" } ] } ]
-      // },
-      // END MOCK
+      botDisplayName: this.props.route.display_name,
+      botImageUri: this.props.route.image_uri,
       resources: [],
       complete: [],
       partial: [],
@@ -152,6 +150,10 @@ class InformationRequest extends Scene {
       if(!!isRequiredAndPresent){
         
         entity.id = isRequiredAndPresent.id
+
+        // Add present fields, if any
+        entity.presentFields = `${Object.values(isRequiredAndPresent).slice(1, 3).join().substring(0, 100)}...`
+
         // Add missing fields, if any
         entity.missingFields = Object.keys(isRequiredAndPresent).filter(k => isRequiredAndPresent[k] === null )
         // Add this entity to complete or partial
@@ -164,8 +166,11 @@ class InformationRequest extends Scene {
     })
 
     this.setState({
-      complete: complete,
-      partial: partial,
+      // complete: complete,
+      // partial: partial,
+      // TEMPORARILY COMBINE PARTIAL AND COMPLETE 
+      complete: complete.concat(partial),
+      partial: [],
       missing: missing,
       asyncActionInProgress: false
     })
@@ -180,10 +185,8 @@ class InformationRequest extends Scene {
   }
 
   onPressShare() {
-    
-    console.log("******************** ", this.props.route.did,
-      this.props.route.action.action_name,
-      this.state.complete)
+
+    // SPINNER
 
     Api.establishISA(
       this.props.route.did,
@@ -205,22 +208,24 @@ class InformationRequest extends Scene {
       <Container>
         <BackButton navigator={this.navigator} />
         <View style={styles.content}>
-          <View style={styles.top}>
-          </View>
-
           {
             !this.state.asyncActionInProgress ? 
-              <View style={styles.middle}>
-                <View style={styles.middleBackground}>
-                  <ScrollView>
+              <View style={styles.resourceItemContainer}>
+                  <ScrollView contentContainerStyle={styles.resourceScrollView}>
                     <View style={styles.name}>
                       {/* logo here */}
+                      <CircularImage uri={this.state.botImageUri} radius={25} borderColor={Palette.consentGrayLight} />   
                       <Text style={styles.nameText}>
-                        {this.state.isa.purpose}
+                        {this.state.botDisplayName}
+                      </Text> 
+                    </View>
+                    <View style={styles.description}>
+                      <Text style={styles.descriptionText}>
+                        Would like to see the following information: 
                       </Text>
                     </View>
 
-                    <View>
+                    { /* <View>
                       <View style={styles.description}>
                         <Text style={styles.descriptionText}>
                           This BOT would like to see the following information: 
@@ -238,75 +243,75 @@ class InformationRequest extends Scene {
                           )
                         }) }
                       </View>
-                    </View>
+                    </View> */}
 
-                    { /* this.state.complete.length > 0 && 
-                      <View>
-                        <View style={styles.description}>
-                          <Text style={styles.descriptionText}>
-                            COMPLETE
-                          </Text>
-                        </View>
-                        <View style={styles.missingItems}>
-                          { this.state.complete.map((entity, i) => {
+                    { this.state.complete.length > 0 && 
+                      <View>  
+                        { 
+                          this.state.complete.map((entity, i) => {
                             return (
-                              <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id)}>
-                                <Text style={styles.missingItemsText}>
-                                  You need to complete {entity.name}... specifically the field(s):&nbsp;
-                                    { entity.missingFields.map((item, j) => {
-                                      return (j !== entity.missingFields.length - 1) ? `${item}, ` : `${item}`
-                                    })
-                                  }
+                              <View key={i} style={styles.resourceItem}>
+                                <Text style={styles.resourceItemTextHeading}>
+                                  { entity.name }
                                 </Text>
-                              </Touchable>
+                                <Text style={styles.resourceItemText}>
+                                  { entity.presentFields }
+                                </Text>
+                              </View>
                             )
-                          }) }
-                        </View>
+                          }) 
+                        }
                       </View>
-                    */ }                  
+                    }                  
   
                     {this.state.partial.length > 0 &&
                       <View>
-                        <View style={styles.description}>
-                          <Text style={styles.descriptionText}>
-                            PARTIAL
-                          </Text>
-                        </View>
-                        <View style={styles.missingItems}>
                           { this.state.partial.map((entity, i) => {
                             return (
                               <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id, entity.name)}>
-                                <Text style={styles.missingItemsText}>
+                                <View style={Object.assign({}, styles.resourceItem, styles.partialResource)}>
+                                  <Text style={styles.resourceItemText}>
+                                    { entity.name }
+                                  </Text>
+                                </View>
+                                {/* <Text style={styles.missingItemsText}>
                                   You need to complete {entity.name}... specifically the field(s):&nbsp;
                                     { entity.missingFields.map((item, j) => {
                                       return (j !== entity.missingFields.length - 1) ? `${item}, ` : `${item}`
                                     })
                                   }
-                                </Text>
+                                </Text> */}
                               </Touchable>
                             )
                           }) }
-                        </View>
                       </View>
                     }
                     
                     {this.state.missing.length > 0 &&
                       <View>
-                        <View style={styles.description}>
-                          <Text style={styles.descriptionText}>
-                            MISSING
+                        { this.state.missing.map((entity, i) => {
+                          return (
+                            <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id, entity.name)}>
+                              <View style={Object.assign({}, styles.resourceItem, styles.missingResource)}>
+                                <Text style={styles.resourceItemText}>
+                                  { entity.name }
+                                </Text>
+                              </View>
+                            </Touchable>
+                          )
+                        }) }
+                      </View>
+                    }
+                    {
+                      this.state.partial.length > 0 || this.state.missing.length > 0 &&
+                      <View>
+                        <View style={styles.missingItems}>
+                          <Text style={styles.missingItemsText}>
+                            You are missing one or more pieces of information, please update before sharing.
                           </Text>
                         </View>
-                        <View style={styles.missingItems}>
-                          { this.state.missing.map((entity, i) => {
-                            return (
-                              <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id, entity.name)}>
-                                <Text style={styles.missingItemsText}>
-                                  You are missing {entity.name}.
-                                </Text>
-                              </Touchable>
-                            )
-                          }) }
+                        <View style={Object.assign({}, styles.shareView, {"opacity": 0.5})}>
+                          <HexagonIcon width={100} height={100} textSize={19} textX={30} textY={43} text="Share" />
                         </View>
                       </View>
                     }
@@ -319,7 +324,6 @@ class InformationRequest extends Scene {
                       </Touchable>
                     }
                   </ScrollView>
-                </View>
               </View>
             :
               <View style={styles.progressContainer}>
@@ -349,9 +353,19 @@ class InformationRequest extends Scene {
 }
 
 const styles = {
-  content: {
+  "content": {
     flex: 1,
     "backgroundColor": Palette.consentOffBlack
+  },
+  "description": {
+    height: 50,
+    paddingLeft: "20%",
+    paddingRight: "20%"
+  },
+  "descriptionText": {
+    color: "#666",
+    fontSize: 15,
+    textAlign: "center"
   },
   "progressContainer": {
     // "backgroundColor": Palette.consentBlue,
@@ -366,115 +380,89 @@ const styles = {
   "progressText":{
     "color": Palette.consentGrayDark
   },
-  top: {
-    height: "14%"
+  "resourceItemContainer": {
+    "borderRadius": 10,
+    "backgroundColor": Palette.consentGrayLight,
+    "margin": "3%",
+    "height": "84%",
+    "paddingLeft": Design.paddingRight/2,
+    "paddingRight": Design.paddingRight/2,
+    "paddingTop": Design.paddingRight/2
   },
-  middle: {
-    height: "72%",
-    paddingLeft: 10,
-    paddingRight: 10
+  "resourceScrollView":{
+    "justifyContent": "center",
+    "alignItems": "center",
   },
-  middleBackground: {
-    flex: 1,
-    borderRadius: 10,
-    backgroundColor: "#f0f2f2",
-    shadowColor: "#000000",
-    shadowOpacity: 0.3,
-    shadowRadius: 5,
-    shadowOffset: {
-      height: 4,
-      width: 0
-    }
+  "resourceItem":{
+    "backgroundColor": Palette.consentGrayMedium,
+    "padding": Design.paddingTop,
+    "margin": 15,
+    "width": "100%",
+    "shadowColor": "red",
+    "shadowOffset": { "height": 4, "width": 0 },
+    "shadowOpacity": 0.8,
   },
-  name: {
-    height: 60,
+  "partialResource": {
+    "borderLeftColor": "orange",
+    "borderLeftWidth": 5
+  },
+  "missingResource": {
+    "borderLeftColor": Palette.consentRed,
+    "borderLeftWidth": 5
+  },
+  "resourceItemTextHeading":{
+    "color": Palette.consentOffBlack
+  },
+  "resourceItemText": {
+    "color": Palette.consentGrayDark
+  },
+  "name": {
+    "flexDirection": "row",
     alignItems: "center",
-    justifyContent: "center",
-    paddingLeft: "20%",
-    paddingRight: "20%",
-    paddingTop: 20
-  },
-  nameText: {
-    color: "#666",
-    fontSize: 17
-  },
-  description: {
-    height: 50,
-    paddingLeft: "20%",
-    paddingRight: "20%"
-  },
-  descriptionText: {
-    color: "#666",
-    fontSize: 15,
-    textAlign: "center"
-  },
-  itemText: {
-    color: "#666"
-  },
-  missingText: {
-    color: "#ff5d62"
-  },
-  meta: {
-    flex: 1,
-    flexDirection: "row",
-    justifyContent: "center",
-    alignItems: "center",
-    marginTop: 10
-  },
-  metaItem: {
-    color: "#666"
-  },
-  wantedItems: {
-    backgroundColor: Palette.consentGrayLight,
-    padding: 15,
-    margin: 15
-  },
-  wantedItemContainer: {
-    backgroundColor: Palette.consentGray,
-    padding: 5,
-  },
-  wantedItemsText: {
-    color: Palette.consentGrayDark
-  },
-  missingItems: {
-    backgroundColor: "#ff2b33",
-    padding: 15,
-    margin: 15,
-    borderRadius: 8
-  },
-  missingItemsText: {
-    color: "#fff"
-  },
-  foundText: {
-    color: "#333",
-    fontWeight: "bold"
-  },
-  bottom: {
-    height: "14%",
-    flexDirection: "row",
-    paddingLeft: "12%",
-    paddingRight: "12%"
-  },
-  decline: {
-    flex: 1,
-    alignItems: "flex-start",
     justifyContent: "center"
   },
-  declineText: {
-    color: "#fff",
-    textAlign: "left",
-    fontSize: 17
+  "nameText": {
+    "color": Palette.consentGrayDark,
+    "fontSize": 16,
+    "paddingLeft": Design.paddingRight/2
   },
-  help: {
-    flex: 1,
-    alignItems: "flex-end",
-    justifyContent: "center"
+  "missingItems":{
+    "justifyContent": "center",
+    "width": "80%",
+    "backgroundColor": Palette.consentRed,
+    "borderRadius": 5,
+    "margin": Design.paddingRight/2,
+    "padding": Design.paddingRight/2
   },
-  shareView: {
-    alignItems: "center",
-    justifyContent: "center",
-    flex: 1,
-    padding: 30
+  "missingItemsText":{
+    "textAlign": "center",
+    "color": "white"
+  },
+  "bottom": {
+    "height": "10%",
+    "flexDirection": "row",
+    "paddingLeft": "12%",
+    "paddingRight": "12%"
+  },
+  "decline": {
+    "flex": 1,
+    "alignItems": "flex-start",
+    "justifyContent": "center"
+  },
+  "declineText": {
+    "color": "#fff",
+    "textAlign": "left",
+    "fontSize": 17
+  },
+  "help": {
+    "flex": 1,
+    "alignItems": "flex-end",
+    "justifyContent": "center"
+  },
+  "shareView": {
+    "flexDirection": "row",
+    "alignItems": "center",
+    "justifyContent": "center",
   }
 }
 
