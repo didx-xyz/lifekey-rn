@@ -40,16 +40,14 @@ class InformationRequest extends Scene {
       complete: [],
       partial: [],
       missing: [],
-      asyncActionInProgress: true
+      asyncActionInProgress: true,
+      progressCopy: "Loading..."
     }
-
-    console.log("CONSTRUCTOR REQ ENTITIES: ", this.props.route.required_entities)
 
     this.onBoundPressDecline = this.onPressDecline.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
     this.onBoundPressShare = this.onPressShare.bind(this)
 
-    // this.onBoundISA = this.onISA.bind(this)
     this.onBoundResources = this.onResources.bind(this)
 
   }
@@ -187,15 +185,16 @@ class InformationRequest extends Scene {
   onPressShare() {
 
     // SPINNER
-
-    Api.establishISA(
-      this.props.route.did,
-      this.props.route.action.action_name,
-      this.state.complete
-    )
-    .then(response => {
-      this.navigator.pop()
-      ToastAndroid.show("Shared", ToastAndroid.SHORT)
+    this.setState({"asyncActionInProgress": true, "progressCopy": "Sharing details..."}, () => {
+      Api.establishISA(
+        this.props.route.did,
+        this.props.route.action.action_name,
+        this.state.complete
+      )
+      .then(response => {
+        this.navigator.pop()
+        ToastAndroid.show("Shared", ToastAndroid.SHORT)
+      })
     })
   }
 
@@ -328,7 +327,7 @@ class InformationRequest extends Scene {
             :
               <View style={styles.progressContainer}>
                 <ActivityIndicator color={Palette.consentGrayDark} style={styles.progressIndicator}/> 
-                <Text style={styles.progressText}>Loading...</Text>
+                <Text style={styles.progressText}>{ this.state.progressCopy }</Text>
               </View>
           }
           
