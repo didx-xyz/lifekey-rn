@@ -195,6 +195,13 @@ class InformationRequest extends Scene {
         this.navigator.pop()
         ToastAndroid.show("Shared", ToastAndroid.SHORT)
       })
+      .catch(error => {
+        alert('Could not connect')
+        Logger.warn(JSON.stringify(error))
+        this.setState({
+          "asyncActionInProgress": false
+        }, () => ToastAndroid.show("Failed to connect...", ToastAndroid.SHORT))
+      })
     })
   }
 
@@ -294,6 +301,9 @@ class InformationRequest extends Scene {
                               <View style={Object.assign({}, styles.resourceItem, styles.missingResource)}>
                                 <Text style={styles.resourceItemText}>
                                   { entity.name }
+                                </Text>
+                                <Text style={styles.missingResourceItemText}>
+                                  Tap to create this resource
                                 </Text>
                               </View>
                             </Touchable>
@@ -395,7 +405,7 @@ const styles = {
   "resourceItem":{
     "backgroundColor": Palette.consentGrayMedium,
     "padding": Design.paddingTop,
-    "margin": 15,
+    "margin": Design.paddingTop/2,
     "width": "100%",
     "shadowColor": "red",
     "shadowOffset": { "height": 4, "width": 0 },
@@ -414,6 +424,9 @@ const styles = {
   },
   "resourceItemText": {
     "color": Palette.consentGrayDark
+  },
+  "missingResourceItemText": {
+    "color": Palette.consentRed
   },
   "name": {
     "flexDirection": "row",
