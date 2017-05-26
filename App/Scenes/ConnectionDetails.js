@@ -13,6 +13,7 @@ import MarketingIcon from "../Components/MarketingIcon"
 import PeriodIcon from "../Components/PeriodIcon"
 import Api from '../Api'
 import ConsentDiscoveredUser from '../Models/ConsentDiscoveredUser'
+import ConsentUser from '../Models/ConsentUser'
 import ConsentMessage from '../Models/ConsentMessage'
 import Logger from "../Logger"
 import Session from "../Session"

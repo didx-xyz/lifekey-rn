@@ -167,6 +167,10 @@ export default class Main extends Scene {
   }
 
   goToConnect(connection) {
+
+    console.log("CONNECTION ---------------------------> ", JSON.stringify(connection))
+    console.log("CONNECTION ---------------------------> ", ConsentUser.getDidSync())
+
     this.navigator.push({
       ...Routes.connection,
       did: connection.did,
