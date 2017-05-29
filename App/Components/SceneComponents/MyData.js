@@ -17,6 +17,7 @@ import Logger from "../../Logger"
 import MvTemplate from "../mv-Template"
 import LifekeyHeader from "../LifekeyHeader"
 import LifekeyCard from "../LifekeyCard"
+import { Card, CardItem } from "native-base"
 
 import RcPerson from "../ResourceComponents/rc-Person"
 import RcIdentity from "../ResourceComponents/rc-Identity"
@@ -58,7 +59,7 @@ class MyData extends Component {
   Person_render(resourceType) {
     if(!this.validResourceType(resourceType)) return
     return ( 
-      	<RcPerson resourceType={resourceType} 
+        <RcPerson resourceType={resourceType} 
             onPressEdit={this.onPressEdit.bind(this)} 
             onPressDelete={this.onPressDelete.bind(this)} 
             onEditResource={this.context.onEditResource.bind(this)}></RcPerson> 
@@ -68,7 +69,7 @@ class MyData extends Component {
   Identity_render(resourceType) {
     if(!this.validResourceType(resourceType)) return
     return ( 
-      	<RcIdentity resourceType={resourceType} 
+        <RcIdentity resourceType={resourceType} 
             onPressEdit={this.onPressEdit.bind(this)} 
             onPressDelete={this.onPressDelete.bind(this)} 
             onEditResource={this.context.onEditResource.bind(this)}></RcIdentity> 
@@ -78,7 +79,7 @@ class MyData extends Component {
   Contact_render(resourceType) {
     if(!this.validResourceType(resourceType)) return
     return ( 
-      	<RcContact resourceType={resourceType} 
+        <RcContact resourceType={resourceType} 
             onPressEdit={this.onPressEdit.bind(this)} 
             onPressDelete={this.onPressDelete.bind(this)} 
             onEditResource={this.context.onEditResource.bind(this)}></RcContact> 
@@ -88,7 +89,7 @@ class MyData extends Component {
   Address_render(resourceType) {
     if(!this.validResourceType(resourceType)) return
     return ( 
-      	<RcAddress resourceType={resourceType} 
+        <RcAddress resourceType={resourceType} 
             onPressEdit={this.onPressEdit.bind(this)} 
             onPressDelete={this.onPressDelete.bind(this)} 
             onEditResource={this.context.onEditResource.bind(this)}></RcAddress> 
@@ -98,7 +99,7 @@ class MyData extends Component {
   Employment_render(resourceType) {
     if(!this.validResourceType(resourceType)) return
     return ( 
-      	<RcEmployment resourceType={resourceType} 
+        <RcEmployment resourceType={resourceType} 
             onPressEdit={this.onPressEdit.bind(this)} 
             onPressDelete={this.onPressDelete.bind(this)} 
             onEditResource={this.context.onEditResource.bind(this)}></RcEmployment> 
@@ -108,7 +109,7 @@ class MyData extends Component {
   ProofOfResidence_render(resourceType) {
     if(!this.validResourceType(resourceType)) return
     return ( 
-      	<RcProofOfResidence resourceType={resourceType} 
+        <RcProofOfResidence resourceType={resourceType} 
             onPressEdit={this.onPressEdit.bind(this)} 
             onPressDelete={this.onPressDelete.bind(this)} 
             onEditResource={this.context.onEditResource.bind(this)}></RcProofOfResidence> 
@@ -118,7 +119,7 @@ class MyData extends Component {
   ProofOfIdentity_render(resourceType) {
     if(!this.validResourceType(resourceType)) return
     return ( 
-      	<RcProofOfIdentity resourceType={resourceType} 
+        <RcProofOfIdentity resourceType={resourceType} 
             onPressEdit={this.onPressEdit.bind(this)} 
             onPressDelete={this.onPressDelete.bind(this)} 
             onEditResource={this.context.onEditResource.bind(this)}></RcProofOfIdentity> 
@@ -130,9 +131,9 @@ class MyData extends Component {
     return ( 
       <View style={styles.vcTextContainer}>
         { resourceType.items.map((resource, i) => {
-			   return (
-    				<Text key={i} style={styles.vcText}>VC: {resource.schema}</Text>
-    			) 
+         return (
+            <Text key={i} style={styles.vcText}>VC: {resource.schema}</Text>
+          ) 
         })}
       </View>
     )
@@ -140,15 +141,28 @@ class MyData extends Component {
 
   DID_render(resourceType) {
     if(!this.validResourceType(resourceType)) return
-    return ( 
-      <View style={styles.vcTextContainer}>
-        { resourceType.items.map((resource, i) => {
-         return (
-            <Text key={i} style={styles.vcText}>{resource.decentralisedIdentifier}</Text>
-          ) 
-        })}
-      </View>
+    return (
+      <Card style={styles.card}>
+        <CardItem>
+          <View style={styles.cardHeader}>
+            <Text style={styles.cardHeadingText}>DECENTRALIZED IDENTIFIER</Text>
+          </View>
+        </CardItem>
+        <CardItem>
+          <Text>{ resourceType.items[0].decentralisedIdentifier }</Text>
+        </CardItem>
+      </Card>
     )
+
+    // return ( 
+    //   <View style={styles.vcTextContainer}>
+    //     { resourceType.items.map((resource, i) => {
+    //      return (
+    //         <Text key={i} style={styles.vcText}>{resource.decentralisedIdentifier}</Text>
+    //       ) 
+    //     })}
+    //   </View>
+    // )
   }
 
   // Misc_render(resourceType) {
@@ -184,7 +198,7 @@ class MyData extends Component {
 
     const sortedResourceTypes = this.props.sortedResourceTypes
 
-  	const person = sortedResourceTypes.find(rt => rt.name === "Person")
+    const person = sortedResourceTypes.find(rt => rt.name === "Person")
     const identity = sortedResourceTypes.find(rt => rt.name === "Identity")
     const email = sortedResourceTypes.find(rt => rt.name === "Email")
     const mobile = sortedResourceTypes.find(rt => rt.name === "Mobile Phone")
@@ -200,81 +214,81 @@ class MyData extends Component {
 
     return (
     
-		<View>
-			{/* You are just a number now */}
-			<View style={_.assign({}, styles.groupContainer, styles.groupContainerDark)}>
-				<View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>DID</Text></View>
-				{ this.DID_render(did) }
-			</View>
+    <View>
+      {/* You are just a number now */}
+      <View style={_.assign({}, styles.groupContainer, styles.groupContainerDark)}>
+        {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>DID</Text></View> */}
+        { this.DID_render(did) }
+      </View>
 
       {/* Who you are */}
       <View style={_.assign({}, styles.groupContainer, styles.groupContainerLight)}>
-        <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>IDENTITY</Text></View>
+        {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>IDENTITY</Text></View> */}
         { this.Person_render(person) }
         { this.Identity_render(identity)}
         { this.ProofOfIdentity_render(poIdentity) }
       </View>
 
-			{/* How to reach you */}
-			<View style={_.assign({}, styles.groupContainer, styles.groupContainerDark)}> 
-				<View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>CONTACT</Text></View>    
-				{ this.Contact_render(email) }
-				{ this.Contact_render(mobile) }
-				{ this.Contact_render(landline) }
-			</View>
+      {/* How to reach you */}
+      <View style={_.assign({}, styles.groupContainer, styles.groupContainerDark)}> 
+        {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>CONTACT</Text></View> */}   
+        { this.Contact_render(email) }
+        { this.Contact_render(mobile) }
+        { this.Contact_render(landline) }
+      </View>
 
-			{/* Where you are */}  
-			<View style={_.assign({}, styles.groupContainer, styles.groupContainerLight)}>
-				<View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>RESIDENCE</Text></View>
-				{ this.Address_render(address) }  
-				{ this.ProofOfResidence_render(poResidence) }
-			</View>
+      {/* Where you are */}  
+      <View style={_.assign({}, styles.groupContainer, styles.groupContainerLight)}>
+        {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>RESIDENCE</Text></View> */}
+        { this.Address_render(address) }  
+        { this.ProofOfResidence_render(poResidence) }
+      </View>
 
-			{/* What you do */}  
-			<View style={_.assign({}, styles.groupContainer, styles.groupContainerDark)}>
-				<View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>EMPLOYMENT</Text></View>
-				{ this.Employment_render(employment) }
-			</View>
+      {/* What you do */}  
+      <View style={_.assign({}, styles.groupContainer, styles.groupContainerDark)}>
+        {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>EMPLOYMENT</Text></View> */}
+        { this.Employment_render(employment) }
+      </View>
 
       {/* Verifiable Claims */}  
       <View style={_.assign({}, styles.groupContainer, styles.groupContainerLight)}>
-        <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>VERIFIABLE CLAIMS</Text></View>
+        {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>VERIFIABLE CLAIMS</Text></View> */}
         { this.VC_render(verifiableClaims) }
       </View>
 
     {/* Miscellaneous Items */}  
       <View style={_.assign({}, styles.groupContainer, styles.groupContainerDark)}>
-        <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>MISCELLANEOUS</Text></View>
+        {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>MISCELLANEOUS</Text></View> */}
         { this.VC_render(misc) }
       </View>
 
-			{/* Add additional items */}  
-			<View style={styles.addItemContainer}>
-				<View style={styles.addHeadingContainer}><Text style={styles.addHeading}>ADD DATA</Text></View>
-				{this.props.sortedResourceTypes.map((resourceType, i) => {
-				  if(resourceType.name !== "Malformed" && 
+      {/* Add additional items */}  
+      <View style={styles.addItemContainer}>
+        <View style={styles.addHeadingContainer}><Text style={styles.addHeading}>ADD DATA</Text></View>
+        {this.props.sortedResourceTypes.map((resourceType, i) => {
+          if(resourceType.name !== "Malformed" && 
              resourceType.name !== "Person" && 
              resourceType.name !== "Verifiable Claims" &&
              resourceType.name !== "Decentralized Identifier" &&
              resourceType.name !== "Miscellaneous")
-				    return (
-				      <LcAddCategoryButton  key={i} name={resourceType.name} form={resourceType.url + "_form"} onEditResource={this.context.onEditResource} />
-				    )
-				})}
-			</View>
+            return (
+              <LcAddCategoryButton  key={i} name={resourceType.name} form={resourceType.url + "_form"} onEditResource={this.context.onEditResource} />
+            )
+        })}
+      </View>
 
-			{/* Delete malformed items */}  
-			<View style={styles.malformedItemCntainer}>
-			{ 
-			  malformed && malformed.items.length ? 
-			  <View>
-			    <Text style={styles.addDataHeading}>Malformed</Text>
-			    { this.Malformed_render(malformed) }
-			  </View> 
-			  : null 
-			}
-			</View>
-		</View>
+      {/* Delete malformed items */}  
+      <View style={styles.malformedItemCntainer}>
+      { 
+        malformed && malformed.items.length ? 
+        <View>
+          <Text style={styles.addDataHeading}>Malformed</Text>
+          { this.Malformed_render(malformed) }
+        </View> 
+        : null 
+      }
+      </View>
+    </View>
     )
   }
 }
@@ -308,15 +322,32 @@ const styles = {
     "alignItems": "center"
   },
   "groupContainer": {
-    "paddingTop": "5%",
-    "paddingBottom": "5%"
+    "paddingTop": "2%",
+    // "paddingTop": "5%",
+    // "paddingBottom": "5%"
   },
   "groupContainerLight": {
-    "backgroundColor": Palette.consentGrayLight
+    // "backgroundColor": Palette.consentGrayLight
+    "backgroundColor": "white"
   },
   "groupContainerDark": {
-    "backgroundColor": Palette.consentGrayMedium
-  }
+    // "backgroundColor": Palette.consentGrayMedium
+    "backgroundColor": "white"
+  },
+  "card": {
+    "marginTop": Design.paddingLeft / 2,
+    "marginLeft": Design.paddingLeft / 2,
+    "marginRight": Design.paddingRight / 2
+  },
+  "cardHeader": {
+    "flex": 1,
+    "flexDirection": "row",
+    "justifyContent": "space-between"
+  },
+  "cardHeadingText": {
+    "fontSize": 10,
+    "fontWeight": "bold"
+  },
 }
 
 // these are from Lifekeyrn
