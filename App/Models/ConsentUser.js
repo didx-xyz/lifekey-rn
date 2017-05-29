@@ -298,7 +298,7 @@ export default class ConsentUser {
     const state = Session.getState()
     if (!state || !state.user || !state.user.password) {
 
-      // console.log("PASSWORD ERROR: -----------------------> ", state.user, " | ", state.user.password)
+      console.log("PASSWORD ERROR: -----------------------> ", state.user, " | ", state.user.password)
 
       throw new ConsentError(
         'No password set, user is not logged in',
@@ -544,6 +544,25 @@ export default class ConsentUser {
         firebaseToken: firebaseToken,
         registered: true  // We will get this later
       }))
+    })
+    .then( _ => {
+      // Update state
+        const sessionUpdate = {
+          user: {
+            id: userID,
+            did: null,
+            display_name: username,
+            password: password,
+            email: email,
+            registered: true,
+            loggedIn: true
+          }
+        }
+        Session.update(sessionUpdate)
+        Logger.info('User registered', LOGTAG)
+        return Promise.resolve({
+          id: userID
+        })
     })
 
     // Check that writing went well and resolve
