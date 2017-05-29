@@ -608,7 +608,7 @@ export default class ConsentUser {
     return Api.thanksBalance().then(function(res) {
       if (res.error) {
         console.log('thanks balance error', res.status, res.message)
-        return
+        return 
       }
       return res.body.balance
     }).catch(function(err) {
