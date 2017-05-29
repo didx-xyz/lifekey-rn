@@ -1,6 +1,6 @@
 // external dependencies
 import React from "react"
-import { Text, View, Image, ScrollView, TouchableHighlight } from "react-native"
+import { Text, View, Image, ScrollView, TouchableHighlight, InteractionManager } from "react-native"
 import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
 import ActivityIndicator from "ActivityIndicator"
@@ -109,15 +109,18 @@ class Me extends Scene {
     }) 
   }
 
-  componentDidUpdate(){
-    // This is intended to ensure that the scrollview is always at Y : 0 when tabs are changed. 
-    // It needs a bit of TLC however...
-    this.scrollViewToTop()
-  }
+  // componentDidUpdate(){
+  //   // This is intended to ensure that the scrollview is always at Y : 0 when tabs are changed. 
+  //   // It needs a bit of TLC however...
+  //   this.scrollViewToTop()
+  // }
 
   scrollViewToTop() {
     if(this.state.scrollview){
-      this.state.scrollview.scrollTo({x: 0, y: 0, animated: true})
+      // This has to run after animations complete... https://stackoverflow.com/questions/33208477/react-native-android-scrollview-scrollto-not-working
+      setTimeout(() => {
+        this.state.scrollview.scrollTo({x: 0, y: 0})
+      }, 0)
     }
     else{
       console.log("Skipped the scroll")
@@ -342,17 +345,17 @@ class Me extends Scene {
           tabs={[
             {
               text: "Connect",
-              onPress: () => this.setState({ activeTab: CONNECT }),
+              onPress: () => this.setState({ activeTab: CONNECT }, this.scrollViewToTop.bind(this)),
               active: this.state.activeTab === CONNECT
             },
             {
               text: "My Data",
-              onPress: () => this.setState({ activeTab: MY_DATA }),
+              onPress: () => this.setState({ activeTab: MY_DATA }, this.scrollViewToTop.bind(this)),
               active: this.state.activeTab === MY_DATA
             },
             {
               text: "Badges",
-              onPress: () => this.setState({ activeTab: BADGES }),
+              onPress: () => this.setState({ activeTab: BADGES }, this.scrollViewToTop.bind(this)),
               active: this.state.activeTab === BADGES
             }
           ]}
@@ -393,7 +396,8 @@ class Me extends Scene {
 const style = {
   "contextMenu":{
     "width": 150,
-    "height": 150
+    "height": 150,
+    "paddingLeft": 5
   },
   "contextMenuOptions":{
     "flex": 1,
