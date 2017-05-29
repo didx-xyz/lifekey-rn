@@ -49,6 +49,7 @@ class ConnectionDetails extends Scene {
   constructor(props) {
     super(props)
     this.state = {
+      first_load: true,
       activeTab: ACTIVITY,
       showHelp: false,
       colour: "white",
@@ -126,7 +127,8 @@ class ConnectionDetails extends Scene {
     }).then(axns => {
       this.setState({
         actions: axns,
-        loading_cxn_details: false
+        loading_cxn_details: false,
+        first_load: false
       })
     }).catch(err => {
       alert('Unable to load connection data')
@@ -159,6 +161,9 @@ class ConnectionDetails extends Scene {
 
   componentWillFocus() {
     super.componentWillFocus()
+    if (this.state.first_load) return
+    this.setState({loading_cxn_details: true})
+    this.loadData()
   }
 
   onHelpPress() {
