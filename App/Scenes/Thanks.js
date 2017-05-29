@@ -12,6 +12,7 @@ import Touchable from '../Components/Touchable'
 import BackIcon from '../Components/BackIcon'
 import AndroidBackButton from 'react-native-android-back-button'
 import ConsentThanksMessage from '../Models/ConsentThanksMessage'
+import ConsentUser from '../Models/ConsentUser'
 import ThanksIcon from '../Components/ThanksIcon'
 
 import {
@@ -97,16 +98,9 @@ export default class Thanks extends Scene {
     return true
   }
   
-  refreshThanksBalance() {
-    Api.thanksBalance().then(function(res) {
-      if (res.error) {
-        console.log('thanks balance error', res.status, res.message)
-        return
-      }
-      this.setState({thanksBalanceAmount: res.body.balance})
-    }).catch(function(err) {
-      console.log('thanks balance error', err)
-    })
+  async refreshThanksBalance() {
+     const balance = await ConsentUser.refreshThanksBalance()
+     this.setState({thanksBalanceAmount: balance}) 
   }
 
   refreshThanksMessages() {

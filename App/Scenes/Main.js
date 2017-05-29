@@ -62,14 +62,24 @@ export default class Main extends Scene {
     }
   }
 
+  componentDidMount() {
+    this.refreshThanksBalance()
+  }
+
   componentDidFocus() {
     super.componentDidFocus()
     try {
       this.loadConnections()
       this.loadActiveClients()
+      this.refreshThanksBalance()
     } catch (error) {
       Logger.error(error)
     }
+  }
+
+  async refreshThanksBalance() {
+     const balance = await ConsentUser.refreshThanksBalance()
+     this.setState({ thanksBalanceAmount: balance }) 
   }
 
   async loadConnections(callback) {
@@ -81,7 +91,6 @@ export default class Main extends Scene {
 
   async loadActiveClients(callback) {
 
-    // this.setState({"progressCopy": "Loading...", "asyncActionInProgress": true }, () => {
       const activeBots = await Api.getActiveBots()
       if (activeBots && activeBots.body && _.isArray(activeBots.body)) {
         
@@ -113,17 +122,7 @@ export default class Main extends Scene {
       } else {
         Logger.warn('Directory listing result unexpected')
       }
-      
-    // })
   }
-
-  // componentDidMount() {
-  //   super.componentDidMount()
-  // }
-
-  // componentWillUpdate(nextProps, nextState) {
-  //   super.componentWillUpdate()
-  // }
 
   setTab(tab) {
     try {
@@ -167,10 +166,6 @@ export default class Main extends Scene {
   }
 
   goToConnect(connection) {
-
-    console.log("CONNECTION ---------------------------> ", JSON.stringify(connection))
-    console.log("CONNECTION ---------------------------> ", ConsentUser.getDidSync())
-
     this.navigator.push({
       ...Routes.connection,
       did: connection.did,
@@ -216,7 +211,8 @@ export default class Main extends Scene {
               {
                 icon: (<ThanksIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Palette.consentGrayDark} />),
                 onPress: () => this.navigator.push(Routes.thanks),
-                borderColor: "white"
+                borderColor: "white",
+                secondaryItem: this.state.thanksBalanceAmount ? <Text>{this.state.thanksBalanceAmount}</Text> : (<ActivityIndicator width={Design.headerIconWidth / 1.5} height={Design.headerIconHeight / 1.5} color={Palette.consentGrayDark} />)
               }
             ]}
             tabs={[
@@ -242,9 +238,7 @@ export default class Main extends Scene {
                   { this.state.activeTab === 0 ?
 
                     /* CONNECTED TAB */
-
                     <View style={{ flex: 1 }}>
-
                       <SearchBox
                         text={this.state.searchText}
                         onChangeText={(text) => this.updateSearch(text)}

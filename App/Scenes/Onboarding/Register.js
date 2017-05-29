@@ -405,10 +405,15 @@ class Register extends Scene {
     .catch(error => {
       Logger.error('Not registered', this.filename, error)
       switch (error.status) {
-      case 400: // Validation error
-        alert('The username or email already exists or is invalid')
-        this._resetRegistration()
+        case 400: // Validation error
+          alert('The username or email already exists or is invalid')
+          this._resetRegistration()
+        default: {
+          alert('An error occured.')
+          console.log("ERROR ---------> ", error)
+        }
       }
+
     })
   }
 

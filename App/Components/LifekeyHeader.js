@@ -28,14 +28,29 @@ class LifekeyHeader extends Component {
       <View style={style.navigation}>
         {
           this.props.icons.map((icon, i) => {
+            const position = i === 0 ? { "justifyContent" : "flex-start" } : i === this.props.icons.length - 1 ? { "justifyContent" : "flex-end" } : {}
             const template = 
             (
               <View key={i}>
                 <Touchable onLongPress={icon.onLongPress && icon.onLongPress} onPress={icon.onPress && icon.onPress}>
-                  <View>
-                    <View style={style.headerIcon}>{icon.icon}</View>
-                    <View style={Object.assign({}, style.fixCircleClipping, {"borderColor": icon.borderColor})}/>
-                  </View>
+                  
+                  {
+                    i !== this.props.icons.length - 1 ?
+                      (<View style={Object.assign({"justifyContent": "center"}, style.container, position)}>
+                        <View style={style.headerIcon}>{icon.icon}</View>
+                        { 
+                          icon.secondaryItem && <View style={ style.secondaryItemContainer }>{icon.secondaryItem}</View> 
+                        }
+                      </View>)
+                    :
+                      (<View style={Object.assign({"justifyContent": "center"}, style.container, position)}>
+                        { 
+                          icon.secondaryItem && <View style={ style.secondaryItemContainer }>{icon.secondaryItem}</View> 
+                        }
+                        <View style={style.headerIcon}>{icon.icon}</View>
+                      </View>)
+                  }
+
                 </Touchable>
               </View>
             )
@@ -87,32 +102,30 @@ const style = {
     // backgroundColor: "white",
     flex: 1
   },
-  headerIcon: {
-    width: 50,
-    height: 50,
-    borderRadius: 25,
-    // overflow: "hidden",
-    justifyContent: "center",
-    alignItems: "center"
-  },
-  fixCircleClipping: {
-    // https://github.com/facebook/react-native/issues/3198
-    position: 'absolute',
-    top: -25,
-    bottom: -25,
-    right: -25,
-    left: -25,
-    borderRadius: 50 / 2 + 25 / 2,
-    borderWidth: 25
-  },
   navigation: {
     flex: 2,
-    width: "100%",
     paddingRight: Design.paddingRight,
     paddingLeft: Design.paddingLeft,
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  container: {
+    flex: 1,
+    minWidth: 80,
+    flexDirection: "row",
+    // justifyContent: "center",
     alignItems: "center"
+  },
+  headerIcon: {
+    width: 50,
+    height: 50,
+    // overflow: "hidden",
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  secondaryItemContainer: {
+    // position: "absolute",
+    // left: 0,
   },
   "contextMenu":{
     "position" : "absolute",

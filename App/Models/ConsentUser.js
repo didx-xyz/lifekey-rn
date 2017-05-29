@@ -297,6 +297,9 @@ export default class ConsentUser {
   static getPasswordSync() {
     const state = Session.getState()
     if (!state || !state.user || !state.user.password) {
+
+      // console.log("PASSWORD ERROR: -----------------------> ", state.user, " | ", state.user.password)
+
       throw new ConsentError(
         'No password set, user is not logged in',
         E_MUST_BE_LOGGED_IN
@@ -544,7 +547,7 @@ export default class ConsentUser {
     })
 
     // Check that writing went well and resolve
-    .then(error => {
+    .catch(error => {
       if (error) {
         // If we couldn't write to database
         Logger.error('Could not write to AsyncStorage', LOGTAG, error)
@@ -598,6 +601,18 @@ export default class ConsentUser {
         }
       }
 
+    })
+  }
+
+  static async refreshThanksBalance() {
+    return Api.thanksBalance().then(function(res) {
+      if (res.error) {
+        console.log('thanks balance error', res.status, res.message)
+        return
+      }
+      return res.body.balance
+    }).catch(function(err) {
+      console.log('Thanks balance error', err)
     })
   }
 }
