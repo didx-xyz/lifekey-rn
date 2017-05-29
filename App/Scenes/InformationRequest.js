@@ -192,7 +192,7 @@ class InformationRequest extends Scene {
         this.state.complete
       )
       .then(response => {
-        this.navigator.pop()
+        this.navigator.resetTo({...Routes.main})
         ToastAndroid.show("Shared", ToastAndroid.SHORT)
       })
       .catch(error => {
