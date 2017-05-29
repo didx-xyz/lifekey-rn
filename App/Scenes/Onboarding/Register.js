@@ -376,6 +376,7 @@ class Register extends Scene {
   }
 
   _onPinChanged(text) {
+    
     this.setState({
       textInputValue: text,
       pin: text,
@@ -388,6 +389,15 @@ class Register extends Scene {
         Keyboard.dismiss()
       }
     })
+
+    // this.setState({
+    //   textInputValue: text,
+    //   pin: text,
+    //   magicLinkRequested: true
+    // }, () => {
+    //   Keyboard.dismiss()
+    //   this._requestMagicLink()
+    // })
   }
 
   _requestMagicLink() {
