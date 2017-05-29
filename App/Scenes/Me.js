@@ -27,6 +27,7 @@ import Logger from "../Logger"
 import MyData from "../Components/SceneComponents/MyData"
 import Connect from "../Components/SceneComponents/Connect"
 import Badges from "../Components/SceneComponents/Badges"
+import CircularImage from "../Components/CircularImage"
 
 const CONNECT = 0
 const MY_DATA = 1
@@ -300,7 +301,7 @@ class Me extends Scene {
   // End Context Menu functionality 
 
   render() {
-    const profilepic = this.state.profilePicUrl ? <Image source={{ uri: this.state.profilePicUrl }} style={{ width: "100%", height: "100%" }} /> : <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/>
+    const profilepic = this.state.profilePicUrl ? <CircularImage uri={this.state.profilePicUrl} radius={25} borderColor="white" /> : <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/>
     const headerIcons = [
       {
         icon: <BackIcon width={16} height={16}/>,
