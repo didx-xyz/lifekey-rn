@@ -79,7 +79,7 @@ export default class Main extends Scene {
 
   async refreshThanksBalance() {
      const balance = await ConsentUser.refreshThanksBalance()
-     this.setState({ thanksBalanceAmount: balance }) 
+     this.setState({ "asyncActionInProgress": false, thanksBalanceAmount: balance }) 
   }
 
   async loadConnections(callback) {
