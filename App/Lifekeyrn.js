@@ -251,7 +251,7 @@ class Lifekeyrn extends Component {
 
     if(this.state.userDidPresent && this.state.userHasActivated){
       // this.navigator.push(Routes.helpScreens)
-      this.navigator.push({...Routes.helpGeneral, "destination": "main", "screens": orientationScreens, "navigationType": "resetTo" })
+      this.navigator.resetTo({...Routes.helpGeneral, "destination": "main", "screens": orientationScreens, "navigationType": "resetTo" })
     }
     else if(this.state.userHasActivated){
       this.userHasActivated(null)
