@@ -63,9 +63,16 @@ export default class Main extends Scene {
   }
 
   componentDidMount() {
-    this.refreshThanksBalance()
+    super.componentDidMount()
+    try {
+      this.loadConnections()
+      this.loadActiveClients()
+      this.refreshThanksBalance()
+    } catch (error) {
+      Logger.error(error)
+    }
   }
-
+  
   componentDidFocus() {
     super.componentDidFocus()
     try {
