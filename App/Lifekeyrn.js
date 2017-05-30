@@ -81,12 +81,12 @@ class Lifekeyrn extends Component {
     // Events
     if (Platform.OS === 'android') {
       this._messaging.onTokenRefresh(this._nativeEventTokenRefreshed)
-      this._messaging.onMessage( message =>
-        FirebaseHandler.messageReceived(message, this.firebaseInternalEventEmitter)
+      this._messaging.onMessage(
+        FirebaseHandler.messageReceived.bind(
+          FirebaseHandler,
+          this.firebaseInternalEventEmitter
+        )
       )
-      //   this._nativeEventMessageReceived(message, this.firebaseInternalEventEmitter)
-      // )
-      // FirebaseHandler.messageReceived(message, eventEmitter)
     } else {
       Logger.info('TODO: Firebase iOS', this.filename)
     }
@@ -245,7 +245,7 @@ class Lifekeyrn extends Component {
   }
 
   // Check for the existence of a DID and that the user has activated, if so then navigate to main. 
-  checkDidAndActivation(did, activation){
+  checkDidAndActivation(did, activation) {
 
     console.log("checkDidAndActivation callback: did => ", this.state.userDidPresent, " | activated => ", this.state.userHasActivated)
 
