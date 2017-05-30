@@ -299,35 +299,6 @@ class Lifekeyrn extends Component {
     this._navigationEventEmitter.emit('onDidFocus' + route.scene.name)
   }
 
-  componentDidMount() {
-    Logger.react(this.filename, Lifecycle.COMPONENT_DID_MOUNT)
-  }
-
-  componentWillReceiveProps() {
-    Logger.react(this.filename, Lifecycle.COMPONENT_WILL_RECEIEVE_PROPS)
-  }
-
-  componentWillUpdate(nextProps, nextState) {
-    Logger.react(this.filename, Lifecycle.COMPONENT_WILL_UPDATE)
-  }
-
-  componentDidUpdate() {
-    Logger.react(this.filename, Lifecycle.COMPONENT_DID_UPDATE)
-  }
-
-  componentWillUnmount() {
-    Logger.react(this.filename, Lifecycle.COMPONENT_WILL_UNMOUNT)
-  }
-
-  shouldComponentUpdate(nextProps, nextState) {
-    // Re-render when orientation changes
-    if (nextState.viewableScreenWidth !== this.state.viewableScreenWidth ||
-        nextState.viewableScreenHeight !== this.state.viewableScreenHeight) {
-      return true
-    }
-    return false
-  }
-
   /**
    * Called when the outermost view's dimensions change
    * @param {Object} event
