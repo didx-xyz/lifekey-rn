@@ -36,6 +36,7 @@ export default class ConsentUser {
 
   static storageKey = 'user'
   static filename = 'ConsentUser.js'
+  static state = {}
 
   /**
    * Get the device user

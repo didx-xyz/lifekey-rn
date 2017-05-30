@@ -60,18 +60,18 @@ function checkParameters(requiredKeys, receivedObject) {
 
 }
 
-const state = {}
+// const state = {}
 
 export default class Api {
 
   static clearCached(key) {
-    delete state[key]
+    delete ConsentUser.state[key]
   }
 
   static getCached(key) {
 
-    if (state[key] && state[key].time >= Date.now()) {
-      return state[key].data
+    if (ConsentUser.state[key] && ConsentUser.state[key].time >= Date.now()) {
+      return ConsentUser.state[key].data
     }
 
     return null
@@ -80,7 +80,7 @@ export default class Api {
   static setCached(key, value, time = 300000 /* 5 minutes in milliseconds */) {
 
     const currentTime = new Date()
-    state[key] = {
+    ConsentUser.state[key] = {
       "time": currentTime.setMilliseconds(currentTime.getMilliseconds() + time),
       "data": value
     }
@@ -343,9 +343,20 @@ export default class Api {
   // #### RESOURCE ####
   // ##################
 
-  static allResourceTypes() {
-    return request("http://schema.cnsnt.io/resources")
-    // return fetch('http://schema.cnsnt.io/resources').then(_ => _.json())
+  static allResourceTypes(milliseconds = 300000) {
+    // return request("http://schema.cnsnt.io/resources")
+
+    let cached = Api.getCached("allResourceTypes")
+    
+    if (cached !== null) {
+      return cached
+    }
+
+    cached = request("http://schema.cnsnt.io/resources")
+
+    Api.setCached("allResourceTypes", cached, milliseconds)
+
+    return cached
   }
 
   static getResourceForm(form) {
@@ -355,11 +366,11 @@ export default class Api {
 
   // 0 GET /resource
   static allResources(milliseconds = 300000) {
-    // let cached = Api.getCached("allResources")
-    //
-    // if (cached !== null) {
-    //   return cached
-    // }
+    let cached = Api.getCached("allResources")
+    
+    if (cached !== null) {
+      return cached
+    }
 
     cached = request("/resource?all=1")
 

@@ -87,17 +87,40 @@ class ConnectionDetails extends Scene {
     return Promise.resolve([])
   }
 
+  // These performance hits come in steps 2 and 5. 
+
   async loadISAs() {
+    var start1 = new Date().getTime()                                             // PERFORMANCE
+
     const response = await Api.allISAs()
+
+    var start2 = new Date().getTime()                                             // PERFORMANCE. Call to response 11304 milliseconds.
+    console.log("2 - Call to response " + (start2 - start1) + " milliseconds.")   // PERFORMANCE
+
     const enabled_isa_ids = response.body.enabled
+
+    var start3 = new Date().getTime()                                             // PERFORMANCE
+    console.log("3 - Call to response " + (start3 - start2) + " milliseconds.")   // PERFORMANCE
+
     const requests = enabled_isa_ids.map(id => Api.getISA({ id }))
+
+    var start4 = new Date().getTime()                                             // PERFORMANCE
+    console.log("4 - Call to response " + (start4 - start3) + " milliseconds.")   // PERFORMANCE
+
     const responses = await Promise.all(requests)
+
+    var start5 = new Date().getTime()                                             // PERFORMANCE.  Call to response 10080 milliseconds.
+    console.log("5 - Call to response " + (start5 - start4) + " milliseconds.")   // PERFORMANCE
+
     const enabled_isas = responses.map(x => {
       // Parse the nested JSON
       x.body.information_sharing_agreement_request.required_entities =
       this.parseEntities(x.body.information_sharing_agreement_request)
       return x.body
     })
+
+    var start6 = new Date().getTime()                                             // PERFORMANCE
+    console.log("6 - Call to response " + (start6 - start5) + " milliseconds.")   // PERFORMANCE
 
     this.setState({
       enabled_isas: enabled_isas
