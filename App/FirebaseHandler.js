@@ -27,6 +27,8 @@ class FirebaseHandler {
     if (message_type === 'sent_activation_email') return 'Account Activation Email Sent'
     if (message_type === 'app_activation_link_clicked') return 'Account was Activated'
     if (message_type === 'information_sharing_agreement_request') return 'Received Information Sharing Agreement Request'
+    if (message_type === 'information_sharing_agreement_request_accepted') return 'Information Sharing Agreement Established'
+    if (message_type === 'isa_ledgered') return 'Information Sharing Agreement Ledgered'
     if (message_type === 'resource_pushed') return 'Received Data Resource'
     if (message_type === 'user_message_received') return 'Received User Connection Message'
     return 'Unknown Message Type'
