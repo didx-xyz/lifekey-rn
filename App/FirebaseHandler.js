@@ -19,11 +19,23 @@ import ToastAndroid from 'react-native'
 import ConsentMessage from './Models/ConsentMessage'
 
 class FirebaseHandler {
+  static humanReadableMessageType(message_type) {
+    if (message_type === 'received_thanks') return 'Received Thanks'
+    if (message_type === 'received_did') return 'Received a Decentralised Identifier'
+    if (message_type === 'user_connection_request') return 'Received a User Connection Request'
+    if (message_type === 'user_connection_created') return 'User Connection Created'
+    if (message_type === 'sent_activation_email') return 'Account Activation Email Sent'
+    if (message_type === 'app_activation_link_clicked') return 'Account was Activated'
+    if (message_type === 'information_sharing_agreement_request') return 'Received Information Sharing Agreement Request'
+    if (message_type === 'resource_pushed') return 'Received Data Resource'
+    if (message_type === 'user_message_received') return 'Received User Connection Message'
+    return 'Unknown Message Type'
+  }
   static messageReceived(eventEmitter, message) {
     if (message && message.type) {
       ConsentMessage.add(
         'FROM',
-        message.type,
+        FirebaseHandler.humanReadableMessageType(message.type),
         new Date()
       ).then(
         Logger.info.bind(Logger, 'Message saved')
