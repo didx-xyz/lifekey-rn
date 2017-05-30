@@ -49,19 +49,6 @@ class ConsentMessage {
       return []
     }
   }
-
-  static async from(user) {
-    try {
-      const itemJSON = await ConsentMessage.all()
-      return item.map(i, idx => {
-        i.key = idx
-        return i.from_name === user
-      })
-    } catch (error) {
-      Logger.warn(error)
-      return []
-    }
-  }
 }
 
 export default ConsentMessage

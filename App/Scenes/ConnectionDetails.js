@@ -1,26 +1,9 @@
 
-import React from "react"
-import Scene from "../Scene"
-import Palette from "../Palette"
-import ActivityIndicator from "ActivityIndicator"
-import Touchable from "../Components/Touchable"
+import React from 'react'
+import ActivityIndicator from 'ActivityIndicator'
 import AndroidBackButton from 'react-native-android-back-button'
-import BackIcon from "../Components/BackIcon"
-import InfoIcon from "../Components/InfoIcon"
-import HelpIcon from "../Components/HelpIcon"
-import LocationIcon from "../Components/LocationIcon"
-import MarketingIcon from "../Components/MarketingIcon"
-import PeriodIcon from "../Components/PeriodIcon"
-import Api from '../Api'
-import ConsentDiscoveredUser from '../Models/ConsentDiscoveredUser'
-import ConsentUser from '../Models/ConsentUser'
-import ConsentMessage from '../Models/ConsentMessage'
-import Logger from "../Logger"
-import Session from "../Session"
 import _ from 'lodash'
-import LifekeyHeader from '../Components/LifekeyHeader'
-import Design from '../DesignParameters'
-import Config from '../Config'
+
 import {
   Text,
   View,
@@ -28,16 +11,32 @@ import {
   Dimensions,
   Image,
   ToastAndroid
-} from "react-native"
+} from 'react-native'
 
-import {
-  Container,
-  Content
-} from "native-base"
+import {Container, Content} from 'native-base'
+
 import ISACard from '../Components/ISACard'
 import Icon from 'react-native-vector-icons/Ionicons'
 import HexagonIcon from '../Components/HexagonIcon'
 import Routes from '../Routes'
+import BackIcon from '../Components/BackIcon'
+import InfoIcon from '../Components/InfoIcon'
+import HelpIcon from '../Components/HelpIcon'
+import LocationIcon from '../Components/LocationIcon'
+import MarketingIcon from '../Components/MarketingIcon'
+import PeriodIcon from '../Components/PeriodIcon'
+import Api from '../Api'
+import ConsentDiscoveredUser from '../Models/ConsentDiscoveredUser'
+import ConsentUser from '../Models/ConsentUser'
+import ConsentUserConnectionMessage from '../Models/ConsentUserConnectionMessage'
+import Logger from '../Logger'
+import Session from '../Session'
+import LifekeyHeader from '../Components/LifekeyHeader'
+import Design from '../DesignParameters'
+import Config from '../Config'
+import Scene from '../Scene'
+import Palette from '../Palette'
+import Touchable from '../Components/Touchable'
 
 const CONNECT = 0
 const ACTIVITY = 1
@@ -104,25 +103,23 @@ class ConnectionDetails extends Scene {
     }, () => Logger.info(JSON.stringify(this.state)))
   }
 
-  loadData() {
-    var actions_url
+  async loadData() {
     Promise.all([
       Api.profile({did: this.state.user_did}),
-      ConsentMessage.from(this.state.user_did)
+      ConsentUserConnectionMessage.from(this.state.user_did)
     ]).then(res => {
       var [profile, messages] = res
-      actions_url = profile.body.user.actions_url
       this.setState({
         colour: profile.body.user.colour,
         image_uri: profile.body.user.image_uri,
-        actions_url: actions_url,
+        actions_url: profile.body.user.actions_url,
         address: profile.body.user.address,
         tel: profile.body.user.tel,
         email: profile.body.user.email,
         messages: messages
       })
-      return Promise.resolve()
-    }).then(_ => {
+      return Promise.resolve(profile.body.user.actions_url)
+    }).then(actions_url => {
       return this.loadActions(actions_url)
     }).then(axns => {
       this.setState({
@@ -192,21 +189,16 @@ class ConnectionDetails extends Scene {
   }
 
   parseEntities(isar) {
-    let entitiesJSON = null
-    if(isar.entities) {
-      entitiesJSON = isar.entities
-    } else {
-      entitiesJSON = isar.required_entities
-    }
+    var entitiesJSON = isar.entities || isar.required_entities
     const entities = JSON.parse(entitiesJSON)
     Logger.info('entitiesJSON', entities)
     return entities
   }
 
   renderConnectionMessages() {
-    return this.state.messages.map(msg => {
+    return this.state.messages.map((msg, idx) => {
       return (
-        <View key={msg.key} style={styles.message}>
+        <View key={idx} style={styles.message}>
           <Text style={styles.messageText}>
             {msg.message_text}
           </Text>

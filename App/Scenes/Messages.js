@@ -15,8 +15,12 @@ import Logger from '../Logger'
 const MESSAGES = 0
 const ACTIVITY = 1
 
-const helpScreens = [ 
-  { "image": require("../Images/qr.png"), "heading": "Connect", "copy": "Qi Code connects me in a snap & replaces paperwork" }
+const helpScreens = [
+  {
+    "image": require("../Images/qr.png"),
+    "heading": "Connect",
+    "copy": "Qi Code connects me in a snap & replaces paperwork"
+  }
 ]
 
 class Messages extends Scene {
@@ -31,9 +35,16 @@ class Messages extends Scene {
 
   componentDidFocus() {
     super.componentDidFocus()
+    this.refreshMessages()
+  }
+
+  refreshMessages() {
     ConsentMessage.all()
     .then(messages => {
-      this.setState({ messages })
+      this.setState({messages: messages})
+    }).catch(err => {
+      console.log(err)
+      this.setState({messages: []})
     })
   }
 
@@ -42,7 +53,12 @@ class Messages extends Scene {
   }
 
   onPressHelp() {
-    this.navigator.push({...Routes.helpGeneral, "destination": "messages", "screens": helpScreens, "navigationType": "pop" })
+    this.navigator.push({
+      ...Routes.helpGeneral,
+      "destination": "messages",
+      "screens": helpScreens,
+      "navigationType": "pop"
+    })
   }
 
   onPressDone() {
@@ -52,24 +68,22 @@ class Messages extends Scene {
   renderMessages() {
     if (this.state.messages.length > 0) {
       return (
-        <View style={{ flex: 1 }}>
-          {this.state.messages.map((x, i) =>
-            this.renderMessage(x.from_name, x.message_text, x.timestamp, i)
-          )}
+        <View style={{flex: 1}}>
+          {this.state.messages.map(this.renderMessage)}
         </View>
       )
     } else {
       return (
-        <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+        <View style={{flex: 1, flexDirection: 'row', justifyContent: 'center'}}>
           <Text>No Messages yet</Text>
         </View>
       )
     }
   }
 
-  renderMessage(from_name, message_text, timestamp, key) {
+  renderMessage(msg, idx, msgs) {
     return (
-      <View style={styles.message} key={key}>
+      <View style={styles.message} key={idx}>
         <View style={styles.messageImage}>
           {/* image here */}
           <Text>+</Text>
@@ -77,13 +91,19 @@ class Messages extends Scene {
         <View style={styles.messageContent}>
           <View style={styles.messageDescription}>
             <Text style={styles.messageDescriptionText}>
-              <Text style={styles.bold}>{from_name}</Text>
-              <Text> {message_text}</Text>
+              <Text style={styles.bold}>{msg.from_name}</Text>
+
+
+              {/*NOTE*/}
+              {/*the whitespace character here is intentional*/}
+              <Text> {msg.message_text}</Text>
+
+
             </Text>
           </View>
           <View style={styles.messageMeta}>
             <Text style={styles.messageMetaText}>
-              {timestamp}
+              {new Date(msg.timestamp).toDateString()}
             </Text>
           </View>
         </View>
@@ -103,7 +123,7 @@ class Messages extends Scene {
     } else {
       return (
         <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
-          <Text>No notifications yet yet</Text>
+          <Text>No notifications yet</Text>
         </View>
       )
     }
@@ -164,20 +184,20 @@ class Messages extends Scene {
     return (
       <Container>
         <BackButton navigator={this.navigator} />
-        <View style={{ height: 80 }}>
+        <View style={{height: 80}}>
           {this.renderTop()}
         </View>
-        <Content style={{ flex: 8 }}>
-          <View style={{ flex: 8 }}>
-            {this.state.activeTab === MESSAGES ?
+        <Content style={{flex: 8}}>
+          <View style={{flex: 8}}>
+            {this.state.activeTab === MESSAGES ? (
               this.renderMessages()
-            :
+            ) : (
               this.renderActivities()
-            }
+            )}
           </View>
         </Content>
-        <View style={{ height: 80 }}>
-          <View style={{ flex: 1 }}>
+        <View style={{height: 80}}>
+          <View style={{flex: 1}}>
             {this.renderBottom()}
           </View>
         </View>
