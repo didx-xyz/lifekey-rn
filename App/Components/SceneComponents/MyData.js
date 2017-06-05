@@ -1,21 +1,20 @@
 // external dependencies
 import React, { Component } from 'react'
-import { Text, View, WebView } from "react-native"
+import { Text, View, WebView} from "react-native"
 import { Container, Content } from "native-base"
 import PropTypes from "prop-types"
-import _ from 'lodash'
+// import Object from 'lodash'
 
 // internal dependencies
-import Api from "../../Api"
-import Scene from "../../Scene"
-import Session from "../../Session"
+// import Scene from "../../Scene"
+// import Session from "../../Session"
 import Palette from "../../Palette"
 import Design from "../../DesignParameters"
-import Routes from "../../Routes"
-import Config from "../../Config"
-import Logger from "../../Logger"
-import MvTemplate from "../mv-Template"
-import LifekeyHeader from "../LifekeyHeader"
+// import Routes from "../../Routes"
+// import Config from "../../Config"
+// import Logger from "../../Logger"
+// import MvTemplate from "../mv-Template"
+// import LifekeyHeader from "../LifekeyHeader"
 import LifekeyCard from "../LifekeyCard"
 import { Card, CardItem } from "native-base"
 
@@ -26,104 +25,24 @@ import RcAddress from "../ResourceComponents/rc-Address"
 import RcEmployment from "../ResourceComponents/rc-Employment"
 import RcProofOfResidence from "../ResourceComponents/rc-ProofOfResidence"
 import RcProofOfIdentity from "../ResourceComponents/rc-ProofOfIdentity"
+import RcWrapper from "../ResourceComponents/rc-Wrapper"
 import LcAddCategoryButton from "../lc-AddCategoryButton"
-import Touchable from "../Touchable"
-import BackButton from "../BackButton"
-import BackIcon from "../BackIcon"
-import HelpIcon from "../HelpIcon"
+// import Touchable from "../Touchable"
+// import BackButton from "../BackButton"
+// import BackIcon from "../BackIcon"
+// import HelpIcon from "../HelpIcon"
 
 
 class MyData extends Component {
 
-  constructor(...params) {
-    super(...params)
-  }
-
-  onPressDelete(id) {
-    Api.deleteResource({ id })
-
-    // refresh the list
-    this.context.onSaveResource()
-
-    Api.clearCached("allResources")
-  }
-
-  onPressEdit(form, id = null, name = null) {
-    this.context.onEditResource(form, id, name)
-  }
 
   validResourceType(resourceType){
     return (!!resourceType && !!resourceType.items && !!resourceType.items.length)
   }
 
-  Person_render(resourceType) {
+  RC_render(resourceType){
     if(!this.validResourceType(resourceType)) return
-    return ( 
-        <RcPerson resourceType={resourceType} 
-            onPressEdit={this.onPressEdit.bind(this)} 
-            onPressDelete={this.onPressDelete.bind(this)} 
-            onEditResource={this.context.onEditResource.bind(this)}></RcPerson> 
-    )
-  }
-
-  Identity_render(resourceType) {
-    if(!this.validResourceType(resourceType)) return
-    return ( 
-        <RcIdentity resourceType={resourceType} 
-            onPressEdit={this.onPressEdit.bind(this)} 
-            onPressDelete={this.onPressDelete.bind(this)} 
-            onEditResource={this.context.onEditResource.bind(this)}></RcIdentity> 
-    )
-  }
-
-  Contact_render(resourceType) {
-    if(!this.validResourceType(resourceType)) return
-    return ( 
-        <RcContact resourceType={resourceType} 
-            onPressEdit={this.onPressEdit.bind(this)} 
-            onPressDelete={this.onPressDelete.bind(this)} 
-            onEditResource={this.context.onEditResource.bind(this)}></RcContact> 
-    )
-  }
-
-  Address_render(resourceType) {
-    if(!this.validResourceType(resourceType)) return
-    return ( 
-        <RcAddress resourceType={resourceType} 
-            onPressEdit={this.onPressEdit.bind(this)} 
-            onPressDelete={this.onPressDelete.bind(this)} 
-            onEditResource={this.context.onEditResource.bind(this)}></RcAddress> 
-    )
-  }
-
-  Employment_render(resourceType) {
-    if(!this.validResourceType(resourceType)) return
-    return ( 
-        <RcEmployment resourceType={resourceType} 
-            onPressEdit={this.onPressEdit.bind(this)} 
-            onPressDelete={this.onPressDelete.bind(this)} 
-            onEditResource={this.context.onEditResource.bind(this)}></RcEmployment> 
-    )
-  }
-
-  ProofOfResidence_render(resourceType) {
-    if(!this.validResourceType(resourceType)) return
-    return ( 
-        <RcProofOfResidence resourceType={resourceType} 
-            onPressEdit={this.onPressEdit.bind(this)} 
-            onPressDelete={this.onPressDelete.bind(this)} 
-            onEditResource={this.context.onEditResource.bind(this)}></RcProofOfResidence> 
-    )
-  }
-
-  ProofOfIdentity_render(resourceType) {
-    if(!this.validResourceType(resourceType)) return
-    return ( 
-        <RcProofOfIdentity resourceType={resourceType} 
-            onPressEdit={this.onPressEdit.bind(this)} 
-            onPressDelete={this.onPressDelete.bind(this)} 
-            onEditResource={this.context.onEditResource.bind(this)}></RcProofOfIdentity> 
-    )
+    return <RcWrapper onPressDelete={this.props.onPressDelete} onPressEdit={this.props.onPressEdit} resourceType={resourceType}></RcWrapper>
   }
 
   VC_render(resourceType) {
@@ -153,43 +72,20 @@ class MyData extends Component {
         </CardItem>
       </Card>
     )
-
-    // return ( 
-    //   <View style={styles.vcTextContainer}>
-    //     { resourceType.items.map((resource, i) => {
-    //      return (
-    //         <Text key={i} style={styles.vcText}>{resource.decentralisedIdentifier}</Text>
-    //       ) 
-    //     })}
-    //   </View>
-    // )
   }
-
-  // Misc_render(resourceType) {
-  //   if(!this.validResourceType(resourceType)) return
-  //   return ( 
-  //     <View style={styles.vcTextContainer}>
-  //       { resourceType.items.map((resource, i) => {
-  //        return (
-  //           <Text key={i} style={styles.vcText}>{resource.schema}</Text>
-  //         ) 
-  //       })}
-  //     </View>
-  //   )
-  // }
 
   Malformed_render(resourceType) {
     if(!this.validResourceType(resourceType)) return
     return ( 
       <View>
         { resourceType.items.map((resource, i) => {
-      return (
-        <LifekeyCard key={i} headingText={"resource " + resource.id} onPressDelete={() => this.onPressDelete(resource.id)}>
-          <Text>{resource.id} (malformed)</Text>
-        </LifekeyCard>
-      ) 
+          return (
+            <LifekeyCard key={i} headingText={"resource " + resource.id} onPressDelete={() => this.props.onPressDelete(resource.id)}>
+              <Text>{resource.id} (malformed)</Text>
+            </LifekeyCard>
+          ) 
         })}
-        <LcAddCategoryButton name={resourceType.name} form={resourceType.url + "_form"} onEditResource={this.context.onEditResource} />
+        <LcAddCategoryButton name={resourceType.name} form={resourceType.url + "Objectform"} onEditResource={this.context.onEditResource} />
       </View>
     )
   }
@@ -216,48 +112,48 @@ class MyData extends Component {
     
     <View>
       {/* You are just a number now */}
-      <View style={_.assign({}, styles.groupContainer, styles.groupContainerDark)}>
+      <View style={Object.assign({}, styles.groupContainer, styles.groupContainerDark)}>
         {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>DID</Text></View> */}
         { this.DID_render(did) }
       </View>
 
       {/* Who you are */}
-      <View style={_.assign({}, styles.groupContainer, styles.groupContainerLight)}>
+      <View style={Object.assign({}, styles.groupContainer, styles.groupContainerLight)}>
         {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>IDENTITY</Text></View> */}
-        { this.Person_render(person) }
-        { this.Identity_render(identity)}
-        { this.ProofOfIdentity_render(poIdentity) }
+        { this.RC_render(person) }
+        { this.RC_render(identity) }
+        { this.RC_render(poIdentity) }
       </View>
 
       {/* How to reach you */}
-      <View style={_.assign({}, styles.groupContainer, styles.groupContainerDark)}> 
-        {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>CONTACT</Text></View> */}   
-        { this.Contact_render(email) }
-        { this.Contact_render(mobile) }
-        { this.Contact_render(landline) }
+      <View style={Object.assign({}, styles.groupContainer, styles.groupContainerDark)}> 
+        {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>CONTACT</Text></View> */}
+        { this.RC_render(email) }
+        { this.RC_render(mobile) }
+        { this.RC_render(landline) }
       </View>
 
       {/* Where you are */}  
-      <View style={_.assign({}, styles.groupContainer, styles.groupContainerLight)}>
+      <View style={Object.assign({}, styles.groupContainer, styles.groupContainerLight)}>
         {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>RESIDENCE</Text></View> */}
-        { this.Address_render(address) }  
-        { this.ProofOfResidence_render(poResidence) }
+        { this.RC_render(address) }
+        { this.RC_render(poResidence) }
       </View>
 
       {/* What you do */}  
-      <View style={_.assign({}, styles.groupContainer, styles.groupContainerDark)}>
+      <View style={Object.assign({}, styles.groupContainer, styles.groupContainerDark)}>
         {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>EMPLOYMENT</Text></View> */}
-        { this.Employment_render(employment) }
+        { this.RC_render(employment) }
       </View>
 
       {/* Verifiable Claims */}  
-      <View style={_.assign({}, styles.groupContainer, styles.groupContainerLight)}>
+      <View style={Object.assign({}, styles.groupContainer, styles.groupContainerLight)}>
         {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>VERIFIABLE CLAIMS</Text></View> */}
         { this.VC_render(verifiableClaims) }
       </View>
 
     {/* Miscellaneous Items */}  
-      <View style={_.assign({}, styles.groupContainer, styles.groupContainerDark)}>
+      <View style={Object.assign({}, styles.groupContainer, styles.groupContainerDark)}>
         {/* <View style={styles.groupHeadingContainer}><Text style={styles.groupheading}>MISCELLANEOUS</Text></View> */}
         { this.VC_render(misc) }
       </View>
