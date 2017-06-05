@@ -53,73 +53,24 @@ class InformationRequest extends Scene {
   }
 
   componentDidMount() {
-
     super.componentDidMount()
-
-    Api.allResources()
-    .then(values => {
-      this.onBoundResources(values)
-    })
-    .catch(error => {
-      Logger.error(error)
-    })
+    Api.getFlattenedResources().then(this.onBoundResources)
+    
   }
 
   componentWillFocus() {
     super.componentWillFocus()
-
-    this.setState({"asyncActionInProgress": true, "progressCopy": "Loading..."}, async () => {
-      Promise.all([
-        Api.allResources()
-      ]).then(values => {
-        this.onBoundResources(values[0])
-      }).catch(error => {
-        Logger.error(error)
-      })
-    })
+    Api.getFlattenedResources().then(this.onBoundResources)
 
   }
 
-  // onISA(response, then) {
-  //   if (response && !response.error) {
-  //     const unacked = response.body.unacked
-  //     const currentISA = unacked.find(isar => parseInt(isar.id, 10) === parseInt(this.state.isar_id, 10))
-  //     if (currentISA) {
-  //       // remove required_entities FIX
-  //       const fixedISA = currentISA.filter(x => !x.required_entities && !x.entities)
-  //       setTimeout(() => {
-  //         this.setState({
-  //           isa: fixedISA
-  //         }, then)
-  //       }, 100)
-  //     } else {
-  //       Logger.warn('Could not find corresponding ISA')
-  //     }
-  //   }
-  // }
-
   onResources(data) {
-
-    const updatedResources = data.body.map(resource => {
-      return {
-        id: resource.id,
-        alias: resource.alias,
-        schema: resource.schema,
-        is_verifiable_claim: resource.is_verifiable_claim,
-        ...JSON.parse(resource.value)
-      }
-    })
-
-    this.findMissingResourceProperties(updatedResources, this.props.route.required_entities)
-
-    this.setState({
-      resources: updatedResources
-    })
+    this.findMissingResourceProperties(data, this.props.route.required_entities)
+    this.setState({ resources: data })
   }
 
 
   findMissingResourceProperties(resources, required_entities){
-
     this.verifyAndFixSchemaProperty(resources, required_entities)
     this.sortMyData(resources, required_entities)
   }

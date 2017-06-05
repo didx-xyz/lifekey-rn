@@ -676,7 +676,6 @@ export default class ConsentUser {
       if((resourceTypeIsVerifiableClaim && resource.is_verifiable_claim) || match){
         existing ? (rt.items = rt.items.map(item => item.id === resource.id ? resource : item)) : rt.items.push(resource)
       }
-
     })
 
     this.setCached("myData", myData, 300000)
@@ -715,6 +714,18 @@ export default class ConsentUser {
     myData.valid = true
 
     this.setCached("myData", myData, 300000)
+  }
+
+  static flattenCachedResources(arr) {
+    let that = this
+    if (Array.isArray(arr)) {
+      return arr.reduce(function(done,curr){
+        return done.concat(that.flattenCachedResources(curr))
+        }, [])
+    } 
+    else {
+      return arr
+    }
   }
 
   static verifyAndFixSchemaProperty(resources){

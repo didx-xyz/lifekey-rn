@@ -354,6 +354,19 @@ export default class Api {
     })
   }
 
+  static getFlattenedResources(){
+    
+    return this.getMyData().then(data => {
+
+      let arrayOfResourceArrays = data.resourcesByType.map(rt => rt.items)
+      let flattenedResources = ConsentUser.flattenCachedResources(arrayOfResourceArrays)
+      return flattenedResources 
+
+    }).catch(error => {
+      Logger.error(error)
+    })
+  }
+
   static allResourceTypes(milliseconds = 300000) {
 
     let cached = ConsentUser.getCached("allResourceTypes")
@@ -382,8 +395,7 @@ export default class Api {
     return request(form).then(data => {
       ConsentUser.setCached(formName, data, milliseconds)
       return data
-    }) 
-    
+    })    
     
   }
 
@@ -393,21 +405,6 @@ export default class Api {
     return request("/resource?all=1")
 
   }
-
-  // static onResources(data) {
-
-  //   const updatedResources = data.body.map(resource => {
-  //     return {
-  //       id: resource.id,
-  //       alias: resource.alias,
-  //       schema: resource.schema, 
-  //       is_verifiable_claim: resource.is_verifiable_claim,
-  //       ...JSON.parse(resource.value)
-  //     }
-  //   })
-
-  //   return updatedResources
-  // }
 
   // 1 GET /resource/:resource_id
   static getResource(data) {
