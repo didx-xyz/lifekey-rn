@@ -14,7 +14,6 @@ import Scene from "../Scene"
 import Routes from "../Routes"
 import Palette from "../Palette"
 import LifekeyHeader from "../Components/LifekeyHeader"
-import LifekeyCard from "../Components/LifekeyCard"
 import LcAddCategoryButton from "../Components/lc-AddCategoryButton"
 import Touchable from "../Components/Touchable"
 import BackButton from "../Components/BackButton"
@@ -63,10 +62,6 @@ class Me extends Scene {
     this.onBoundPressEdit = this.onPressEdit.bind(this)
     this.onBoundShowContextMenu = this.onShowContextMenu.bind(this)
   }
-
-  // onPressEdit(form, id = null) {
-  //   this.context.onEditResource(form, id)
-  // }
 
   onPressHelp(destination, helpScreens, navigationType) {
     this.navigator.push({...Routes.helpGeneral, "destination": destination, "screens": helpScreens, "navigationType": navigationType })
