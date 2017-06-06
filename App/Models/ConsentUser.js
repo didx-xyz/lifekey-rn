@@ -11,11 +11,14 @@ import Crypto from '../Crypto'
 import Logger from '../Logger'
 import Config from '../Config'
 import Api from '../Api'
+import Common from "../Common"
 import ConsentConnection from './ConsentConnection'
 import ConsentConnectionRequest from './ConsentConnectionRequest'
 import ConsentDiscoveredUser from './ConsentDiscoveredUser'
 import ConsentError from '../ConsentError'
 import Firebase from 'react-native-firebase'
+
+import Anonymous from "../Images/anonymous_person"
 
 export const E_MUST_BE_REGISTERED = 0x01
 export const E_INCORRECT_PASSWORD_FOR_KEYSTORE = 0x02
@@ -36,6 +39,7 @@ export default class ConsentUser {
 
   static storageKey = 'user'
   static filename = 'ConsentUser.js'
+  static state = {}
 
   /**
    * Get the device user
@@ -623,6 +627,8 @@ export default class ConsentUser {
     })
   }
 
+  // NEW 
+
   static async refreshThanksBalance() {
     return Api.thanksBalance().then(function(res) {
       if (res.error) {
@@ -633,5 +639,202 @@ export default class ConsentUser {
     }).catch(function(err) {
       console.log('Thanks balance error', err)
     })
+  }
+
+  static clearCached(key) {
+    delete this.state[key]
+  }
+
+  static getCached(key) {
+
+    if (this.state[key] && this.state[key].time >= Date.now()) {
+      return this.state[key].data
+    }
+
+    return null
+  }
+
+  static setCached(key, value, time = 300000 /* 5 minutes in milliseconds */) {
+
+    const currentTime = new Date()
+    this.state[key] = {
+      "time": currentTime.setMilliseconds(currentTime.getMilliseconds() + time),
+      "data": value
+    }
+  }
+
+  static updateState(resource) {
+
+    let myData = {...this.state.myData.data}
+
+    myData.resourcesByType.forEach(rt => {
+      
+      const match = !!resource.schema ? Common.schemaCheck(resource.schema, rt.url) : `${rt.url}_form` === resource.form
+      const existing = rt.items.some(item => item.id === resource.id)
+      const resourceTypeIsVerifiableClaim = rt.name === 'Verifiable Claims'
+
+      if((resourceTypeIsVerifiableClaim && resource.is_verifiable_claim) || match){
+        existing ? (rt.items = rt.items.map(item => item.id === resource.id ? resource : item)) : rt.items.push(resource)
+      }
+    })
+
+    this.setCached("myData", myData, 300000)
+
+  }
+
+  static removeFromState(id) {
+
+    let myData = {...this.state.myData.data}
+    myData.resourcesByType.forEach(rt => rt.items = rt.items.filter(item => item.id !== id))
+    this.setCached("myData", myData, 300000)
+
+  }
+
+  static setPendingState(id, pendingState){
+
+    let myData = {...this.state.myData.data}
+    myData.resourcesByType.forEach(rt => rt.items = rt.items.map(item => { 
+      if(item.id === id){
+        item.pending = pendingState
+      }
+      return item
+    }))
+    this.setCached("myData", myData, 300000)
+  }
+
+  static cacheMyData(resources){
+
+    let resourceTypes = [...this.state.allResourceTypes.data]
+
+    resources = this.verifyAndFixSchemaProperty(resources)
+    const badges = this.sortBadges(resources)
+    let myData = this.sortMyData(resources, resourceTypes)
+
+    myData.badges = badges
+    myData.valid = true
+
+    this.setCached("myData", myData, 300000)
+  }
+
+  static flattenCachedResources(arr) {
+    let that = this
+    if (Array.isArray(arr)) {
+      return arr.reduce(function(done,curr){
+        return done.concat(that.flattenCachedResources(curr))
+        }, [])
+    } 
+    else {
+      return arr
+    }
+  }
+
+  static verifyAndFixSchemaProperty(resources){
+    resources.forEach(resource => {  
+      resource.schema = Common.ensureUrlHasProtocol(resource.schema)
+      if(!resource.form){
+        resource.form = `${resource.schema}_form`
+      }
+    })
+
+    return resources
+  }
+
+  static sortBadges(resources){
+
+    var badges = Object.values(resources).map((v, i) => {
+
+      if(!v.claim || !v.claim.isCredential){
+        return null
+      }
+
+      if (v.form === "http://schema.cnsnt.io/pirate_name_form") {
+        return {
+          "name": "Pirate Name",
+          "description": "Hello ",
+          "image": require('../../App/Images/pirate_name.png')
+        }
+      } else if (v.form === "http://schema.cnsnt.io/verified_identity_form") {
+        return {
+          "name": "Verified Identity",
+          "description": "Hello ",
+          "image": require('../../App/Images/verified_identity.png')
+        }
+      } else if (v.form === "http://schema.cnsnt.io/full_name_form") {
+        return {
+          "name": "Full Name",
+          "description": "Hello ",
+          "image": require('../../App/Images/full_name.png')
+        }
+      } else if (v.form === "http://schema.cnsnt.io/contact_email_form") {
+        return {
+          "name": "Verified Email",
+          "description": "Hello ",
+          "image": require('../../App/Images/contact_email.png')
+        }
+      } else if (v.form === "http://schema.cnsnt.io/contact_mobile_form") {
+        return {
+          "name": "Verified Mobile",
+          "description": "Hello ",
+          "image": require('../../App/Images/contact_mobile.png')
+        }
+      } else if(v.form === "http://schema.cnsnt.io/verified_face_match_form"){
+        return {
+          "name": "Verified FaceMatch",
+          "description": "Hello ",
+          "image": require('../../App/Images/verified_face_match.png')
+        }
+      } else {
+        // FIXME
+        return null
+      }
+    })
+    .filter(v => !!v)
+
+    return badges
+  }
+
+  static sortMyData(resources, resourceTypes) {
+
+    // Add logically seperate resources types that aren't persisted in server 
+    resourceTypes.push({ name: 'Malformed', url: null, items: [] })
+    resourceTypes.push({ name: 'Verifiable Claims', url: null, items: [] })
+    resourceTypes.push({ name: 'Decentralized Identifier', url: 'http://schema.cnsnt.io/decentralised_identifier', items: [] })
+    resourceTypes.push({ name: 'Miscellaneous', url: null, items: [] })
+
+    // Sort known items and verifiable claims  
+    resourceTypes.map(rt => {
+
+      if(rt.name === 'Verifiable Claims'){
+        rt.items = resources.filter(r => r.is_verifiable_claim)
+      }
+      else{
+        rt.items = resources.filter(r => {
+
+          if(r.is_verifiable_claim){
+            return false
+          }
+
+          if(!!r.schema){
+            return Common.schemaCheck(r.schema, rt.url)
+          }
+          else{
+            return `${rt.url}_form` === r.form
+          }
+        })
+      }
+      
+      return rt
+    })
+
+    // Sort miscellaneous resources 
+    let misc = resourceTypes.find(rt => rt.name === 'Miscellaneous')
+    misc.items = resources.filter(r => !resourceTypes.some(rt => Common.schemaCheck(r.schema, rt.url)))
+
+    // Set profile pic
+    const person = resourceTypes.find(rt => rt.url === "http://schema.cnsnt.io/person").items[0]
+    const identityPhotographUri = person && person.identityPhotograph ? `data:image/jpg;base64,${person.identityPhotograph}` : Anonymous.uri
+
+    return { resourcesByType: resourceTypes, profilePicUrl: identityPhotographUri }
+
   }
 }

@@ -1,6 +1,6 @@
 // external dependencies
 import React from "react"
-import { Text, View, Image, ScrollView, TouchableHighlight, InteractionManager } from "react-native"
+import { Text, View, Image, ScrollView, TouchableHighlight, InteractionManager, ToastAndroid} from "react-native"
 import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
 import ActivityIndicator from "ActivityIndicator"
@@ -9,6 +9,7 @@ import ModalDropdown from 'react-native-modal-dropdown';
 // internal dependencies
 import Common from "../Common"
 import Api from "../Api"
+import ConsentUser from "../Models/ConsentUser"
 import Scene from "../Scene"
 import Routes from "../Routes"
 import Palette from "../Palette"
@@ -21,7 +22,6 @@ import BackIcon from "../Components/BackIcon"
 import HelpIcon from "../Components/HelpIcon"
 import GearIcon from "../Components/GearIcon"
 import Design from "../DesignParameters"
-import Anonymous from "../Images/anonymous_person"
 import Logger from "../Logger"
 
 import MyData from "../Components/SceneComponents/MyData"
@@ -58,62 +58,63 @@ class Me extends Scene {
       "scrollview": null
     }
 
-    this.onBoundResourceTypes = this.onResourceTypes.bind(this)
-    this.onBoundResources = this.onResources.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
-
+    this.onBoundPressDelete = this.onPressDelete.bind(this)
+    this.onBoundPressEdit = this.onPressEdit.bind(this)
     this.onBoundShowContextMenu = this.onShowContextMenu.bind(this)
   }
 
-  onPressDelete(id) {
-    Api.deleteResource({ id })
-    .catch(error => Logger.error(error))
-    // refresh the list
-    this.context.onSaveResource()
-  }
-
-  onPressEdit(form, id = null) {
-    this.context.onEditResource(form, id)
-  }
+  // onPressEdit(form, id = null) {
+  //   this.context.onEditResource(form, id)
+  // }
 
   onPressHelp(destination, helpScreens, navigationType) {
     this.navigator.push({...Routes.helpGeneral, "destination": destination, "screens": helpScreens, "navigationType": navigationType })
   }
 
+  onPressEdit(form, id = null, name = null) {
+    this.context.onEditResource(form, id, name)
+  }
+
+  onPressDelete(id){
+    ConsentUser.setPendingState(id, 'pendingDelete')
+    this.fetchMyData().then(() => {
+      Api.deleteResource({ id })
+       .then(() => {
+        ConsentUser.removeFromState(id)
+        this.fetchMyData()
+        ToastAndroid.show('Resource deleted...', ToastAndroid.SHORT)
+       })
+       .catch(error => {
+        ToastAndroid.show('Failed to delete resource...', ToastAndroid.SHORT)
+        Logger.warn('Could not delete resource: ', error)
+       })
+    }) 
+  }
+
   componentDidMount() {
     super.componentDidMount()
+    this.fetchMyData()
+  }
 
-    Promise.all([
-      Api.allResourceTypes(),
-      Api.allResources()
-    ]).then(values => {
-      this.onBoundResourceTypes(values[0], () => {
-        this.onBoundResources(values[1])
+  componentWillFocus() {
+    super.componentWillFocus()
+    this.fetchMyData()
+  }
+
+  fetchMyData() {
+    return Api.getMyData().then(data => {
+
+      this.setState({
+        "sortedBadges": data.badges,
+        "profilePicUrl": data.profilePicUrl,
+        "sortedResourceTypes": data.resourcesByType,
+        "asyncActionInProgress": false
       })
     }).catch(error => {
       Logger.error(error)
     })
   }
-
-  componentWillFocus() {
-    super.componentWillFocus()
-
-    this.setState({"asyncActionInProgress" : true, "progressCopy" : "Loading new resources..."}, () => {
-      Promise.all([
-      Api.allResources()
-      ]).then(values => {
-        this.onBoundResources(values[0])
-      }).catch(error => {
-        Logger.error(error)
-      })
-    }) 
-  }
-
-  // componentDidUpdate(){
-  //   // This is intended to ensure that the scrollview is always at Y : 0 when tabs are changed. 
-  //   // It needs a bit of TLC however...
-  //   this.scrollViewToTop()
-  // }
 
   scrollViewToTop() {
     if(this.state.scrollview){
@@ -125,157 +126,6 @@ class Me extends Scene {
     else{
       console.log("Skipped the scroll")
     }
-  }
-
-  onResourceTypes(data, then) {
-    if (!data.resources) {
-      console.warn("resource list format changed")
-    }
-
-    this.setState({
-      resourceTypes: data.resources
-    }, then)
-  }
-
-  onResources(data) {
-
-    const updatedResources = data.body.map(resource => {
-      return {
-        id: resource.id,
-        alias: resource.alias,
-        schema: resource.schema, 
-        is_verifiable_claim: resource.is_verifiable_claim,
-        ...JSON.parse(resource.value)
-      }
-    })
-
-    if (this.state.resourceTypes && this.state.resourceTypes.length) {
-      this.sortChildData(updatedResources, this.state.resourceTypes)
-    }
-
-    this.setState({
-      resources: updatedResources
-    })
-  }
-
-  sortChildData(resources, resourceTypes){
-    this.verifyAndFixSchemaProperty(resources)
-    this.sortBadges(resources)
-    this.sortMyData(resources, this.state.resourceTypes)
-  }
-
-  verifyAndFixSchemaProperty(resources){
-    resources.forEach(resource => {  
-      resource.schema = Common.ensureUrlHasProtocol(resource.schema)
-      if(!resource.form){
-        resource.form = `${resource.schema}_form`
-      }
-    })
-  }
-
-  sortBadges(resources){
-
-    var badges = Object.values(resources).map((v, i) => {
-
-      if(!v.claim || !v.claim.isCredential){
-        return null
-      }
-
-      if (v.form === "http://schema.cnsnt.io/pirate_name_form") {
-        return {
-          "name": "Pirate Name",
-          "description": "Hello ",
-          "image": require('../../App/Images/pirate_name.png')
-        }
-      } else if (v.form === "http://schema.cnsnt.io/verified_identity_form") {
-        return {
-          "name": "Verified Identity",
-          "description": "Hello ",
-          "image": require('../../App/Images/verified_identity.png')
-        }
-      } else if (v.form === "http://schema.cnsnt.io/full_name_form") {
-        return {
-          "name": "Full Name",
-          "description": "Hello ",
-          "image": require('../../App/Images/full_name.png')
-        }
-      } else if (v.form === "http://schema.cnsnt.io/contact_email_form") {
-        return {
-          "name": "Verified Email",
-          "description": "Hello ",
-          "image": require('../../App/Images/contact_email.png')
-        }
-      } else if (v.form === "http://schema.cnsnt.io/contact_mobile_form") {
-        return {
-          "name": "Verified Mobile",
-          "description": "Hello ",
-          "image": require('../../App/Images/contact_mobile.png')
-        }
-      } else if(v.form === "http://schema.cnsnt.io/verified_face_match_form"){
-        return {
-          "name": "Verified FaceMatch",
-          "description": "Hello ",
-          "image": require('../../App/Images/verified_face_match.png')
-        }
-      } else {
-        // FIXME
-        return null
-      }
-    })
-    .filter(v => !!v)
-
-    this.setState({
-      "sortedBadges": badges
-    })
-  }
-
-  sortMyData(resources, resourceTypes) {
-
-    // Add logically seperate resources types that aren't persisted in server 
-    resourceTypes.push({ name: 'Malformed', url: null, items: [] })
-    resourceTypes.push({ name: 'Verifiable Claims', url: null, items: [] })
-    resourceTypes.push({ name: 'Decentralized Identifier', url: 'http://schema.cnsnt.io/decentralised_identifier', items: [] })
-    resourceTypes.push({ name: 'Miscellaneous', url: null, items: [] })
-
-    // Sort known items and verifiable claims  
-    resourceTypes.map(rt => {
-
-      if(rt.name === 'Verifiable Claims'){
-        rt.items = resources.filter(r => r.is_verifiable_claim)
-      }
-      else{
-        rt.items = resources.filter(r => {
-
-          if(r.is_verifiable_claim){
-            return false
-          }
-
-          if(!!r.schema){
-            return Common.schemaCheck(r.schema, rt.url)
-          }
-          else{
-            return `${rt.url}_form` === r.form
-          }
-        })
-      }
-      
-      return rt
-    })
-
-    // Sort miscellaneous resources 
-    let misc = resourceTypes.find(rt => rt.name === 'Miscellaneous')
-    misc.items = resources.filter(r => !resourceTypes.some(rt => Common.schemaCheck(r.schema, rt.url)))
-
-    // Set profile pic
-    const person = resourceTypes.find(rt => rt.url === "http://schema.cnsnt.io/person").items[0]
-    const identityPhotographUri = person && person.identityPhotograph ? `data:image/jpg;base64,${person.identityPhotograph}` : Anonymous.uri
-
-    this.setState({
-      "profilePicUrl": identityPhotographUri,
-      "sortedResourceTypes": resourceTypes,
-      "asyncActionInProgress": false
-    })
-
   }
 
   // Context Menu functionality 
@@ -385,7 +235,7 @@ class Me extends Scene {
     case CONNECT:
       return <Connect onPressHelp={ this.onBoundPressHelp }></Connect>
     case MY_DATA:
-      return <MyData sortedResourceTypes={this.state.sortedResourceTypes}></MyData>
+      return <MyData sortedResourceTypes={this.state.sortedResourceTypes} onPressDelete={ this.onBoundPressDelete } onPressEdit={ this.onBoundPressEdit }></MyData>
     case BADGES:
       return <Badges badges={this.state.sortedBadges}></Badges>
     }

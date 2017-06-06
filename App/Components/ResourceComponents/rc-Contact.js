@@ -22,27 +22,21 @@ class RcContact extends Component {
   render() {
 
     const { resourceType, onPressEdit, onPressDelete, onEditResource } = this.props
-    console.log("resourceType: ", resourceType, "onPressEdit: ", onPressEdit, "onPressDelete: ", onPressDelete, "onEditResource:", onEditResource)
-    
-    // return (
-    //   <LifekeyCard headingText={"Contact Details"}>
-    //     { resourceType.items.map((resource, i) => { 
-    //       return (
-    //         <LifekeyCard key={i} headingText={resourceType.name} onPressEdit={() => onPressEdit(resource.form, resource.id)} onPressDelete={() => onPressDelete(resource.id)} >
-    //           <LcContactDetail listCardHeading={resourceType.name} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={false} />
-    //         </LifekeyCard>
-    //       )
-    //     })}
-    //   </LifekeyCard>
-    // )
-
+  
     return (
       <View>
         { resourceType.items.map((resource, i) => { 
+
+          const pendingState = resource.pending ? { "opacity": 0.3 } : {}
+          const onEdit = !resource.pending ? () => onPressEdit(resource.form, resource.id, resourceType.name) : null
+          const onDelete = !resource.pending ? () => onPressDelete(resource.id) : null
+
           return (
-            <LifekeyCard key={i} headingText={resourceType.name} onPressEdit={() => onPressEdit(resource.form, resource.id, resourceType.name)} onPressDelete={() => onPressDelete(resource.id)} >
-              <LcContactDetail listCardHeading={resourceType.name} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={i === 0} />
-            </LifekeyCard>
+            <View key={i} style={pendingState}>
+              <LifekeyCard  headingText={resourceType.name} onPressEdit={onEdit} onPressDelete={onDelete} >
+                <LcContactDetail listCardHeading={resourceType.name} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={i === 0} />
+              </LifekeyCard>
+            </View>
           )
         })}
       </View>

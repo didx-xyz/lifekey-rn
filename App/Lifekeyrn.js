@@ -145,7 +145,7 @@ class Lifekeyrn extends Component {
   }
 
   userHasActivated(callback) {
-    // console.log("USER HAS ACTIVATED CALLED: callback => ", callback, " typeof ", typeof callback )
+    
     if (this.state.userHasActivatedCallback && typeof this.state.userHasActivatedCallback === "function") {
       console.log("Calling given callback from state: ", this.state.userHasActivatedCallback )
       this.state.userHasActivatedCallback()

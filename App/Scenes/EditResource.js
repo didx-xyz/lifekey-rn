@@ -1,6 +1,6 @@
 // external dependencies
 import React from "react"
-import { Picker, Text, TextInput, View, ScrollView } from "react-native"
+import { Picker, Text, TextInput, View, ScrollView, ToastAndroid } from "react-native"
 import { Container } from "native-base"
 import ModalPicker from "react-native-modal-picker"
 import DatePicker from "react-native-datepicker"
@@ -10,6 +10,7 @@ import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
 import Api from "../Api"
+import ConsentUser from "../Models/ConsentUser"
 import BackButton from "../Components/BackButton"
 import Scene from "../Scene"
 import Touchable from "../Components/Touchable"
@@ -20,6 +21,7 @@ import Routes from "../Routes"
 import Logger from '../Logger'
 
 class EditResource extends Scene {
+  
   constructor(...params) {
     super(...params)
 
@@ -32,8 +34,6 @@ class EditResource extends Scene {
     this.onBoundPressCancel = this.onPressCancel.bind(this)
     this.onBoundPressSave = this.onPressSave.bind(this)
     this.onBoundSave = this.onSave.bind(this)
-    // this.onBoundForm = this.onForm.bind(this)
-    this.onBoundResource = this.onResource.bind(this)
   }
 
   onPressCancel() {
@@ -44,13 +44,15 @@ class EditResource extends Scene {
     const data = {}
     const keys = this.state.entities.map(entity => entity.name)
     const values = keys.map(key => this.state[key] || null)
+    const id = this.context.getEditResourceId()
+    const form = this.context.getEditResourceForm()
 
     // combine keys and values into a single object
     keys.forEach((key, i) => data[key] = values[i])
 
     const options = {
       "value": JSON.stringify({
-        "form": this.context.getEditResourceForm(),
+        "form": form,
         ...data
       }),
       "entity": this.state.label,
@@ -58,37 +60,53 @@ class EditResource extends Scene {
       "alias": this.state.label,
       "schema": this.context.getEditResourceForm().split("_form")[0]
     }
+ 
+    const newResource = {
+      "id": id,
+      ...options,
+      entity: id,
+      attribute: id,
+      alias: id
+    }
+
+    // Check that label is not already used 
 
     // Set UI state
     const state = {
       "progressCopy": "Saving...",
-      "asyncActionInProgress": true
+      "asyncActionInProgress": true,
+      "newResource": newResource
     }
-    this.setState(state)
+
+    this.setState(state, () => {
+      if (this.state.id) {
+        return Api.updateResource(newResource).then(
+          this.onBoundSave
+        ).catch(console.log)
+      }
+      else {
+        return Api.createResource(
+          options
+        ).then(
+          this.onBoundSave
+        ).catch(alert)
+      }
+    })
     //End set UI state
-
-    if (this.state.id) {
-      var id = this.context.getEditResourceId()
-      return Api.updateResource({
-        "id": this.state.id,
-        ...options,
-        entity: id,
-        attribute: id,
-        alias: id
-      }).then(
-        this.onBoundSave
-      ).catch(console.log)
-    }
-
-    return Api.createResource(
-      options
-    ).then(
-      this.onBoundSave
-    ).catch(alert)
   }
 
-  onSave() {
+  onSave(response) {
+    
     this.context.onSaveResource()
+
+    let newResource = Object.assign(this.state.newResource, JSON.parse(this.state.newResource.value))
+
+    newResource.id = newResource.id ? newResource.id : response.body.id // edited or saved
+
+    ConsentUser.updateState(newResource)
+
+    ToastAndroid.show('Resource saved!', ToastAndroid.SHORT)
+
     this.navigator.pop()
   }
 
@@ -103,11 +121,9 @@ class EditResource extends Scene {
     ]).then(values => {
 
       let formData = values[0]
-      let resourceData = values[1]
+      let resource = values[1]
 
-      // // Initiate state with relevant data
-      let state = resourceData ? { "id": resourceData.body.id, ...JSON.parse(resourceData.body.value) } 
-                               : { "label" : `My ${this.context.getEditResourceName()}` }
+      let state = resource ? resource : { "label" : `My ${this.context.getEditResourceName()}` }
 
       // Push all relevant form data into state 
       state.entities = [
@@ -151,13 +167,11 @@ class EditResource extends Scene {
   componentWillFocus() {
 
     this.setState({"asyncActionInProgress": true, "progressCopy": "Loading existing resources..."}, async () => {
-      const resources = await this.loadResource(this.context.getEditResourceId())
-      if(resources){
-        this.onBoundResource(resources)
-      }
-      else{
-        this.setState({"asyncActionInProgress": false, "label": `My ${this.context.getEditResourceName()}`})
-      }
+      const resource = await this.loadResource(this.context.getEditResourceId())
+      
+      const state = resource ? resource : { "label" : `My ${this.context.getEditResourceName()}` }
+      this.setState(state)
+
     })
 
   }
@@ -169,16 +183,6 @@ class EditResource extends Scene {
     else{
       return Promise.resolve()
     }  
-  }
-
-  onResource(data) {
-
-    const state = {
-      "id": data.body.id,
-      ...JSON.parse(data.body.value)
-    }
-
-    this.setState(state)
   }
 
   renderEntity(entity, i) {
@@ -242,7 +246,6 @@ class EditResource extends Scene {
   renderStringInput(entity, i) {
 
     const value = (!this.state[entity.name] && entity.name === "label") ? this.state.label : this.state[entity.name]
-    console.log("RENDER STRING ----------------------> ", value)
     return (
       <TextInput
         style={styles.textInput}
@@ -351,8 +354,6 @@ class EditResource extends Scene {
   }
 
   renderSelectInput(entity, data, initialStringValue) {
-
-    // const currentStateClass = !!this.state[entity.name + "__label"] ? styles.selectPickerWithValue : styles.selectPickerWithoutValue
     return (
       <ModalPicker
           data={data}
@@ -399,22 +400,28 @@ class EditResource extends Scene {
                 </View>
             }
           </View>
-          <View style={styles.buttons}>
-            <View style={styles.cancelButton}>
-              <Touchable onPress={this.onBoundPressCancel}>
-                <Text style={styles.cancelButtonText}>
-                  Cancel
-                </Text>
-              </Touchable>
-            </View>
-            <View style={styles.saveButton}>
-              <Touchable onPress={this.onBoundPressSave}>
-                <Text style={styles.saveButtonText}>
-                  Save
-                </Text>
-              </Touchable>
-            </View>
-          </View>
+            {
+              this.state.asyncActionInProgress ? null
+              :
+              (
+                <View style={styles.buttons}>
+                  <View style={styles.cancelButton}>
+                    <Touchable onPress={this.onBoundPressCancel}>
+                      <Text style={styles.cancelButtonText}>
+                        Cancel
+                      </Text>
+                    </Touchable>
+                  </View>
+                  <View style={styles.saveButton}>
+                    <Touchable onPress={this.onBoundPressSave}>
+                      <Text style={styles.saveButtonText}>
+                        Save
+                      </Text>
+                    </Touchable>
+                  </View>
+                </View>
+              )
+            }
         </View>
       </Container>
     )
@@ -464,7 +471,6 @@ const styles = {
     "paddingRight": 10,
   },
   "progressContainer": {
-    // "backgroundColor": Palette.consentBlue,
     "flex": 1,
     "alignItems": "center",
     "justifyContent": "center"
@@ -522,8 +528,7 @@ const styles = {
   },
   "countryPicker":{
     "paddingTop": 10,
-    "height": 40,
-    // "backgroundColor": "orange"
+    "height": 40
   },
   "countryLabel": {
     "flex": 1,

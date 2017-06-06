@@ -34,6 +34,11 @@ class LifekeyCard extends Component {
       })
     })
 
+
+    // console.log("PENDING ===========================> ", this.props.pending)
+    // const pendingState = this.props.pending ? { "opacity": 0.3 } : {}
+    // console.log("PENDING STATE ===========================> ", pendingState) <Card style={Object.assign({}, styles.card, pendingState)}>
+
     if (this.state.expanded) {
       return (
         <Card style={styles.card}>

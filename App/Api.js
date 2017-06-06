@@ -60,31 +60,9 @@ function checkParameters(requiredKeys, receivedObject) {
 
 }
 
-const state = {}
+// const state = {}
 
 export default class Api {
-
-  static clearCached(key) {
-    delete state[key]
-  }
-
-  static getCached(key) {
-
-    if (state[key] && state[key].time >= Date.now()) {
-      return state[key].data
-    }
-
-    return null
-  }
-
-  static setCached(key, value, time = 300000 /* 5 minutes in milliseconds */) {
-
-    const currentTime = new Date()
-    state[key] = {
-      "time": currentTime.setMilliseconds(currentTime.getMilliseconds() + time),
-      "data": value
-    }
-  }
 
   /*
    * Register a user
@@ -343,29 +321,89 @@ export default class Api {
   // #### RESOURCE ####
   // ##################
 
-  static allResourceTypes() {
-    return request("http://schema.cnsnt.io/resources")
-    // return fetch('http://schema.cnsnt.io/resources').then(_ => _.json())
+  
+  static getMyData(milliseconds = 300000){
+    let cached = ConsentUser.getCached("myData")
+    
+    if (cached && cached.valid) {
+      return Promise.resolve(cached)
+    }
+    
+    return Promise.all([
+      this.allResourceTypes(),
+      this.allResources()
+    ]).then(values => {
+      
+
+      const updatedResources = values[1].body.map(resource => {
+        return {
+          id: resource.id,
+          alias: resource.alias,
+          schema: resource.schema, 
+          is_verifiable_claim: resource.is_verifiable_claim,
+          ...JSON.parse(resource.value)
+        }
+      })
+
+      ConsentUser.cacheMyData(updatedResources)
+
+      return ConsentUser.getCached("myData")
+
+    }).catch(error => {
+      Logger.error(error)
+    })
   }
 
-  static getResourceForm(form) {
+  static getFlattenedResources(){
+    
+    return this.getMyData().then(data => {
+
+      let arrayOfResourceArrays = data.resourcesByType.map(rt => rt.items)
+      let flattenedResources = ConsentUser.flattenCachedResources(arrayOfResourceArrays)
+      return flattenedResources 
+
+    }).catch(error => {
+      Logger.error(error)
+    })
+  }
+
+  static allResourceTypes(milliseconds = 300000) {
+
+    let cached = ConsentUser.getCached("allResourceTypes")
+    
+    if (cached !== null) {
+      return Promise.resolve(cached)
+    }
+
+    return request("http://schema.cnsnt.io/resources").then(data => {
+      ConsentUser.setCached("allResourceTypes", data.resources, milliseconds)
+    }) 
+  }
+
+  static getResourceForm(form, milliseconds = 600000) {
+
     form = Common.ensureUrlHasProtocol(form)
-    return request(form)
+    const formComponents = form.split('/')
+    const formName = formComponents[formComponents.length - 1]
+
+    let cached = ConsentUser.getCached(formName)
+    
+    if (cached !== null) {
+      return Promise.resolve(cached)
+    }
+
+    return request(form).then(data => {
+      ConsentUser.setCached(formName, data, milliseconds)
+      return data
+    })    
+    
   }
 
   // 0 GET /resource
   static allResources(milliseconds = 300000) {
-    // let cached = Api.getCached("allResources")
-    //
-    // if (cached !== null) {
-    //   return cached
-    // }
 
-    cached = request("/resource?all=1")
+    return request("/resource?all=1")
 
-    Api.setCached("allResources", cached, milliseconds)
-
-    return cached
   }
 
   // 1 GET /resource/:resource_id
@@ -375,7 +413,26 @@ export default class Api {
     ]
 
     if (checkParameters(requiredFields, data)) {
+
+      // Try fetch from cache first 
+      let cached = ConsentUser.getCached("myData")
+      let resource
+
+      if (cached) {
+
+        const containerResourceType = cached.resourcesByType.find(rt => rt.items.some((item) => item.id === data.id))
+        if(containerResourceType){
+          resource = containerResourceType.items.find(item => item.id === data.id)
+        }
+      }
+
+      if(cached && resource){
+        return Promise.resolve(resource)
+      }
+      
+      // else
       return request(`/resource/${data.id}`)
+
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
@@ -383,8 +440,6 @@ export default class Api {
 
   // 2 POST /resource
   static createResource(data) {
-
-    console.log("CREATE RESOURCE: ", data)
 
     const requiredFields = [
       'entity',
@@ -414,6 +469,7 @@ export default class Api {
 
   // 4 DELETE /resource/:resource_id
   static deleteResource(data) {
+
     const requiredFields = [
       'id'
     ]
