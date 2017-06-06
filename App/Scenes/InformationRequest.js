@@ -328,7 +328,6 @@ const styles = {
     textAlign: "center"
   },
   "progressContainer": {
-    // "backgroundColor": Palette.consentBlue,
     "flex": 1,
     "alignItems": "center",
     "justifyContent": "center"

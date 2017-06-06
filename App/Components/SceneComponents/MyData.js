@@ -1,36 +1,17 @@
 // external dependencies
 import React, { Component } from 'react'
-import { Text, View, WebView} from "react-native"
+import { Text, View } from "react-native"
 import { Container, Content } from "native-base"
 import PropTypes from "prop-types"
-// import Object from 'lodash'
 
 // internal dependencies
-// import Scene from "../../Scene"
-// import Session from "../../Session"
 import Palette from "../../Palette"
 import Design from "../../DesignParameters"
-// import Routes from "../../Routes"
-// import Config from "../../Config"
-// import Logger from "../../Logger"
-// import MvTemplate from "../mv-Template"
-// import LifekeyHeader from "../LifekeyHeader"
 import LifekeyCard from "../LifekeyCard"
 import { Card, CardItem } from "native-base"
 
-// import RcPerson from "../ResourceComponents/rc-Person"
-// import RcIdentity from "../ResourceComponents/rc-Identity"
-// import RcContact from "../ResourceComponents/rc-Contact"
-// import RcAddress from "../ResourceComponents/rc-Address"
-// import RcEmployment from "../ResourceComponents/rc-Employment"
-// import RcProofOfResidence from "../ResourceComponents/rc-ProofOfResidence"
-// import RcProofOfIdentity from "../ResourceComponents/rc-ProofOfIdentity"
 import RcWrapper from "../ResourceComponents/rc-Wrapper"
 import LcAddCategoryButton from "../lc-AddCategoryButton"
-// import Touchable from "../Touchable"
-// import BackButton from "../BackButton"
-// import BackIcon from "../BackIcon"
-// import HelpIcon from "../HelpIcon"
 
 
 class MyData extends Component {
