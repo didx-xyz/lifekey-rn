@@ -43,6 +43,7 @@ class LcContactDetail extends Component {
   render () {
   
     const { expanded, listCardHeading, listCardPrimaryDetail, listCardSecondaryDetails } = this.props
+    console.log("PROPS: ", listCardHeading)
 
     if(expanded)
       return (

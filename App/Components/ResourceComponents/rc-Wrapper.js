@@ -13,12 +13,17 @@ import LcImageDocument from "../lc-ImageDocument"
 class RcWrapper extends Component {
 
   renderComponent(resource, resourceType, index){
+
     switch (resourceType.name) {
       case('Person'):
         return <LcPerson {...resource} />
       case('Identity'):
         return  <LcIdentity {...resource} />
-      case('Mobile Phone' || 'Landline' || 'Email'):
+      case('Mobile Phone'):
+        return <LcContactDetail listCardHeading={resourceType.name} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
+        case('Landline'):
+        return <LcContactDetail listCardHeading={resourceType.name} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
+        case('Email'):
         return <LcContactDetail listCardHeading={resourceType.name} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
       case('Address'):
         return <LcHomeAddress {...resource} expanded={ false }/>
