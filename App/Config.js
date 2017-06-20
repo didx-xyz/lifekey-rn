@@ -28,7 +28,7 @@ export default {
   DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
 
   debugNetwork: true,         // Log API requests and responses
-  debugReact: true,          // Log the React Lifecycle events
+  debugReact: false,          // Log the React Lifecycle events
   debugNavigator: false,      // Log the current stack of Navigator routes
   debugFirebase: true,        // Log Firebase events
   debugAsyncStorage: false,

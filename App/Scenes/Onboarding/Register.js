@@ -13,6 +13,8 @@ import Palette from '../../Palette'
 import Logger from '../../Logger'
 import ConsentUser from '../../Models/ConsentUser'
 
+import Session from '../../Session'
+
 import {
   Text,
   View,
@@ -56,31 +58,198 @@ class Register extends Scene {
     super(props)
     this._steps = [
       {
+        index: 0,
         largeText: 'Create your username',
         smallText: 'Don\'t worry you can change this at any time',
         // bottomText: 'I already have a key',
-        bottomText: ''
+        bottomText: '',
+        success: function(value, callback) {
+          Keyboard.dismiss()
+
+          // Give the keyboard time to close
+          // setTimeout(() => {
+          //   this._eventTimeline.pushEvent(`Username saved as: ${value}`)
+          //   // Change text to next screen
+          // }, 300)
+
+          this._fadeTextOut(() => {
+            this._fadeTextIn(() => {
+              // Update state to reflect we are on the 2nd step now
+              this.setState({
+                step: this.state.step + 1,
+                username: this.state.textInputValue, //value,
+                textInputValue: ''
+              })
+            })
+          })
+          this._eventTimeline.pushEvent(`Username saved as: ${value}`)
+        },
+        failure: function() {
+          // Tell the user they must enter something
+          if (Platform.OS === 'android') {
+            const dialog = new DialogAndroid()
+            dialog.set({
+              title: 'Username can\'t be empty!',
+              content: 'You must enter a username to uniquely identify yourself on the network.',
+              positiveText: 'OK'
+            })
+            dialog.show()
+          } else {
+            // iOS
+            alert('TODO')
+          }
+        },
+        component: function() {
+          return (
+            <OnboardingTextInputAndroid onChangeText={(text) => this.setState({textInputValue: text})}
+                                        autoCapitalize="sentences"
+                                        fontSize={30}
+                                        value={this.state.textInputValue}
+                                        ref={oti => this._oti = oti}
+                                        onSubmit={() => this._stepForward()} />
+          )
+        }
       },
       {
+        index: 1,
         largeText: 'Please enter your personal email address',
         smallText: 'To set up or recover your key',
         bottomText: '',
-        // bottomText: 'What\'s this?'
+        success: function(value, callback) {
+          Keyboard.dismiss()
+          // setTimeout(() => {
+          //   this._eventTimeline.pushEvent(`Username saved as: ${value}`)
+          //   // Change text to next screen
+          // }, 300)
+          this._fadeTextOut(() => {
+            this._fadeTextIn(() => {
+              // Update state to reflect we are on the 2nd step now
+              this.setState({
+                step: this.state.step + 1,
+                email: this.state.textInputValue,
+                textInputValue: ''
+              })
+            })
+          })
+          this._eventTimeline.pushEvent(`Username saved as: ${value}`)
+        },
+        failure: function() {
+          if (Platform.OS === 'android') {
+            const dialog = new DialogAndroid()
+            dialog.set({
+              title: 'Email can\'t be empty!',
+              content: 'You must enter an email address to uniquely identify yourself on the network.',
+              positiveText: 'OK'
+            })
+            dialog.show()
+          } else {
+            // iOS
+            alert('TODO')
+          }
+        },
+        component: function() {
+          return (
+            <OnboardingTextInputAndroid onChangeText={(text) => this.setState({textInputValue: text})}
+                                        autoCapitalize="none"
+                                        fontSize={24}
+                                        value={this.state.textInputValue}
+                                        ref={oti => {this._oti = oti}}
+                                        onSubmit={() => this._stepForward()} />
+          )
+        }
       },
       {
+        index: 2,
         largeText: 'Please enter a secure pin',
         smallText: 'Do not forget this pin. It cannot be recovered.',
-        bottomText: 'More info'
+        bottomText: 'More info',
+        success: function(value, callback) {
+          // setTimeout(() => {
+          //   this._eventTimeline.pushEvent(`Magic link sent to ${this.state.email}`)
+          // }, 1000)
+          this.setState({
+            step: this.state.step + 1,
+            pin: this.state.textInputValue,
+            textInputValue: ''
+          }, callback || function() {})
+          this._eventTimeline.pushEvent(`Magic link sent to ${this.state.email}`)
+        },
+        failure: function() {
+          // Tell the user they must enter something
+          if (Platform.OS === 'android') {
+            const dialog = new DialogAndroid()
+            dialog.set({
+              title: 'PIN can\'t be empty!',
+              content: 'You must enter a PIN to secure your cryptographic keypair.',
+              positiveText: 'OK'
+            })
+            dialog.show()
+          } else {
+            // iOS
+            alert('TODO')
+          }
+        },
+        component: function() {
+          return (
+            <Touchable style={{flex: 1}} onPress={_ => this.pinInput.focus()}>
+              <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
+                {this.state.magicLinkRequested ? (
+                  <Nachos.Spinner color='blue' />
+                ) : (
+                  <HexagonDots current={this.state.textInputValue.length < 5 ? this.state.textInputValue.length : 4} />
+                )}
+                <Dots current={this.state.textInputValue.length} />
+                <TextInput ref={(_ref) => this.pinInput = _ref}
+                          autoFocus={true}
+                          returnKeyType="done"
+                          keyboardType="phone-pad"
+                          onChangeText={(text) => this._onPinChanged(text)}
+                          style={[style.pinInput]} />
+              </View>
+            </Touchable>
+          )
+        }
       },
       {
+        index: 3,
         largeText: 'Check your mail for a magic link',
         smallText: 'The link will be valid for 24 hours',
-        bottomText: 'Resend link'
+        bottomText: 'Resend link',
+        success: function() {
+          this._fadeTextOut(() => {
+            this._fadeTextIn(() => {
+              this.setState({
+                step: this.state.step + 1,
+                textInputValue: ''
+              })
+            })
+          })
+        },
+        failure: function() {},
+        component: function() {
+          return (
+            <View style={{flex: 1}}>
+              <Text style={{textAlign: "center"}}>
+                Please check the inbox of {this.state.email} for a link to activate your account
+              </Text>
+            </View>
+          )
+        }
       },
       {
+        index: 4,
         largeText: 'Thanks for activating!',
         smallText: 'Please wait while we create your Decentralised Identifier on the Consent Blockchain...',
-        bottomText: ''
+        bottomText: '',
+        success: function() {},
+        failure: function() {},
+        component: function() {
+          return (
+            <View style={{flex: 1, justifyContent: "center", alignItems: "center"}}>
+              <Nachos.Spinner color='blue' />
+            </View>
+          )
+        }
       }
     ]
     this.state = {
@@ -101,42 +270,17 @@ class Register extends Scene {
     }
   }
 
-  componentWillMount() {
-    super.componentWillMount()
-  }
-
-  componentWillFocus() {
-    super.componentWillFocus()
-  }
-
-  componentDidFocus() {
-    super.componentDidFocus()
-  }
-
   componentDidMount() {
     super.componentDidMount()
-    this.keyboardWillShowListener = Keyboard.addListener('keyboardWillShow', () => this._onKeyboardWillShow())
-    this.keyboardWillHideListener = Keyboard.addListener('keyboardWillHide', () => this._onKeyboardWillHide())
-    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => this._onKeyboardDidShow())
-    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => this._onKeyboardDidHide())
+    this.keyboardDidShowListener = Keyboard.addListener(
+      'keyboardDidShow', () => this._onKeyboardDidShow()
+    )
+    this.keyboardDidHideListener = Keyboard.addListener(
+      'keyboardDidHide', () => this._onKeyboardDidHide()
+    )
     this._fadeTextIn()
-
-    this.context.userHasActivated(this.registrationCallback.bind(this))
+    this.context.userHasActivated(this._steps[3].success.bind(this))
     this._eventTimeline.pushEvent('Started registration')
-  }
-
-  registrationCallback() {
-
-    // Originally called this._steopForward() but could not get this to work smoothly within in the switch statement. 
-
-    this._fadeTextOut(() => {
-      this._fadeTextIn(() => {
-        this.setState({
-          step: STEP_WAITING_FOR_DID,
-          textInputValue: ''
-        })
-      })
-    })
   }
 
   _fadeTextIn(callback) {
@@ -177,22 +321,17 @@ class Register extends Scene {
     })
   }
 
-  _onKeyboardWillShow() {
-    Logger.info('KeyboardWillShow', this.filename)
-  }
-
-  _onKeybordWillHide() {
-    Logger.info('KeyboardWillHide', this.filename)
-
-  }
-
   _onKeyboardDidShow() {
-    this.setState({screenHeight: this.state.screenHeight - (this.state.originalScreenHeight * 0.2)})
+    this.setState({
+      screenHeight: this.state.screenHeight - (this.state.originalScreenHeight * 0.2)
+    })
     Logger.info('KeyboardDidShow', this.filename)
   }
 
   _onKeyboardDidHide() {
-    this.setState({screenHeight: this.state.screenHeight + (this.state.originalScreenHeight * 0.2)})
+    this.setState({
+      screenHeight: this.state.screenHeight + (this.state.originalScreenHeight * 0.2)
+    })
     Logger.info('KeyboardDidHide', this.filename)
   }
 
@@ -216,279 +355,88 @@ class Register extends Scene {
   }
 
   _stepBack() {
-    if (this.state.step !== 0) {
-      this._fadeTextOut(() => {
-        this._fadeTextIn(() => {
-          // Update state to reflect we are on the 2nd step now
-          this.setState({
-            step: this.state.step - 1,
-          }, () => {
-            // Clear TextInput value
-            this.setState({
-              textInputValue: ''
-            })
-          })
+    if (this.state.step === 0) return
+    this._fadeTextOut(() => {
+      this._fadeTextIn(() => {
+        this.setState({
+          step: this.state.step - 1,
+          textInputValue: ''
         })
       })
-    }
+    })
   }
 
   _resetRegistration() {
-    this.setState({
-      step: 0, // The beginning
-      textInputValue: '',
-      username: null,
-      email: null,
-      pin: '',
-      timelineExpanded: false,
-      largeText: this._steps[0].largeText,
-      smallText: this._steps[0].smallText,
-      bottomText: this._steps[0].bottomText,
-      moveTransitionValue: new Animated.Value(300),
-      fadeTransitionValue: new Animated.Value(0)
-    }, () => {
+    Promise.all([
+      this.setState({
+        step: 0, // The beginning
+        textInputValue: '',
+        username: null,
+        email: null,
+        pin: '',
+        timelineExpanded: false,
+        largeText: this._steps[0].largeText,
+        smallText: this._steps[0].smallText,
+        bottomText: this._steps[0].bottomText,
+        moveTransitionValue: new Animated.Value(300),
+        fadeTransitionValue: new Animated.Value(0)
+      }),
       this._fadeTextIn(() => {
-        this._eventTimeline.pushEvent('Started registration (again)')
+        this._eventTimeline.pushEvent('Restarted registration')
       })
-
-    })
+    ]).catch(console.log)
   }
 
   _stepForward(callback) {
-
-    // Preserve the input value
-    const onStepTextInputValue = this.state.textInputValue.toLowerCase().trim()
-
-    // // Clear the text input value
-    // this.setState({
-    //   textInputValue: ''
-    // })
-
-    switch (this.state.step) {
-    // USERNAME -> EMAIL
-    case STEP_USERNAME:
-
-      // If a username was entered
-      if (onStepTextInputValue) {
-
-        Keyboard.dismiss()
-
-        // Give the keyboard time to close
-        setTimeout(() => {
-          this._eventTimeline.pushEvent(`Username saved as: ${onStepTextInputValue}`)
-          // Change text to next screen
-        }, 300)
-
-        this._fadeTextOut(() => {
-          this._fadeTextIn(() => {
-            // Update state to reflect we are on the 2nd step now
-            this.setState({
-              step: STEP_EMAIL,
-              username: onStepTextInputValue,
-              textInputValue: ''
-            })
-          })
-        })
-
-      } else {
-        // Tell the user they must enter something
-        if (Platform.OS === 'android') {
-          const dialog = new DialogAndroid()
-          dialog.set({
-            title: 'Username can\'t be empty!',
-            content: 'You must enter a username to uniquely identify yourself on the network.',
-            positiveText: 'OK'
-          })
-          dialog.show()
-        } else {
-          // iOS
-          alert('TODO')
-        }
-      }
-      break
-
-
-    // EMAIL -> PIN
-    case STEP_EMAIL:
-      if (onStepTextInputValue) {
-        Keyboard.dismiss()
-
-        setTimeout(() => {
-          this._eventTimeline.pushEvent(`Email saved as: ${onStepTextInputValue}`)
-        }, 500)
-        this._fadeTextOut(() => {
-          this._fadeTextIn(() => {
-            // Update state to reflect we are on the 2nd step now
-            this.setState({
-              step: STEP_PIN,
-              email: onStepTextInputValue,
-              textInputValue: ''
-            })
-          })
-        })
-      } else {
-        if (Platform.OS === 'android') {
-          const dialog = new DialogAndroid()
-          dialog.set({
-            title: 'Pin can\'t be empty!',
-            content: 'You must enter a username to uniquely identify yourself on the network.',
-            positiveText: 'OK'
-          })
-          dialog.show()
-        } else {
-          // iOS
-          alert('TODO')
-        }
-      }
-      break
-    // PIN - MAGIC LINK
-    case STEP_PIN:
-      if (onStepTextInputValue) {
-        setTimeout(() => {
-          this._eventTimeline.pushEvent(`Magic link sent to ${this.state.email}`)
-        }, 1000)
-
-        // Update the state to show we are on the 3rd step
-        this.setState({
-          step: 3,
-          pin: onStepTextInputValue
-        }, () => {
-          if (callback) { callback() }
-        })
-
-      } else {
-        // Tell the user they must enter something
-        if (Platform.OS === 'android') {
-          const dialog = new DialogAndroid()
-          dialog.set({
-            title: 'Username can\'t be empty!',
-            content: 'You must enter a username to uniquely identify yourself on the network.',
-            positiveText: 'OK'
-          })
-          dialog.show()
-        } else {
-          // iOS
-          alert('TODO')
-        }
-      }
-      break
+    var onStepTextInputValue = this.state.textInputValue.toLowerCase().trim()
+    if (onStepTextInputValue) {
+      return this._steps[
+        this.state.step
+      ].success.call(
+        this, onStepTextInputValue, callback
+      )
     }
+    this._steps[this.state.step].failure.call(this)
   }
 
   _onPinChanged(text) {
-    
     this.setState({
-      textInputValue: text,
-      pin: text,
-    }, () => {
-      if (text.length === 5) {
-        this.setState({
-          magicLinkRequested: true
+      textInputValue: text
+    }, _ => {
+      if (text.length < 5) return
+      Keyboard.dismiss()
+      this._stepForward(_ => {
+        this._requestMagicLink().then(_ => {
+          this.setState({magicLinkRequested: true})
+        }).catch(err => {
+          if (err.status === 400) {
+            alert('The username or email already exists or is invalid')
+            this._resetRegistration()
+            return
+          } else {
+            alert('An error occured.')
+            console.log("ERROR ---------> ", err)
+          }
         })
-        this._requestMagicLink()
-        Keyboard.dismiss()
-      }
+      })
     })
-
-    // this.setState({
-    //   textInputValue: text,
-    //   pin: text,
-    //   magicLinkRequested: true
-    // }, () => {
-    //   Keyboard.dismiss()
-    //   this._requestMagicLink()
-    // })
   }
 
   _requestMagicLink() {
-
-    ConsentUser.register(
+    return ConsentUser.register(
       this.state.username,
       this.state.email,
       this.state.pin
-    )
-    .then(result => {
-      Logger.info('Registration request sent successfully. Please check for magic link', this.filename)
-      this._stepForward()
-
+    ).then(result => {
+      Session.update(result)
+      return Promise.resolve()
     })
-    .catch(error => {
-      Logger.error('Not registered', this.filename, error)
-      switch (error.status) {
-        case 400: // Validation error
-          alert('The username or email already exists or is invalid')
-          this._resetRegistration()
-        default: {
-          alert('An error occured.')
-          console.log("ERROR ---------> ", error)
-        }
-      }
-
-    })
-  }
-
-  renderInputView() {
-    switch (this.state.step) {
-      case STEP_USERNAME:
-        return (<OnboardingTextInputAndroid
-                  onChangeText={(text) => this.setState({ textInputValue: text })}
-                  autoCapitalize="sentences"
-                  fontSize={30}
-                  value={this.state.textInputValue}
-                  ref={oti => { this._oti = oti }}
-                  onSubmit={() => this._stepForward()}
-                />)
-
-      case STEP_EMAIL:
-        return (<OnboardingTextInputAndroid
-                  onChangeText={(text) => this.setState({ textInputValue: text })}
-                  autoCapitalize="none"
-                  fontSize={24}
-                  value={this.state.textInputValue}
-                  ref={oti => { this._oti = oti }}
-                  onSubmit={() => this._stepForward()}
-                />)
-
-      case STEP_PIN:
-        return (<Touchable style={{ flex: 1 }} onPress={() => this.pinInput.focus()}>
-                  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    {!this.state.magicLinkRequested ?
-                      <HexagonDots
-                        current={this.state.textInputValue.length < 5 ? this.state.textInputValue.length : 4}
-                      />
-                    :
-                      <Nachos.Spinner color='blue'/>
-                    }
-                    <Dots current={this.state.textInputValue.length} />
-                    <TextInput
-                      ref={(_ref) => this.pinInput = _ref }
-                      autoFocus={true}
-                      returnKeyType="done"
-                      keyboardType="phone-pad"
-                      onChangeText={(text) => this._onPinChanged(text)}
-                      style={[style.pinInput]}
-                    />
-                  </View>
-                </Touchable>)
-
-      case STEP_MAGIC_LINK:
-        return (<View style={{ flex: 1 }}>
-                  <Text style={{ textAlign: "center" }}>Please check the inbox of {this.state.email} for a link to activate your account</Text>
-                </View>)
-      case STEP_WAITING_FOR_DID:
-        return (<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                  <Nachos.Spinner color='blue'/>
-                  {/* <Text style={{ textAlign: "center" }}>Please wait while we create your Decentralised Identifier on the Consent Blockchain</Text> */}
-                </View>)
-    }
   }
 
   _toggleTimeline() {
     this.setState({
       timelineExpanded: !this.state.timelineExpanded
-    }, () => {
-      this.forceUpdate()
-    })
+    }, this.forceUpdate)
   }
 
   render() {
@@ -497,58 +445,63 @@ class Register extends Scene {
         <Content keyboardShouldPersistTaps="always">
           <AndroidBackButton onPress={() => this._hardwareBackHandler()}/>
           <StatusBar hidden={true} />
-          <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+          <TouchableWithoutFeedback onPress={Keyboard.dismiss}>
             <Grid>
-              <Col style={[style.sceneColumn, { height: this.state.screenHeight }]}>
-                { /* Event timeline */}
-                <Touchable style={{ backgroundColor: 'red' }} onPress={() => this._toggleTimeline()}>
-                  <Row style={[style.timelineRow, { flex: this.state.timelineExpanded ? 15 : 1 }]}>
-                    <EventTimeline
-                      ref={(eventTimeline) => this._eventTimeline = eventTimeline}
-                    />
+              
+              <Col style={[style.sceneColumn, {height: this.state.screenHeight}]}>
+                
+                {/* Event timeline */}
+                <Touchable style={{backgroundColor: 'red'}} onPress={() => this._toggleTimeline()}>
+                  <Row style={[style.timelineRow, {flex: this.state.timelineExpanded ? 15 : 1}]}>
+                    <EventTimeline ref={(et) => this._eventTimeline = et} />
                   </Row>
                 </Touchable>
-                { /* center content */ }
-                <Row style={{ flex: 13, flexDirection: 'column' }}>
+                
+                {/* center content */}
+                <Row style={{flex: 13, flexDirection: 'column'}}>
 
-                  { /* LARGE TEXT */ }
+                  {/* LARGE TEXT */}
                   <Row style={style.largeTextRow}>
-                    <Animated.View style= {{
+                    <Animated.View style={{
                       opacity: this.state.fadeTransitionValue,
                       marginBottom: this.state.moveTransitionValue
                     }}>
-                      <Text style={{ fontSize: 38, textAlign: 'center' }}>{this._steps[this.state.step].largeText}</Text>
+                      <Text style={{fontSize: 38, textAlign: 'center'}}>
+                        {this._steps[this.state.step].largeText}
+                      </Text>
                     </Animated.View>
                   </Row>
 
-                  { /* SMALL TEXT */ }
+                  {/* SMALL TEXT */}
                   <Row style={[style.smallTextRow]}>
                     <Animated.View style={{
                       opacity: this.state.fadeTransitionValue,
                       flex: 1
                     }}>
-                      <Text style={{ fontSize: 18, textAlign: 'center' }}>{this._steps[this.state.step].smallText}</Text>
+                      <Text style={{fontSize: 18, textAlign: 'center'}}>
+                        {this._steps[this.state.step].smallText}
+                      </Text>
                     </Animated.View>
                   </Row>
 
-                  { /* TEXT INPUT */}
+                  {/* TEXT INPUT */}
                   <Row style= {style.textInputRow}>
-                    { this.renderInputView() }
+                    {this._steps[this.state.step].component.call(this)}
                   </Row>
                 </Row>
 
-                { /* Footer content */ }
-                <Row style= {style.bottomContentRow}>
+                {/* Footer content */}
+                <Row style={style.bottomContentRow}>
                   <View style={style.bottomContentRowWrapperView}>
                     <View>
                       <Text>Help</Text>
                     </View>
                     <View>
-                      <Touchable
-                        onPress={() => alert('No you don\'t')}
-                      >
-                        <View style={{ paddingTop: 20, paddingBottom: 20 }}>
-                          <Text style={{ fontSize: 20 }}>{this._steps[this.state.step].bottomText}</Text>
+                      <Touchable onPress={() => alert('No you don\'t')}>
+                        <View style={{paddingTop: 20, paddingBottom: 20}}>
+                          <Text style={{fontSize: 20}}>
+                            {this._steps[this.state.step].bottomText}
+                          </Text>
                         </View>
                       </Touchable>
                     </View>

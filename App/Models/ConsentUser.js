@@ -384,8 +384,9 @@ export default class ConsentUser {
 
   static unregister() {
     let firebaseToken
-    return AsyncStorage.getItem(STORAGE_KEY)
-    .then(itemJSON => {
+    return AsyncStorage.getItem(
+      STORAGE_KEY
+    ).then(itemJSON => {
       const user = JSON.parse(itemJSON)
       if (user) {
         // Preserve firebase token
@@ -410,8 +411,7 @@ export default class ConsentUser {
           )
         )
       }
-    })
-    .then(responseJson => {
+    }).then(responseJson => {
       return Promise.all([
         Crypto.deleteKeyStore(Config.keystore.name),
         AsyncStorage.multiRemove([
@@ -421,8 +421,7 @@ export default class ConsentUser {
           ConsentDiscoveredUser.storageKey
         ])
       ])
-    })
-    .then(results => {
+    }).then(results => {
       if (results[1]) {
         if (results[1].error) {
           Logger.error('Could not purge databases', LOGTAG, results[1].error)
@@ -441,8 +440,8 @@ export default class ConsentUser {
     let publicKeyPem, firebaseToken, toSign, userID
     Logger.info(`Registering as: ${username}, ${email}, ${password}`, LOGTAG)
 
-    return ConsentUser.getToken()
-    .then(_firebaseToken => {
+    return ConsentUser.getToken(
+    ).then(_firebaseToken => {
       if (_firebaseToken) {
         Logger.info('Fetching secure random', LOGTAG)
         firebaseToken = _firebaseToken
@@ -451,51 +450,36 @@ export default class ConsentUser {
         Logger.firebase('No firebase token available', LOGTAG)
         return Promise.reject('No token available. Cannot register')
       }
-    })
-
-    // Check if already registered
-    .then(keystoreList => {
+    }).then(keystoreList => { // Check if already registered
       const exists = keystoreList.find(x => x === Config.keystore.name)
       if (exists) {
         // We delete it
-        return Crypto.deleteKeyStore(Config.keystore.name)
-        .then(() => {
+        return Crypto.deleteKeyStore(
+          Config.keystore.name
+        ).then(() => {
           return Crypto.createKeyStore(Config.keystore.name, password)
-
         })
       } else {
         Logger.info('Creating new keystore', LOGTAG)
         return Crypto.createKeyStore(Config.keystore.name, password)
       }
-    })
-
-    // Create the user's keypair
-    .then(() => {
+    }).then(() => { // Create the user's keypair
       Logger.info('Creating keypair', LOGTAG)
       return Crypto.addKeyPair(
         Crypto.KEYPAIR_RSA,
         Config.keystore.keyName,
-        2048,
+        4096,
         password,
         Config.keystore.pemCertificatePath
       )
-    })
-
-    // Get public key in PEM format
-    .then(_keys => {
+    }).then(_keys => { // Get public key in PEM format
       Logger.info('Converting public key to PEM format', LOGTAG)
       return Crypto.getKeyAsPem(Config.keystore.publicKeyName, password)
-    })
-
-    // Get firebase token
-    .then(_publicKeyPem => {
+    }).then(_publicKeyPem => {
       publicKeyPem = _publicKeyPem
       Logger.info('Fetching secure random', LOGTAG)
       return Crypto.secureRandom()
-    })
-
-    // Sign with private key
-    .then(_secureRandom => {
+    }).then(_secureRandom => { // Sign with private key
       Logger.info('Signing...', LOGTAG)
       toSign = _secureRandom
       return Crypto.sign(
@@ -504,10 +488,7 @@ export default class ConsentUser {
         password,
         Crypto.SIG_SHA256_WITH_RSA
       )
-    })
-
-    // Send to server
-    .then(signature => {
+    }).then(signature => { // Send to server
       Logger.info('Sending details to server', LOGTAG)
       return Api.register({
         email: email.trim(),
@@ -519,111 +500,67 @@ export default class ConsentUser {
         plaintext_proof: toSign,
         signed_proof: signature
       })
-    })
-
-    // Get response from server
-    .then(response => {
-      if (response.error === true) {
+    }).then(response => { // Get response from server
+      if (response.error) {
         // Server rejected registration
         // Remove keystore
         Logger.info('Registration on server failed', LOGTAG)
         Logger.info('Deleting keystore', LOGTAG)
-        return Crypto.deleteKeyStore(Config.keystore.name)
-        .then(() => {
-          return Promise.reject(response.error)
+        return Crypto.deleteKeyStore(
+          Config.keystore.name
+        ).then(() => {
+          return Promise.reject(response)
         })
       }
+
       const jsonData = response.body
-      // TODO: check server response
-      // user could already exist etc
-      Logger.info('Server responded', LOGTAG)
       userID = jsonData.id
-
-      // See what's currently in the DB
-      return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
-        id: userID,
-        did: null, // will receive via firebase later
-        display_name: username,
-        email: email,
-        firebaseToken: firebaseToken,
-        registered: true  // We will get this later
-      }))
-    })
-    .then( _ => {
-      // Update state
-        const sessionUpdate = {
-          user: {
-            id: userID,
-            did: null,
-            display_name: username,
-            password: password,
-            email: email,
-            registered: true,
-            loggedIn: true
-          }
-        }
-        Session.update(sessionUpdate)
-        Logger.info('User registered', LOGTAG)
-        return Promise.resolve({
-          id: userID
+      
+      return AsyncStorage.setItem(
+        STORAGE_KEY,
+        JSON.stringify({
+          id: userID,
+          did: null, // will receive via firebase later
+          display_name: username,
+          email: email,
+          firebaseToken: firebaseToken,
+          registered: true  // We will get this later
         })
-    })
-
-    // Check that writing went well and resolve
-    .catch(error => {
-      if (error) {
-        // If we couldn't write to database
-        Logger.error('Could not write to AsyncStorage', LOGTAG, error)
-        return Promise.reject(error)
-      } else {
-        // Update state
-        const sessionUpdate = {
-          user: {
-            id: userID,
-            did: null,
-            display_name: username,
-            password: password,
-            email: email,
-            registered: true,
-            loggedIn: true
-          }
+      )
+    }).then(_ => {
+      return Promise.resolve({
+        user: {
+          id: userID,
+          did: null,
+          display_name: username,
+          password: password,
+          email: email,
+          registered: true,
+          loggedIn: true
         }
-        Session.update(sessionUpdate)
-        Logger.info('User registered', LOGTAG)
-        return Promise.resolve({
-          id: userID
-        })
-      }
+      })
     })
   }
 
   static isLoggedIn() {
-    return new Promise((resolve, reject) => {
-      // For a user to be "logged in" we need their password in memory
-      // without this password we cannot sign and cannot "do" anything
-      const state = Session.getState()
-      if (!state || !state.user || !state.user.password) {
-        resolve(false)
-      } else {
-        resolve(true)
-      }
-    })
+    const state = Session.getState()
+    return Promise.resolve(
+      state &&
+      state.user &&
+      state.user.password
+    )
   }
 
   static isRegistered() {
-    return AsyncStorage.getItem(STORAGE_KEY)
-    .then(itemJSON => {
-      if (!itemJSON) {
-        return Promise.resolve(false)
-      } else {
-        const consentUser = JSON.parse(itemJSON)
-        if (!consentUser || !consentUser.email || !consentUser.did) {
-          return Promise.resolve(false)
-        } else {
-          return Promise.resolve(true)
-        }
-      }
-
+    return AsyncStorage.getItem(
+      STORAGE_KEY
+    ).then(itemJSON => {
+      const consentUser = JSON.parse(itemJSON)
+      return Promise.resolve(
+        consentUser &&
+        consentUser.email &&
+        consentUser.did
+      )
     })
   }
 
@@ -717,25 +654,22 @@ export default class ConsentUser {
   }
 
   static flattenCachedResources(arr) {
-    let that = this
     if (Array.isArray(arr)) {
-      return arr.reduce(function(done,curr){
-        return done.concat(that.flattenCachedResources(curr))
-        }, [])
-    } 
-    else {
+      return arr.reduce((done,curr) => {
+        return done.concat(this.flattenCachedResources(curr))
+      }, [])
+    } else {
       return arr
     }
   }
 
   static verifyAndFixSchemaProperty(resources){
-    resources.forEach(resource => {  
+    resources.forEach(resource => {
       resource.schema = Common.ensureUrlHasProtocol(resource.schema)
       if(!resource.form){
         resource.form = `${resource.schema}_form`
       }
     })
-
     return resources
   }
 

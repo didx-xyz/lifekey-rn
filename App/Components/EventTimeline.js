@@ -29,48 +29,25 @@ export default class EventTimeline extends Component {
       text: text,
       timestamp: new Date()
     })
-
-    this.setState({
-      timelineEvents: events
-    }, () => {
-      Session.update({
-        timelineEvents: events
-      })
-    })
+    this.setState({timelineEvents: events})
+    Session.update({timelineEvents: events})
   }
 
   removeEvent(id) {
-    const timelineEvents = this.state.timelineEvents
-    const newTimelineEvents = timelineEvents.slice(id)
-    this.setState({
-      timelineEvents: newTimelineEvents
-    }, () => {
-      Session.update({
-        timelineEvents: newTimelineEvents
-      })
-    })
+    const newTimelineEvents = this.state.timelineEvents.slice().splice(id, 1)
+    this.setState({timelineEvents: newTimelineEvents})
+    Session.update({timelineEvents: newTimelineEvents})
   }
 
-  removeLast(number) {
-    const timelineEvents = this.state.timelineEvents
-    const newTimelineEvents = timelineEvents.pop()
-    this.setState({
-      timelineEvents: newTimelineEvents
-    }, () => {
-      Session.update({
-        timelineEvents: newTimelineEvents
-      })
-    })
+  removeLast() {
+    const newTimelineEvents = this.state.timelineEvents.slice().pop()
+    this.setState({timelineEvents: newTimelineEvents})
+    Session.update({timelineEvents: newTimelineEvents})
   }
 
   reset() {
-    this.setState({
-      timelineEvents: []
-    }, () => {
-      Session.update({
-        timelineEvents: []
-      })
-    })
+    this.setState({timelineEvents: []})
+    Session.update({timelineEvents: []})
   }
 
   render() {
@@ -91,7 +68,6 @@ export default class EventTimeline extends Component {
     )
   }
 }
-
 
 const style = StyleSheet.create({
   scrollView: {
