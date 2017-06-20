@@ -1,4 +1,7 @@
 
+# vscode-java plugin
+.settings/
+
 # oppressive gradle rules
 gradlew
 gradlew.bat
