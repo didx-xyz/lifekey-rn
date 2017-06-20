@@ -23,7 +23,8 @@ import {
   Platform,
   Animated,
   InteractionManager,
-  TextInput
+  TextInput,
+  ToastAndroid
 } from 'react-native'
 
 import {
@@ -43,7 +44,7 @@ import DialogAndroid from 'react-native-dialogs'
 import AndroidBackButton from 'react-native-android-back-button'
 import * as Nachos from 'nachos-ui'
 
-const DEBUG = false
+// const DEBUG = false
 const STEP_USERNAME = 0
 const STEP_EMAIL = 1
 const STEP_PIN = 2
@@ -54,6 +55,37 @@ class Register extends Scene {
 
   constructor(props) {
     super(props)
+
+    this.screenData = [
+      {
+        largeText: 'Create your username',
+        smallText: 'Don\'t worry you can change this at any time',
+        // bottomText: 'I already have a key',
+        bottomText: ''
+      },
+      {
+        largeText: 'Please enter your personal email address',
+        smallText: 'To set up or recover your key',
+        bottomText: '',
+        // bottomText: 'What\'s this?'
+      },
+      {
+        largeText: 'Please enter a secure pin',
+        smallText: 'Do not forget this pin. It cannot be recovered.',
+        bottomText: 'More info'
+      },
+      {
+        largeText: 'Check your mail for a magic link',
+        smallText: 'The link will be valid for 24 hours',
+        bottomText: 'Resend link'
+      },
+      {
+        largeText: 'Thanks for activating!',
+        smallText: 'Please wait while we create your Decentralised Identifier on the Consent Blockchain...',
+        bottomText: ''
+      }
+    ]
+
     this._steps = [
       {
         largeText: 'Create your username',
@@ -85,14 +117,11 @@ class Register extends Scene {
     ]
     this.state = {
       step: 0, // The beginning
-      textInputValue: '',
-      username: null,
-      email: null,
-      pin: '',
-      timelineExpanded: false,
-      largeText: this._steps[0].largeText,
-      smallText: this._steps[0].smallText,
-      bottomText: this._steps[0].bottomText,
+      user: {
+        username: '',
+        email: '',
+        pin: ''
+      },
       moveTransitionValue: new Animated.Value(300),
       fadeTransitionValue: new Animated.Value(0),
       magicLinkRequested: false,
@@ -101,61 +130,41 @@ class Register extends Scene {
     }
   }
 
-  componentWillMount() {
-    super.componentWillMount()
-  }
-
-  componentWillFocus() {
-    super.componentWillFocus()
-  }
-
-  componentDidFocus() {
-    super.componentDidFocus()
-  }
-
   componentDidMount() {
     super.componentDidMount()
-    this.keyboardWillShowListener = Keyboard.addListener('keyboardWillShow', () => this._onKeyboardWillShow())
-    this.keyboardWillHideListener = Keyboard.addListener('keyboardWillHide', () => this._onKeyboardWillHide())
     this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => this._onKeyboardDidShow())
     this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => this._onKeyboardDidHide())
     this._fadeTextIn()
 
     this.context.userHasActivated(this.registrationCallback.bind(this))
-    this._eventTimeline.pushEvent('Started registration')
-  }
-
-  registrationCallback() {
-
-    // Originally called this._steopForward() but could not get this to work smoothly within in the switch statement. 
-
-    this._fadeTextOut(() => {
-      this._fadeTextIn(() => {
-        this.setState({
-          step: STEP_WAITING_FOR_DID,
-          textInputValue: ''
-        })
-      })
-    })
   }
 
   _fadeTextIn(callback) {
     //  Move
     Animated.timing(
       this.state.moveTransitionValue,
-      { toValue: 0 }
+      { toValue: 0, isInteraction: false }
     ).start()
+
     setTimeout(() => {
+      
       // Fade
       Animated.timing(
         this.state.fadeTransitionValue,
-        { toValue: 1 }
+        { toValue: 1, isInteraction: false }
       ).start()
+
     }, 150)
+
     if (callback) {
-      InteractionManager.runAfterInteractions(() => {
+      // InteractionManager.runAfterInteractions(() => {
+      //   callback()
+      // })
+
+      // Set timeout is used because of this: https://github.com/facebook/react-native/issues/8624
+      setTimeout(() => {
         callback()
-      })
+      }, 0)
     }
   }
 
@@ -165,6 +174,7 @@ class Register extends Scene {
       this.state.moveTransitionValue,
       { toValue: 300 }
     ).start()
+
     setTimeout(() => {
       // Fade
       Animated.timing(
@@ -172,34 +182,28 @@ class Register extends Scene {
         { toValue: 0 }
       ).start()
     }, 150)
-    InteractionManager.runAfterInteractions(() => {
+
+    // InteractionManager.runAfterInteractions(() => {
+    //   console.log("GOT TO CALL BACK")
+    //   callback()
+    // })
+
+    // Set timeout is used because of this: https://github.com/facebook/react-native/issues/8624
+    setTimeout(() => {
       callback()
-    })
-  }
-
-  _onKeyboardWillShow() {
-    Logger.info('KeyboardWillShow', this.filename)
-  }
-
-  _onKeybordWillHide() {
-    Logger.info('KeyboardWillHide', this.filename)
-
+    }, 1000)
   }
 
   _onKeyboardDidShow() {
-    this.setState({screenHeight: this.state.screenHeight - (this.state.originalScreenHeight * 0.2)})
-    Logger.info('KeyboardDidShow', this.filename)
+    this.setState({screenHeight: this.state.screenHeight - (this.state.originalScreenHeight * 0.1)})
   }
 
   _onKeyboardDidHide() {
-    this.setState({screenHeight: this.state.screenHeight + (this.state.originalScreenHeight * 0.2)})
-    Logger.info('KeyboardDidHide', this.filename)
+    this.setState({screenHeight: this.state.screenHeight + (this.state.originalScreenHeight * 0.1)})
   }
 
   componentWillUnmount() {
     super.componentWillUnmount()
-    this.keyboardWillShowListener.remove()
-    this.keyboardWillHideListener.remove()
     this.keyboardDidShowListener.remove()
     this.keyboardDidHideListener.remove()
   }
@@ -209,263 +213,120 @@ class Register extends Scene {
       this.navigator.pop()
     } else {
       if (!this.state.step === STEP_MAGIC_LINK) {
-        this._stepBack()
+        this.goToPreviousStep()
       }
     }
     return true
   }
 
-  _stepBack() {
+  goToPreviousStep() {
     if (this.state.step !== 0) {
       this._fadeTextOut(() => {
-        this._fadeTextIn(() => {
-          // Update state to reflect we are on the 2nd step now
-          this.setState({
-            step: this.state.step - 1,
-          }, () => {
-            // Clear TextInput value
-            this.setState({
-              textInputValue: ''
-            })
-          })
-        })
+        this._fadeTextIn(() => this.setState({ step: this.state.step - 1 }))
       })
     }
   }
 
-  _resetRegistration() {
+  resetRegistration() {
     this.setState({
       step: 0, // The beginning
-      textInputValue: '',
-      username: null,
-      email: null,
-      pin: '',
-      timelineExpanded: false,
-      largeText: this._steps[0].largeText,
-      smallText: this._steps[0].smallText,
-      bottomText: this._steps[0].bottomText,
-      moveTransitionValue: new Animated.Value(300),
-      fadeTransitionValue: new Animated.Value(0)
+      user: { username: '', email: '', pin: '' }
     }, () => {
-      this._fadeTextIn(() => {
-        this._eventTimeline.pushEvent('Started registration (again)')
-      })
-
+      this._fadeTextIn(() => { })
     })
   }
 
-  _stepForward(callback) {
+  setUserState(key, value, next){
+    let user = this.state.user
+    user[key] = value
+    this.setState({ user: user }, next)
+  }
 
-    // Preserve the input value
-    const onStepTextInputValue = this.state.textInputValue.toLowerCase().trim()
+  // etcetc
+  goToStep(activeStepNumber, animate){
+    
+    // Is validation necessary at this point? 
 
-    // // Clear the text input value
-    // this.setState({
-    //   textInputValue: ''
-    // })
-
-    switch (this.state.step) {
-    // USERNAME -> EMAIL
-    case STEP_USERNAME:
-
-      // If a username was entered
-      if (onStepTextInputValue) {
-
-        Keyboard.dismiss()
-
-        // Give the keyboard time to close
-        setTimeout(() => {
-          this._eventTimeline.pushEvent(`Username saved as: ${onStepTextInputValue}`)
-          // Change text to next screen
-        }, 300)
-
-        this._fadeTextOut(() => {
-          this._fadeTextIn(() => {
-            // Update state to reflect we are on the 2nd step now
-            this.setState({
-              step: STEP_EMAIL,
-              username: onStepTextInputValue,
-              textInputValue: ''
-            })
-          })
+    Keyboard.dismiss()
+    if(animate){
+      this._fadeTextOut(() => {
+        this._fadeTextIn(() => {
+          this.setState({ step: activeStepNumber })
         })
-
-      } else {
-        // Tell the user they must enter something
-        if (Platform.OS === 'android') {
-          const dialog = new DialogAndroid()
-          dialog.set({
-            title: 'Username can\'t be empty!',
-            content: 'You must enter a username to uniquely identify yourself on the network.',
-            positiveText: 'OK'
-          })
-          dialog.show()
-        } else {
-          // iOS
-          alert('TODO')
-        }
-      }
-      break
-
-
-    // EMAIL -> PIN
-    case STEP_EMAIL:
-      if (onStepTextInputValue) {
-        Keyboard.dismiss()
-
-        setTimeout(() => {
-          this._eventTimeline.pushEvent(`Email saved as: ${onStepTextInputValue}`)
-        }, 500)
-        this._fadeTextOut(() => {
-          this._fadeTextIn(() => {
-            // Update state to reflect we are on the 2nd step now
-            this.setState({
-              step: STEP_PIN,
-              email: onStepTextInputValue,
-              textInputValue: ''
-            })
-          })
-        })
-      } else {
-        if (Platform.OS === 'android') {
-          const dialog = new DialogAndroid()
-          dialog.set({
-            title: 'Pin can\'t be empty!',
-            content: 'You must enter a username to uniquely identify yourself on the network.',
-            positiveText: 'OK'
-          })
-          dialog.show()
-        } else {
-          // iOS
-          alert('TODO')
-        }
-      }
-      break
-    // PIN - MAGIC LINK
-    case STEP_PIN:
-      if (onStepTextInputValue) {
-        setTimeout(() => {
-          this._eventTimeline.pushEvent(`Magic link sent to ${this.state.email}`)
-        }, 1000)
-
-        // Update the state to show we are on the 3rd step
-        this.setState({
-          step: 3,
-          pin: onStepTextInputValue
-        }, () => {
-          if (callback) { callback() }
-        })
-
-      } else {
-        // Tell the user they must enter something
-        if (Platform.OS === 'android') {
-          const dialog = new DialogAndroid()
-          dialog.set({
-            title: 'Username can\'t be empty!',
-            content: 'You must enter a username to uniquely identify yourself on the network.',
-            positiveText: 'OK'
-          })
-          dialog.show()
-        } else {
-          // iOS
-          alert('TODO')
-        }
-      }
-      break
+      })
+    }
+    else{
+      this.setState({ step: activeStepNumber })
+    }
+  }
+  
+  attemptToRegisterUser() { 
+    if (this.state.user.pin.length === 5 && this.state.user.username.length > 0 && this.state.user.email.length > 0) {
+      this.setState({ magicLinkRequested: true }, () => {
+        this.requestMagicLink()
+        this.goToStep(STEP_MAGIC_LINK, true) // While we wait... 
+      })
     }
   }
 
-  _onPinChanged(text) {
-    
-    this.setState({
-      textInputValue: text,
-      pin: text,
-    }, () => {
-      if (text.length === 5) {
-        this.setState({
-          magicLinkRequested: true
-        })
-        this._requestMagicLink()
-        Keyboard.dismiss()
-      }
-    })
+  requestMagicLink() {
 
-    // this.setState({
-    //   textInputValue: text,
-    //   pin: text,
-    //   magicLinkRequested: true
-    // }, () => {
-    //   Keyboard.dismiss()
-    //   this._requestMagicLink()
-    // })
-  }
-
-  _requestMagicLink() {
-
-    ConsentUser.register(
-      this.state.username,
-      this.state.email,
-      this.state.pin
-    )
+    ConsentUser.register(this.state.user)
     .then(result => {
-      Logger.info('Registration request sent successfully. Please check for magic link', this.filename)
-      this._stepForward()
-
+      ToastAndroid.show('Registering...', ToastAndroid.SHORT)
     })
     .catch(error => {
       Logger.error('Not registered', this.filename, error)
       switch (error.status) {
         case 400: // Validation error
-          alert('The username or email already exists or is invalid')
-          this._resetRegistration()
+          ToastAndroid.show('Registeration unsuccessful...', ToastAndroid.SHORT)
+          this.resetRegistration()
         default: {
-          alert('An error occured.')
-          console.log("ERROR ---------> ", error)
+          ToastAndroid.show('An unknown error occurred. Registeration unsuccessful...', ToastAndroid.SHORT)
         }
       }
-
     })
   }
 
-  renderInputView() {
-    switch (this.state.step) {
+  // Called from LifekeyRn when DID is received via Firebase notification 
+  registrationCallback() {
+    this.goToStep(STEP_WAITING_FOR_DID)
+  }
+
+  renderInputView(activeStepNumber) {
+    switch (activeStepNumber) {
       case STEP_USERNAME:
         return (<OnboardingTextInputAndroid
-                  onChangeText={(text) => this.setState({ textInputValue: text })}
+                  onChangeText={text => this.setUserState('username', text) }
                   autoCapitalize="sentences"
                   fontSize={30}
-                  value={this.state.textInputValue}
-                  ref={oti => { this._oti = oti }}
-                  onSubmit={() => this._stepForward()}
+                  onSubmit={() => this.goToStep(STEP_EMAIL, true)}
                 />)
 
       case STEP_EMAIL:
         return (<OnboardingTextInputAndroid
-                  onChangeText={(text) => this.setState({ textInputValue: text })}
+                  onChangeText={text => this.setUserState('email', text) }
                   autoCapitalize="none"
                   fontSize={24}
-                  value={this.state.textInputValue}
-                  ref={oti => { this._oti = oti }}
-                  onSubmit={() => this._stepForward()}
+                  onSubmit={() => this.goToStep(STEP_PIN, true)}
                 />)
 
       case STEP_PIN:
         return (<Touchable style={{ flex: 1 }} onPress={() => this.pinInput.focus()}>
                   <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    {!this.state.magicLinkRequested ?
-                      <HexagonDots
-                        current={this.state.textInputValue.length < 5 ? this.state.textInputValue.length : 4}
-                      />
+                    {
+                      !this.state.magicLinkRequested ?
+                      <HexagonDots current={ this.state.user.pin.length < 5 ? this.state.user.pin.length : 4} />
                     :
                       <Nachos.Spinner color='blue'/>
                     }
-                    <Dots current={this.state.textInputValue.length} />
+                    <Dots current={this.state.user.pin.length} />
                     <TextInput
                       ref={(_ref) => this.pinInput = _ref }
                       autoFocus={true}
                       returnKeyType="done"
                       keyboardType="phone-pad"
-                      onChangeText={(text) => this._onPinChanged(text)}
+                      onChangeText={(text) => this.setUserState('pin', text, this.attemptToRegisterUser)}
                       style={[style.pinInput]}
                     />
                   </View>
@@ -473,22 +334,15 @@ class Register extends Scene {
 
       case STEP_MAGIC_LINK:
         return (<View style={{ flex: 1 }}>
-                  <Text style={{ textAlign: "center" }}>Please check the inbox of {this.state.email} for a link to activate your account</Text>
+                  <Text style={{ textAlign: "center" }}>Please check the inbox of {this.state.user.email} for a link to activate your account</Text>
                 </View>)
       case STEP_WAITING_FOR_DID:
-        return (<View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        return (
+                <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
                   <Nachos.Spinner color='blue'/>
-                  {/* <Text style={{ textAlign: "center" }}>Please wait while we create your Decentralised Identifier on the Consent Blockchain</Text> */}
-                </View>)
+                </View>
+               )
     }
-  }
-
-  _toggleTimeline() {
-    this.setState({
-      timelineExpanded: !this.state.timelineExpanded
-    }, () => {
-      this.forceUpdate()
-    })
   }
 
   render() {
@@ -500,14 +354,6 @@ class Register extends Scene {
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
             <Grid>
               <Col style={[style.sceneColumn, { height: this.state.screenHeight }]}>
-                { /* Event timeline */}
-                <Touchable style={{ backgroundColor: 'red' }} onPress={() => this._toggleTimeline()}>
-                  <Row style={[style.timelineRow, { flex: this.state.timelineExpanded ? 15 : 1 }]}>
-                    <EventTimeline
-                      ref={(eventTimeline) => this._eventTimeline = eventTimeline}
-                    />
-                  </Row>
-                </Touchable>
                 { /* center content */ }
                 <Row style={{ flex: 13, flexDirection: 'column' }}>
 
@@ -517,7 +363,7 @@ class Register extends Scene {
                       opacity: this.state.fadeTransitionValue,
                       marginBottom: this.state.moveTransitionValue
                     }}>
-                      <Text style={{ fontSize: 38, textAlign: 'center' }}>{this._steps[this.state.step].largeText}</Text>
+                      <Text style={{ fontSize: 38, textAlign: 'center' }}>{this.screenData[this.state.step].largeText}</Text>
                     </Animated.View>
                   </Row>
 
@@ -527,13 +373,13 @@ class Register extends Scene {
                       opacity: this.state.fadeTransitionValue,
                       flex: 1
                     }}>
-                      <Text style={{ fontSize: 18, textAlign: 'center' }}>{this._steps[this.state.step].smallText}</Text>
+                      <Text style={{ fontSize: 18, textAlign: 'center' }}>{this.screenData[this.state.step].smallText}</Text>
                     </Animated.View>
                   </Row>
 
                   { /* TEXT INPUT */}
                   <Row style= {style.textInputRow}>
-                    { this.renderInputView() }
+                    { this.renderInputView(this.state.step) }
                   </Row>
                 </Row>
 
@@ -545,10 +391,10 @@ class Register extends Scene {
                     </View>
                     <View>
                       <Touchable
-                        onPress={() => alert('No you don\'t')}
+                        onPress={() => alert('Coming soon...')}
                       >
                         <View style={{ paddingTop: 20, paddingBottom: 20 }}>
-                          <Text style={{ fontSize: 20 }}>{this._steps[this.state.step].bottomText}</Text>
+                          <Text style={{ fontSize: 20 }}>{this.screenData[this.state.step].bottomText}</Text>
                         </View>
                       </Touchable>
                     </View>
@@ -571,13 +417,11 @@ const style = StyleSheet.create({
   textInputRow: {
     flex: 4,
     alignItems: 'center',
-    backgroundColor: DEBUG ? 'blue' : null,
     paddingLeft: 25,
     paddingRight: 25
   },
   timelineRow: {
     flexDirection: 'column',
-    backgroundColor: DEBUG ? 'green' : null,
     paddingLeft: 35,
     paddingRight: 35
   },
@@ -585,7 +429,6 @@ const style = StyleSheet.create({
     flex: 3,
     flexDirection: 'column',
     justifyContent: 'center',
-    backgroundColor: DEBUG ? 'red' : null,
     paddingLeft: 35,
     paddingRight: 35
   },
@@ -596,7 +439,6 @@ const style = StyleSheet.create({
   smallTextRow: {
     flex: 1,
     paddingTop: 5,
-    backgroundColor: DEBUG ? 'orange' : null,
     paddingLeft: 35,
     paddingRight: 35,
     alignItems: 'center',
@@ -606,7 +448,6 @@ const style = StyleSheet.create({
     flex: 4,
     flexDirection: 'column',
     justifyContent: 'flex-end',
-    backgroundColor: DEBUG ? 'purple' : null,
     paddingLeft: 35,
     paddingRight: 35
   },
