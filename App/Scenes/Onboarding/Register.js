@@ -8,8 +8,6 @@
 import React from 'react'
 import PropTypes from "prop-types"
 import Scene from '../../Scene'
-import Palette from '../../Palette'
-// import Routes from '../../Routes'
 import Logger from '../../Logger'
 import ConsentUser from '../../Models/ConsentUser'
 
@@ -57,36 +55,6 @@ class Register extends Scene {
 
   constructor(props) {
     super(props)
-
-//     this.screenData = [
-//       {
-//         largeText: 'Create your username',
-//         smallText: 'Don\'t worry you can change this at any time',
-//         // bottomText: 'I already have a key',
-//         bottomText: ''
-//       },
-//       {
-//         largeText: 'Please enter your personal email address',
-//         smallText: 'To set up or recover your key',
-//         bottomText: '',
-//         // bottomText: 'What\'s this?'
-//       },
-//       {
-//         largeText: 'Please enter a secure pin',
-//         smallText: 'Do not forget this pin. It cannot be recovered.',
-//         bottomText: 'More info'
-//       },
-//       {
-//         largeText: 'Check your mail for a magic link',
-//         smallText: 'The link will be valid for 24 hours',
-//         bottomText: 'Resend link'
-//       },
-//       {
-//         largeText: 'Thanks for activating!',
-//         smallText: 'Please wait while we create your Decentralised Identifier on the Consent Blockchain...',
-//         bottomText: ''
-//       }
-//     ]
 
     this._steps = [
       {
@@ -339,6 +307,7 @@ class Register extends Scene {
         { toValue: 0 }
       ).start()
     }, 150)
+  }
 
   _onKeyboardDidShow() {
     this.setState({
