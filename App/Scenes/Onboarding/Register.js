@@ -25,7 +25,8 @@ import {
   Platform,
   Animated,
   InteractionManager,
-  TextInput
+  TextInput,
+  ToastAndroid
 } from 'react-native'
 
 import {
@@ -45,7 +46,7 @@ import DialogAndroid from 'react-native-dialogs'
 import AndroidBackButton from 'react-native-android-back-button'
 import * as Nachos from 'nachos-ui'
 
-const DEBUG = false
+// const DEBUG = false
 const STEP_USERNAME = 0
 const STEP_EMAIL = 1
 const STEP_PIN = 2
@@ -56,6 +57,37 @@ class Register extends Scene {
 
   constructor(props) {
     super(props)
+
+//     this.screenData = [
+//       {
+//         largeText: 'Create your username',
+//         smallText: 'Don\'t worry you can change this at any time',
+//         // bottomText: 'I already have a key',
+//         bottomText: ''
+//       },
+//       {
+//         largeText: 'Please enter your personal email address',
+//         smallText: 'To set up or recover your key',
+//         bottomText: '',
+//         // bottomText: 'What\'s this?'
+//       },
+//       {
+//         largeText: 'Please enter a secure pin',
+//         smallText: 'Do not forget this pin. It cannot be recovered.',
+//         bottomText: 'More info'
+//       },
+//       {
+//         largeText: 'Check your mail for a magic link',
+//         smallText: 'The link will be valid for 24 hours',
+//         bottomText: 'Resend link'
+//       },
+//       {
+//         largeText: 'Thanks for activating!',
+//         smallText: 'Please wait while we create your Decentralised Identifier on the Consent Blockchain...',
+//         bottomText: ''
+//       }
+//     ]
+
     this._steps = [
       {
         index: 0,
@@ -65,19 +97,11 @@ class Register extends Scene {
         bottomText: '',
         success: function(value, callback) {
           Keyboard.dismiss()
-
-          // Give the keyboard time to close
-          // setTimeout(() => {
-          //   this._eventTimeline.pushEvent(`Username saved as: ${value}`)
-          //   // Change text to next screen
-          // }, 300)
-
           this._fadeTextOut(() => {
             this._fadeTextIn(() => {
-              // Update state to reflect we are on the 2nd step now
               this.setState({
                 step: this.state.step + 1,
-                username: this.state.textInputValue, //value,
+                username: this.state.textInputValue,
                 textInputValue: ''
               })
             })
@@ -117,13 +141,8 @@ class Register extends Scene {
         bottomText: '',
         success: function(value, callback) {
           Keyboard.dismiss()
-          // setTimeout(() => {
-          //   this._eventTimeline.pushEvent(`Username saved as: ${value}`)
-          //   // Change text to next screen
-          // }, 300)
           this._fadeTextOut(() => {
             this._fadeTextIn(() => {
-              // Update state to reflect we are on the 2nd step now
               this.setState({
                 step: this.state.step + 1,
                 email: this.state.textInputValue,
@@ -164,9 +183,6 @@ class Register extends Scene {
         smallText: 'Do not forget this pin. It cannot be recovered.',
         bottomText: 'More info',
         success: function(value, callback) {
-          // setTimeout(() => {
-          //   this._eventTimeline.pushEvent(`Magic link sent to ${this.state.email}`)
-          // }, 1000)
           this.setState({
             step: this.state.step + 1,
             pin: this.state.textInputValue,
@@ -254,14 +270,11 @@ class Register extends Scene {
     ]
     this.state = {
       step: 0, // The beginning
-      textInputValue: '',
-      username: null,
-      email: null,
-      pin: '',
-      timelineExpanded: false,
-      largeText: this._steps[0].largeText,
-      smallText: this._steps[0].smallText,
-      bottomText: this._steps[0].bottomText,
+      user: {
+        username: '',
+        email: '',
+        pin: ''
+      },
       moveTransitionValue: new Animated.Value(300),
       fadeTransitionValue: new Animated.Value(0),
       magicLinkRequested: false,
@@ -287,19 +300,28 @@ class Register extends Scene {
     //  Move
     Animated.timing(
       this.state.moveTransitionValue,
-      { toValue: 0 }
+      { toValue: 0, isInteraction: false }
     ).start()
+
     setTimeout(() => {
+      
       // Fade
       Animated.timing(
         this.state.fadeTransitionValue,
-        { toValue: 1 }
+        { toValue: 1, isInteraction: false }
       ).start()
+
     }, 150)
+
     if (callback) {
-      InteractionManager.runAfterInteractions(() => {
+      // InteractionManager.runAfterInteractions(() => {
+      //   callback()
+      // })
+
+      // Set timeout is used because of this: https://github.com/facebook/react-native/issues/8624
+      setTimeout(() => {
         callback()
-      })
+      }, 0)
     }
   }
 
@@ -309,6 +331,7 @@ class Register extends Scene {
       this.state.moveTransitionValue,
       { toValue: 300 }
     ).start()
+
     setTimeout(() => {
       // Fade
       Animated.timing(
@@ -316,10 +339,6 @@ class Register extends Scene {
         { toValue: 0 }
       ).start()
     }, 150)
-    InteractionManager.runAfterInteractions(() => {
-      callback()
-    })
-  }
 
   _onKeyboardDidShow() {
     this.setState({
@@ -337,8 +356,6 @@ class Register extends Scene {
 
   componentWillUnmount() {
     super.componentWillUnmount()
-    this.keyboardWillShowListener.remove()
-    this.keyboardWillHideListener.remove()
     this.keyboardDidShowListener.remove()
     this.keyboardDidHideListener.remove()
   }
@@ -348,7 +365,7 @@ class Register extends Scene {
       this.navigator.pop()
     } else {
       if (!this.state.step === STEP_MAGIC_LINK) {
-        this._stepBack()
+        this.goToPreviousStep()
       }
     }
     return true
@@ -524,13 +541,11 @@ const style = StyleSheet.create({
   textInputRow: {
     flex: 4,
     alignItems: 'center',
-    backgroundColor: DEBUG ? 'blue' : null,
     paddingLeft: 25,
     paddingRight: 25
   },
   timelineRow: {
     flexDirection: 'column',
-    backgroundColor: DEBUG ? 'green' : null,
     paddingLeft: 35,
     paddingRight: 35
   },
@@ -538,7 +553,6 @@ const style = StyleSheet.create({
     flex: 3,
     flexDirection: 'column',
     justifyContent: 'center',
-    backgroundColor: DEBUG ? 'red' : null,
     paddingLeft: 35,
     paddingRight: 35
   },
@@ -549,7 +563,6 @@ const style = StyleSheet.create({
   smallTextRow: {
     flex: 1,
     paddingTop: 5,
-    backgroundColor: DEBUG ? 'orange' : null,
     paddingLeft: 35,
     paddingRight: 35,
     alignItems: 'center',
@@ -559,7 +572,6 @@ const style = StyleSheet.create({
     flex: 4,
     flexDirection: 'column',
     justifyContent: 'flex-end',
-    backgroundColor: DEBUG ? 'purple' : null,
     paddingLeft: 35,
     paddingRight: 35
   },
