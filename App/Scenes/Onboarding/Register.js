@@ -180,15 +180,15 @@ class Register extends Scene {
                 {this.state.magicLinkRequested ? (
                   <Nachos.Spinner color='blue' />
                 ) : (
-                  <HexagonDots current={this.state.textInputValue.length < 5 ? this.state.textInputValue.length : 4} />
+                  <HexagonDots current={this.state.textInputValue.length} />
                 )}
                 <Dots current={this.state.textInputValue.length} />
                 <TextInput ref={(_ref) => this.pinInput = _ref}
-                          autoFocus={true}
-                          returnKeyType="done"
-                          keyboardType="phone-pad"
-                          onChangeText={(text) => this._onPinChanged(text)}
-                          style={[style.pinInput]} />
+                           autoFocus={true}
+                           returnKeyType='done'
+                           keyboardType='phone-pad'
+                           onChangeText={(text) => this._onPinChanged(text)}
+                           style={[style.pinInput]} />
               </View>
             </Touchable>
           )
@@ -213,7 +213,7 @@ class Register extends Scene {
         component: function() {
           return (
             <View style={{flex: 1}}>
-              <Text style={{textAlign: "center"}}>
+              <Text style={{textAlign: 'center'}}>
                 Please check the inbox of {this.state.email} for a link to activate your account
               </Text>
             </View>
@@ -238,11 +238,9 @@ class Register extends Scene {
     ]
     this.state = {
       step: 0, // The beginning
-      user: {
-        username: '',
-        email: '',
-        pin: ''
-      },
+      username: '',
+      email: '',
+      pin: '',
       moveTransitionValue: new Animated.Value(300),
       fadeTransitionValue: new Animated.Value(0),
       magicLinkRequested: false,
@@ -382,7 +380,9 @@ class Register extends Scene {
         this, onStepTextInputValue, callback
       )
     }
-    this._steps[this.state.step].failure.call(this)
+    this._steps[
+      this.state.step
+    ].failure.call(this)
   }
 
   _onPinChanged(text) {
@@ -390,7 +390,16 @@ class Register extends Scene {
       textInputValue: text
     }, _ => {
       if (text.length < 5) return
+
+      // safety precaution: reset the listener so
+      // we capture no more key events, just in case
+      // the keyboard has not been dismissed before
+      // the next step is rendered
+      this.pinInput.onChangeText(function() {})
+
+      // dismiss the board
       Keyboard.dismiss()
+
       this._stepForward(_ => {
         this._requestMagicLink().then(_ => {
           this.setState({magicLinkRequested: true})
