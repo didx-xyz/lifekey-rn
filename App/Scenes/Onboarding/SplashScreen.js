@@ -19,7 +19,9 @@ import {
   StyleSheet,
   StatusBar,
   Image,
-  Dimensions
+  Dimensions,
+  NativeModules,
+  NetInfo
 } from 'react-native'
 
 import {
@@ -37,87 +39,69 @@ export default class SplashScreen extends Scene {
 
   constructor(props) {
     super(props)
-    this.pushedRoute = false
+    this.first = true
     this.state = {
       tokenAvailable: true,
       ready: false
     }
-    StatusBar.setHidden(true)
   }
 
-  _readyUp() {
-    // Delay things so it doesn't look weird
-    setTimeout(() => {
-      this.setState({
-        ready: true
-      }, () => {
-        const userState = Session.getState().user
-        if (userState && userState.registered) {
-          this.navigator.push(Routes.onboarding.unlock)
-        }
-      })
-    }, 1000)
+  reset_firebase_token() {
+    NativeModules.FirebaseReset.new_token().then(token => {
+      this.setState({ready: true, tokenAvailable: true})
+    }).catch(err => {
+      // this is fatal, crash the app
+      throw err
+    })
   }
 
-  componentWillReceiveProps(nextProps) {
-    if (nextProps.booted && !this.pushedRoute) {
-      this.pushedRoute = true
-      this._readyUp()
-    }
+  net_info_change_listener(changed) {
+    if (!changed) return
+    NetInfo.removeEventListener('change', this.net_info_change_listener)
+    this.reset_firebase_token()
   }
 
   componentDidMount() {
     super.componentDidFocus()
-    // Give the token a fighting chance man
-    setTimeout(() => {
-      ConsentUser.getToken()
-      .then(result => {
-        if (result) {
-          this.setState({
-            tokenAvailable: true
-          })
-        } else {
-          this.setState({
-            tokenAvailable: false
-          })
-          Logger.info('False start. No App token', this.filename)
-          alert('False start. No App token. Please reinstall Lifekey')
-          setTimeout(() => {
-            throw new Error('Please reinstall Lifekey')
-          }, 6000)
-        }
-      })
-      .catch(error => {
-        this.setState({
-          tokenAvailable: false
-        })
-        Logger.info('False start. No App token', this.filename)
-        alert('False start. No App token. Please reinstall Lifekey')
-      })
-    }, 1000)
 
+    if (!this.first) return
+    
+    this.first = false
+    StatusBar.setHidden(true)
+
+    // FIXME
+    // session.getstate might not be of type "object"
+    var user = Session.getState().user
+    if (user && user.registered) {
+      this.navigator.push(Routes.onboarding.unlock)
+      return
+    }
+
+    Promise.all([
+      NetInfo.isConnected.fetch(),
+      NetInfo.isConnectionExpensive(),
+      ConsentUser.getToken()
+    ]).then(res => {
+      var [connected, expensive, token] = res
+      if (!connected) {
+        alert('You will not be able to register without an Internet connection')
+        NetInfo.addEventListener('change', this.net_info_change_listener.bind(this))
+      } else if (!token && connected) {
+        this.reset_firebase_token()
+      } else {
+        this.setState({ready: true, tokenAvailable: true})
+      }
+    })
+  }
+
+  componentWillUnmount() {
+    NetInfo.removeEventListener(
+      'change',
+      this.net_info_change_listener.bind(this)
+    )
   }
 
   render() {
-    const scan = (
-      <Touchable
-        onPress={() => this.navigator.push(Routes.camera.qrCodeScanner)}
-      >
-        <View style={style.buttonView} >
-          <Text style={[style.buttonText]}>Scan</Text>
-        </View>
-      </Touchable>
-    )
-
-    const start = (
-      <Touchable
-        onPress={() => this.navigator.push(Routes.onboarding.register)}
-      >
-        <View style={style.buttonView} >
-          <Text style={[style.buttonText]}>{ this.state.ready ? 'Let\'s start' : '' }</Text>
-        </View>
-      </Touchable>
-    )
 
     return (
       <Container>
@@ -127,28 +111,21 @@ export default class SplashScreen extends Scene {
           <Grid>
             <Col style={{ flex: 1, height: Dimensions.get('window').height }}>
 
-                <Row
-                  style={[style.firstRow, { backgroundColor: this.state.tokenAvailable ? null : 'red' }]}
-                >
-                  <Touchable
-                    style={{ flex: 1 }}
-                    delayLongPress={500}
-                    onLongPress={() => this.navigator.push(Routes.debug.main)}
-                  >
-                    <Image
-                      style={{ width: 150, height: 150 }}
-                      source={require('../../../App/Images/logo_big.png')}
-                    />
+                <Row style={[style.firstRow, { backgroundColor: this.state.tokenAvailable ? null : 'red' }]}>
+                  <Touchable style={{ flex: 1 }}>
+                             {/*delayLongPress={500}
+                             onLongPress={() => this.navigator.push(Routes.debug.main)}>*/}
+                    <Image style={{ width: 150, height: 150 }}
+                           source={require('../../../App/Images/logo_big.png')} />
                   </Touchable>
                 </Row>
-
 
               <Row style={[style.secondRow]}>
                 <Row style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
                   <View style={{ flex: 1, padding: 20, paddingTop: 40, paddingBottom: 40 }}>
                     
                     <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 2 }}>
-                      { !this.state.ready && <Spinner color="blue"/> }
+                      {!this.state.ready && <Spinner color="blue"/>}
                       <Text style={{ fontSize: 20, textAlign: 'center' }}>Securely store and verify personal information.</Text>
                     </View>
 
@@ -156,18 +133,22 @@ export default class SplashScreen extends Scene {
                 </Row>
               </Row>
               <Row style={[style.thirdRow]}>
-                {this.state.ready ?
-                  <Text>Trusted Partner Logos</Text>
-                  :
-                  <Text>Connecting to Consent...</Text>
-                }
+                <Text>Trusted Partner Logos</Text>
               </Row>
               <Row style={[style.buttonsRow]}>
                 <Col>
-                  {scan}
+                  <Touchable onPress={this.state.ready ? () => this.navigator.push(Routes.camera.qrCodeScanner) : function() {}}>
+                    <View style={style.buttonView} >
+                      <Text style={[style.buttonText]}>{this.state.ready ? 'Scan' : ''}</Text>
+                    </View>
+                  </Touchable>
                 </Col>
                 <Col>
-                  {start}
+                  <Touchable onPress={this.state.ready ? () => this.navigator.push(Routes.onboarding.register) : function() {}}>
+                    <View style={style.buttonView} >
+                      <Text style={[style.buttonText]}>{this.state.ready ? 'Continue' : 'Loading'}</Text>
+                    </View>
+                  </Touchable>
                 </Col>
               </Row>
             </Col>
