@@ -57,7 +57,10 @@ export default class SplashScreen extends Scene {
 
   net_info_change_listener(changed) {
     if (!changed) return
-    NetInfo.removeEventListener('change', this.net_info_change_listener)
+    NetInfo.removeEventListener(
+      'change',
+      this.net_info_change_listener.bind(this)
+    )
     this.reset_firebase_token()
   }
 
@@ -84,7 +87,6 @@ export default class SplashScreen extends Scene {
     ]).then(res => {
       var [connected, expensive, token] = res
       if (!connected) {
-        alert('You will not be able to register without an Internet connection')
         NetInfo.addEventListener('change', this.net_info_change_listener.bind(this))
       } else if (!token && connected) {
         this.reset_firebase_token()
@@ -125,8 +127,21 @@ export default class SplashScreen extends Scene {
                   <View style={{ flex: 1, padding: 20, paddingTop: 40, paddingBottom: 40 }}>
                     
                     <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 2 }}>
-                      {!this.state.ready && <Spinner color="blue"/>}
-                      <Text style={{ fontSize: 20, textAlign: 'center' }}>Securely store and verify personal information.</Text>
+                      {
+                        !this.state.ready && [
+                          <Spinner key='1' color="blue"/>,
+                          <Text key='2' style={{ fontSize: 20, textAlign: 'center' }}>
+                            Waiting for an Internet connection...
+                          </Text>
+                        ]
+                      }
+                      {
+                        this.state.ready && (
+                          <Text style={{ fontSize: 20, textAlign: 'center' }}>
+                            Securely store and verify personal information.
+                          </Text>
+                        )
+                      }
                     </View>
 
                   </View>
@@ -146,7 +161,7 @@ export default class SplashScreen extends Scene {
                 <Col>
                   <Touchable onPress={this.state.ready ? () => this.navigator.push(Routes.onboarding.register) : function() {}}>
                     <View style={style.buttonView} >
-                      <Text style={[style.buttonText]}>{this.state.ready ? 'Continue' : 'Loading'}</Text>
+                      <Text style={[style.buttonText]}>{this.state.ready ? 'Continue' : ''}</Text>
                     </View>
                   </Touchable>
                 </Col>
