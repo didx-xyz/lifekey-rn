@@ -13,6 +13,7 @@ import com.facebook.soloader.SoLoader;
 import com.lwansbrough.RCTCamera.RCTCameraPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
 import io.invertase.firebase.RNFirebasePackage;
+import za.co.io.firebasereset.FirebaseResetPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -43,7 +44,8 @@ public class MainApplication extends Application implements ReactApplication {
               new VectorIconsPackage(),
               new CryptoPackage(),
               new RNFirebasePackage(),
-              new ReactNativeDialogsPackage()
+              new ReactNativeDialogsPackage(),
+              new FirebaseResetPackage()
       );
     }
   };
