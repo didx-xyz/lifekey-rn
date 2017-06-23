@@ -10,6 +10,9 @@ android/gradle/
 # vscode
 .vscode/
 
+# vscode-java
+.settings/
+
 # runtime configuration
 cfg/runtime.json
 
