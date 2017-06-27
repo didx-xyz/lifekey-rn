@@ -15,49 +15,21 @@ function getMissingFieldsMessage(missingFields) {
 function checkParameters(requiredKeys, receivedObject) {
   // It must be an object
   if (typeof receivedObject !== 'object') {
-
-    throw new Error(`Expected 'object', received '${typeof receivedObject}'`)
+    throw new Error(
+      `Expected 'object', received '${typeof receivedObject}'`
+    )
   }
-
-  // Get the keys of the parameter object and sort them
-  const receivedObjectKeys = Object.keys(receivedObject)
-
-  // Maybe we can save CPU cycles (before we crash... )
-  if (receivedObjectKeys.length !== requiredKeys.length) {
-
-    const errorMessage = 'Expected an object containing the keys:\n'
-                        + requiredKeys.reduce((p, c) => `${p}, '${c}'`, '').slice(2)
-                        + '\nbut recieved an object containing:\n'
-                        + receivedObjectKeys.reduce((p, c) => `${p}, '${c}'`, '').slice(2)
-
-    throw new Error(errorMessage)
-  }
-
-  // We need these sorted, now
-  const recievedObjectKeysSorted = receivedObjectKeys.sort()
-  const requiredKeysSorted = requiredKeys.sort()
-
-  // kickn' it oldskool
-  for (let i = 0; i < requiredKeys.length; i++) {
-
-    // Compare one by one
-    if (recievedObjectKeysSorted[i] !== requiredKeysSorted[i]) {
-      const errorMessage = 'Expected an object containing the keys:\n'
-                        + requiredKeys.reduce((p, c) => `${p}, '${c}'`, '').slice(2)
-                        + '\nbut recieved an object containing:\n'
-                        + receivedObjectKeys.reduce((p, c) => `${p}, '${c}'`, '').slice(2)
-      throw new Error(errorMessage)
+  
+  var missing = false
+  var missing_key
+  requiredKeys.forEach(key => {
+    if (!(key in receivedObject && receivedObject[key])) {
+      missing_key = key
+      missing = true
     }
+  })
 
-    // null is not allowed
-    if (receivedObject[requiredKeys[i]] === null || typeof receivedObject[requiredKeys[i]] === 'undefined') {
-      throw new Error(`${receivedObject[requiredKeys[i]]} cannot be 'null' or 'undefined'`)
-    }
-  }
-
-  // We're good to go
-  return true
-
+  if (missing) throw new Error(missing_key + ' cannot be falsy')
 }
 
 // const state = {}
@@ -69,7 +41,7 @@ export default class Api {
    * 0 POST /management/user
    */
   static register(data) {
-    const requiredFields = [
+    checkParameters([
       'email',
       'nickname',
       'device_id',
@@ -78,16 +50,11 @@ export default class Api {
       'public_key',
       'plaintext_proof',
       'signed_proof'
-    ]
-
-    if (checkParameters(requiredFields, data)) {
-      return request('/management/register', {
-        body: JSON.stringify(data),
-        method: 'POST'
-      }, false)
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    ], data)
+    return request('/management/register', {
+      body: JSON.stringify(data),
+      method: 'POST'
+    }, false)
   }
 
   /*
