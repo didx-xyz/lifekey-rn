@@ -47,8 +47,6 @@ const signedRequest = function(url, opts, fingerprint) {
       return Crypto.sign(
         _secureRandom,
         Config.keystore.privateKeyName + (fingerprint ? 'fingerprint' : '')
-        // ConsentUser.getPasswordSync(),
-        // Crypto.SIG_SHA256_WITH_RSA
       )
     })
     .then(signature => {
