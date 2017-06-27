@@ -5,19 +5,19 @@ import Logger from "./Logger"
 import ConsentUser from "./Models/ConsentUser"
 import ConsentError, { ErrorCode } from "./ConsentError"
 
-const request = function(url, opts, shouldBeSigned = true) {
+const request = function(url, opts, shouldBeSigned = true, fingerprint = false) {
   if (url.indexOf("http") !== 0) {
     url = Config.http.baseUrl + url
   }
 
   if (shouldBeSigned) {
-    return signedRequest(url, opts)
+    return signedRequest(url, opts, fingerprint)
   }
 
   return unsignedRequest(url, opts)
 }
 
-const signedRequest = function(url, opts) {
+const signedRequest = function(url, opts, fingerprint) {
   if (Config.useWhitelistedUser) {
     return whitelistedSignedRequest(url, opts)
   }
@@ -46,20 +46,22 @@ const signedRequest = function(url, opts) {
 
       return Crypto.sign(
         _secureRandom,
-        Config.keystore.privateKeyName,
-        ConsentUser.getPasswordSync(),
-        Crypto.SIG_SHA256_WITH_RSA
+        Config.keystore.privateKeyName + (fingerprint ? 'fingerprint' : '')
+        // ConsentUser.getPasswordSync(),
+        // Crypto.SIG_SHA256_WITH_RSA
       )
     })
     .then(signature => {
+      var headers = {
+        "content-type": "application/json",
+        "x-cnsnt-id": userID,
+        "x-cnsnt-plain": secureRandom,
+        "x-cnsnt-signed": signature
+      }
+      if (fingerprint) headers['x-cnsnt-fingerprint'] = 1
       const options = Object.assign({
         "method": "GET",
-        "headers": {
-          "content-type": "application/json",
-          "x-cnsnt-id": userID,
-          "x-cnsnt-plain": secureRandom,
-          "x-cnsnt-signed": signature
-        }
+        "headers": headers
       }, opts)
 
       return wrappedFetch(url, options)
