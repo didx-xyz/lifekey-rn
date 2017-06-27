@@ -35,6 +35,8 @@ import {
   Col
 } from 'native-base'
 
+import fp from 'react-native-fingerprint-android'
+
 import HexagonDots from '../../Components/HexagonDots'
 import Dots from '../../Components/Dots'
 import OnboardingTextInputAndroid from '../../Components/OnboardingTextInputAndroid'
@@ -270,21 +272,19 @@ class Register extends Scene {
   }
 
   requestMagicLink() {
-
-    ConsentUser.register(this.state.user)
-    .then(result => {
+    Promise.all([
+      fp.isHardwareDetected(),
+      fp.hasPermission(),
+      fp.hasEnrolledFingerprints()
+    ]).then(res => {
+      var [hardware, permission, enrolled] = res
+      return ConsentUser.register(this.state.user, hardware && permission && enrolled)
+    }).then(result => {
       ToastAndroid.show('Registering...', ToastAndroid.SHORT)
-    })
-    .catch(error => {
-      Logger.error('Not registered', this.filename, error)
-      switch (error.status) {
-        case 400: // Validation error
-          ToastAndroid.show('Registeration unsuccessful...', ToastAndroid.SHORT)
-          this.resetRegistration()
-        default: {
-          ToastAndroid.show('An unknown error occurred. Registeration unsuccessful...', ToastAndroid.SHORT)
-        }
-      }
+    }).catch(error => {
+      console.log(error)
+      ToastAndroid.show('Registration unsuccessful...', ToastAndroid.SHORT)
+      this.resetRegistration()
     })
   }
 
