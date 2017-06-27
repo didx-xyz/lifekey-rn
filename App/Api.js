@@ -44,7 +44,7 @@ function checkParameters(requiredKeys, receivedObject) {
     if (recievedObjectKeysSorted[i] !== requiredKeysSorted[i]) {
       const errorMessage = 'Expected an object containing the keys:\n'
                         + requiredKeys.reduce((p, c) => `${p}, '${c}'`, '').slice(2)
-                        + '\nbut recieved an object containing:\n'
+                        + '\nbut received an object containing:\n'
                         + receivedObjectKeys.reduce((p, c) => `${p}, '${c}'`, '').slice(2)
       throw new Error(errorMessage)
     }
@@ -438,6 +438,38 @@ export default class Api {
     }
   }
 
+  static getCachedResourceByName(data) {
+    const requiredFields = [
+      'name'
+    ]
+
+    if (checkParameters(requiredFields, data)) {
+
+      // Try fetch from cache first 
+      let cached = ConsentUser.getCached("myData")
+      console.log("RESOURCE TYPES: ", cached.resourcesByType)
+      let resource
+
+      if (cached) {
+
+        const containerResourceType = cached.resourcesByType.find(rt => rt.name === data.name)
+        if(containerResourceType){
+          resource = containerResourceType.items[0]
+        }
+      }
+
+      if(cached && resource){
+        return Promise.resolve(resource)
+      }
+      else{
+        return Promise.reject()
+      }
+
+    } else {
+      return Promise.reject(getMissingFieldsMessage(requiredFields))
+    }
+  }
+
   // 2 POST /resource
   static createResource(data) {
 
@@ -496,6 +528,50 @@ export default class Api {
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
+  }
+
+  // 12 GET /profile
+  static myProfile(milliseconds = 600000) {
+
+    // Try fetch from cache first 
+    let cached = ConsentUser.getCached("profile")
+
+    
+
+    if(cached){
+      console.log('return cached profile')
+      console.log("CACHED:::: ", cached)
+      return Promise.resolve(cached)
+    }
+    
+    // else
+    return request('/profile', { method: 'GET' }, true).then(data => {
+      const profile = data.body
+      ConsentUser.setCached('profile', profile, milliseconds )
+      return profile
+    }) 
+  }
+
+  // 5.5 POST /profile/:did
+  static setProfile(data) {
+    // const requiredFields = [
+      // 'contactAddress',
+      // 'contactEmail',
+      // 'contactTelephone',
+      // 'displayName',
+      // 'label',
+      // 'profileColour',
+      // 'profileImageUri'
+    // ]
+
+    // if (checkParameters(requiredFields, data)) {
+      return request('/profile', {
+        method: 'POST',
+        body: JSON.stringify(data)
+      }, true)
+    // } else {
+    //   return Promise.reject(getMissingFieldsMessage(requiredFields))
+    // }
   }
 
   // 6 PUT /profile/colour
@@ -588,13 +664,28 @@ export default class Api {
     }
   }
 
-  // 12 GET /profile
-  static myProfile() {
+  // #########################
+  // #### TRUSTBANK LOGIN ####
+  // #########################
 
-    return request('/profile', {
-      method: 'GET'
-    })
+  static trustBankLogin(data){
+
+    // console.log("GOT TO API: ", typeof data, " | ", data)
+
+    const requiredFields = [
+      'created_by',
+      'challenge'
+    ]
+    if (checkParameters(requiredFields, data)) {
+      return request(`/trustbanklogin`, {
+        method: 'POST',
+        body: JSON.stringify(data)
+      })
+    } else {
+      return Promise.reject(getMissingFieldsMessage(requiredFields))
+    }
   }
+
 
   // 14 POST /facial-verfication token
   // Get a Face pic after scanning a QR code

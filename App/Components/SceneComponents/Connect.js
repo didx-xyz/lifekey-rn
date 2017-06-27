@@ -75,7 +75,7 @@ class Connect extends Component  {
       return (
         <View>
           <View style={styles.qrCodeContainer}>
-            <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr/${ConsentUser.getDidSync()}` }} />
+            <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-2/${ConsentUser.getDidSync()}` }} />
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text}>Invite other people to connect with you by sharing your unique ID code</Text>

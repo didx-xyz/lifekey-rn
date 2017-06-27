@@ -106,22 +106,51 @@ export default class QRCodeScanner extends Scene {
     })
   }
 
+  trustBankLogin(data) {
+    
+    console.log("TRUSTBANK 1: ", data.data)
+    const parsedData = JSON.parse(data.data)
+
+    return Api.trustBankLogin(parsedData).then(response => {
+
+      if(response.requestSuccesfullySent){
+        alert("Logging in...")
+        this.navigator.push({...Routes.main})
+      }
+      else{
+
+      }
+
+    }).catch(error => {
+      alert("Log in request failed: ", data.error)
+      Logger.error(error)
+    })
+
+  }
+
   _onBarCodeRead(data) {
 
     console.log("DATA: ", data)
-    console.log("DATA JSON: ", JSON.stringify(data))
+    
 
     if (this.scannerActive) {
       this.scannerActive = false
 
-      const dest = data.data.indexOf('facial-verification')
+      // Here we need to build a switch that identifies the nature of the request 
+      const isFaceMatch = data.data.indexOf('facial-verification')
+      const isTrustBankLogin = data.data.indexOf('challenge')
 
-      if(dest > -1)
+      if(isFaceMatch > -1){
         this.faceMatch(data)
+      }
+      else if(isTrustBankLogin){
+        this.trustBankLogin(data)
+      }
       else
         this.connect(data)
     }
   }
+
 
   render() {
     return (

@@ -21,9 +21,9 @@ class RcWrapper extends Component {
         return  <LcIdentity {...resource} />
       case('Mobile Phone'):
         return <LcContactDetail listCardHeading={resourceType.name} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
-        case('Landline'):
+      case('Landline'):
         return <LcContactDetail listCardHeading={resourceType.name} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
-        case('Email'):
+      case('Email'):
         return <LcContactDetail listCardHeading={resourceType.name} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
       case('Address'):
         return <LcHomeAddress {...resource} expanded={ false }/>

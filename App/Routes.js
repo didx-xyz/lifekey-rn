@@ -35,6 +35,7 @@ import Badges from './Scenes/Badges'
 import Messages from './Scenes/Messages'
 import BadgeDetail from './Scenes/BadgeDetail'
 import EditResource from './Scenes/EditResource'
+import EditProfile from './Scenes/EditProfile'
 import Thanks from './Scenes/Thanks'
 
 import Locked from './Scenes/Onboarding/Locked'
@@ -65,6 +66,7 @@ export default {
   messages: { scene: Messages },
   badgeDetail: { scene: BadgeDetail },
   editResource: { scene: EditResource },
+  editProfile: { scene: EditProfile },
   thanks: {scene: Thanks},
   onboarding: {
     splashScreen: { scene: SplashScreen },
