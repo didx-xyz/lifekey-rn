@@ -86,22 +86,21 @@ export default class Api {
    * Make a connection request with a target
    * 2 POST /management/connection
    */
-  static requestConnection(data) {
+  static requestConnection(data, fingerprint = false) {
     const requiredFields = [
       'target'
     ]
     if (checkParameters(requiredFields, data)) {
-      const userDID = Session.getState().user.did
       return request('/management/connection', {
-        body: JSON.stringify({ target: data.target, from_did: userDID }),
+        body: JSON.stringify({target: data.target}),
         method: 'POST'
-      })
+      }, true, fingerprint)
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
   }
 
-   // Get all unacked and enabled connections
+  // Get all unacked and enabled connections
   static allConnections() {
     return request('/management/connection', {
       method: 'GET'
@@ -109,7 +108,7 @@ export default class Api {
   }
 
   // Accept a connection request
-  static respondConnectionRequest(data) {
+  static respondConnectionRequest(data, fingerprint = false) {
     const requiredFields = [
       'user_connection_request_id',
       'accepted' // true/false (in body)
@@ -118,42 +117,28 @@ export default class Api {
       return request(`/management/connection/${data.user_connection_request_id}`, {
         body: JSON.stringify({ accepted: data.accepted }),
         method: 'POST'
-      })
+      }, true, fingerprint)
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
   }
-
-   // Delete a connection /management/connection/:user_connection_id
-  static deleteConnection(data) {
+  
+  // Delete a connection /management/connection/:user_connection_id
+  static deleteConnection(data, fingerprint = false) {
     const requiredFields = [
       'user_connection_id'
     ]
     if (checkParameters(requiredFields, data)) {
       return request(`/management/connection/${data.user_connection_id}`, {
         method: 'DELETE'
-      })
+      }, true, fingerprint)
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
   }
 
-   // Activate a newly created account
-  static activate(data) {
-    const requiredFields = [
-      'activation_code'
-    ]
-    if (checkParameters(requiredFields, data)) {
-      return request(`/management/activation/${data.activation_code}`, {
-        method: 'GET'
-      })
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
-  }
-
-   // Request an ISA
-  static requestISA(data) {
+  // Request an ISA
+  static requestISA(data, fingerprint = false) {
     const requiredFields = [
       'to',
       'requested_schemas',
@@ -163,14 +148,14 @@ export default class Api {
     if (checkParameters(requiredFields, data)) {
       return request('/management/isa', {
         method: 'POST'
-      })
+      }, true, fingerprint)
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
   }
 
-   // Respond to an ISA request
-  static respondISA(data) {
+  // Respond to an ISA request
+  static respondISA(data, fingerprint = false) {
     const requiredFields = [
       'isa_id',
       'accepted',
@@ -183,20 +168,20 @@ export default class Api {
           accepted: data.accepted,
           permitted_resources: data.permitted_resources
         })
-      })
+      }, true, fingerprint)
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
   }
 
-   // Get all ISAs
+  // Get all ISAs
   static allISAs() {
     return request('/management/isa', {
       method: 'GET'
     })
   }
 
-   // Get an ISA by id
+  // Get an ISA by id
   static getISA(data) {
     const requiredFields = [
       'id'
@@ -210,21 +195,21 @@ export default class Api {
     }
   }
 
-   // Delete an ISA
-  static deleteISA(data) {
+  // Delete an ISA
+  static deleteISA(data, fingerprint = false) {
     const requiredFields = [
       'isa_id'
     ]
     if (checkParameters(requiredFields, data)) {
       return request(`/management/isa/${data.isa_id}`, {
         method: 'DELETE'
-      })
+      }, true, fingerprint)
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
   }
 
-   // Demo QR code
+  // Demo QR code
   static qrCode(data) {
     const requiredFields = [
       'user_did'
@@ -238,8 +223,8 @@ export default class Api {
     }
   }
 
-   // Update an ISA by id
-  static updateISA(data) {
+  // Update an ISA by id
+  static updateISA(data, fingerprint = false) {
     const requiredFields = [
       'isa_id',
       'permitted_resources'
@@ -248,13 +233,13 @@ export default class Api {
       return request(`/management/isa/${data.isa_id}`, {
         method: 'PUT',
         body: JSON.stringify(data.permitted_resources)
-      })
+      }, true, fingerprint)
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
   }
 
-   // Pull an ISA
+  // Pull an ISA
   static pullISA(data) {
     const requiredFields = [
       'isa_id'
@@ -268,8 +253,8 @@ export default class Api {
     }
   }
 
-   // Pull an ISA
-  static pushISA(data) {
+  // Pull an ISA
+  static pushISA(data, fingerprint = false) {
     const requiredFields = [
       'isa_id',
       'resources'
@@ -277,8 +262,8 @@ export default class Api {
     if (checkParameters(requiredFields, data)) {
       return request(`/management/push/${data.isa_id}`, {
         method: 'POST',
-        body: JSON.stringify({ resources: data.resources })
-      })
+        body: JSON.stringify({resources: data.resources})
+      }, true, fingerprint)
     } else {
       return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
@@ -568,16 +553,16 @@ export default class Api {
   static facialVerificationQrScanResponse(user_did, token) {
     return request(`/facial-verification/${user_did}/${token}`, {
       method: 'GET'
-    }, false)
+    }, false) // TODO try and make this request authenticated
   }
 
   // 15 POST /facial-verfication
   // User result on QR code verification
-  static facialVerificationResult(user_did, token, result) {
+  static facialVerificationResult(user_did, token, result, fingerprint = false) {
     return request(`/facial-verification/${user_did}/${token}`, {
       method: 'POST',
-      body: JSON.stringify({ result : result })
-    })
+      body: JSON.stringify({result : result})
+    }, true, fingerprint)
   }
 
   // 16 GET /management/thanks/balance
@@ -591,7 +576,7 @@ export default class Api {
    * @param {*} action_name the name of the action stored by the user with whom you want to establish an ISA
    * @param {*} permitted_resources either an array of objects with integer id properties or an array of integer id values
    */
-  static establishISA(with_user_did, action_name, permitted_resources) {
+  static establishISA(with_user_did, action_name, permitted_resources, fingerprint = false) {
     if (Array.isArray(permitted_resources)) {
       if (permitted_resources[0].id) {
         permitted_resources = permitted_resources.map(pr => pr.id)
@@ -601,7 +586,7 @@ export default class Api {
       method: 'POST',
       body: JSON.stringify({
         entities: permitted_resources
-      })
+      }, true, fingerprint)
     })
   }
 
@@ -609,7 +594,7 @@ export default class Api {
   // ##### DEBUG ######
   // ##################
 
-   // Delete a user
+  // Delete a user
   static unregister(data) {
     if (Config.DEBUG) {
       if (!data.id && !data.email) {
