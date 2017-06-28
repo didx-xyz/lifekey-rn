@@ -1,7 +1,23 @@
 
 import React from 'react'
-import {Image, Text, TextInput, View, StyleSheet, Platform} from 'react-native'
-import {Container, Content, Grid, Col, Row} from 'native-base'
+import {
+  Image,
+  Text,
+  TextInput,
+  View,
+  StyleSheet,
+  Platform,
+  DeviceEventEmitter,
+  ActivityIndicator
+} from 'react-native'
+
+import {
+  Container,
+  Content,
+  Grid,
+  Col,
+  Row
+} from 'native-base'
 
 import Scene from '../Scene'
 import Routes from '../Routes'
@@ -23,12 +39,7 @@ export default class AuthenticationPrompt extends Scene {
     this.state = {
       submitting: false,
       pin: '',
-
-
-
-
-      // DEBUG
-      fingerprint: false
+      feedback: ''
     }
   }
   
@@ -38,23 +49,27 @@ export default class AuthenticationPrompt extends Scene {
 
   componentWillUnmount() {
     this.finalise_fingerprint_if_available()
+    if (this.has_lockout_listener) {
+      DeviceEventEmitter.removeListener(
+        'fingerPrintLockoutEnded',
+        this.reset_fingerprint.bind(this)
+      )
+    }
   }
 
   init_fingerprint_if_available() {
-    var fingerprint
-    
     Promise.all([
       fp.isHardwareDetected(),
       fp.hasPermission(),
       fp.hasEnrolledFingerprints()
     ]).then(res => {
       var [hardware, permission, enrolled] = res
-      fingerprint = hardware && permission && enrolled
-      if (fingerprint) this.bind_fingerprint_success_callback()
+      var fingerprint = hardware && permission && enrolled
+      if (fingerprint) this.bind_fingerprint_callbacks.call(this)
       this.setState({
         fingerprint: fingerprint,
         fingerprint_detector_feedback: '',
-        show_fingerprint_detector_feedback: true
+        show_feedback: true
       })
     }).catch(err => {
       console.log('fp capability check error', err)
@@ -65,39 +80,50 @@ export default class AuthenticationPrompt extends Scene {
   finalise_fingerprint_if_available() {
     if (!this.state.fingerprint) return
     return fp.cancelAuthentication().catch(
-      console.log.bind(console, 'fp auth cancellation error')
+      console.log.bind(console, 'fp error')
     )
   }
 
-  reset_fingerprint_if_available() {
-    // something's wrong, maybe reset the detector?
+  reset_fingerprint() {
     this.finalise_fingerprint_if_available().then(
-      this.init_fingerprint_if_available
+      this.init_fingerprint_if_available.bind(this)
     ).then(_ => {
-      this.setState({fingerprint_detector_feedback: ''})
+      this.setState({feedback: 'Fingerprint scanner ready'})
     })
   }
 
-  bind_fingerprint_success_callback() {
+  bind_fingerprint_callbacks() {
+    
+    // ensure a listener for lockout reset is bound
+    if (!this.has_lockout_listener) {
+      DeviceEventEmitter.addListener(
+        'fingerPrintLockoutEnded',
+        this.reset_fingerprint.bind(this)
+      )
+      this.has_lockout_listener = true
+    }
+    
     fp.authenticate(warning => {
-      this.setState({fingerprint_detector_feedback: warning.message})
+      this.setState({
+        feedback: warning.message
+      })
     }).then(_ => {
-      this.setState({fingerprint_detector_feedback: 'Authenticated, please wait.'})
-      // show activity inidcator and start async operation
-      // this.props.auth_success_action().then(_ => {
-      //   // this.navigator.resetTo...
-      // }).catch(err => {
-      //   // hide activity indicator
-      //   // this.navigator.pop()
-      // })
+      this.setState({
+        feedback: 'Authenticated, please wait...',
+        submitting: true
+      })
+      this.success_action_and_navigate()
     }).catch(err => {
       if (err.code === fp.FINGERPRINT_ERROR_CANCELED) {
-        this.setState({fingerprint_detector_feedback: 'Authentication attempt cancelled'})
+        this.setState({
+          feedback: 'Authentication attempt cancelled'
+        })
       } else if (!err.message) {
-        this.reset_fingerprint_if_available()
-        return
+        this.reset_fingerprint.call(this)
       } else {
-        this.setState({fingerprint_detector_feedback: err.message})
+        this.setState({
+          feedback: err.message
+        })
       }
     })
   }
@@ -106,28 +132,32 @@ export default class AuthenticationPrompt extends Scene {
     this.setState({pin: text})
   }
 
+  success_action_and_navigate() {
+    setTimeout(_ => {
+      (this.props.auth_success_action || Promise.resolve)().then(_ => {
+        this.navigator.resetTo(this.props.auth_success_destination || Routes.main)
+      }).catch(this.navigator.pop)
+    }, 10000)
+  }
+
   submit_with_pin() {
     if (this.state.submitting || this.state.pin.length !== 5) return
-    
-    try {
-      var password = ConsentUser.getPasswordSync()
-    } catch (e) {
-      // the user is not logged in
-      // (this shouldn't ever happen in production)
-      
-      // just set the password to the given pin for debugging purposes
-      password = this.state.pin
-    }
+    var password = ConsentUser.getPasswordSync()
     
     if (this.state.pin === password) {
-      // this.props.auth_success_action
+      this.setState({
+        show_feedback: false,
+        submitting: true,
+        pin: ''
+      })
       this.finalise_fingerprint_if_available()
-      this.setState({show_fingerprint_detector_feedback: false, submitting: true, pin: ''})
-      alert('authenticated!!')
+      this.success_action_and_navigate()
     } else {
       // try again
-      this.setState({pin: ''})
-      alert('sorry, try again!!')
+      this.setState({
+        pin: '',
+        feedback: 'Incorrect PIN, please try again...'
+      })
     }
   }
 
@@ -135,12 +165,11 @@ export default class AuthenticationPrompt extends Scene {
     return this.state.fingerprint ? (
       <View>
         <Row>
-          {
-            this.state.show_fingerprint_detector_feedback && <Text>{this.state.fingerprint_detector_feedback}</Text>
-          }
+          {this.state.show_feedback && <Text>{this.state.feedback}</Text>}
         </Row>
         <Row>
-          <Image source={require('../Images/verified_identity.png')} onerror={console.log} />
+          <Image source={require('../Images/verified_identity.png')}
+                 onerror={console.log} />
         </Row>
       </View>
     ) : <View />
@@ -149,7 +178,7 @@ export default class AuthenticationPrompt extends Scene {
   render_authorisation_prompt_message() {
     return (
       <Row>
-        <Text>Please authenticate this action with your PIN</Text>{this.state.fingerprint && <Text> or fingerprint</Text>}
+        <Text>Please authenticate with your PIN</Text>{this.state.fingerprint && <Text> or fingerprint</Text>}
       </Row>
     )
   }
@@ -165,10 +194,18 @@ export default class AuthenticationPrompt extends Scene {
                      editable={!this.state.submitting} />
         </Col>
         <Col>
-          <Button onPress={this.submit_with_pin.bind(this)} affirmative={true} buttonText='Submit' />
+          <Button onPress={this.submit_with_pin.bind(this)}
+                  affirmative={true}
+                  buttonText='Submit' />
         </Col>
       </Row>
     )
+  }
+
+  render_activity_indicator() {
+    return this.state.submitting ? (
+      <ActivityIndicator animating={true} size='large' />
+    ) : <View />
   }
   
   render() {
@@ -181,6 +218,7 @@ export default class AuthenticationPrompt extends Scene {
               {this.render_authorisation_prompt_message()}
               {this.render_fingerprint_auth_indicator()}
               {this.render_pin_input()}
+              {this.render_activity_indicator()}
             </Col>
           </Grid>
         </Content>
