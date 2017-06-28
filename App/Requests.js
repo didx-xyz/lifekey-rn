@@ -17,53 +17,47 @@ const request = function(url, opts, shouldBeSigned = true, fingerprint = false) 
   return unsignedRequest(url, opts)
 }
 
-const signedRequest = function(url, opts, fingerprint) {
-  if (Config.useWhitelistedUser) {
-    return whitelistedSignedRequest(url, opts)
-  }
+var init_key_store = function() {
+  return Crypto.getKeyStoreIsLoaded().then(loaded => {
+    return (loaded ? Promise.resolve : Crypto.loadKeyStore)()
+  })
+}
 
+const signedRequest = function(url, opts, fingerprint) {
   let userID = null
   let secureRandom = null
 
-  return ConsentUser.get()
-    .then(results => {
-      if (results.id) {
-        userID = results.id
-        return Crypto.getKeyStoreIsLoaded()
-      }
+  return ConsentUser.get().then(results => {
+    if (results.id) {
+      userID = results.id
+      return init_key_store()
+    }
+    return rejectionWithError(
+      'User not registered. Cannot send a signed request'
+    )
+  }).then(_ => {
+    return Crypto.secureRandom()
+  }).then(_secureRandom => {
+    secureRandom = _secureRandom
+    return Crypto.sign(
+      _secureRandom,
+      Config.keystore.privateKeyName + (fingerprint ? 'fingerprint' : '')
+    )
+  }).then(signature => {
+    var headers = {
+      "content-type": "application/json",
+      "x-cnsnt-id": userID,
+      "x-cnsnt-plain": secureRandom,
+      "x-cnsnt-signed": signature
+    }
+    if (fingerprint) headers['x-cnsnt-fingerprint'] = 1
+    const options = Object.assign({
+      "method": "GET",
+      "headers": headers
+    }, opts)
 
-      return rejectionWithError("User not registered. Cannot send a signed request")
-    })
-    .then(keystoreLoaded => {
-      if (keystoreLoaded) {
-        return Crypto.secureRandom()
-      }
-
-      return rejectionWithError("Keystore must first be loaded", ErrorCode.E_ACCESS_KEYSTORE_NOT_LOADED)
-    })
-    .then(_secureRandom => {
-      secureRandom = _secureRandom
-
-      return Crypto.sign(
-        _secureRandom,
-        Config.keystore.privateKeyName + (fingerprint ? 'fingerprint' : '')
-      )
-    })
-    .then(signature => {
-      var headers = {
-        "content-type": "application/json",
-        "x-cnsnt-id": userID,
-        "x-cnsnt-plain": secureRandom,
-        "x-cnsnt-signed": signature
-      }
-      if (fingerprint) headers['x-cnsnt-fingerprint'] = 1
-      const options = Object.assign({
-        "method": "GET",
-        "headers": headers
-      }, opts)
-
-      return wrappedFetch(url, options)
-    })
+    return wrappedFetch(url, options)
+  })
 }
 
 const rejectionWithError = function(message) {
@@ -107,20 +101,6 @@ const onResponse = function(response) {
   }
 }
 
-const whitelistedSignedRequest = function(url, opts) {
-  const options = Object.assign({
-    "method": "GET",
-    "headers": {
-      "x-cnsnt-id": Config.whitelistedUserId,
-      "x-cnsnt-plain": Config.whitelistedUserPlain,
-      "x-cnsnt-signed": Config.whitelistedUserSigned,
-      "content-type": "application/json"
-    }
-  }, opts)
-
-  return wrappedFetch(url, options)
-}
-
 const unsignedRequest = function(url, opts) {
   const options = Object.assign({
     "method": "GET",
@@ -135,7 +115,6 @@ const unsignedRequest = function(url, opts) {
 export {
   request,
   signedRequest,
-  whitelistedSignedRequest,
   unsignedRequest,
   rejectionWithError
 }
