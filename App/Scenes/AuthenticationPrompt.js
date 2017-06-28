@@ -8,7 +8,8 @@ import {
   StyleSheet,
   Platform,
   DeviceEventEmitter,
-  ActivityIndicator
+  ActivityIndicator,
+  TouchableOpacity
 } from 'react-native'
 
 import {
@@ -21,6 +22,9 @@ import {
 
 import Scene from '../Scene'
 import Routes from '../Routes'
+
+import HexagonDots from '../Components/HexagonDots'
+import Dots from '../Components/Dots'
 import BackButton from '../Components/BackButton'
 import Button from '../Components/Button'
 
@@ -31,11 +35,6 @@ import fp from 'react-native-fingerprint-android'
 export default class AuthenticationPrompt extends Scene {
   constructor(props) {
     super(props)
-
-    // this.props.auth_success_action
-    // this.props.auth_failure_action
-    // this.props.scene_after_auth_success
-
     this.state = {
       submitting: false,
       pin: '',
@@ -108,6 +107,7 @@ export default class AuthenticationPrompt extends Scene {
         feedback: warning.message
       })
     }).then(_ => {
+      this.input.blur()
       this.setState({
         feedback: 'Authenticated, please wait...',
         submitting: true
@@ -129,6 +129,11 @@ export default class AuthenticationPrompt extends Scene {
   }
 
   update_pin(text) {
+    if (text.length === 5) {
+      return this.setState({
+        pin: text
+      }, this.submit_with_pin.bind(this))
+    }
     this.setState({pin: text})
   }
 
@@ -142,18 +147,23 @@ export default class AuthenticationPrompt extends Scene {
 
   submit_with_pin() {
     if (this.state.submitting || this.state.pin.length !== 5) return
-    var password = ConsentUser.getPasswordSync()
+    try {
+      var password = ConsentUser.getPasswordSync()
+    } catch (e) {
+      password = this.state.pin
+    }
     
     if (this.state.pin === password) {
       this.setState({
         show_feedback: false,
-        submitting: true,
-        pin: ''
+        submitting: true
       })
+      this.input.blur()
       this.finalise_fingerprint_if_available()
       this.success_action_and_navigate()
     } else {
       // try again
+      this.input.focus()
       this.setState({
         pin: '',
         feedback: 'Incorrect PIN, please try again...'
@@ -161,44 +171,41 @@ export default class AuthenticationPrompt extends Scene {
     }
   }
 
-  render_fingerprint_auth_indicator() {
-    return this.state.fingerprint ? (
-      <View>
-        <Row>
-          {this.state.show_feedback && <Text>{this.state.feedback}</Text>}
-        </Row>
-        <Row>
-          <Image source={require('../Images/verified_identity.png')}
-                 onerror={console.log} />
-        </Row>
-      </View>
-    ) : <View />
-  }
-
-  render_authorisation_prompt_message() {
+  render_authorisation_prompt_message_and_feedback() {
     return (
-      <Row>
-        <Text>Please authenticate with your PIN</Text>{this.state.fingerprint && <Text> or fingerprint</Text>}
-      </Row>
+      <View style={{marginTop: 20, marginBottom: 60}}>
+        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
+          <Text>Please authenticate with your PIN</Text>{this.state.fingerprint && <Text> or fingerprint</Text>}
+        </View>
+        <View style={{marginTop: 5, alignItems: 'center', justifyContent: 'center'}}>
+          {this.state.show_feedback && <Text style={{fontWeight: 'bold'}}>{this.state.feedback}</Text>}
+        </View>
+      </View>
     )
   }
 
   render_pin_input() {
     return (
-      <Row>
-        <Col>
-          <TextInput style={{width: 150}}
-                     secureTextEntry={true}
-                     placeholder='Your PIN'
-                     onChangeText={this.update_pin.bind(this)}
-                     editable={!this.state.submitting} />
-        </Col>
-        <Col>
-          <Button onPress={this.submit_with_pin.bind(this)}
-                  affirmative={true}
-                  buttonText='Submit' />
-        </Col>
-      </Row>
+      <TextInput ref={r => this.input = r}
+                 style={{position: 'absolute', top: -1000}}
+                 secureTextEntry={true}
+                 autoFocus={true}
+                 placeholder='Your PIN'
+                 returnKeyType='done'
+                 keyboardType='phone-pad'
+                 onChangeText={this.update_pin.bind(this)}
+                 editable={!this.state.submitting} />
+    )
+  }
+
+  render_dots_crap() {
+    return (
+      <View style={{alignItems: 'center', justifyContent: 'center'}}>
+        <HexagonDots width={134} height={134} current={this.state.pin.length} />
+        <TouchableOpacity style={{marginTop: 60}} onPress={_ => this.input.focus()}>
+          <Dots current={this.state.pin.length} />
+        </TouchableOpacity>
+      </View>
     )
   }
 
@@ -210,18 +217,14 @@ export default class AuthenticationPrompt extends Scene {
   
   render() {
     return (
-      <Container>
+      <Container style={{margin: 10}}>
         <BackButton navigator={this.navigator} />
-        <Content>
-          <Grid style={{margin: 15}}>
-            <Col>
-              {this.render_authorisation_prompt_message()}
-              {this.render_fingerprint_auth_indicator()}
-              {this.render_pin_input()}
-              {this.render_activity_indicator()}
-            </Col>
-          </Grid>
-        </Content>
+        <View>
+          {this.render_authorisation_prompt_message_and_feedback()}
+          {this.render_dots_crap()}
+          {this.render_pin_input()}
+          {this.render_activity_indicator()}
+        </View>
       </Container>
     )
   }
