@@ -1,24 +1,19 @@
 
 import React from 'react'
+
 import {
   Image,
   Text,
   TextInput,
   View,
-  StyleSheet,
-  Platform,
   DeviceEventEmitter,
   ActivityIndicator,
   TouchableOpacity
 } from 'react-native'
 
-import {
-  Container,
-  Content,
-  Grid,
-  Col,
-  Row
-} from 'native-base'
+import pt from 'prop-types'
+
+import {Container} from 'native-base'
 
 import Scene from '../Scene'
 import Routes from '../Routes'
@@ -33,10 +28,12 @@ import ConsentUser from '../Models/ConsentUser'
 import fp from 'react-native-fingerprint-android'
 
 export default class AuthenticationPrompt extends Scene {
+  
   constructor(props) {
     super(props)
     this.state = {
       submitting: false,
+      show_feedback: true,
       pin: '',
       feedback: ''
     }
@@ -67,12 +64,14 @@ export default class AuthenticationPrompt extends Scene {
       if (fingerprint) this.bind_fingerprint_callbacks.call(this)
       this.setState({
         fingerprint: fingerprint,
-        fingerprint_detector_feedback: '',
-        show_feedback: true
+        feedback: 'Ready'
       })
     }).catch(err => {
       console.log('fp capability check error', err)
-      this.setState({fingerprint: false})
+      this.setState({
+        fingerprint: false,
+        feedback: 'Ready'
+      })
     })
   }
 
@@ -87,7 +86,7 @@ export default class AuthenticationPrompt extends Scene {
     this.finalise_fingerprint_if_available().then(
       this.init_fingerprint_if_available.bind(this)
     ).then(_ => {
-      this.setState({feedback: 'Fingerprint scanner ready'})
+      this.setState({feedback: 'Ready'})
     })
   }
 
@@ -109,14 +108,14 @@ export default class AuthenticationPrompt extends Scene {
     }).then(_ => {
       this.input.blur()
       this.setState({
-        feedback: 'Authenticated, please wait...',
+        feedback: 'Authenticated, please wait',
         submitting: true
       })
       this.success_action_and_navigate()
     }).catch(err => {
       if (err.code === fp.FINGERPRINT_ERROR_CANCELED) {
         this.setState({
-          feedback: 'Authentication attempt cancelled'
+          feedback: 'Authentication attempt canceled'
         })
       } else if (!err.message) {
         this.reset_fingerprint.call(this)
@@ -138,11 +137,9 @@ export default class AuthenticationPrompt extends Scene {
   }
 
   success_action_and_navigate() {
-    setTimeout(_ => {
-      (this.props.auth_success_action || Promise.resolve)().then(_ => {
-        this.navigator.resetTo(this.props.auth_success_destination || Routes.main)
-      }).catch(this.navigator.pop)
-    }, 10000)
+    this.props.auth_success_action().then(_ => {
+      this.navigator.resetTo(this.props.auth_success_destination)
+    }).catch(this.navigator.pop)
   }
 
   submit_with_pin() {
@@ -150,6 +147,7 @@ export default class AuthenticationPrompt extends Scene {
     try {
       var password = ConsentUser.getPasswordSync()
     } catch (e) {
+      // DEBUG only
       password = this.state.pin
     }
     
@@ -166,7 +164,7 @@ export default class AuthenticationPrompt extends Scene {
       this.input.focus()
       this.setState({
         pin: '',
-        feedback: 'Incorrect PIN, please try again...'
+        feedback: 'Incorrect PIN, please try again'
       })
     }
   }
@@ -228,4 +226,16 @@ export default class AuthenticationPrompt extends Scene {
       </Container>
     )
   }
+}
+
+AuthenticationPrompt.propTypes = {
+  auth_success_action: pt.func,
+  auth_success_destination: pt.shape({
+    scene: pt.instanceOf(Scene)
+  })
+}
+
+AuthenticationPrompt.defaultProps = {
+  auth_success_action: Promise.resolve,
+  auth_success_destination: Routes.main
 }
