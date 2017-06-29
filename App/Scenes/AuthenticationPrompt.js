@@ -8,7 +8,8 @@ import {
   View,
   DeviceEventEmitter,
   ActivityIndicator,
-  TouchableOpacity
+  TouchableOpacity,
+  AsyncStorage
 } from 'react-native'
 
 import pt from 'prop-types'
@@ -38,7 +39,7 @@ export default class AuthenticationPrompt extends Scene {
       feedback: ''
     }
   }
-  
+
   componentDidMount() {
     this.init_fingerprint_if_available()
   }
@@ -137,36 +138,45 @@ export default class AuthenticationPrompt extends Scene {
   }
 
   success_action_and_navigate() {
-    this.props.auth_success_action().then(_ => {
-      this.navigator.resetTo(this.props.auth_success_destination)
+    this.props.route.auth_success_action().then(_ => {
+      this.navigator.resetTo(
+        this.props.route.auth_success_destination
+      )
     }).catch(this.navigator.pop)
   }
 
   submit_with_pin() {
     if (this.state.submitting || this.state.pin.length !== 5) return
-    try {
-      var password = ConsentUser.getPasswordSync()
-    } catch (e) {
-      // DEBUG only
-      password = this.state.pin
-    }
-    
-    if (this.state.pin === password) {
-      this.setState({
-        show_feedback: false,
-        submitting: true
-      })
-      this.input.blur()
-      this.finalise_fingerprint_if_available()
-      this.success_action_and_navigate()
-    } else {
-      // try again
-      this.input.focus()
-      this.setState({
-        pin: '',
-        feedback: 'Incorrect PIN, please try again'
-      })
-    }
+    AsyncStorage.getItem(
+      'user-password'
+    ).then(function(item) {
+      if (!item) {
+        // fatal, user not registered
+        return Promise.reject('no password found - user probably not registered')
+      }
+      return Promise.resolve(JSON.parse(item))
+    }).then(password => {
+      if (this.state.pin === password) {
+        this.setState({
+          show_feedback: false,
+          submitting: true
+        })
+        this.input.blur()
+        this.finalise_fingerprint_if_available()
+        this.success_action_and_navigate()
+      } else {
+        // try again
+        this.input.value = ''
+        this.input.focus()
+        this.setState({
+          pin: '',
+          feedback: 'Incorrect PIN, please try again'
+        })
+      }
+    }).catch(err => {
+      // if we got here, all we can do is crash (or uselessly pop to the previous scene)
+      throw err
+    })
   }
 
   render_authorisation_prompt_message_and_feedback() {
@@ -217,25 +227,11 @@ export default class AuthenticationPrompt extends Scene {
     return (
       <Container style={{margin: 10}}>
         <BackButton navigator={this.navigator} />
-        <View>
-          {this.render_authorisation_prompt_message_and_feedback()}
-          {this.render_dots_crap()}
-          {this.render_pin_input()}
-          {this.render_activity_indicator()}
-        </View>
+        {this.render_authorisation_prompt_message_and_feedback()}
+        {this.render_dots_crap()}
+        {this.render_pin_input()}
+        {this.render_activity_indicator()}
       </Container>
     )
   }
-}
-
-AuthenticationPrompt.propTypes = {
-  auth_success_action: pt.func,
-  auth_success_destination: pt.shape({
-    scene: pt.instanceOf(Scene)
-  })
-}
-
-AuthenticationPrompt.defaultProps = {
-  auth_success_action: Promise.resolve,
-  auth_success_destination: Routes.main
 }
