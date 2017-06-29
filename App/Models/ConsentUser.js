@@ -5,7 +5,7 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-import { Platform, AsyncStorage } from 'react-native'
+import {Platform, AsyncStorage} from 'react-native'
 import Session from '../Session'
 import Crypto from '../Crypto'
 import Logger from '../Logger'
@@ -83,7 +83,7 @@ export default class ConsentUser {
       if (user.registered) {
 
         // Try to unlock keystore
-        return Crypto.loadKeyStore(Config.keystore.name, password)
+        return Crypto.loadKeyStore()
 
       } else {
 
@@ -97,25 +97,11 @@ export default class ConsentUser {
 
       }
     })
-    .then(loadedKeystore => {
-      if (loadedKeystore) {
-
-        // Unlocked keystore with password
-        Logger.info('Keystore loaded, password verified', LOGTAG)
-        // Check if user exists on the other side
-        return Api.profile({ did: user.did })
-
-      } else {
-
-        // Wrong password
-        return Promise.reject(
-          new ConsentError(
-            'Incorrect password for keystore',
-            E_INCORRECT_PASSWORD_FOR_KEYSTORE
-          )
-        )
-
-      }
+    .then(_ => {
+      // Unlocked keystore with password
+      Logger.info('Keystore loaded, password verified', LOGTAG)
+      // Check if user exists on the other side
+      return Api.profile({did: user.did})
     })
     .then(response => {
       if (parseInt(response.status, 10) === 200) {
@@ -256,8 +242,7 @@ export default class ConsentUser {
       return Crypto.sign(
         toSign,
         Config.keystore.privateKeyName,
-        ConsentUser.getPasswordSync(),
-        Crypto.SIG_SHA256_WITH_RSA
+        ConsentUser.getPasswordSync()
       )
     })
 
@@ -285,7 +270,7 @@ export default class ConsentUser {
 
   static getDisplayNameSync() {
     const state = Session.getState()
-    if(! state || !state.user || !state.user.display_name) {
+    if(!state || !state.user || !state.user.display_name) {
       throw new ConsentError(
         'No display name set for current user'
       )
@@ -436,330 +421,116 @@ export default class ConsentUser {
     })
   }
 
-  static register(newuser) {
+  static register(newuser, fingerprint) {
 
-    const { username, email } = newuser
-    const password = newuser.pin 
+    const {username, email} = newuser
+    const password = newuser.pin
 
-    let publicKeyPem, firebaseToken, toSign, userID
+    console.log('attempting to register with fingerprint key?', fingerprint)
+
+    let publicKeyPem1, publicKeyPem2, firebaseToken, toSign, userID
     Logger.info(`Registering as: ${username}, ${email}, ${password}`, LOGTAG)
 
-    return ConsentUser.getToken()
-    .then(_firebaseToken => {
-      if (_firebaseToken) {
-        Logger.info('Fetching secure random', LOGTAG)
-        firebaseToken = _firebaseToken
-        return Crypto.getKeyStoreList()
+    return ConsentUser.getToken(
+    ).then(token => {
+      if (token) {
+        console.log('got firebase token, generating keypair(s)')
+        firebaseToken = token
+        return Crypto.loadKeyStore()
       } else {
-        Logger.firebase('No firebase token available', LOGTAG)
         return Promise.reject('No token available. Cannot register')
       }
-    })
-
-    // Check if already registered
-    .then(keystoreList => {
-      const exists = keystoreList.find(x => x === Config.keystore.name)
-      if (exists) {
-        // We delete it
-        return Crypto.deleteKeyStore(Config.keystore.name)
-        .then(() => {
-          return Crypto.createKeyStore(Config.keystore.name, password)
-
-        })
-      } else {
-        Logger.info('Creating new keystore', LOGTAG)
-        return Crypto.createKeyStore(Config.keystore.name, password)
-      }
-    })
-
-    // Create the user's keypair
-    .then(() => {
-      Logger.info('Creating keypair', LOGTAG)
-      return Crypto.addKeyPair(
-        Crypto.KEYPAIR_RSA,
-        Config.keystore.keyName,
-        2048,
-        password,
-        Config.keystore.pemCertificatePath
-      )
-    })
-
-    // Get public key in PEM format
-    .then(_keys => {
-      Logger.info('Converting public key to PEM format', LOGTAG)
-      return Crypto.getKeyAsPem(Config.keystore.publicKeyName, password)
-    })
-
-    // Get firebase token
-    .then(_publicKeyPem => {
-      publicKeyPem = _publicKeyPem
-      Logger.info('Fetching secure random', LOGTAG)
-      return Crypto.secureRandom()
-    })
-
-    // Sign with private key
-    .then(_secureRandom => {
-      Logger.info('Signing...', LOGTAG)
-      toSign = _secureRandom
-      return Crypto.sign(
-        toSign,
-        Config.keystore.privateKeyName,
-        password,
-        Crypto.SIG_SHA256_WITH_RSA
-      )
-    })
-
-    // Send to server
-    .then(signature => {
-      Logger.info('Sending details to server', LOGTAG)
+    }).then(_ => {
+      return Promise.all([
+        Crypto.addKeyPair(
+          Config.keystore.keyName,
+          Config.keystore.pemCertificatePath
+        ),
+        fingerprint ? Crypto.addKeyPair(
+          Config.keystore.keyName + 'fingerprint',
+          Config.keystore.pemCertificatePath
+        ) : null
+      ])
+    }).then(pem_keys => {
+      publicKeyPem1 = pem_keys[0].publicKeyPem
+      publicKeyPem2 = fingerprint && pem_keys[1].publicKeyPem
+      console.log('Fetching secure random(s)')
+      return Promise.all([
+        Crypto.secureRandom(),
+        fingerprint ? Crypto.secureRandom() : null
+      ])
+    }).then(randoms => {
+      console.log('Signing secure random(s)')
+      return Promise.all([
+        randoms[0],
+        randoms[1],
+        Crypto.sign(
+          randoms[0],
+          Config.keystore.privateKeyName
+        ),
+        fingerprint ? Crypto.sign(
+          randoms[1],
+          Config.keystore.privateKeyName + 'fingerprint'
+        ) : null
+      ])
+    }).then(signature_data => {
+      console.log('submitting registration data')
       return Api.register({
         email: email.trim(),
         nickname: username.trim(),
         device_id: firebaseToken,
         device_platform: Platform.OS,
         public_key_algorithm: Config.keystore.publicKeyAlgorithm,
-        public_key: publicKeyPem,
-        plaintext_proof: toSign,
-        signed_proof: signature
+        public_key: publicKeyPem1,
+        plaintext_proof: signature_data[0],
+        signed_proof: signature_data[2],
+        fingerprint: fingerprint ? {
+          plaintext_proof: signature_data[1],
+          signed_proof: signature_data[3],
+          public_key: publicKeyPem2,
+          public_key_algorithm: 'rsa'
+        } : null
       })
-    })
-
-    // Get response from server
-    .then(response => {
+    }).then(response => {
       if (response.error === true) {
         // Server rejected registration
         // Remove keystore
-        Logger.info('Registration on server failed', LOGTAG)
-        Logger.info('Deleting keystore', LOGTAG)
-        return Crypto.deleteKeyStore(Config.keystore.name)
-        .then(() => {
-          return Promise.reject(response.error)
-        })
+        console.log('registration with server failed')
+        return Promise.reject()
       }
-      const jsonData = response.body
-      // TODO: check server response
-      // user could already exist etc
-      Logger.info('Server responded', LOGTAG)
+      var jsonData = response.body
       userID = jsonData.id
 
       // See what's currently in the DB
       return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
         id: userID,
-        did: null, // will receive via firebase later
+        did: null,
         display_name: username,
         email: email,
         firebaseToken: firebaseToken,
-        registered: true  // We will get this later
+        registered: true
       }))
-    })
-    .then( _ => {
-      // Update state
-        const sessionUpdate = {
-          user: {
-            id: userID,
-            did: null,
-            display_name: username,
-            password: password,
-            email: email,
-            registered: true,
-            loggedIn: true
-          }
+    }).then(_ => {
+      return AsyncStorage.setItem(
+        STORAGE_KEY + '-password',
+        JSON.stringify(password)
+      )
+    }).then(_ => {
+      Session.update({
+        user: {
+          id: userID,
+          did: null,
+          display_name: username,
+          password: password,
+          email: email,
+          registered: true,
+          loggedIn: true
         }
-        Session.update(sessionUpdate)
-        Logger.info('User registered', LOGTAG)
-        return Promise.resolve({
-          id: userID
-        })
-    })
-
-    // Check that writing went well and resolve
-    .catch(error => {
-      if (error) {
-        // If we couldn't write to database
-        Logger.error('Could not write to AsyncStorage', LOGTAG, error)
-        return Promise.reject(error)
-      } else {
-        // Update state
-        const sessionUpdate = {
-          user: {
-            id: userID,
-            did: null,
-            display_name: username,
-            password: password,
-            email: email,
-            registered: true,
-            loggedIn: true
-          }
-        }
-        Session.update(sessionUpdate)
-        Logger.info('User registered', LOGTAG)
-        return Promise.resolve({
-          id: userID
-        })
-      }
+      })
+      console.log('registration complete')
+      return Promise.resolve({id: userID})
     })
   }
-
-  // ORIGINAL ::: static register(username, email, password) {
-
-  //   let publicKeyPem, firebaseToken, toSign, userID
-  //   Logger.info(`Registering as: ${username}, ${email}, ${password}`, LOGTAG)
-
-  //   return ConsentUser.getToken()
-  //   .then(_firebaseToken => {
-  //     if (_firebaseToken) {
-  //       Logger.info('Fetching secure random', LOGTAG)
-  //       firebaseToken = _firebaseToken
-  //       return Crypto.getKeyStoreList()
-  //     } else {
-  //       Logger.firebase('No firebase token available', LOGTAG)
-  //       return Promise.reject('No token available. Cannot register')
-  //     }
-  //   })
-
-  //   // Check if already registered
-  //   .then(keystoreList => {
-  //     const exists = keystoreList.find(x => x === Config.keystore.name)
-  //     if (exists) {
-  //       // We delete it
-  //       return Crypto.deleteKeyStore(Config.keystore.name)
-  //       .then(() => {
-  //         return Crypto.createKeyStore(Config.keystore.name, password)
-
-  //       })
-  //     } else {
-  //       Logger.info('Creating new keystore', LOGTAG)
-  //       return Crypto.createKeyStore(Config.keystore.name, password)
-  //     }
-  //   })
-
-  //   // Create the user's keypair
-  //   .then(() => {
-  //     Logger.info('Creating keypair', LOGTAG)
-  //     return Crypto.addKeyPair(
-  //       Crypto.KEYPAIR_RSA,
-  //       Config.keystore.keyName,
-  //       2048,
-  //       password,
-  //       Config.keystore.pemCertificatePath
-  //     )
-  //   })
-
-  //   // Get public key in PEM format
-  //   .then(_keys => {
-  //     Logger.info('Converting public key to PEM format', LOGTAG)
-  //     return Crypto.getKeyAsPem(Config.keystore.publicKeyName, password)
-  //   })
-
-  //   // Get firebase token
-  //   .then(_publicKeyPem => {
-  //     publicKeyPem = _publicKeyPem
-  //     Logger.info('Fetching secure random', LOGTAG)
-  //     return Crypto.secureRandom()
-  //   })
-
-  //   // Sign with private key
-  //   .then(_secureRandom => {
-  //     Logger.info('Signing...', LOGTAG)
-  //     toSign = _secureRandom
-  //     return Crypto.sign(
-  //       toSign,
-  //       Config.keystore.privateKeyName,
-  //       password,
-  //       Crypto.SIG_SHA256_WITH_RSA
-  //     )
-  //   })
-
-  //   // Send to server
-  //   .then(signature => {
-  //     Logger.info('Sending details to server', LOGTAG)
-  //     return Api.register({
-  //       email: email.trim(),
-  //       nickname: username.trim(),
-  //       device_id: firebaseToken,
-  //       device_platform: Platform.OS,
-  //       public_key_algorithm: Config.keystore.publicKeyAlgorithm,
-  //       public_key: publicKeyPem,
-  //       plaintext_proof: toSign,
-  //       signed_proof: signature
-  //     })
-  //   })
-
-  //   // Get response from server
-  //   .then(response => {
-  //     if (response.error === true) {
-  //       // Server rejected registration
-  //       // Remove keystore
-  //       Logger.info('Registration on server failed', LOGTAG)
-  //       Logger.info('Deleting keystore', LOGTAG)
-  //       return Crypto.deleteKeyStore(Config.keystore.name)
-  //       .then(() => {
-  //         return Promise.reject(response.error)
-  //       })
-  //     }
-  //     const jsonData = response.body
-  //     // TODO: check server response
-  //     // user could already exist etc
-  //     Logger.info('Server responded', LOGTAG)
-  //     userID = jsonData.id
-
-  //     // See what's currently in the DB
-  //     return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
-  //       id: userID,
-  //       did: null, // will receive via firebase later
-  //       display_name: username,
-  //       email: email,
-  //       firebaseToken: firebaseToken,
-  //       registered: true  // We will get this later
-  //     }))
-  //   })
-  //   .then( _ => {
-  //     // Update state
-  //       const sessionUpdate = {
-  //         user: {
-  //           id: userID,
-  //           did: null,
-  //           display_name: username,
-  //           password: password,
-  //           email: email,
-  //           registered: true,
-  //           loggedIn: true
-  //         }
-  //       }
-  //       Session.update(sessionUpdate)
-  //       Logger.info('User registered', LOGTAG)
-  //       return Promise.resolve({
-  //         id: userID
-  //       })
-  //   })
-
-  //   // Check that writing went well and resolve
-  //   .catch(error => {
-  //     if (error) {
-  //       // If we couldn't write to database
-  //       Logger.error('Could not write to AsyncStorage', LOGTAG, error)
-  //       return Promise.reject(error)
-  //     } else {
-  //       // Update state
-  //       const sessionUpdate = {
-  //         user: {
-  //           id: userID,
-  //           did: null,
-  //           display_name: username,
-  //           password: password,
-  //           email: email,
-  //           registered: true,
-  //           loggedIn: true
-  //         }
-  //       }
-  //       Session.update(sessionUpdate)
-  //       Logger.info('User registered', LOGTAG)
-  //       return Promise.resolve({
-  //         id: userID
-  //       })
-  //     }
-  //   })
-  // }
 
   static isLoggedIn() {
     return new Promise((resolve, reject) => {

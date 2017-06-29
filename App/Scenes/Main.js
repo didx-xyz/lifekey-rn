@@ -55,116 +55,143 @@ export default class Main extends Scene {
       searchText: '',
       connections: [],
       profiles: [],
-      suggestedConnections: Config.hardcodedSuggestedConnections
-                            ? Config.suggestedConnections : [],
-      "progressCopy": "Loading...",
-      "asyncActionInProgress": true
+      suggestedConnections: [],
+      progressCopy: 'Loading...',
+      asyncActionInProgress: true
     }
   }
 
   componentDidMount() {
     super.componentDidMount()
-    try {
-      this.loadConnections()
-      this.loadActiveClients()
-      this.refreshThanksBalance()
-    } catch (error) {
-      Logger.error(error)
-    }
+    this.loadConnections()
+    this.loadActiveClients()
+    this.refreshThanksBalance()
   }
   
   componentDidFocus() {
     super.componentDidFocus()
-    try {
-      this.loadConnections()
-      this.loadActiveClients()
-      this.refreshThanksBalance()
-    } catch (error) {
-      Logger.error(error)
-    }
+    this.loadConnections()
+    this.loadActiveClients()
+    this.refreshThanksBalance()
   }
 
   async refreshThanksBalance() {
-     const balance = await ConsentUser.refreshThanksBalance()
-     this.setState({ "asyncActionInProgress": false, thanksBalanceAmount: balance }) 
+    try {
+      var balance = await ConsentUser.refreshThanksBalance()
+    } catch (e) {
+      console.log('thanks balance', e)
+      this.setState({
+        asyncActionInProgress: false,
+        thanksBalanceAmount: '0'
+      })
+      return
+    }
+    this.setState({
+      asyncActionInProgress: false,
+      thanksBalanceAmount: balance
+    })
   }
 
   async loadConnections(callback) {
-    const connections = await ConsentConnection.all()
-    this.setState({ connections: connections, "asyncActionInProgress": false }, () => {
-      if (callback) { callback() }
-    })
+    try {
+      var connections = await ConsentConnection.all()
+    } catch (e) {
+      console.log('consent connections all', e)
+      this.setState({
+        connections: [],
+        asyncActionInProgress: false
+      }, callback || function() {})
+      return
+    }
+    this.setState({
+      connections: connections,
+      asyncActionInProgress: false
+    }, callback || function() {})
   }
 
   async loadActiveClients(callback) {
 
-      const activeBots = await Api.getActiveBots()
-      if (activeBots && activeBots.body && _.isArray(activeBots.body)) {
-        
-        this.setState({"progressCopy": "Sorting suggestions..."}, async () => {
-
-          const profileRequests = activeBots.body.map((bot) => Api.profile({ did: bot.did }))
-          
-          const profileResponses = await Promise.all(profileRequests)
-
-          const updatedSuggestedConnections = profileResponses.map(response => {
-            if (response.body && response.body.user) {
-              return response.body.user
-            } else {
-              Logger.warn("Unexpected bot profile data")
-              return ({})
-            }
-          })
-
-          const updatedSuggestedConnectionsWithoutConnected = updatedSuggestedConnections.filter(x =>
-            !this.state.connections.find(y => x.did === y.to_did)
+    try {
+      var activeBots = await Api.getActiveBots()
+    } catch (e) {
+      console.log('get active bots', e)
+      this.setState({
+        asyncActionInProgress: false,
+        suggestedConnections: []
+      })
+      return
+    }
+    if (activeBots && activeBots.body && Array.isArray(activeBots.body)) {
+      this.setState({
+        progressCopy: 'Sorting suggestions...'
+      }, async () => {
+        try {
+          var profileResponses = await Promise.all(
+            activeBots.body.map(bot => {
+              return Api.profile({did: bot.did})
+            })
           )
-         
-          this.setState({ "asyncActionInProgress": false , "suggestedConnections": updatedSuggestedConnectionsWithoutConnected }, () => {
-            if (callback) { callback() }
+        } catch (e) {
+          console.log('profile requests', e)
+          this.setState({
+            asyncActionInProgress: false,
+            suggestedConnections: []
           })
-
-        })  
-        
-      } else {
-        Logger.warn('Directory listing result unexpected')
-      }
+          return
+        }
+        const updatedSuggestedConnections = profileResponses.map(response => {
+          if (response.body && response.body.user) {
+            return response.body.user
+          } else {
+            Logger.warn("Unexpected bot profile data")
+            return {}
+          }
+        })
+        const updatedSuggestedConnectionsWithoutConnected = updatedSuggestedConnections.filter(x => {
+          return !this.state.connections.find(y => x.did === y.to_did)
+        })
+        this.setState({
+          asyncActionInProgress: false,
+          suggestedConnections: updatedSuggestedConnectionsWithoutConnected
+        }, callback || function() {})
+      })
+    } else {
+      Logger.warn('Directory listing result unexpected')
+    }
   }
 
   setTab(tab) {
-    try {
-      switch (tab) {
+    switch (tab) {
       case TAB_CONNECTED:
         this.setState({
-          "activeTab": tab, 
-          "progressCopy": "Loading connections...", 
-          "asyncActionInProgress": true }, () => {
-          this.loadConnections()
-        })
-        break
+          activeTab: tab,
+          progressCopy: 'Loading connections...',
+          asyncActionInProgress: true
+        }, this.loadConnections.bind(this))
+      break
       case TAB_SUGGESTED:
         this.setState({
-          "activeTab": tab, 
-          "progressCopy": "Loading suggestions...", 
-          "asyncActionInProgress": true }, () => {
-          this.loadActiveClients()
-        })
-      }
-    } catch (error) {
-      Logger.warn(error)
+          activeTab: tab,
+          progressCopy: 'Loading suggestions...',
+          asyncActionInProgress: true
+        }, this.loadActiveClients.bind(this))
+      break
+      default:
+        this.setState({
+          activeTab: tab,
+          progressCopy: 'Loading connections...',
+          asyncActionInProgress: true
+        }, this.loadConnections.bind(this))
+      break
     }
   }
 
   updateSearch(text) {
-    this.setState({
-      searchText: text
-    })
+    this.setState({searchText: text})
   }
 
   clearSearch() {
-    this.setState({
-      searchText: ''
-    })
+    this.setState({searchText: ''})
   }
 
   _hardwareBack() {

@@ -24,7 +24,7 @@ const HexagonDots  = function(props) {
       break
   }
 
-  return <Image style={{ height: 67, resizeMode: "contain" }} source={image} />
+  return <Image style={{ height: props.height || 67, width: props.width || 67, resizeMode: "contain" }} source={image} />
 }
 
 HexagonDots.propTypes = {
