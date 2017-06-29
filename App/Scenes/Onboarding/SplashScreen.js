@@ -53,7 +53,11 @@ export default class SplashScreen extends Scene {
       }, () => {
         const userState = Session.getState().user
         if (userState && userState.registered) {
-          this.navigator.push(Routes.onboarding.unlock)
+          this.navigator.push({
+            ...Routes.authenticationPrompt,
+            auth_success_action: Promise.resolve,
+            auth_success_destination: Routes.main
+          })
         }
       })
     }, 1000)
