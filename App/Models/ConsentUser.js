@@ -5,7 +5,7 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-import { Platform, AsyncStorage } from 'react-native'
+import {Platform, AsyncStorage} from 'react-native'
 import Session from '../Session'
 import Crypto from '../Crypto'
 import Logger from '../Logger'
@@ -83,7 +83,7 @@ export default class ConsentUser {
       if (user.registered) {
 
         // Try to unlock keystore
-        return Crypto.loadKeyStore(Config.keystore.name, password)
+        return Crypto.loadKeyStore()
 
       } else {
 
@@ -97,25 +97,11 @@ export default class ConsentUser {
 
       }
     })
-    .then(loadedKeystore => {
-      if (loadedKeystore) {
-
-        // Unlocked keystore with password
-        Logger.info('Keystore loaded, password verified', LOGTAG)
-        // Check if user exists on the other side
-        return Api.profile({ did: user.did })
-
-      } else {
-
-        // Wrong password
-        return Promise.reject(
-          new ConsentError(
-            'Incorrect password for keystore',
-            E_INCORRECT_PASSWORD_FOR_KEYSTORE
-          )
-        )
-
-      }
+    .then(_ => {
+      // Unlocked keystore with password
+      Logger.info('Keystore loaded, password verified', LOGTAG)
+      // Check if user exists on the other side
+      return Api.profile({did: user.did})
     })
     .then(response => {
       if (parseInt(response.status, 10) === 200) {
@@ -524,6 +510,11 @@ export default class ConsentUser {
         firebaseToken: firebaseToken,
         registered: true
       }))
+    }).then(_ => {
+      return AsyncStorage.setItem(
+        STORAGE_KEY + '-password',
+        JSON.stringify(password)
+      )
     }).then(_ => {
       Session.update({
         user: {
