@@ -1,19 +1,15 @@
-// internal dependencies
-import Config from "./Config"
-import Crypto from "./Crypto"
-import Session from "./Session"
-import Logger from "./Logger"
-import Common from "./Common"
-import ConsentUser from "./Models/ConsentUser"
-import ConsentError, { ErrorCode } from "./ConsentError"
-import { request, rejectionWithError } from "./Requests"
 
-function getMissingFieldsMessage(missingFields) {
-  return "Missing required fields. Required fields: " + JSON.stringify(missingFields)
-}
+// internal dependencies
+import Config from './Config'
+import Crypto from './Crypto'
+import Session from './Session'
+import Logger from './Logger'
+import Common from './Common'
+import ConsentUser from './Models/ConsentUser'
+import ConsentError, {ErrorCode} from './ConsentError'
+import {request, rejectionWithError} from './Requests'
 
 function checkParameters(requiredKeys, receivedObject) {
-  // It must be an object
   if (typeof receivedObject !== 'object') {
     throw new Error(
       `Expected 'object', received '${typeof receivedObject}'`
@@ -31,8 +27,6 @@ function checkParameters(requiredKeys, receivedObject) {
 
   if (missing) throw new Error(missing_key + ' cannot be falsy')
 }
-
-// const state = {}
 
 export default class Api {
 
@@ -62,24 +56,20 @@ export default class Api {
    * 1 POST /management/device
    */
   static device(data) {
-    const requiredFields = [
+    checkParameters([
       'device_id',
       'device_platform'
-    ]
-    if (checkParameters(requiredFields, data)) {
-      return request('/management/device', {
-        body: JSON.stringify(data),
-        method: 'POST',
-        headers: {
-          'content-type': 'application/json',
-          'x-cnsnt-id': data.user_id,
-          'x-cnsnt-plain': data.plain,
-          'x-cnsnt-signed': data.signature
-        }
-      })
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    ], data)
+    return request('/management/device', {
+      body: JSON.stringify(data),
+      method: 'POST',
+      headers: {
+        'content-type': 'application/json',
+        'x-cnsnt-id': data.user_id,
+        'x-cnsnt-plain': data.plain,
+        'x-cnsnt-signed': data.signature
+      }
+    })
   }
 
   /*
@@ -87,186 +77,120 @@ export default class Api {
    * 2 POST /management/connection
    */
   static requestConnection(data, fingerprint = false) {
-    const requiredFields = [
-      'target'
-    ]
-    if (checkParameters(requiredFields, data)) {
-      return request('/management/connection', {
-        body: JSON.stringify({target: data.target}),
-        method: 'POST'
-      }, true, fingerprint)
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    checkParameters(['target'], data)
+    return request('/management/connection', {
+      body: JSON.stringify({target: data.target}),
+      method: 'POST'
+    }, true, fingerprint)
   }
 
   // Get all unacked and enabled connections
   static allConnections() {
-    return request('/management/connection', {
-      method: 'GET'
-    })
+    return request('/management/connection')
   }
 
   // Accept a connection request
   static respondConnectionRequest(data, fingerprint = false) {
-    const requiredFields = [
+    checkParameters([
       'user_connection_request_id',
       'accepted' // true/false (in body)
-    ]
-    if (checkParameters(requiredFields, data)) {
-      return request(`/management/connection/${data.user_connection_request_id}`, {
-        body: JSON.stringify({ accepted: data.accepted }),
-        method: 'POST'
-      }, true, fingerprint)
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    ], data)
+    return request(`/management/connection/${data.user_connection_request_id}`, {
+      body: JSON.stringify({ accepted: data.accepted }),
+      method: 'POST'
+    }, true, fingerprint)
   }
   
   // Delete a connection /management/connection/:user_connection_id
   static deleteConnection(data, fingerprint = false) {
-    const requiredFields = [
+    checkParameters([
       'user_connection_id'
-    ]
-    if (checkParameters(requiredFields, data)) {
-      return request(`/management/connection/${data.user_connection_id}`, {
-        method: 'DELETE'
-      }, true, fingerprint)
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    ], data)
+    return request(`/management/connection/${data.user_connection_id}`, {
+      method: 'DELETE'
+    }, true, fingerprint)
   }
 
   // Request an ISA
   static requestISA(data, fingerprint = false) {
-    const requiredFields = [
+    checkParameters([
       'to',
       'requested_schemas',
       'purpose',
       'license'
-    ]
-    if (checkParameters(requiredFields, data)) {
-      return request('/management/isa', {
-        method: 'POST'
-      }, true, fingerprint)
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    ], data)
+    return request('/management/isa', {
+      method: 'POST'
+    }, true, fingerprint)
   }
 
   // Respond to an ISA request
   static respondISA(data, fingerprint = false) {
-    const requiredFields = [
+    checkParameters([
       'isa_id',
       'accepted',
       'permitted_resources'
-    ]
-    if (checkParameters(requiredFields, data)) {
-      return request(`/management/isa/${data.isa_id}`, {
-        method: 'POST',
-        body: JSON.stringify({
-          accepted: data.accepted,
-          permitted_resources: data.permitted_resources
-        })
-      }, true, fingerprint)
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    ], data)
+    return request(`/management/isa/${data.isa_id}`, {
+      method: 'POST',
+      body: JSON.stringify({
+        accepted: data.accepted,
+        permitted_resources: data.permitted_resources
+      })
+    }, true, fingerprint)
   }
 
   // Get all ISAs
   static allISAs() {
-    return request('/management/isa', {
-      method: 'GET'
-    })
+    return request('/management/isa')
   }
 
   // Get an ISA by id
   static getISA(data) {
-    const requiredFields = [
-      'id'
-    ]
-    if (checkParameters(requiredFields, data)) {
-      return request(`/management/isa/${data.id}`, {
-        method: 'GET'
-      })
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    checkParameters(['id'], data)
+    return request(`/management/isa/${data.id}`)
   }
 
   // Delete an ISA
   static deleteISA(data, fingerprint = false) {
-    const requiredFields = [
-      'isa_id'
-    ]
-    if (checkParameters(requiredFields, data)) {
-      return request(`/management/isa/${data.isa_id}`, {
-        method: 'DELETE'
-      }, true, fingerprint)
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    checkParameters(['isa_id'], data)
+    return request(`/management/isa/${data.isa_id}`, {method: 'DELETE'}, true, fingerprint)
   }
 
   // Demo QR code
   static qrCode(data) {
-    const requiredFields = [
-      'user_did'
-    ]
-    if (checkParameters(requiredFields, data)) {
-      return request(`/qr/${data.user_did}`, {
-        method: 'GET'
-      })
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    checkParameters(['user_did'], data)
+    return request(`/qr/${data.user_did}`)
   }
 
   // Update an ISA by id
   static updateISA(data, fingerprint = false) {
-    const requiredFields = [
+    checkParameters([
       'isa_id',
       'permitted_resources'
-    ]
-    if (checkParameters(requiredFields, data)) {
-      return request(`/management/isa/${data.isa_id}`, {
-        method: 'PUT',
-        body: JSON.stringify(data.permitted_resources)
-      }, true, fingerprint)
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    ], data)
+    return request(`/management/isa/${data.isa_id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data.permitted_resources)
+    }, true, fingerprint)
   }
 
   // Pull an ISA
   static pullISA(data) {
-    const requiredFields = [
-      'isa_id'
-    ]
-    if (checkParameters(requiredFields, data)) {
-      return request(`/management/pull/${data.isa_id}`, {
-        method: 'GET'
-      })
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    checkParameters(['isa_id'], data)
+    return request(`/management/pull/${data.isa_id}`)
   }
 
   // Pull an ISA
   static pushISA(data, fingerprint = false) {
-    const requiredFields = [
+    checkParameters([
       'isa_id',
       'resources'
-    ]
-    if (checkParameters(requiredFields, data)) {
-      return request(`/management/push/${data.isa_id}`, {
-        method: 'POST',
-        body: JSON.stringify({resources: data.resources})
-      }, true, fingerprint)
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    ], data)
+    return request(`/management/push/${data.isa_id}`, {
+      method: 'POST',
+      body: JSON.stringify({resources: data.resources})
+    }, true, fingerprint)
   }
 
   // ##################
@@ -276,17 +200,11 @@ export default class Api {
   
   static getMyData(milliseconds = 300000){
     let cached = ConsentUser.getCached("myData")
-    
-    if (cached && cached.valid) {
-      return Promise.resolve(cached)
-    }
-    
+    if (cached && cached.valid) return Promise.resolve(cached)
     return Promise.all([
       this.allResourceTypes(),
       this.allResources()
     ]).then(values => {
-      
-
       const updatedResources = values[1].body.map(resource => {
         return {
           id: resource.id,
@@ -296,14 +214,9 @@ export default class Api {
           ...JSON.parse(resource.value)
         }
       })
-
       ConsentUser.cacheMyData(updatedResources)
-
       return ConsentUser.getCached("myData")
-
-    }).catch(error => {
-      Logger.error(error)
-    })
+    }).catch(Logger.error)
   }
 
   static getFlattenedResources(){
@@ -312,103 +225,64 @@ export default class Api {
 
       let arrayOfResourceArrays = data.resourcesByType.map(rt => rt.items)
       let flattenedResources = ConsentUser.flattenCachedResources(arrayOfResourceArrays)
-      return flattenedResources 
+      return flattenedResources
 
-    }).catch(error => {
-      Logger.error(error)
-    })
+    }).catch(Logger.error)
   }
 
   static allResourceTypes(milliseconds = 300000) {
-
     let cached = ConsentUser.getCached("allResourceTypes")
-    
-    if (cached !== null) {
-      return Promise.resolve(cached)
-    }
-
+    if (cached !== null) return Promise.resolve(cached)
     return request("http://schema.cnsnt.io/resources").then(data => {
       ConsentUser.setCached("allResourceTypes", data.resources, milliseconds)
     }) 
   }
 
   static getResourceForm(form, milliseconds = 600000) {
-
     form = Common.ensureUrlHasProtocol(form)
     const formComponents = form.split('/')
     const formName = formComponents[formComponents.length - 1]
-
     let cached = ConsentUser.getCached(formName)
-    
-    if (cached !== null) {
-      return Promise.resolve(cached)
-    }
-
+    if (cached !== null) return Promise.resolve(cached)
     return request(form).then(data => {
       ConsentUser.setCached(formName, data, milliseconds)
       return data
-    })    
-    
+    })
   }
 
   // 0 GET /resource
   static allResources(milliseconds = 300000) {
-
     return request("/resource?all=1")
-
   }
 
   // 1 GET /resource/:resource_id
   static getResource(data) {
-    const requiredFields = [
-      'id'
-    ]
-
-    if (checkParameters(requiredFields, data)) {
-
-      // Try fetch from cache first 
-      let cached = ConsentUser.getCached("myData")
-      let resource
-
-      if (cached) {
-
-        const containerResourceType = cached.resourcesByType.find(rt => rt.items.some((item) => item.id === data.id))
-        if(containerResourceType){
-          resource = containerResourceType.items.find(item => item.id === data.id)
-        }
+    checkParameters(['id'], data)
+    let cached = ConsentUser.getCached("myData")
+    let resource
+    if (cached) {
+      const containerResourceType = cached.resourcesByType.find(rt => rt.items.some((item) => item.id === data.id))
+      if (containerResourceType) {
+        resource = containerResourceType.items.find(item => item.id === data.id)
       }
-
-      if(cached && resource){
-        return Promise.resolve(resource)
-      }
-      
-      // else
-      return request(`/resource/${data.id}`)
-
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
     }
+    if (cached && resource) return Promise.resolve(resource)
+    return request(`/resource/${data.id}`)
   }
 
   // 2 POST /resource
   static createResource(data) {
-
-    const requiredFields = [
+    checkParameters([
       'entity',
       'attribute',
       'alias',
       'value',
       'schema'
-    ]
-
-    if (checkParameters(requiredFields, data)) {
-      return request('/resource', {
-        method: 'POST',
-        body: JSON.stringify(data)
-      })
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    ], data)
+    return request('/resource', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
   }
 
   // 3 PUT /resource/:resource_id
@@ -421,139 +295,62 @@ export default class Api {
 
   // 4 DELETE /resource/:resource_id
   static deleteResource(data) {
-
-    const requiredFields = [
-      'id'
-    ]
-
-    if (checkParameters(requiredFields, data)) {
-      return request(`/resource/${data.id}`, {
-        method: 'DELETE'
-      })
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    checkParameters(['id'], data)
+    return request(`/resource/${data.id}`, {method: 'DELETE'})
   }
 
   // 5 GET /profile/:did
   static profile(data) {
-    const requiredFields = [
-      'did'
-    ]
-
-    if (checkParameters(requiredFields, data)) {
-      return request(`/profile/${data.did}`, {
-        method: 'GET'
-      }, false)
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    checkParameters(['did'], data)
+    return request(`/profile/${data.did}`, {method: 'GET'}, false)
   }
 
   // 6 PUT /profile/colour
   static profileColour(data) {
-    const requiredFields = [
-      'colour'
-    ]
-
-    if (checkParameters(requiredFields, data)) {
-      return request('/profile/colour', {
-        method: 'PUT'
-      })
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    checkParameters(['colour'], data)
+    return request('/profile/colour', {method: 'PUT'})
   }
 
   // 7 PUT /profile/image
   static profileImage(data) {
-    const requiredFields = [
-      'image_uri'
-    ]
-
-    if (checkParameters(requiredFields, data)) {
-      return request('profile/image', {
-        method: 'PUT'
-      })
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    checkParameters(['image_uri'], data)
+    return request('profile/image', {method: 'PUT'})
   }
 
   // 8 PUT /profile/name
   static profileName(data) {
-    const requiredFields = [
-      'name'
-    ]
-
-    if (checkParameters(requiredFields, data)) {
-      return request('profile/name', {
-        method: 'PUT'
-      })
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    checkParameters(['name'], data)
+    return request('profile/name', {method: 'PUT'})
   }
 
   // 9 PUT /profile/email
   static profileEmail(data) {
-    const requiredFields = [
-      'email'
-    ]
-
-    if (checkParameters(requiredFields, data)) {
-      return request('profile/email', {
-        method: 'PUT'
-      })
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    checkParameters(['email'], data)
+    return request('profile/email', {method: 'PUT'})
   }
 
   // 10 PUT /profile/tel
   static profileTel(data) {
-    const requiredFields = [
-      'tel'
-    ]
-
-    if (checkParameters(requiredFields, data)) {
-      return request('profile/tel', {
-        method: 'PUT'
-      })
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    checkParameters(['tel'], data)
+    return request('profile/tel', {method: 'PUT'})
   }
 
   // 11 PUT /profile/address
   static profileAddress(data) {
-    const requiredFields = [
-      'address'
-    ]
-
-    if (checkParameters(requiredFields, data)) {
-      return request('profile/address', {
-        method: 'PUT'
-      })
-    } else {
-      return Promise.reject(getMissingFieldsMessage(requiredFields))
-    }
+    checkParameters(['address'], data)
+    return request('profile/address', {method: 'PUT'})
   }
 
   // 12 GET /profile
   static myProfile() {
-
-    return request('/profile', {
-      method: 'GET'
-    })
+    return request('/profile')
   }
 
   // 14 POST /facial-verfication token
   // Get a Face pic after scanning a QR code
   static facialVerificationQrScanResponse(user_did, token) {
-    return request(`/facial-verification/${user_did}/${token}`, {
-      method: 'GET'
-    }, false) // TODO try and make this request authenticated
+    // TODO try and make this request authenticated
+    return request(`/facial-verification/${user_did}/${token}`, {method: 'GET'}, false)
   }
 
   // 15 POST /facial-verfication
@@ -561,7 +358,7 @@ export default class Api {
   static facialVerificationResult(user_did, token, result, fingerprint = false) {
     return request(`/facial-verification/${user_did}/${token}`, {
       method: 'POST',
-      body: JSON.stringify({result : result})
+      body: JSON.stringify({result: result})
     }, true, fingerprint)
   }
 
@@ -605,18 +402,13 @@ export default class Api {
       ) : (
         `/debug/unregister/?email=${data.email}`
       )
-      const options = {
-        method: 'GET'
-      }
-      return request(route, options, false)
+      return request(route, {method: 'GET'}, false)
     } else {
       // fail silenty
     }
   }
 
   static getActiveBots() {
-    return request('/directory', {
-      method: 'GET'
-    })
+    return request('/directory')
   }
 }
