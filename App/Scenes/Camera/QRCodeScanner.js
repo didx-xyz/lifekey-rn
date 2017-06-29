@@ -98,11 +98,19 @@ export default class QRCodeScanner extends Scene {
     })
   }
 
-  connect(data) {
+  // connect(data) {
+  //   this.navigator.push({
+  //     ...Routes.connection,
+  //     did: data.data,
+  //     display_name: null // can either be in QR code or fetched http
+  //   })
+  // }
+
+  connectP2P(data) {
+    const parsedData = JSON.parse(data.data)
     this.navigator.push({
-      ...Routes.connection,
-      did: data.data,
-      display_name: null // can either be in QR code or fetched http
+      ...Routes.ConnectionPeerToPeer,
+      profile: parsedData
     })
   }
 
@@ -143,11 +151,11 @@ export default class QRCodeScanner extends Scene {
       if(isFaceMatch > -1){
         this.faceMatch(data)
       }
-      else if(isTrustBankLogin){
+      else if(isTrustBankLogin > -1){
         this.trustBankLogin(data)
       }
       else
-        this.connect(data)
+        this.connectP2P(data)
     }
   }
 

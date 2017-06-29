@@ -29,6 +29,7 @@ import Unlocked from './Scenes/Onboarding/Unlocked'
 import ConnectionDetails from './Scenes/ConnectionDetails'
 import ConfirmInformationShare from './Scenes/ConfirmInformationShare'
 import Connection from './Scenes/Connection'
+import ConnectionP2P from './Scenes/ConnectionP2P'
 import InformationRequest from './Scenes/InformationRequest'
 import SelectResourceOfType from './Scenes/SelectResourceOfType'
 import Badges from './Scenes/Badges'
@@ -60,6 +61,7 @@ export default {
   connectionDetails: { scene: ConnectionDetails },
   confirmInformationShare: { scene: ConfirmInformationShare },
   connection: { scene: Connection },
+  ConnectionPeerToPeer: { scene: ConnectionP2P },
   informationRequest: { scene: InformationRequest },
   selectResourceOfType: { scene: SelectResourceOfType },
   badges: { scene: Badges },

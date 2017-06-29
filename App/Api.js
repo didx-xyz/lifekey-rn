@@ -333,7 +333,6 @@ export default class Api {
       this.allResourceTypes(),
       this.allResources()
     ]).then(values => {
-      
 
       const updatedResources = values[1].body.map(resource => {
         return {

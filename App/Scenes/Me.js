@@ -61,6 +61,7 @@ class Me extends Scene {
     this.onBoundPressDelete = this.onPressDelete.bind(this)
     this.onBoundPressEdit = this.onPressEdit.bind(this)
     this.onBoundShowContextMenu = this.onShowContextMenu.bind(this)
+    this.onBoundPressProfile = this.onPressProfile.bind(this)
   }
 
   onPressHelp(destination, helpScreens, navigationType) {
@@ -87,6 +88,11 @@ class Me extends Scene {
     }) 
   }
 
+  onPressProfile() {
+    this.context.onEditResource("http://schema.cnsnt.io/public_profile_form", null, "Public Profile")
+    this.navigator.push({ ...Routes.editProfile })
+  }
+
   componentDidMount() {
     super.componentDidMount()
     this.fetchMyData()
@@ -98,17 +104,41 @@ class Me extends Scene {
   }
 
   fetchMyData() {
-    return Api.getMyData().then(data => {
+    // return Api.getMyData().then(data => {
+
+    //   this.setState({
+    //     "sortedBadges": data.badges,
+    //     "profilePicUrl": data.profilePicUrl,
+    //     "sortedResourceTypes": data.resourcesByType,
+    //     "asyncActionInProgress": false
+    //   })
+    // }).catch(error => {
+    //   Logger.error(error)
+    // })
+
+    return Promise.all([
+      Api.getMyData(),
+      Api.myProfile()
+    ]).then(values => {
+
+      const data = values[0]
+      const profile = values[1]    
+
+      console.log("PROFILE: ", profile)  
 
       this.setState({
         "sortedBadges": data.badges,
         "profilePicUrl": data.profilePicUrl,
         "sortedResourceTypes": data.resourcesByType,
+        "profile": profile,
         "asyncActionInProgress": false
       })
+
     }).catch(error => {
       Logger.error(error)
     })
+
+
   }
 
   scrollViewToTop() {
@@ -228,7 +258,7 @@ class Me extends Scene {
     switch (this.state.activeTab) {
 
     case CONNECT:
-      return <Connect onPressHelp={ this.onBoundPressHelp }></Connect>
+      return <Connect profile={this.state.profile} onPressProfile={this.onBoundPressProfile} onPressHelp={ this.onBoundPressHelp }></Connect>
     case MY_DATA:
       return <MyData sortedResourceTypes={this.state.sortedResourceTypes} onPressDelete={ this.onBoundPressDelete } onPressEdit={ this.onBoundPressEdit }></MyData>
     case BADGES:
