@@ -104,18 +104,7 @@ class Me extends Scene {
   }
 
   fetchMyData() {
-    // return Api.getMyData().then(data => {
-
-    //   this.setState({
-    //     "sortedBadges": data.badges,
-    //     "profilePicUrl": data.profilePicUrl,
-    //     "sortedResourceTypes": data.resourcesByType,
-    //     "asyncActionInProgress": false
-    //   })
-    // }).catch(error => {
-    //   Logger.error(error)
-    // })
-
+    
     return Promise.all([
       Api.getMyData(),
       Api.myProfile()
@@ -123,8 +112,6 @@ class Me extends Scene {
 
       const data = values[0]
       const profile = values[1]    
-
-      console.log("PROFILE: ", profile)  
 
       this.setState({
         "sortedBadges": data.badges,
@@ -137,8 +124,6 @@ class Me extends Scene {
     }).catch(error => {
       Logger.error(error)
     })
-
-
   }
 
   scrollViewToTop() {
