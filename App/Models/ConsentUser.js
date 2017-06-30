@@ -617,6 +617,11 @@ export default class ConsentUser {
 
   }
 
+  static updateProfile(profile) {
+    console.log("UPDATED PROFILE: ", profile)
+    ConsentUser.setCached('profile', profile, 300000)
+  }
+
   static removeFromState(id) {
 
     let myData = {...this.state.myData.data}

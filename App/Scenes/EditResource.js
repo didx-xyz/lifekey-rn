@@ -1,22 +1,16 @@
 // external dependencies
-import React from "react"
-import { Picker, Text, TextInput, View, ScrollView, ToastAndroid } from "react-native"
-import { Container } from "native-base"
-import ModalPicker from "react-native-modal-picker"
-import DatePicker from "react-native-datepicker"
+import React, { Component } from "react"
+import { ToastAndroid } from "react-native"
 import PropTypes from "prop-types"
-import ImagePicker from "react-native-image-picker"
-import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
 import Api from "../Api"
-import ConsentUser from "../Models/ConsentUser"
-import BackButton from "../Components/BackButton"
 import Scene from "../Scene"
-import Touchable from "../Components/Touchable"
+import ConsentUser from "../Models/ConsentUser"
+import Common from "../Common"
+import EditForm from "./Forms/EditForm"
 import Countries from "../Countries"
 import Languages from "../Languages"
-import Palette from "../Palette"
 import Routes from "../Routes"
 import Logger from '../Logger'
 
@@ -34,6 +28,12 @@ class EditResource extends Scene {
     this.onBoundPressCancel = this.onPressCancel.bind(this)
     this.onBoundPressSave = this.onPressSave.bind(this)
     this.onBoundSave = this.onSave.bind(this)
+
+    this.boundSetStringInputStateValue = this.setStringInputStateValue.bind(this)
+    this.boundSetImageInputStateValue = this.setImageInputStateValue.bind(this)
+    this.boundSetDateInputStateValue = this.setDateInputStateValue.bind(this)
+    this.boundSetSelectInputStateValue = this.setSelectInputStateValue.bind(this)
+
   }
 
   onPressCancel() {
@@ -43,7 +43,7 @@ class EditResource extends Scene {
   onPressSave() {
     const data = {}
     const keys = this.state.entities.map(entity => entity.name)
-    const values = keys.map(key => this.state[key] || null)
+    const values = keys.map(key => this.state.formTarget[key] || null)
     const id = this.context.getEditResourceId()
     const form = this.context.getEditResourceForm()
 
@@ -55,9 +55,9 @@ class EditResource extends Scene {
         "form": form,
         ...data
       }),
-      "entity": this.state.label,
-      "attribute": this.state.label,
-      "alias": this.state.label,
+      "entity": this.state.formTarget.label,
+      "attribute": this.state.formTarget.label,
+      "alias": this.state.formTarget.label,
       "schema": this.context.getEditResourceForm().split("_form")[0]
     }
  
@@ -79,7 +79,7 @@ class EditResource extends Scene {
     }
 
     this.setState(state, () => {
-      if (this.state.id) {
+      if (this.state.formTarget.id) {
         return Api.updateResource(newResource).then(
           this.onBoundSave
         ).catch(console.log)
@@ -122,30 +122,9 @@ class EditResource extends Scene {
 
       let formData = values[0]
       let resource = values[1]
+      let state = { formTarget: resource ? resource : { "label" : `My ${this.context.getEditResourceName()}` } }
 
-      let state = resource ? resource : { "label" : `My ${this.context.getEditResourceName()}` }
-
-      // Push all relevant form data into state 
-      state.entities = [
-        {"label": "Label", "name": "label", "type": "string"},
-        ...formData.entities
-      ]
-
-      formData.entities.forEach((entity) => {
-        if (entity.type === "country") {
-          state[entity.name + "__shown"] = false
-          state[entity.name + "__label"] = "Select a country"
-        }
-
-        if (entity.type === "language") {
-          state[entity.name + "__shown"] = false
-          state[entity.name + "__label"] = "Select a language"
-        }
-
-        if (entity.type === "photograph") {
-          state[entity.name + "__label"] = "Select a photograph"
-        }
-      })
+      this.initializeState(state, formData.entities)
 
       // Switch off loading state 
       state.asyncActionInProgress = false
@@ -167,9 +146,9 @@ class EditResource extends Scene {
   componentWillFocus() {
 
     this.setState({"asyncActionInProgress": true, "progressCopy": "Loading existing resources..."}, async () => {
-      const resource = await this.loadResource(this.context.getEditResourceId())
       
-      const state = resource ? resource : { "label" : `My ${this.context.getEditResourceName()}` }
+      const resource = await this.loadResource(this.context.getEditResourceId())
+      const state = { formTarget: resource ? resource : { "label" : `My ${this.context.getEditResourceName()}` } }
       this.setState(state)
 
     })
@@ -185,246 +164,81 @@ class EditResource extends Scene {
     }  
   }
 
-  renderEntity(entity, i) {
-    const formField = {
-      ...styles.formField
-    }
+  initializeState(state, entities){
+    
+    entities.forEach(entity =>  {
 
-    if (i === 0) {
-      formField.paddingTop = 5
-    }
-
-    if (i === this.state.entities.length - 1) {
-      formField.paddingBottom = 5
-      formField.borderBottomWidth = 0
-    }
-
-    return (
-      <View style={formField} key={i}>
-        <View style={styles.formFieldLabel}>
-          <Text style={styles.formFieldLabelText}>
-            {entity.label.toUpperCase()}
-          </Text>
-        </View>
-        <View style={styles.formFieldInput}>
-          {this.renderInput(entity, i)}
-        </View>
-      </View>
-    )
-  }
-
-  renderInput(entity, i) {
-    if (entity.type === "string") {
-      return this.renderStringInput(entity, i)
-    }
-
-    if (entity.type === "date") {
-      return this.renderDateInput(entity, i)
-    }
-
-    if (entity.type === "photograph") {
-      return this.renderPhotographInput(entity, i)
-    }
-
-    if (entity.type === "country") {
-      return this.renderCountryInput(entity, i)
-    }
-
-    if (entity.type === "language") {
-      return this.renderLanguageInput(entity, i)
-    }
-
-    if (entity.type === "select") {
-      return this.renderNativeSelectDataInput(entity, i)
-    }
-
-    return (
-      <Text>unknown type</Text>
-    )
-  }
-
-  renderStringInput(entity, i) {
-
-    const value = (!this.state[entity.name] && entity.name === "label") ? this.state.label : this.state[entity.name]
-    return (
-      <TextInput
-        style={styles.textInput}
-        value={value}
-        onChangeText={text => this.setState({[entity.name]: text})}
-        autoCapitalize="sentences"
-        autoCorrect={false}
-        returnKeyType="done"
-        underlineColorAndroid="rgba(0, 0, 0, 0)"
-      />
-    )
-  }
-
-  renderDateInput(entity, i) {
-    return (
-      <DatePicker
-        date={this.state[entity.name]}
-        mode="date"
-        placeholder="Select a date"
-        format="YYYY-MM-DD"
-        minDate="1916-01-01"
-        maxDate="2099-01-01"
-        confirmBtnText="Confirm"
-        cancelBtnText="Cancel"
-        showIcon={false}
-        customStyles={styles.dateInput}
-        onDateChange={date => {this.setState({[entity.name]: date})}}
-      />
-    )
-  }
-
-  renderPhotographInput(entity, i) {
-    const pick = () => {
-      ImagePicker.showImagePicker({
-        maxWidth: 1000,
-        maxHeight: 1000,
-        quality: 0.6
-      }, (response) => {
-        if (response.fileSize > 1024 /* b → kb */ * 1024 /* kb → mb */ * 7.5) {
-          alert("file is too big")
-          return
-        }
-
-        this.setState({
-          [entity.name + "__label"]: response.fileName,
-          [entity.name]: response.data
-        })
-      })
-    }
-
-    return (
-      <Touchable onPress={pick}>
-        <View style={styles.photographLabel}>
-          <Text style={styles.photographLabelText}>
-            {this.state[entity.name + "__label"]}
-          </Text>
-        </View>
-      </Touchable>
-    )
-  }
-
-  renderCountryInput(entity, i) {
-    const data = Countries.map((country) => {
-      return {
-        "key": country["alpha-2"],
-        "label": country["name"],
-        "selected": this.state[entity.name] === country["alpha-2"]
+      if(entity.type === "string"){
+        entity.initialValue = (!state.formTarget[entity.name] && entity.name === "label") ? state.formTarget.label : state.formTarget[entity.name]
       }
-    })
+      if (entity.type === "country") {
 
-    const chosenCountry = Countries.find(country => country["alpha-2"] === this.state[entity.name])
-    const initialStringValue = !!chosenCountry ? chosenCountry.name : 'Select a country'
-    return this.renderSelectInput(entity, data, initialStringValue)
+        const country = Countries.find(c => c["alpha-2"] === state.formTarget[entity.name])
 
-  }
+        state.formTarget[entity.name + "__shown"] = false
+        state.formTarget[entity.name + "__label"] = "Select a country"
+        entity.initialValue = country ? country.name : "Select a country"
 
-  renderLanguageInput(entity, i) {
-    const data = Languages.map((country) => {
-      return {
-        "key": country["alpha3-b"],
-        "label": country["English"],
-        "selected": this.state[entity.name] === country["alpha3-b"]
       }
-    })
 
-    const chosenLanguage = Languages.find(language => language["alpha3-b"] === this.state[entity.name])
-    const initialStringValue = !!chosenLanguage ? chosenLanguage.English : 'Select a language'
-    return this.renderSelectInput(entity, data, initialStringValue)
-  }
+      if (entity.type === "language") {
 
-  renderNativeSelectDataInput(entity, i){
-    const data = entity.options.map((value) => {
-      return {
-        "key": value,
-        "label": value,
-        "selected": this.state[entity.name] === value
+        const language = Languages.find(l => l["alpha3-b"] === state.formTarget[entity.name])
+        state.formTarget[entity.name + "__shown"] = false
+        state.formTarget[entity.name + "__label"] = "Select a language"
+        entity.initialValue = language ? language.English : "Select a language"
       }
+
+      if (entity.type === "photograph") {
+        state.formTarget[entity.name + "__label"] = "Select a photograph"
+        entity.initialValue = "Select a photograph"
+      }
+
     })
 
-    const chosenOption = entity.options.find(option => {
-      console.log("OPTION: ", option, " | " , this.state[entity.name])
-      return option === this.state[entity.name]
-    })
-    const initialStringValue = !!chosenOption ? chosenOption : 'Select a option'
-    return this.renderSelectInput(entity, data, initialStringValue)
+    // Push all relevant form data into state 
+    state.entities = [
+      {"label": "Label", "name": "label", "type": "string"},
+      ...entities
+    ]
+
   }
 
-  renderSelectInput(entity, data, initialStringValue) {
-    return (
-      <ModalPicker
-          data={data}
-          style={styles.selectElement}
-          selectStyle={styles.selectPickerWithValue}
-          selectTextStyle={styles.textInput}
-          initValue={initialStringValue}
-          onChange={(option) => {
-            this.setState({
-              [entity.name + "__label"]: option.label,
-              [entity.name]: option.key
-            })
-          }} />
-    )
+  setStringInputStateValue(entity, text){
+    let newResource = this.state.formTarget
+    newResource[entity.name] = text
+    this.setState({resource: newResource})
+  }
+  setImageInputStateValue(entity, data){
+    let newResource = this.state.formTarget
+    newResource[entity.name + "__label"] = data.fileName
+    newResource[entity.name] = data.data
+    this.setState({resource: newResource})
+  }
+  setDateInputStateValue(entity, date){
+    let newResource = this.state.formTarget
+    newResource[entity.name] = date
+    this.setState({resource: newResource})
+  }
+  setSelectInputStateValue(entity, option){
+    let newResource = this.state.formTarget
+    newResource[entity.name + "__label"] = option.label
+    newResource[entity.name] = option.key
+    this.setState({resource: newResource})
   }
 
   render() {
-    return (
-      <Container>
-        <BackButton navigator={this.navigator} />
-        <View style={styles.content}>
-          <View style={styles.heading}>
-            <Text style={styles.headingText}>{this.context.getEditResourceName().toUpperCase()}</Text>
-          </View>
-          <View style={styles.fields}>
-            {
-              !this.state.asyncActionInProgress ?
-                <ScrollView style={styles.scroll}>
-                  <View style={styles.card}>
-                    {this.state.error !== "" &&
-                      <View style={styles.error}>
-                        <Text style={styles.errorText}>
-                          {this.state.error}
-                        </Text>
-                      </View>
-                    }
-                    {this.state.entities.map((entity, i) => this.renderEntity(entity, i)) }
-                  </View>
-                </ScrollView>
-              :
-                <View style={styles.progressContainer}>
-                  <ActivityIndicator color="white" style={styles.progressIndicator}/>
-                  <Text style={styles.progressText}>{this.state.progressCopy}</Text>
-                </View>
-            }
-          </View>
-            {
-              this.state.asyncActionInProgress ? null
-              :
-              (
-                <View style={styles.buttons}>
-                  <View style={styles.cancelButton}>
-                    <Touchable onPress={this.onBoundPressCancel}>
-                      <Text style={styles.cancelButtonText}>
-                        Cancel
-                      </Text>
-                    </Touchable>
-                  </View>
-                  <View style={styles.saveButton}>
-                    <Touchable onPress={this.onBoundPressSave}>
-                      <Text style={styles.saveButtonText}>
-                        Save
-                      </Text>
-                    </Touchable>
-                  </View>
-                </View>
-              )
-            }
-        </View>
-      </Container>
-    )
+    return (<EditForm 
+      formTarget={this.state.formTarget}
+      entities={this.state.entities}
+      onPressSave={this.onBoundPressSave} 
+      onPressCancel={this.onBoundPressCancel} 
+      setStringInputStateValue={this.boundSetStringInputStateValue}
+      setImageInputStateValue={this.boundSetImageInputStateValue}
+      setDateInputStateValue={this.boundSetDateInputStateValue}
+      setSelectInputStateValue={this.boundSetSelectInputStateValue}
+      asyncActionInProgress={this.state.asyncActionInProgress}
+      progressCopy={this.state.progressCopy}></EditForm>)
   }
 }
 
@@ -441,193 +255,6 @@ EditResource.contextTypes = {
   "getEditResourceForm": PropTypes.func,
   "getEditResourceId": PropTypes.func,
   "getEditResourceName": PropTypes.func
-}
-
-const styles = {
-  "content": {
-    "height": "100%",
-    "backgroundColor": Palette.consentOffBlack
-  },
-  "heading": {
-    "height": "10%",
-    "alignItems": "center",
-    "justifyContent": "center"
-  },
-  "headingText": {
-    "textAlign": "left",
-    "color": "white",
-    "fontSize": 16
-  },
-  "fields": {
-    "height": "80%",
-    "width": "100%"
-  },
-  "scroll": {
-    "padding": 10
-  },
-  "card": {
-    "backgroundColor": "#fff",
-    "paddingLeft": 10,
-    "paddingRight": 10,
-  },
-  "progressContainer": {
-    "flex": 1,
-    "alignItems": "center",
-    "justifyContent": "center"
-  },
-  "progressIndicator": {
-    "width": 75,
-    "height": 75
-  },
-  "progressText":{
-    "color": "white"
-  },
-  "formField": {
-    "paddingTop": 5,
-    "paddingBottom": 5,
-    "borderBottomWidth": 1,
-    "borderBottomColor": "#efefef",
-    "flexDirection": "row",
-    "alignItems": "center",
-    "justifyContent": "center",
-  },
-  "formFieldLabel": {
-    "height": 40,
-    "width": "35%",
-    "justifyContent": "center"
-  },
-  "formFieldLabelText": {
-    "fontWeight": "bold",
-    "fontSize": 11,
-    "color": "#888"
-  },
-  "formFieldInput": {
-    "flex": 1,
-    "height": 40,
-    "borderBottomWidth": 0
-  },
-  "textInput": {
-    "flex": 1,
-    "height": 40,
-    "color": "#666",
-    "fontWeight": "100",
-    "fontSize": 14,
-    "textAlign": "left"
-  },
-  "selectElement":{
-    "flex": 1,
-    "flexDirection": "row",
-    "justifyContent": "flex-start",
-    "alignItems": "stretch"
-  },
-  "selectPickerWithoutValue":{
-    "backgroundColor": Palette.consentGrayLightest
-  },
-  "selectPickerWithValue":{
-    "borderWidth": 0
-  },
-  "countryPicker":{
-    "paddingTop": 10,
-    "height": 40
-  },
-  "countryLabel": {
-    "flex": 1,
-    "height": 40,
-    "color": "#666",
-    "fontWeight": "100",
-    "paddingTop": 10,
-    "paddingBottom": 10,
-    "fontSize": 14,
-    "backgroundColor": "green"
-  },
-  "datePicker":{
-    "backgroundColor": "magenta"
-  },
-  "dateInput": {
-    "dateTouchBody": {
-      "width": "100%",
-      "height": "100%",
-      "alignItems": "center",
-      "justifyContent": "center",
-    },
-    "dateInput": {
-      "borderWidth": 0,
-      "alignItems": "center",
-      "padding": 0,
-      "flex": 1,
-      "alignItems": "center",
-      "justifyContent": "center",
-    },
-    "dateText": {
-      "color": "#666",
-      "fontWeight": "100",
-      "fontSize": 14,
-    },
-    "placeholderText": {
-      "color": "#666",
-      "fontWeight": "100",
-      "fontSize": 14,
-      "textAlign": "left",
-    }
-  },
-  "languagePicker":{
-    "paddingTop": 10,
-    "height": 40
-  },
-  "languageLabel": {
-    "flex": 1,
-    "height": 40,
-    "color": "#666",
-    "fontWeight": "100",
-    "paddingTop": 10,
-    "paddingBottom": 10,
-    "fontSize": 14
-  },
-  "photographLabel": {
-    "flex": 1,
-    "height": 40,
-    "justifyContent": "center",
-    "alignItems": "center"
-  },
-  "photographLabelText": {
-    "fontWeight": "100",
-    "color": "#666",
-    "fontSize": 14
-  },
-  "buttons": {
-    "height": "10%",
-    "width": "100%",
-    "flexDirection": "row",
-    "paddingBottom": 10
-  },
-  "cancelButton": {
-    "flex": 1,
-    "justifyContent": "center",
-    "paddingLeft": 45
-  },
-  "cancelButtonText": {
-    "color": "#fff",
-    "fontSize": 16,
-    "textAlign": "left"
-  },
-  "saveButton": {
-    "flex": 1,
-    "justifyContent": "center",
-    "alignItems": "flex-end",
-    "paddingRight": 45
-  },
-  "saveButtonText": {
-    "color": "#fff",
-    "fontSize": 16,
-    "textAlign": "right"
-  },
-  "error": {
-    "flex": 1
-  },
-  "errorText": {
-    "textAlign": "center",
-    "color": "red"
-  }
 }
 
 export default EditResource

@@ -23,7 +23,7 @@ import Api from '../Api'
 import Logger from '../Logger'
 import Session from '../Session'
 
-class Connection extends Scene {
+class ConnectionP2P extends Scene {
 
   constructor(...params) {
     super(...params)
@@ -31,66 +31,81 @@ class Connection extends Scene {
     this.state = {
       isVerified: true,
       connecting: false,
-      actions: []
     }
     this.onBoundPressConnect = this.onPressConnect.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
     this.onBoundPressDecline = this.onPressDecline.bind(this)
 
+    console.log(" ===================================== PROFILE NAME: ", this.props.route.profile)
+
   }
 
   componentWillMount() {
     super.componentWillMount()
-    this.loadActions(this.props.route.actions_url)
+    // this.loadActions(this.props.route.actions_url)
   }
 
-  async loadActions(actions_url) {
-    if (actions_url) {
-      Logger.info('Fetching actions')
-      const requestOptions = {
-        "method": "GET",
-        "headers": {
-          "x-cnsnt-did": Session.getState().user.did
-        }
-      }
-      Logger.networkRequest('GET', actions_url, requestOptions)
-      const actionsResponse = await fetch(actions_url, requestOptions)
-      Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
-      const actions = JSON.parse(actionsResponse._bodyText)
-      if (actions) {
-        if (actions.body) {
-          this.setState({
-            actions: actions.body
-          }, () => Logger.info('Actions updated'))
-        } else {
-          this.setState({
-            actions: actions
-          }, () => Logger.info('Actions updated'))
-        }
-      } else {
-        Logger.warn('Could not parse JSON')
-      }
-    }
-  }
+  // async loadActions(actions_url) {
+  //   if (actions_url) {
+  //     Logger.info('Fetching actions')
+  //     const requestOptions = {
+  //       "method": "GET",
+  //       "headers": {
+  //         "x-cnsnt-did": Session.getState().user.did
+  //       }
+  //     }
+  //     Logger.networkRequest('GET', actions_url, requestOptions)
+  //     const actionsResponse = await fetch(actions_url, requestOptions)
+  //     Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
+  //     const actions = JSON.parse(actionsResponse._bodyText)
+  //     if (actions) {
+  //       if (actions.body) {
+  //         this.setState({
+  //           actions: actions.body
+  //         }, () => Logger.info('Actions updated'))
+  //       } else {
+  //         this.setState({
+  //           actions: actions
+  //         }, () => Logger.info('Actions updated'))
+  //       }
+  //     } else {
+  //       Logger.warn('Could not parse JSON')
+  //     }
+  //   }
+  // }
 
   onPressConnect() {
 
-    ToastAndroid.show(`Connecting to ${this.props.route.display_name}`, ToastAndroid.SHORT)
+    ToastAndroid.show(`Connecting to ${this.props.route.profile.display_name}`, ToastAndroid.SHORT)
     this.setState({
       connecting: true
     }, () => {
-      Api.requestConnection({ target: this.props.route.did })
+      Api.requestConnection({ target: this.props.route.profile.did })
       .then(() => {
+        
+        ToastAndroid.show(`Connection to ${this.props.route.profile.display_name} successful!`, ToastAndroid.SHORT)
+        console.log("Connection succesful!")
+
         this.navigator.push({
           ...Routes.connectionDetails,
-          user_did: this.props.route.did,
-          display_name: this.props.route.display_name,
-          image_uri: this.props.route.image_uri
+          user_did: this.props.route.profile.did,
+          display_name: this.props.route.profile.display_name,
+          image_uri: this.props.route.profile.image_uri
         })
+
+        // Where should this go? 
+
+        // Connection details with one action: share resource
+
+        // this.navigator.push({
+        //   ...Routes.connectionDetails,
+        //   user_did: this.props.route.profile.did,
+        //   display_name: this.props.route.profile.display_name,
+        //   image_uri: this.props.route.profile.image_uri
+        // })
       })
       .catch(error => {
         ToastAndroid.show(`Could not connect...`, ToastAndroid.SHORT)
-        console.log("--------------------------------- ERROR: ", error)
         Logger.warn(JSON.stringify(error))
         this.setState({
           connecting: false
@@ -118,10 +133,10 @@ class Connection extends Scene {
           <View style={styles.logo}>
             {/* logo goes here 
             <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/> */}
-            <Image style={{height: "100%", width: "100%"}} source={{ uri: this.props.route.image_uri }}/> 
+            <Image style={{height: "100%", width: "100%"}} source={{ uri: this.props.route.profile.image_uri }}/> 
           </View>
           <View style={styles.name}>
-            <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text>
+            <Text style={styles.nameText}>{Util.ucfirst(this.props.route.profile.display_name)}</Text>
           </View>
 
           {this.state.isVerified &&
@@ -152,12 +167,7 @@ class Connection extends Scene {
           </View>
           <View style={styles.greeting}>
             <Text
-              style={styles.greetingText}>Hi there {Util.ucfirst(ConsentUser.getDisplayNameSync())}. Connecting with {Util.ucfirst(this.props.route.display_name)} will allow you to:</Text>
-          </View>
-          <View style={styles.actions}>
-            { this.state.actions.map((action, i) =>
-              <Text key={i} style={styles.actionsText}>• {action.name}.</Text>
-            )}
+              style={styles.greetingText}>Hi there {Util.ucfirst(ConsentUser.getDisplayNameSync())}. Connecting with {Util.ucfirst(this.props.route.profile.display_name)} will allow you to share and verify resources.</Text>
           </View>
           <View style={styles.connect}>
             { this.state.connecting ?
@@ -277,4 +287,4 @@ const styles = {
   }
 }
 
-export default Connection
+export default ConnectionP2P

@@ -270,6 +270,29 @@ export default class Api {
     return request(`/resource/${data.id}`)
   }
 
+  static getCachedResourceByName(data) {
+    checkParameters(['name'], data)
+    // Try fetch from cache first 
+    let cached = ConsentUser.getCached("myData")
+    console.log("RESOURCE TYPES: ", cached.resourcesByType)
+    let resource
+
+    if (cached) {
+
+      const containerResourceType = cached.resourcesByType.find(rt => rt.name === data.name)
+      if(containerResourceType){
+        resource = containerResourceType.items[0]
+      }
+    }
+
+    if(cached && resource){
+      return Promise.resolve(resource)
+    }
+    else{
+      return Promise.reject()
+    }
+  }
+
   // 2 POST /resource
   static createResource(data) {
     checkParameters([
@@ -303,6 +326,45 @@ export default class Api {
   static profile(data) {
     checkParameters(['did'], data)
     return request(`/profile/${data.did}`, {method: 'GET'}, false)
+  }
+
+  // 12 GET /profile
+  static myProfile(milliseconds = 600000) {
+
+    // Try fetch from cache first 
+    let cached = ConsentUser.getCached("profile")
+
+    
+
+    if(cached){
+      console.log('return cached profile')
+      console.log("CACHED:::: ", cached)
+      return Promise.resolve(cached)
+    }
+    
+    // else
+    return request('/profile', { method: 'GET' }, true).then(data => {
+      const profile = data.body
+      ConsentUser.setCached('profile', profile, milliseconds )
+      return profile
+    }) 
+  }
+
+  // 5.5 POST /profile/:did
+  static setProfile(data) {
+    checkParameters([
+      'contactAddress',
+      'contactEmail',
+      'contactTelephone',
+      'displayName',
+      'label',
+      'profileColour',
+      'profileImageUri'
+    ], data)
+    return request('/profile', {
+      method: 'POST',
+      body: JSON.stringify(data)
+    }, true)
   }
 
   // 6 PUT /profile/colour
@@ -341,10 +403,24 @@ export default class Api {
     return request('profile/address', {method: 'PUT'})
   }
 
-  // 12 GET /profile
-  static myProfile() {
-    return request('/profile')
+  // #########################
+  // #### TRUSTBANK LOGIN ####
+  // #########################
+
+  static trustBankLogin(data){
+
+    // console.log("GOT TO API: ", typeof data, " | ", data)
+
+    checkParameters([
+      'created_by',
+      'challenge'
+    ], data)
+    return request(`/trustbanklogin`, {
+      method: 'POST',
+      body: JSON.stringify(data)
+    })
   }
+
 
   // 14 POST /facial-verfication token
   // Get a Face pic after scanning a QR code

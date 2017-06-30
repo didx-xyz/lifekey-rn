@@ -160,7 +160,10 @@ class Lifekeyrn extends Component {
     this.editResourceId = id
     this.editResourceName = name
 
-    this.navigator.push(Routes.editResource)
+    if(form === "http://schema.cnsnt.io/public_profile_form")
+      this.navigator.push(Routes.editProfile)
+    else
+      this.navigator.push(Routes.editResource)
   }
 
   onSaveResource() {
