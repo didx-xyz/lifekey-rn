@@ -38,6 +38,7 @@ import BadgeDetail from './Scenes/BadgeDetail'
 import EditResource from './Scenes/EditResource'
 import EditProfile from './Scenes/EditProfile'
 import Thanks from './Scenes/Thanks'
+import AuthenticationPrompt from './Scenes/AuthenticationPrompt'
 
 import Locked from './Scenes/Onboarding/Locked'
 import Unlock from './Scenes/Onboarding/Unlock'
@@ -70,6 +71,7 @@ export default {
   editResource: { scene: EditResource },
   editProfile: { scene: EditProfile },
   thanks: {scene: Thanks},
+  authenticationPrompt: {scene: AuthenticationPrompt},
   onboarding: {
     splashScreen: { scene: SplashScreen },
     register: { scene: Register },

@@ -5,7 +5,7 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-import { Navigator } from 'react-native'
+import {Navigator} from 'react-native'
 import Routes from './Routes'
 import Palette from './Palette'
 const NPM_PACKAGE = require('../package.json')
@@ -25,20 +25,15 @@ export default {
   initialRoute: Routes.main,
 
   // Debug
-  DEBUG: BUILD_CONFIG.DEBUG,  // All logging on/off (MASTER)
+  DEBUG: BUILD_CONFIG.DEBUG,
 
-  debugNetwork: true,         // Log API requests and responses
-  debugReact: true,          // Log the React Lifecycle events
-  debugNavigator: false,      // Log the current stack of Navigator routes
-  debugFirebase: true,        // Log Firebase events
+  debugNetwork: false,
+  debugReact: false,
+  debugNavigator: false,
+  debugFirebase: true,
   debugAsyncStorage: false,
-  debugAutoLogin: true,
+  debugAutoLogin: false,
   debugAutoLoginPassword: '99999',
-
-  hardcodedSuggestedConnections: true,
-  suggestedConnections: [
-    { did: '7dc1ddd0c7452a96968d9604bee07edb60251efff189f841662ed4643797e1bc', display_name: 'Woolworths' }
-  ],
 
   version: NPM_PACKAGE.version, // App version
 
@@ -60,10 +55,9 @@ export default {
   keystore: {
     name: APP_NAME.toLowerCase(),
     pemCertificatePath: 'rsa-example.pem',
-    keyName: APP_NAME.toLowerCase(), // TODO: Deprecate
-    privateKeyName: 'private' + APP_NAME.toLowerCase(), // Do not change this because it's hardcoded on the java side
-    publicKeyName: 'public' + APP_NAME.toLowerCase(),   // or this
+    keyName: APP_NAME.toLowerCase(),
+    privateKeyName: 'private' + APP_NAME.toLowerCase(),
+    publicKeyName: 'public' + APP_NAME.toLowerCase(),
     publicKeyAlgorithm: 'rsa'
   }
-
 }
