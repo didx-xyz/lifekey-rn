@@ -32,13 +32,13 @@ import {
   ToastAndroid
 } from 'react-native'
 
-import {
-  Container,
-  Content,
-  Grid,
-  Row,
-  Col
-} from 'native-base'
+// import {
+//   Container,
+//   Content,
+//   Grid,
+//   Row,
+//   Col
+// } from 'native-base'
 
 import fp from 'react-native-fingerprint-android'
 
