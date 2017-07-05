@@ -32,6 +32,8 @@ import {
 } from 'native-base'
 
 import BackButton from '../../Components/BackButton'
+import Design from '../../DesignParameters'
+import Palette from '../../Palette'
 
 export default class SplashScreen extends Scene {
 
@@ -40,17 +42,16 @@ export default class SplashScreen extends Scene {
     this.pushedRoute = false
     this.state = {
       tokenAvailable: true,
-      ready: false
+      ready: true
     }
     StatusBar.setHidden(true)
   }
 
   _readyUp() {
-    // Delay things so it doesn't look weird
-    setTimeout(() => {
-      this.setState({
-        ready: true
-      }, () => {
+    // setTimeout(() => {
+    //   this.setState({
+    //     ready: true
+    //   }, () => {
         const userState = Session.getState().user
         if (userState && userState.registered) {
           this.navigator.push({
@@ -59,8 +60,8 @@ export default class SplashScreen extends Scene {
             auth_success_destination: Routes.main
           })
         }
-      })
-    }, 1000)
+    //   })
+    // }, 1000)
   }
 
   componentWillReceiveProps(nextProps) {
@@ -72,7 +73,6 @@ export default class SplashScreen extends Scene {
 
   componentDidMount() {
     super.componentDidFocus()
-    // Give the token a fighting chance man
     setTimeout(() => {
       ConsentUser.getToken()
       .then(result => {
@@ -103,25 +103,6 @@ export default class SplashScreen extends Scene {
   }
 
   render() {
-    const scan = (
-      <Touchable
-        onPress={() => this.navigator.push(Routes.camera.qrCodeScanner)}
-      >
-        <View style={style.buttonView} >
-          <Text style={[style.buttonText]}>Scan</Text>
-        </View>
-      </Touchable>
-    )
-
-    const start = (
-      <Touchable
-        onPress={() => this.navigator.push(Routes.onboarding.register)}
-      >
-        <View style={style.buttonView} >
-          <Text style={[style.buttonText]}>{ this.state.ready ? 'Let\'s start' : '' }</Text>
-        </View>
-      </Touchable>
-    )
 
     return (
       <Container>
@@ -129,35 +110,18 @@ export default class SplashScreen extends Scene {
           <BackButton navigator={this.navigator} onPress={() => false} />
           <StatusBar hidden={true} />
           <Grid>
-            <Col style={{ flex: 1, height: Dimensions.get('window').height }}>
+            <Col style={style.body}>
 
-                <Row
-                  style={[style.firstRow, { backgroundColor: this.state.tokenAvailable ? null : 'red' }]}
-                >
-                  <Touchable
-                    style={{ flex: 1 }}
-                    delayLongPress={500}
-                    onLongPress={() => this.navigator.push(Routes.debug.main)}
-                  >
-                    <Image
-                      style={{ width: 150, height: 150 }}
-                      source={require('../../../App/Images/logo_big.png')}
-                    />
-                  </Touchable>
-                </Row>
-
+              <Row style={[style.firstRow, { backgroundColor: this.state.tokenAvailable ? null : 'red' }]}>
+                <Touchable style={{ flex: 1 }} delayLongPress={500} onLongPress={() => this.navigator.push(Routes.debug.main)} >
+                  <Image style={{ width: 150, height: 150 }} source={require('../../../App/Images/logo_big.png')} />
+                </Touchable>
+              </Row>
 
               <Row style={[style.secondRow]}>
-                <Row style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-                  <View style={{ flex: 1, padding: 20, paddingTop: 40, paddingBottom: 40 }}>
-                    
-                    <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 2 }}>
-                      { !this.state.ready && <Spinner color="blue"/> }
-                      <Text style={{ fontSize: 20, textAlign: 'center' }}>Securely store and verify personal information.</Text>
-                    </View>
-
-                  </View>
-                </Row>
+                <View style={{ flex: 1, justifyContent: 'center', paddingBottom: 2 }}>
+                  <Text style={{ fontSize: 20, textAlign: 'center' }}>Securely store and verify personal information.</Text>
+                </View>
               </Row>
               <Row style={[style.thirdRow]}>
                 {this.state.ready ?
@@ -166,15 +130,24 @@ export default class SplashScreen extends Scene {
                   <Text>Connecting to Consent...</Text>
                 }
               </Row>
-              <Row style={[style.buttonsRow]}>
-                <Col>
-                  {scan}
-                </Col>
-                <Col>
-                  {start}
-                </Col>
-              </Row>
+              
             </Col>
+            <Row style={[style.footer]}>
+              <Col>
+
+                { 
+                  this.state.ready ?
+                    <Touchable onPress={() => this.navigator.push(Routes.onboarding.register)}>
+                      <View style={style.buttonView} >
+                        <Text style={[style.buttonText]}>{ this.state.ready ? 'Let\'s start' : '' }</Text>
+                      </View>
+                    </Touchable>
+                  :
+                    <Spinner color={ Palette.consentOffWhite }/>
+                }
+
+              </Col>
+            </Row>
           </Grid>
 
         </Content>
@@ -184,6 +157,10 @@ export default class SplashScreen extends Scene {
 }
 
 const style = StyleSheet.create({
+  body:{
+    flex: 1, 
+    height: Dimensions.get('window').height - Design.footer.height 
+  },
   firstRow: {
     backgroundColor: 'white',
     flex: 10,
@@ -203,9 +180,10 @@ const style = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center'
   },
-  buttonsRow: {
+  footer: {
     backgroundColor: '#216BFF',
-    flex: 5,
+    // flex: 5,
+    height: Design.footer.height,
     alignItems: 'center',
     justifyContent: 'center'
   },

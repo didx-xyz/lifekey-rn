@@ -8,12 +8,17 @@
 import React from 'react'
 import PropTypes from "prop-types"
 import Scene from '../../Scene'
+import Design from '../../DesignParameters'
 import Palette from '../../Palette'
 // import Routes from '../../Routes'
 import Logger from '../../Logger'
 import ConsentUser from '../../Models/ConsentUser'
 
+import Svg, { Circle } from "react-native-svg"
+
+
 import {
+  Dimensions,
   Text,
   View,
   StyleSheet,
@@ -52,6 +57,7 @@ const STEP_EMAIL = 1
 const STEP_PIN = 2
 const STEP_MAGIC_LINK = 3
 const STEP_WAITING_FOR_DID = 4
+const STEP_ERROR = 5
 
 class Register extends Scene {
 
@@ -59,6 +65,7 @@ class Register extends Scene {
     super(props)
 
     this.screenData = [
+ 
       {
         largeText: 'Create your username',
         smallText: 'Don\'t worry you can change this at any time',
@@ -72,7 +79,7 @@ class Register extends Scene {
         // bottomText: 'What\'s this?'
       },
       {
-        largeText: 'Please enter a secure pin',
+        largeText: 'Create a 5-digit key PIN.',
         smallText: 'Do not forget this pin. It cannot be recovered.',
         bottomText: 'More info'
       },
@@ -85,38 +92,14 @@ class Register extends Scene {
         largeText: 'Thanks for activating!',
         smallText: 'Please wait while we create your Decentralised Identifier on the Consent Blockchain...',
         bottomText: ''
+      },
+      {
+        largeText: 'Something went wrong!',
+        smallText: 'There was an error while trying to register. Please try again.'
       }
+
     ]
 
-    this._steps = [
-      {
-        largeText: 'Create your username',
-        smallText: 'Don\'t worry you can change this at any time',
-        // bottomText: 'I already have a key',
-        bottomText: ''
-      },
-      {
-        largeText: 'Please enter your personal email address',
-        smallText: 'To set up or recover your key',
-        bottomText: '',
-        // bottomText: 'What\'s this?'
-      },
-      {
-        largeText: 'Please enter a secure pin',
-        smallText: 'Do not forget this pin. It cannot be recovered.',
-        bottomText: 'More info'
-      },
-      {
-        largeText: 'Check your mail for a magic link',
-        smallText: 'The link will be valid for 24 hours',
-        bottomText: 'Resend link'
-      },
-      {
-        largeText: 'Thanks for activating!',
-        smallText: 'Please wait while we create your Decentralised Identifier on the Consent Blockchain...',
-        bottomText: ''
-      }
-    ]
     this.state = {
       step: 0, // The beginning
       user: {
@@ -126,16 +109,30 @@ class Register extends Scene {
       },
       moveTransitionValue: new Animated.Value(300),
       fadeTransitionValue: new Animated.Value(0),
+      inputFadeTransitionValue: new Animated.Value(1),
       magicLinkRequested: false,
-      screenHeight: this.props.screenHeight,
-      originalScreenHeight: this.props.screenHeight
+      screenHeight: Dimensions.get('window').height,
+      screenTextColor: Palette.consentOffBlack,
+      screenBackgroundColor: Palette.consentOffWhite
     }
+  }
+
+  componentWillMount () {
+    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', this._keyboardDidShow.bind(this));
+    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', this._keyboardDidHide.bind(this));
+  }
+
+  _keyboardDidShow(e) {
+    let newSize = this.state.step === STEP_PIN ? Dimensions.get('window').height - 150 : Dimensions.get('window').height - Design.paddingBottom*3
+    this.setState({screenHeight: newSize})
+  }
+
+  _keyboardDidHide(e) { 
+    this.setState({screenHeight: Dimensions.get('window').height})
   }
 
   componentDidMount() {
     super.componentDidMount()
-    this.keyboardDidShowListener = Keyboard.addListener('keyboardDidShow', () => this._onKeyboardDidShow())
-    this.keyboardDidHideListener = Keyboard.addListener('keyboardDidHide', () => this._onKeyboardDidHide())
     this._fadeTextIn()
 
     this.context.userHasActivated(this.registrationCallback.bind(this))
@@ -158,11 +155,17 @@ class Register extends Scene {
 
     }, 150)
 
-    if (callback) {
-      // InteractionManager.runAfterInteractions(() => {
-      //   callback()
-      // })
+    setTimeout(() => {
+      
+      // Fade
+      Animated.timing(
+        this.state.inputFadeTransitionValue,
+        { toValue: 1, isInteraction: false }
+      ).start()
 
+    }, 200)
+
+    if (callback) {
       // Set timeout is used because of this: https://github.com/facebook/react-native/issues/8624
       setTimeout(() => {
         callback()
@@ -183,31 +186,24 @@ class Register extends Scene {
         this.state.fadeTransitionValue,
         { toValue: 0 }
       ).start()
-    }, 150)
+    }, 0)
 
-    // InteractionManager.runAfterInteractions(() => {
-    //   console.log("GOT TO CALL BACK")
-    //   callback()
-    // })
-
+    setTimeout(() => {
+      // Fade
+      Animated.timing(
+        this.state.inputFadeTransitionValue,
+        { toValue: 0 }
+      ).start()
+    }, 0)
     // Set timeout is used because of this: https://github.com/facebook/react-native/issues/8624
     setTimeout(() => {
       callback()
-    }, 1000)
+    }, 900)
   }
 
-  _onKeyboardDidShow() {
-    this.setState({screenHeight: this.state.screenHeight - (this.state.originalScreenHeight * 0.1)})
-  }
-
-  _onKeyboardDidHide() {
-    this.setState({screenHeight: this.state.screenHeight + (this.state.originalScreenHeight * 0.1)})
-  }
-
-  componentWillUnmount() {
-    super.componentWillUnmount()
-    this.keyboardDidShowListener.remove()
-    this.keyboardDidHideListener.remove()
+  componentWillUnmount () {
+    this.keyboardDidShowListener.remove();
+    this.keyboardDidHideListener.remove();
   }
 
   _hardwareBackHandler() {
@@ -231,10 +227,9 @@ class Register extends Scene {
 
   resetRegistration() {
     this.setState({
-      step: 0, // The beginning
       user: { username: '', email: '', pin: '' }
     }, () => {
-      this._fadeTextIn(() => { })
+      this.goToStep(STEP_ERROR, true)
     })
   }
 
@@ -244,16 +239,19 @@ class Register extends Scene {
     this.setState({ user: user }, next)
   }
 
-  // etcetc
   goToStep(activeStepNumber, animate){
     
+    let textColor = activeStepNumber === STEP_PIN || activeStepNumber === STEP_ERROR ? Palette.consentOffWhite : Palette.consentOffBlack
+    let backgroundColor = activeStepNumber === STEP_PIN ? Palette.consentBlue : Palette.consentOffWhite
+    backgroundColor = activeStepNumber === STEP_ERROR ? Palette.consentRed : backgroundColor
+
     // Is validation necessary at this point? 
 
     Keyboard.dismiss()
     if(animate){
       this._fadeTextOut(() => {
         this._fadeTextIn(() => {
-          this.setState({ step: activeStepNumber })
+          this.setState({ step: activeStepNumber, screenBackgroundColor: backgroundColor, screenTextColor: textColor  })
         })
       })
     }
@@ -296,166 +294,227 @@ class Register extends Scene {
   renderInputView(activeStepNumber) {
     switch (activeStepNumber) {
       case STEP_USERNAME:
-        return (<OnboardingTextInputAndroid
-                  onChangeText={text => this.setUserState('username', text) }
-                  autoCapitalize="sentences"
-                  fontSize={30}
-                  onSubmit={() => this.goToStep(STEP_EMAIL, true)}
-                />)
-
+        return (
+          <View style={[style.textInputRow]}>
+            <OnboardingTextInputAndroid
+              onChangeText={text => this.setUserState('username', text) }
+              autoCapitalize="sentences"
+              fontSize={22}
+              inputFadeTransitionValue={this.state.inputFadeTransitionValue}
+              onSubmit={() => this.goToStep(STEP_EMAIL, true)}
+            />
+          </View>
+        )
       case STEP_EMAIL:
-        return (<OnboardingTextInputAndroid
-                  onChangeText={text => this.setUserState('email', text) }
-                  autoCapitalize="none"
-                  fontSize={24}
-                  onSubmit={() => this.goToStep(STEP_PIN, true)}
-                />)
-
+        return (
+          <View style={[style.textInputRow]}>
+            <OnboardingTextInputAndroid
+              onChangeText={text => this.setUserState('email', text) }
+              autoCapitalize="none"
+              fontSize={24}
+              inputFadeTransitionValue={this.state.inputFadeTransitionValue}
+              onSubmit={() => this.goToStep(STEP_PIN, true)}
+            />
+          </View>
+        )
       case STEP_PIN:
-        return (<Touchable style={{ flex: 1 }} onPress={() => this.pinInput.focus()}>
-                  <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
-                    {
-                      !this.state.magicLinkRequested ?
-                      <HexagonDots current={ this.state.user.pin.length < 5 ? this.state.user.pin.length : 4} />
-                    :
-                      <Nachos.Spinner color='blue'/>
-                    }
-                    <Dots current={this.state.user.pin.length} />
-                    <TextInput
-                      ref={(_ref) => this.pinInput = _ref }
-                      autoFocus={true}
-                      returnKeyType="done"
-                      keyboardType="phone-pad"
-                      onChangeText={(text) => this.setUserState('pin', text, this.attemptToRegisterUser)}
-                      style={[style.pinInput]}
-                    />
-                  </View>
-                </Touchable>)
-
+        return (
+          <Touchable onPress={() => this.pinInput.focus()}>
+            <View style={style.pinContainer}>
+              <View style={ Object.assign({}, style.pinElement, { "paddingTop": proportion, "paddingBottom": proportion / 2 }) }>
+                  <HexagonDots height={90} width={80} current={ this.state.user.pin.length < 5 ? this.state.user.pin.length : 4} />
+                </View>
+              <View style={style.pinElement}>
+                <Dots current={this.state.user.pin.length} fullFill={Palette.consentOffWhite} emptyFill={Palette.consentGrayDarkest} strokeColor="transparent" />
+              </View>
+              <TextInput
+                ref={(_ref) => this.pinInput = _ref }
+                autoFocus={true}
+                returnKeyType="done"
+                keyboardType="phone-pad"
+                underlineColorAndroid="transparent"
+                onChangeText={(text) => this.setUserState('pin', text, this.attemptToRegisterUser)}
+                style={[style.pinInput]}
+              />
+            </View>
+          </Touchable>
+        )             
       case STEP_MAGIC_LINK:
-        return (<View style={{ flex: 1 }}>
-                  <Text style={{ textAlign: "center" }}>Please check the inbox of {this.state.user.email} for a link to activate your account</Text>
-                </View>)
+        return (
+          <View style={[style.textInputRow]}>
+            <View style={ style.graphic }>
+              <Nachos.Spinner color={Palette.consentBlue}/>
+            </View>
+          </View>
+        )
       case STEP_WAITING_FOR_DID:
         return (
-                <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-                  <Nachos.Spinner color='blue'/>
-                </View>
-               )
+          <View style={[style.textInputRow]}>
+            <View style={ style.graphic }>
+              <Nachos.Spinner color={Palette.consentBlue}/>
+            </View>
+          </View>
+        )
+      case STEP_ERROR:
+        return (
+          <View style={style.errorContainer}>
+            <View style={ Object.assign({}, style.pinElement, { "paddingTop": proportion*2, "paddingBottom": proportion / 2 }) }>
+              <HexagonDots height={90} width={80} current={ this.state.user.pin.length < 5 ? this.state.user.pin.length : 4} />
+            </View>
+          </View>
+        )
     }
   }
 
   render() {
+
+    const isPinOrError = this.state.step === STEP_PIN || this.state.step === STEP_ERROR
+    const screenTextAlign = isPinOrError ? "center" : "left"
+    const screenStyle = { alignItems: 'center', justifyContent: 'center', height: this.state.screenHeight, backgroundColor: this.state.screenBackgroundColor }
+
     return (
-      <Container>
-        <Content keyboardShouldPersistTaps="always">
+      
+        <View>
           <AndroidBackButton onPress={() => this._hardwareBackHandler()}/>
           <StatusBar hidden={true} />
-          <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
-            <Grid>
-              <Col style={[style.sceneColumn, { height: this.state.screenHeight }]}>
-                { /* center content */ }
-                <Row style={{ flex: 13, flexDirection: 'column' }}>
+          <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} >
+            <View style={ screenStyle }>
+              
+              <View style={style.contentContainer}>
+                <Animated.View style= { Object.assign({}, style.dotContainer, { opacity: this.state.fadeTransitionValue }) }>
+                  {
+                    !isPinOrError &&
+                    <Svg style={style.dot} width={5} height={5} strokeWidth={1} stroke="blue">
+                      <Circle
+                        cx={2.5}
+                        cy={2.5}
+                        r={2.5}
+                        fill={Palette.consentBlue}
+                        strokeWidth={0}
+                        stroke="transparent"
+                      />
+                    </Svg>
+                  }
+                </Animated.View>
+                <View style={style.textContainer}>
 
                   { /* LARGE TEXT */ }
-                  <Row style={style.largeTextRow}>
-                    <Animated.View style= {{
-                      opacity: this.state.fadeTransitionValue,
-                      marginBottom: this.state.moveTransitionValue
-                    }}>
-                      <Text style={{ fontSize: 38, textAlign: 'center' }}>{this.screenData[this.state.step].largeText}</Text>
+                  <View style={style.largeTextRow}>
+                    <Animated.View style= {{ opacity: this.state.fadeTransitionValue, marginBottom: this.state.moveTransitionValue }}>
+                      <Text style={ Object.assign({}, style.registrationFont, style.largeFont, { "color": this.state.screenTextColor, "textAlign": screenTextAlign }) }>{this.screenData[this.state.step].largeText}</Text>
                     </Animated.View>
-                  </Row>
+                  </View>
 
                   { /* SMALL TEXT */ }
-                  <Row style={[style.smallTextRow]}>
-                    <Animated.View style={{
-                      opacity: this.state.fadeTransitionValue,
-                      flex: 1
-                    }}>
-                      <Text style={{ fontSize: 18, textAlign: 'center' }}>{this.screenData[this.state.step].smallText}</Text>
+                  <View style={[style.smallTextRow]}>
+                    <Animated.View style={{ opacity: this.state.fadeTransitionValue }}>
+                      <Text style={ Object.assign({}, style.registrationFont, style.smallFont, { "color": this.state.screenTextColor, "textAlign": screenTextAlign }) }>{this.screenData[this.state.step].smallText}</Text>
                     </Animated.View>
-                  </Row>
-
-                  { /* TEXT INPUT */}
-                  <Row style= {style.textInputRow}>
-                    { this.renderInputView(this.state.step) }
-                  </Row>
-                </Row>
-
-                { /* Footer content */ }
-                <Row style= {style.bottomContentRow}>
-                  <View style={style.bottomContentRowWrapperView}>
-                    <View>
-                      <Text>Help</Text>
-                    </View>
-                    <View>
-                      <Touchable
-                        onPress={() => alert('Coming soon...')}
-                      >
-                        <View style={{ paddingTop: 20, paddingBottom: 20 }}>
-                          <Text style={{ fontSize: 20 }}>{this.screenData[this.state.step].bottomText}</Text>
-                        </View>
-                      </Touchable>
-                    </View>
                   </View>
-                </Row>
 
-              </Col>
-            </Grid>
+                  { /* DYNAMIC STEP-SPECIFIC CONTENT */ }
+                  { this.renderInputView(this.state.step) }
+
+                </View>
+              </View>
+
+              {/* IF ERROR, RETRY */}
+              {
+                this.state.step === STEP_ERROR &&
+                <View style={style.retryButtonContainer}>
+                  <Touchable onPress={() => this.goToStep(STEP_USERNAME, true)}>
+                    <Text style={style.retryButton}>Retry</Text>
+                  </Touchable>
+                </View>
+              }
+
+            </View>      
           </TouchableWithoutFeedback>
-        </Content>
-      </Container>
+        </View>
     )
   }
 }
 
-const style = StyleSheet.create({
-  sceneColumn: {
-    flex: 1,
+const proportion = 48
+
+const style = {
+  contentContainer: {
+    flexDirection: "row", 
+    marginBottom: Design.paddingBottom,
+    paddingRight: proportion //suspect 
   },
+  dotContainer: {
+    width: proportion*2
+  },
+  dot: {
+    marginTop: proportion/2,
+    marginLeft: 80
+  },
+  textContainer: {
+    paddingRight: proportion //suspect 
+  },
+  largeTextRow: {
+    paddingBottom: Design.paddingBottom*2,
+  },
+  smallTextRow: {
+    paddingBottom: 5
+  },
+  registrationFont: {
+    fontFamily: Design.fonts.registration,
+    fontWeight: Design.fontWeights.light
+  },
+  largeFont: {
+    fontSize: 38,
+    lineHeight: proportion 
+  },
+  smallFont: {
+    fontSize: 15,
+    lineHeight: 20
+  },  
   textInputRow: {
-    flex: 4,
-    alignItems: 'center',
-    paddingLeft: 25,
-    paddingRight: 25
+    marginTop: proportion*2,
+    height: 46
   },
   timelineRow: {
     flexDirection: 'column',
     paddingLeft: 35,
     paddingRight: 35
   },
-  bottomContentRow: {
-    flex: 3,
-    flexDirection: 'column',
-    justifyContent: 'center',
-    paddingLeft: 35,
-    paddingRight: 35
-  },
-  bottomContentRowWrapperView: {
-    flexDirection: 'row',
-    justifyContent: 'space-between'
-  },
-  smallTextRow: {
-    flex: 1,
-    paddingTop: 5,
-    paddingLeft: 35,
-    paddingRight: 35,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  largeTextRow: {
-    flex: 4,
-    flexDirection: 'column',
-    justifyContent: 'flex-end',
-    paddingLeft: 35,
-    paddingRight: 35
-  },
   pinInput: {
-    position: "absolute",
-    top: -1000
+    height: 0,
+    marginLeft: -1000
+  },
+  pinContainer: { 
+    'width': "100%",
+    'minHeight': 200
+  },
+  pinElement: {
+    "flex": 1,
+    'justifyContent': 'center', 
+    'alignItems': 'center'
+  },
+  graphic: {
+    flex: 1, 
+    justifyContent: "center", 
+    alignItems: "center"
+  },
+  retryButtonContainer: {
+    "position": "absolute",
+    "bottom": 0,
+    "width": "100%",
+    "justifyContent": "flex-end",
+    "alignItems": "flex-end",
+    "paddingRight": proportion/2
+  },
+  retryButton: {
+    "minHeight": 25,
+    "fontSize": 18,
+    "lineHeight": 22,
+    "color": Palette.consentOffWhite,
+    "paddingRight": Design.paddingBottom*2,
+    "paddingBottom": Design.paddingBottom*2
   }
-})
+}
 
 Register.contextTypes = {
   // state
@@ -463,3 +522,4 @@ Register.contextTypes = {
 }
 
 export default Register
+

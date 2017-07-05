@@ -1,10 +1,3 @@
-/**
- * Lifekey App
- * @copyright 2016 Global Consent Ltd
- * Civvals, 50 Seymour Street, London, England, W1H 7JG
- * @author Werner Roets <werner@io.co.za>
- */
-
 export default {
 	"navigationContainerHeight": 15,
 	"navigationHeight": 12.5,
@@ -19,7 +12,16 @@ export default {
 		"width": 18,
 		"height": 18
 	},
-  "lifekeyHeaderHeight": 115,
-  "headerIconWidth": 38,
-  "headerIconHeight": 38
+	"lifekeyHeaderHeight": 115,
+	"headerIconWidth": 38,
+	"headerIconHeight": 38,
+	"footer":{
+		"height": 100
+	},
+	"fonts": {
+		"registration": "Roboto",
+	},
+	"fontWeights": {
+		"light": "400",
+	}
 }
