@@ -48,11 +48,14 @@ export default class SplashScreen extends Scene {
   }
 
   _readyUp() {
-    // setTimeout(() => {
-    //   this.setState({
-    //     ready: true
-    //   }, () => {
+    setTimeout(() => {
+      this.setState({
+        ready: true
+      }, () => {
         const userState = Session.getState().user
+
+        console.log("SESSIONSTATE: ", Session.getState())
+
         if (userState && userState.registered) {
           this.navigator.push({
             ...Routes.authenticationPrompt,
@@ -60,8 +63,8 @@ export default class SplashScreen extends Scene {
             auth_success_destination: Routes.main
           })
         }
-    //   })
-    // }, 1000)
+      })
+    }, 1000) // This works with 0, but doesn't work without the settimeout. Smells fishy... 
   }
 
   componentWillReceiveProps(nextProps) {
