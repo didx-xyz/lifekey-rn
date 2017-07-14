@@ -42,13 +42,14 @@ import {
 
 import fp from 'react-native-fingerprint-android'
 
-import HexagonDots from '../../Components/HexagonDots'
-import Dots from '../../Components/Dots'
+// import HexagonDots from '../../Components/HexagonDots'
+// import Dots from '../../Components/Dots'
 import OnboardingTextInputAndroid from '../../Components/OnboardingTextInputAndroid'
 import EventTimeline from '../../Components/EventTimeline'
 import Touchable from '../../Components/Touchable'
 import DialogAndroid from 'react-native-dialogs'
 import AndroidBackButton from 'react-native-android-back-button'
+import AuthScreen from '../../Components/SceneComponents/AuthScreen'
 import * as Nachos from 'nachos-ui'
 
 // const DEBUG = false
@@ -115,6 +116,8 @@ class Register extends Scene {
       screenTextColor: Palette.consentOffBlack,
       screenBackgroundColor: Palette.consentOffWhite
     }
+
+    this.boundSetUserPin = this.setUserPin.bind(this)
   }
 
   componentWillMount () {
@@ -207,22 +210,31 @@ class Register extends Scene {
   }
 
   _hardwareBackHandler() {
-    if (this.state.step < STEP_EMAIL) {
-      this.navigator.pop()
-    } else {
-      if (!this.state.step === STEP_MAGIC_LINK) {
-        this.goToPreviousStep()
-      }
+    
+    if(this.state.step < STEP_MAGIC_LINK) {
+      this.goToPreviousStep()
     }
     return true
+
+    // if (this.state.step < STEP_EMAIL) {
+    //   this.navigator.pop()
+    // } else {
+    //   if (!this.state.step === STEP_MAGIC_LINK) {
+    //     this.goToPreviousStep()
+    //   }
+    // }
+    // return true
   }
 
   goToPreviousStep() {
     if (this.state.step !== 0) {
-      this._fadeTextOut(() => {
-        this._fadeTextIn(() => this.setState({ step: this.state.step - 1 }))
-      })
+      this.goToStep(this.state.step - 1, true)
     }
+    // if (this.state.step !== 0) {
+    //   this._fadeTextOut(() => {
+    //     this._fadeTextIn(() => this.setState({ step: this.state.step - 1 }))
+    //   })
+    // }
   }
 
   resetRegistration() {
@@ -238,6 +250,10 @@ class Register extends Scene {
     user[key] = value
     this.setState({ user: user }, next)
   }
+
+  setUserPin(value){
+    this.setUserState('pin', value, this.attemptToRegisterUser)
+  }  
 
   goToStep(activeStepNumber, animate){
     
@@ -268,6 +284,7 @@ class Register extends Scene {
       })
     }
   }
+
 
   requestMagicLink() {
     Promise.all([
@@ -318,27 +335,7 @@ class Register extends Scene {
           </View>
         )
       case STEP_PIN:
-        return (
-          <Touchable onPress={() => this.pinInput.focus()}>
-            <View style={style.pinContainer}>
-              <View style={ Object.assign({}, style.pinElement, { "paddingTop": proportion, "paddingBottom": proportion / 2 }) }>
-                  <HexagonDots height={90} width={80} current={ this.state.user.pin.length < 5 ? this.state.user.pin.length : 4} />
-                </View>
-              <View style={style.pinElement}>
-                <Dots current={this.state.user.pin.length} fullFill={Palette.consentOffWhite} emptyFill={Palette.consentGrayDarkest} strokeColor="transparent" />
-              </View>
-              <TextInput
-                ref={(_ref) => this.pinInput = _ref }
-                autoFocus={true}
-                returnKeyType="done"
-                keyboardType="phone-pad"
-                underlineColorAndroid="transparent"
-                onChangeText={(text) => this.setUserState('pin', text, this.attemptToRegisterUser)}
-                style={[style.pinInput]}
-              />
-            </View>
-          </Touchable>
-        )             
+        return <AuthScreen pin={ this.state.user.pin } onValueChanged={ this.boundSetUserPin } paddingTop={ proportion } paddingBottom={ proportion/2 }></AuthScreen>
       case STEP_MAGIC_LINK:
         return (
           <View style={[style.textInputRow]}>
@@ -480,19 +477,19 @@ const style = {
     paddingLeft: 35,
     paddingRight: 35
   },
-  pinInput: {
-    height: 0,
-    marginLeft: -1000
-  },
-  pinContainer: { 
-    'width': "100%",
-    'minHeight': 200
-  },
-  pinElement: {
-    "flex": 1,
-    'justifyContent': 'center', 
-    'alignItems': 'center'
-  },
+  // pinInput: {
+  //   height: 0,
+  //   marginLeft: -1000
+  // },
+  // pinContainer: { 
+  //   'width': "100%",
+  //   'minHeight': 200
+  // },
+  // pinElement: {
+  //   "flex": 1,
+  //   'justifyContent': 'center', 
+  //   'alignItems': 'center'
+  // },
   graphic: {
     flex: 1, 
     justifyContent: "center", 

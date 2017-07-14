@@ -26,8 +26,8 @@ class AddCategoryButton extends Component {
   	  <Card style={style.card}>
     	    <CardItem onPress={this.onBoundPressEdit}>
       	      <View style={style.cardHeader}>
-      	        <Text style={style.cardHeadingText}>{this.props.name.toUpperCase()}</Text>
-    	          <Text>+</Text>
+      	        <Text style={Object.assign({}, style.cardHeadingText, { "color": this.props.color }) }>{this.props.name.toUpperCase()}</Text>
+    	          <Text style={ {"marginRight": 6, "color": this.props.color } }>+</Text>
       	      </View>
     	    </CardItem>
   	  </Card>
@@ -37,14 +37,15 @@ class AddCategoryButton extends Component {
 
 const style = {
   "card": {
-    "marginTop": Design.paddingLeft / 2,
-    "marginLeft": Design.paddingLeft / 2,
-    "marginRight": Design.paddingRight / 2
+    "marginTop": 1,
+    // "marginLeft": Design.paddingLeft / 2,
+    // "marginRight": Design.paddingRight / 2
   },
   "cardHeader": {
     "flex": 1,
     "flexDirection": "row",
-    "justifyContent": "space-between"
+    "justifyContent": "space-between",
+    "alignItems": "center"
   },
   "cardHeadingText": {
     "fontSize": 10,

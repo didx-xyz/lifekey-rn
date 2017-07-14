@@ -17,6 +17,8 @@ import pt from 'prop-types'
 import {Container} from 'native-base'
 
 import Scene from '../Scene'
+import Design from "../DesignParameters"
+import Palette from '../Palette'
 import Routes from '../Routes'
 
 import HexagonDots from '../Components/HexagonDots'
@@ -121,6 +123,7 @@ export default class AuthenticationPrompt extends Scene {
       } else if (!err.message) {
         this.reset_fingerprint.call(this)
       } else {
+        console.log("WARNING: ", err)
         this.setState({
           feedback: err.message
         })
@@ -129,6 +132,7 @@ export default class AuthenticationPrompt extends Scene {
   }
 
   update_pin(text) {
+
     if (text.length === 5) {
       return this.setState({
         pin: text
@@ -180,10 +184,16 @@ export default class AuthenticationPrompt extends Scene {
   }
 
   render_authorisation_prompt_message_and_feedback() {
+
+    const smallText = this.state.fingerprint ? "Authenticate either with your PIN or fingerprint" : "Authenticate with your PIN"
+
     return (
-      <View style={{marginTop: 20, marginBottom: 60}}>
-        <View style={{flexDirection: 'row', alignItems: 'center', justifyContent: 'center'}}>
-          <Text>Please authenticate with your PIN</Text>{this.state.fingerprint && <Text> or fingerprint</Text>}
+      <View style={{marginTop: 20, marginBottom: 35}}>
+         <View style={style.largeTextRow}>
+          <Text style={ Object.assign({}, style.registrationFont, style.largeFont) }>Please authenticate</Text>
+        </View>
+        <View style={[style.smallTextRow]}>
+          <Text style={ Object.assign({}, style.registrationFont, style.smallFont) }>{ smallText }</Text>
         </View>
         <View style={{marginTop: 5, alignItems: 'center', justifyContent: 'center'}}>
           {this.state.show_feedback && <Text style={{fontWeight: 'bold'}}>{this.state.feedback}</Text>}
@@ -206,11 +216,11 @@ export default class AuthenticationPrompt extends Scene {
     )
   }
 
-  render_dots_crap() {
+  render_dot_animation() {
     return (
       <View style={{alignItems: 'center', justifyContent: 'center'}}>
         <HexagonDots width={134} height={134} current={this.state.pin.length} />
-        <TouchableOpacity style={{marginTop: 60}} onPress={_ => this.input.focus()}>
+        <TouchableOpacity style={{marginTop: 35}} onPress={_ => this.input.focus()}>
           <Dots current={this.state.pin.length} />
         </TouchableOpacity>
       </View>
@@ -225,13 +235,53 @@ export default class AuthenticationPrompt extends Scene {
   
   render() {
     return (
-      <Container style={{margin: 10}}>
+      <Container style={{ padding: 10, backgroundColor: Palette.consentBlue }}>
         <BackButton navigator={this.navigator} />
         {this.render_authorisation_prompt_message_and_feedback()}
-        {this.render_dots_crap()}
-        {this.render_pin_input()}
+        { this.render_dot_animation() }
+        { this.render_pin_input() }
         {this.render_activity_indicator()}
       </Container>
     )
+  }
+}
+
+const proportion = 48
+
+const style = {
+  contentContainer: {
+    flexDirection: "row", 
+    marginBottom: Design.paddingBottom,
+    paddingRight: proportion //suspect 
+  },
+  dotContainer: {
+    width: proportion*2
+  },
+  dot: {
+    marginTop: proportion/2,
+    marginLeft: 80
+  },
+  textContainer: {
+    paddingRight: proportion //suspect 
+  },
+  largeTextRow: {
+    paddingBottom: Design.paddingBottom*2,
+  },
+  smallTextRow: {
+    paddingBottom: 5
+  },
+  registrationFont: {
+    fontFamily: Design.fonts.registration,
+    fontWeight: Design.fontWeights.light,
+    color: Palette.consentOffWhite,
+    textAlign: "center"
+  },
+  largeFont: {
+    fontSize: 38,
+    lineHeight: proportion 
+  },
+  smallFont: {
+    fontSize: 15,
+    lineHeight: 20
   }
 }

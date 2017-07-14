@@ -1,71 +1,92 @@
-/**
- * Lifekey App
- * @copyright 2017 Global Consent Ltd
- * Civvals, 50 Seymour Street, London, England, W1H 7JG
- * @author Werner Roets <werner@io.co.za>
- */
 
 import React, { Component } from 'react'
+import Design from '../DesignParameters'
+import Palette from '../Palette'
 import {
   Text,
   View,
   StyleSheet
 } from 'react-native'
-import {
-  Grid,
-  Row,
-  Col
-} from 'native-base'
 import Touchable from './Touchable'
 
 class LifekeyFooter extends Component {
 
-  constructor(props) {
-    super(props)
-  }
-
   render() {
     return (
-      <View style={style.wrappingView}>
-        <Touchable onPress={() => this.props.onPressLeftButton()}>
-          <View style={style.leftButton}>
-            <Text style={style.buttonText}>{this.props.leftButtonText}</Text>
-          </View>
-        </Touchable>
-        <Touchable onPress={() => this.props.onPressRightButton()}>
-          <View style={style.rightButton}>
-            <Text style={style.buttonText}>{this.props.rightButtonText}</Text>
-          </View>
-        </Touchable>
+      <View style={ Object.assign({}, style.wrappingView, { backgroundColor: this.props.backgroundColor }) }>
+        { (!!this.props.leftButtonText || this.props.leftButtonIcon) &&
+          <Touchable onPress={() => this.props.onPressLeftButton()}>
+            <View style={style.leftButton}>
+              <Text style={ Object.assign({}, style.buttonText, {color: this.props.color}) }>{this.props.leftButtonText}</Text>
+              <View style={style.leftIcon}>{this.props.leftButtonIcon}</View>
+            </View>
+          </Touchable>
+        }
+        { (!!this.props.middleButtonText || this.props.middleButtonIcon) &&
+          <Touchable onPress={() => this.props.onPressMiddleButton()}>
+            <View style={style.middleButton}>
+              <Text style={ Object.assign({}, style.buttonText, {color: this.props.color}) }>{this.props.middleButtonText}</Text>
+              <View style={style.middleIcon}>{this.props.middleButtonIcon}</View>
+            </View>
+          </Touchable>
+        }
+        { (!!this.props.rightButtonText || this.props.rightButtonIcon) &&
+          <Touchable onPress={() => this.props.onPressRightButton()}>
+            <View style={style.rightButton}>
+              <View style={style.rightIcon}>{this.props.rightButtonIcon}</View>
+              <Text style={ Object.assign({}, style.buttonText, {color: this.props.color}) }>{this.props.rightButtonText}</Text>
+            </View>
+          </Touchable>
+        }
       </View>
     )
   }
 }
 
-const style = StyleSheet.create({
+const style = {
   wrappingView: {
-    flex: 1,
+    height: 100,
     flexDirection: 'row'
   },
   leftButton: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-start',
+    paddingLeft: 50
+  },
+  middleButton: {
+    flex: 1,
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center'
+  },
+  middleIcon: {
+    paddingLeft: 10
   },
   rightButton: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center'
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'flex-end',
+    paddingRight: 50
+  },
+  leftIcon: {
+    paddingLeft: 10
+  },
+  rightIcon: {
+    paddingRight: 10
   },
   buttonText: {
-    color: 'white',
     fontSize: 20
   }
-})
+}
 
 LifekeyFooter.defaultProps = {
-  leftButtonText: 'Me',
-  rightButtonText: 'Scan',
+  color: Palette.consentWhite,
+  backgroundColor: Palette.consentBlue,
+  leftButtonText: '',
+  rightButtonText: '',
   onPressLeftButton: () => alert('Not implemented'),
   onPressRightButton: () => alert('Not implemented')
 }

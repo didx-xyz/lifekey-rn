@@ -23,7 +23,6 @@ import HelpGeneral from './Scenes/HelpGeneral'
 import HelpScreens from './Scenes/Onboarding/HelpScreens'
 import MeConnect from './Scenes/MeConnect'
 import FaceMatch from './Scenes/FaceMatch'
-import FaceMatchResult from './Scenes/FaceMatchResult'
 import SetPin from './Scenes/Onboarding/SetPin'
 import Unlocked from './Scenes/Onboarding/Unlocked'
 import ConnectionDetails from './Scenes/ConnectionDetails'
@@ -58,7 +57,6 @@ export default {
   helpScreens: { scene: HelpScreens },
   meConnect: { scene: MeConnect },
   faceMatch: { scene: FaceMatch },
-  faceMatchResult: { scene: FaceMatchResult },
   connectionDetails: { scene: ConnectionDetails },
   confirmInformationShare: { scene: ConfirmInformationShare },
   connection: { scene: Connection },

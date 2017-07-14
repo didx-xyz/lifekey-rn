@@ -1,6 +1,6 @@
 // external dependencies
 import React, { Component } from "react"
-import { ToastAndroid } from "react-native"
+import { View, ToastAndroid, Dimensions, StatusBar } from "react-native"
 import PropTypes from "prop-types"
 
 // internal dependencies
@@ -8,7 +8,11 @@ import Api from "../Api"
 import Scene from "../Scene"
 import ConsentUser from "../Models/ConsentUser"
 import Common from "../Common"
-import EditForm from "./Forms/EditForm"
+import Design from "../DesignParameters"
+import Palette from "../Palette"
+import EditForm from "../Components/SceneComponents/EditForm"
+import LifekeyFooter from "../Components/LifekeyFooter"
+import ProgressIndicator from "../Components/ProgressIndicator"
 import Countries from "../Countries"
 import Languages from "../Languages"
 import Routes from "../Routes"
@@ -152,7 +156,6 @@ class EditResource extends Scene {
       this.setState(state)
 
     })
-
   }
 
   async loadResource(id) {     
@@ -228,17 +231,33 @@ class EditResource extends Scene {
   }
 
   render() {
-    return (<EditForm 
-      formTarget={this.state.formTarget}
-      entities={this.state.entities}
-      onPressSave={this.onBoundPressSave} 
-      onPressCancel={this.onBoundPressCancel} 
-      setStringInputStateValue={this.boundSetStringInputStateValue}
-      setImageInputStateValue={this.boundSetImageInputStateValue}
-      setDateInputStateValue={this.boundSetDateInputStateValue}
-      setSelectInputStateValue={this.boundSetSelectInputStateValue}
-      asyncActionInProgress={this.state.asyncActionInProgress}
-      progressCopy={this.state.progressCopy}></EditForm>)
+    return (    
+      !this.state.asyncActionInProgress ?
+        <View style={ styles.container }>
+          <View style={ styles.formContainer }>
+            <EditForm 
+              formTarget={this.state.formTarget}
+              entities={this.state.entities}
+              backgroundColor="transparent"
+              setStringInputStateValue={this.boundSetStringInputStateValue}
+              setImageInputStateValue={this.boundSetImageInputStateValue}
+              setDateInputStateValue={this.boundSetDateInputStateValue}
+              setSelectInputStateValue={this.boundSetSelectInputStateValue}>
+            </EditForm> 
+          </View>
+          <View style={ styles.footerContainer }>
+            <LifekeyFooter
+              backgroundColor="transparent"
+              leftButtonText="Cancel"
+              onPressLeftButton={this.onBoundPressCancel} 
+              rightButtonText="Save"
+              onPressRightButton={this.onBoundPressSave} 
+            />
+          </View>
+        </View>
+      :
+        <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
+    )
   }
 }
 
@@ -248,6 +267,7 @@ EditResource.propTypes = {
 
 // these are from Lifekeyrn
 EditResource.contextTypes = {
+  
   // behavior
   "onSaveResource": PropTypes.func,
 
@@ -255,6 +275,21 @@ EditResource.contextTypes = {
   "getEditResourceForm": PropTypes.func,
   "getEditResourceId": PropTypes.func,
   "getEditResourceName": PropTypes.func
+}
+
+const styles = {
+  container: {
+    "height": Dimensions.get('window').height,
+    "width": "100%",
+    "backgroundColor": Palette.consentOffBlack
+  },
+  "formContainer": {
+    "height": Dimensions.get('window').height - Design.lifekeyFooterHeight - StatusBar.currentHeight
+  },
+  "footerContainer": {
+    "height": Design.lifekeyFooterHeight,
+    "width": "100%"
+  }
 }
 
 export default EditResource

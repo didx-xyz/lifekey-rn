@@ -1,4 +1,4 @@
-// external dependencies
+
 import React from "react"
 import Svg, { Rect, Polygon } from "react-native-svg"
 import PropTypes from "prop-types"

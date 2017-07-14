@@ -1,21 +1,20 @@
 // external dependencies
 import React from "react"
-import { Text, View, Image } from "react-native"
+import { Text, View } from "react-native"
 import { Container } from "native-base"
 import Routes from '../Routes'
 import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
 import Api from '../Api'
-import ConsentUser from '../Models/ConsentUser'
 import BackButton from "../Components/BackButton"
 import BackIcon from "../Components/BackIcon"
-import Design from "../DesignParameters"
+import Verification from "../Components/SceneComponents/Verification"
 import Palette from "../Palette"
 import Scene from "../Scene"
-import LifekeyHeader from "../Components/LifekeyHeader"
-import Touchable from "../Components/Touchable"
 import Button from "../Components/Button"
+import ProgressIndicator from "../Components/ProgressIndicator"
+
 
 class FaceMatch extends Scene {
   constructor(...params) {
@@ -23,21 +22,75 @@ class FaceMatch extends Scene {
 
     this.state = {
       "progressCopy": "Loading...",
-      "imageAvailable": false, 
+      "asyncInProgress": true, 
       "imageDataUrl": "" 
     }
+
+    this.boundOnResultGiven = this.onResultGiven.bind(this)
+    this.boundOnChangeOfMind = this.onChangeOfMind.bind(this)
+    this.boundOnContinue = this.onContinue.bind(this)
   }
 
   componentDidMount() {
     this.loadImage()
   }
 
-  async onResultGiven(result){
-    const response = await Api.facialVerificationResult(this.state.userDid, this.state.userToken, result)
-    if(response.status === 200)
-      this.navigator.replace({
-        ...Routes.me
+  onResultGiven(result){
+    
+    this.setState({
+      "progressCopy": "Sending your answer...",
+      "asyncInProgress": true
+    }, () => {
+      // Api.facialVerificationResult(this.state.userDid, this.state.userToken, result).then(result => {
+      //   if(response.status === 200){
+          this.setState({
+            "asyncInProgress": false,
+            "userHasVerified": true,
+            "faceMatch": result 
+          })
+        // }
+        // else{
+        //   console.log("Facematch result non-200")
+        //   this.setState({
+        //     "asyncInProgress": true,
+        //     "userHasVerified": false
+        //   })
+        // }
+      // })
+      // .catch(error => {
+      //   console.log("Facematch error: ", error)
+      // })
+    })
+  }
+
+  
+  onChangeOfMind() {
+    this.setState({
+      "asyncInProgress": false,
+      "userHasVerified": false,
+      "faceMatch": null
+    })
+  }
+
+  onContinue() {
+
+    this.setState({
+      "progressCopy": "Sending your answer...",
+      "asyncInProgress": true
+    }, () => {
+      Api.facialVerificationResult(this.state.userDid, this.state.userToken, this.state.faceMatch).then(response => {
+        if(response.status === 200){
+          this.navigator.replace({ ...Routes.main })
+        }
+        else{
+          console.log("Facematch result non-200")
+          this.onChangeOfMind()
+        }
       })
+      .catch(error => {
+        console.log("Facematch error: ", error)
+      })
+    })
   }
 
   async loadImage() {
@@ -56,7 +109,7 @@ class FaceMatch extends Scene {
       const url = `data:image/jpeg;base64,${parsedValue.identityPhotograph}}`
 
       this.setState({
-        "imageAvailable": true,
+        "asyncInProgress": false,
         "imageDataUrl": url,
         "userDid": userdid,
         "userToken": token
@@ -71,42 +124,46 @@ class FaceMatch extends Scene {
   render() {
     return (
       <Container style={styles.container}>
-        <View style={styles.header}>
-          { /* <BackButton navigator={this.navigator} />
-          <Touchable onPress={this.onPressBottomLeftButton}>
-            <BackIcon { ...Design.backIcon } />
-          </Touchable> */}
-        </View> 
-        {
-          this.state.imageAvailable ? 
-          <View style={styles.content}>
-            <View style={styles.title}>
-              <Text style={styles.titleText}>Facial Verification</Text>
-            </View>
-            
-              <View style={styles.image}>
-                {/* Image goes here */}
-                { this.state.imageAvailable && <Image style={styles.profileImg} source={{ uri: this.state.imageDataUrl, scale: 1 }} /> }
-              </View>
-              <View style={styles.copyContainer}>
-                <Text style={styles.copyText}>Is this the person who's QR Code you scanned?</Text>
-              </View>
-              <View style={styles.actions}>
+      {
+        !this.state.asyncInProgress ? 
+          (this.state.imageDataUrl && !this.state.userHasVerified) ?
+            <Verification 
+              tone="affirmative" 
+              backgroundColor={ Palette.consentGrayLight }
+              imageUri={ this.state.imageDataUrl } 
+              titleText="Facial Verification"
+              messageText="Is this the person who's QR Code you scanned?" 
+              doubtText="I'm not sure"
+              onResultGiven={ this.onResultGiven.bind(this, "not sure") }>
                 <Button affirmative={false} buttonText={"No"} onClick={this.onResultGiven.bind(this, "no")} />
                 <Button affirmative={true} buttonText={"Yes"} onClick={this.onResultGiven.bind(this, "yes")} />
-              </View>
-              <View style={styles.footer}>
-                <Touchable onPress={this.onResultGiven.bind(this, "not sure")}>
-                  <Text style={styles.footerText}>I'm not sure</Text>
-                </Touchable>
-              </View>
-          </View>
+              </Verification>
+          :
+            this.state.faceMatch === "yes" ?
+              <Verification 
+                tone="affirmative" 
+                backgroundColor={ Palette.consentGrayLight }
+                imageUri={ this.state.imageDataUrl } 
+                titleText="Matched"
+                messageText="Thank you for your response." 
+                doubtText="I would like to change my mind"
+                onResultGiven={ this.boundOnChangeOfMind }>
+                  <Button affirmative={true} buttonText={"Continue"} onClick={ this.boundOnContinue } />
+              </Verification>
+            : 
+              <Verification
+                tone="negative" 
+                backgroundColor={ Palette.consentGrayLight }
+                imageUri={ this.state.imageDataUrl } 
+                titleText="No result"
+                messageText="Thank you, we have recorded your response and will follow up." 
+                doubtText="I would like to change my mind"
+                onResultGiven={ this.boundOnChangeOfMind }>
+                  <Button affirmative={true} buttonText={"Continue"} onClick={ this.boundOnContinue } />
+              </Verification>
         :
-          <View style={styles.progressContainer}>
-            <ActivityIndicator color={Palette.consentBlue} style={styles.progressIndicator}/> 
-            <Text style={styles.progressText}>{this.state.progressCopy}</Text>
-          </View>
-        }
+          <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
+      }
       </Container>
     )
   }
@@ -117,98 +174,6 @@ const styles = {
     "backgroundColor": Palette.consentGrayLight,
     "justifyContent": "center",
     "alignItems": "center"
-  },
-  "header": {
-    "height": "10%",
-    "width": "100%",
-    "flexDirection": "row",
-    "justifyContent": "flex-start",
-    "alignItems": "center",
-    "paddingLeft": Design.paddingLeft
-  },
-  "content": {
-    "flex": 1,
-    "width": "75%",
-    "justifyContent": "space-between"
-  },
-  "progressContainer": {
-    "flex": 1,
-    "alignItems": "center",
-    "justifyContent": "center"
-  },
-  "progressIndicator": {
-    "width": 75,
-    "height": 75 
-  },
-  "progressText":{
-    "color": Palette.consentGrayDark
-  },
-  "title":{
-    "flex": 1,
-    "justifyContent": "center",
-    "alignItems": "center"
-  },
-  "titleText": {
-    "fontSize": 28,
-    "color": Palette.consentBlue,
-    "fontWeight": "300"
-  },
-  "profileImg":{
-    "width": 175,
-    "height": 175
-  },
-  "image":{
-    "flex": 1,
-    "justifyContent": "center",
-    "alignItems": "center",
-  },
-  "copyContainer":{
-    "flex": 1,
-    "justifyContent": "center",
-    "alignItems": "center"
-  },
-  "copyText": {
-    "fontSize": 16,
-    "color": Palette.consentGrayDark,
-    "textAlign": "center",
-    "fontWeight": "300"
-  },
-  "actions":{
-    "flex": 1,
-    "flexDirection": "row",
-    "justifyContent": "center",
-    "alignItems": "flex-start"
-  },
-  "button": {
-    "paddingTop": Design.paddingTop,
-    "paddingBottom": Design.paddingBottom,
-    "paddingLeft": Design.paddingLeft * 2,
-    "paddingRight": Design.paddingRight * 2,
-    "borderRadius": 5
-  },
-  "buttonRight":{
-    "marginLeft": Design.paddingTop / 2,
-    "backgroundColor": Palette.consentBlue
-  },
-  "buttonLeft":{
-    "marginRight": Design.paddingTop / 2,
-    "backgroundColor": "red"
-  },
-  "buttonText": {
-    "fontSize": 18,
-    "color": "white",
-    "fontWeight": "300"
-  },
-  "footer": {
-    "flexDirection": "row",
-    "height": "10%",
-    "justifyContent": "center",
-    "alignItems": "flex-start"
-  },
-  "footerText": {
-    "fontSize": 16,
-    "color": Palette.consentBlue,
-    "fontWeight": "300"
   }
 }
 

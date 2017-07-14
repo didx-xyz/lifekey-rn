@@ -9,6 +9,7 @@ import {
   View,
   ScrollView,
   Dimensions,
+  StatusBar,
   Image,
   ToastAndroid
 } from 'react-native'
@@ -32,6 +33,8 @@ import ConsentUserConnectionMessage from '../Models/ConsentUserConnectionMessage
 import Logger from '../Logger'
 import Session from '../Session'
 import LifekeyHeader from '../Components/LifekeyHeader'
+import LifekeyFooter from '../Components/LifekeyFooter'
+import ProgressIndicator from "../Components/ProgressIndicator"
 import Design from '../DesignParameters'
 import Config from '../Config'
 import Scene from '../Scene'
@@ -198,7 +201,7 @@ class ConnectionDetails extends Scene {
         showHelp: false
       })
     } else {
-      this.navigator.pop()
+      this.navigator.resetTo({...Routes.main})
     }
   }
 
@@ -237,12 +240,10 @@ class ConnectionDetails extends Scene {
     switch (this.state.activeTab) {
       case CONNECT:
         return (
-          <View style={{ height: Dimensions.get('window').height - Design.lifekeyHeaderHeight }}>
+          <View style={{ height: Dimensions.get('window').height - Design.lifekeyHeaderHeight - StatusBar.currentHeight }}>
 
             <View style={styles.qrCodeWrap}>
-              <Image
-                source={{uri: `${Config.http.baseUrl}/qr/${this.state.user_did}` }}
-                style={{ width: 200, height: 200 }}
+              <Image source={{uri: `${Config.http.baseUrl}/qr/${this.state.user_did}` }} style={{ width: 200, height: 200 }}
               />
             </View>
 
@@ -252,55 +253,49 @@ class ConnectionDetails extends Scene {
               </Text>
             </View>
 
-            <View style={styles.connectFooterWrap}>
-              <View style={styles.centered}>
-                <Touchable onPress={() => alert('todo')}>
-                  <View>
-                    <HelpIcon width={36} height={36}/>
-                  </View>
-                </Touchable>
-              </View>
-              <View style={{ flex: 2 }}/>
-              <View style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <Touchable onPress={() => alert('todo')}>
-                  <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-                    <Icon name="ios-arrow-round-up" size={30} color="#000"/>
-                    <Text style={{ fontSize: 18, color: 'black', marginRight: 20 }}> Share</Text>
-                  </View>
-                </Touchable>
-              </View>
-            </View>
+            { /* <LifekeyFooter
+              color={ Palette.consentOffBlack }
+              backgroundColor={ Palette.consentGrayMedium }
+              leftButtonText=""
+              rightButtonText="Share"
+              leftButtonIcon={<Icon name="ios-arrow-round-up" size={Design.footerIconHeight} color="#000"/>}
+              onPressLeftButton={() => alert('todo')}
+              onPressRightButton={() => alert('todo')}
+            /> */ }
 
           </View>
         )
       case ACTIVITY:
-      return (
-        <ScrollView style={styles.messages}>
-          <View style={styles.message}>
-            <Text style={styles.messageText}>
-              Hi {this.state.current_user_display_name}. Thank you for connecting with {this.state.display_name}. Please select an action from the options below to continue.
-            </Text>
-            <Text style={styles.messageTime}>
-              2 mins
-            </Text>
-          </View>
-          <View style={styles.actions}>
-            <View style={styles.actionTitle}>
-              <Text style={styles.actionTitleText}>Invitations from {this.state.display_name}</Text>
+        return (
+          <ScrollView style={styles.messages}>
+            <View style={styles.message}>
+              <Text style={styles.messageText}>
+                Hi {this.state.current_user_display_name}. Thank you for connecting with {this.state.display_name}. Please select an action from the options below to continue.
+              </Text>
+              <Text style={styles.messageTime}>
+                2 mins
+              </Text>
             </View>
-            <View style={styles.actionList}>
-              {this.state.actions.map((action, i) =>
-                <Touchable key={i} onPress={() => this.callAction(action.name, action)}>
-                  <View style={styles.actionItem}>
-                    <HexagonIcon width={65} height={65} fill={Palette.consentGrayDarkest}/>
-                    <Text style={styles.actionItemText}>{action.name}</Text>
-                  </View>
-                </Touchable>
-              )}
+            <View style={styles.actions}>
+              <View style={ styles.actionTitle}>
+                <Text style={styles.actionTitleText}>Invitations from {this.state.display_name}</Text>
+              </View>
+              <View style={styles.actionList}>
+                {this.state.actions.map((action, i) =>
+                  <Touchable key={i} onPress={() => this.callAction(action.name, action)}>
+                    <View style={styles.actionItem}>
+                      <HexagonIcon width={70} height={70} fill={Palette.consentGrayDarkest}/>
+                      <Text style={styles.actionItemText}>{action.name}</Text>
+                    </View>
+                  </Touchable>
+                )}
+              </View>
             </View>
-          </View>
-          {this.renderConnectionMessages()}
-        </ScrollView>
+
+            {/* Connection messages from the brand go here */}
+            {this.renderConnectionMessages()}
+
+          </ScrollView>
         )
       case SHARED:
       return (
@@ -355,67 +350,62 @@ class ConnectionDetails extends Scene {
   }
 
   render() {
-    return (
-      this.state.loading_cxn_details ? (
+    return ( 
         <Container>
-          <View style={styles.progressContainer}>
-            <ActivityIndicator color={Palette.consentGrayDark} style={styles.progressIndicator}/> 
-            <Text style={styles.progressText}>Loading Connection Details...</Text>
+          <View style={styles.headerWrapper}>
+            <AndroidBackButton onPress={() => this.onHardwareBack()} />
+            <LifekeyHeader
+              backgroundColor={this.state.colour}
+              foregroundHighlightColor={this.state.foregroundColor}
+              icons={[
+                {
+                  icon: (<BackIcon width={16} height={16} stroke="#000" />),
+                  onPress: this.navigator.pop,
+                  borderColor: this.state.colour
+                },
+                {
+                  icon: (
+                    <View style={styles.centredRow}>
+                      <Image source={{uri: this.state.image_uri}} style={styles.fullWidthHeight} />
+                    </View>
+                  ),
+                  onPress: () => this.setState({activeTab: ACTIVITY}),
+                  borderColor: this.state.colour
+                },
+                {
+                  icon: <InfoIcon width={24} height={24} stroke="#000" />,
+                  onPress: () => this.setState({activeTab: HELP}),
+                  borderColor: this.state.colour
+                }
+              ]}
+              tabs={[
+                {
+                  text: 'Connect',
+                  onPress: () => this.setState({activeTab: CONNECT}),
+                  active: this.state.activeTab === CONNECT
+                },
+                {
+                  text: 'Activity',
+                  onPress: () => this.setState({activeTab: ACTIVITY}),
+                  active: this.state.activeTab === ACTIVITY
+                },
+                {
+                  text: 'Shared',
+                  onPress: () => this.setState({activeTab: SHARED}, this.loadISAs.bind(this)),
+                  active: this.state.activeTab === SHARED
+                }
+              ]} />
           </View>
-        </Container>
-      ) : (
-        <Container>
-        <View style={styles.headerWrapper}>
-          <AndroidBackButton onPress={() => this.onHardwareBack()} />
-          <LifekeyHeader
-            backgroundColor={this.state.colour}
-            foregroundHighlightColor={this.state.foregroundColor}
-            icons={[
-              {
-                icon: (<BackIcon width={16} height={16} stroke="#000" />),
-                onPress: this.navigator.pop,
-                borderColor: this.state.colour
-              },
-              {
-                icon: (
-                  <View style={styles.centredRow}>
-                    <Image source={{uri: this.state.image_uri}}
-                          style={styles.fullWidthHeight} />
-                  </View>
-                ),
-                onPress: () => this.setState({activeTab: ACTIVITY}),
-                borderColor: this.state.colour
-              },
-              {
-                icon: <InfoIcon width={24} height={24} stroke="#000" />,
-                onPress: () => this.setState({activeTab: HELP}),
-                borderColor: this.state.colour
-              }
-            ]}
-            tabs={[
-              {
-                text: 'Connect',
-                onPress: () => this.setState({activeTab: CONNECT}),
-                active: this.state.activeTab === CONNECT
-              },
-              {
-                text: 'Activity',
-                onPress: () => this.setState({activeTab: ACTIVITY}),
-                active: this.state.activeTab === ACTIVITY
-              },
-              {
-                text: 'Shared',
-                onPress: () => this.setState({activeTab: SHARED}, this.loadISAs.bind(this)),
-                active: this.state.activeTab === SHARED
-              }
-            ]} />
-        </View>
-        <Content style={styles.content}>
-          {this.renderTab()}
-        </Content>
+        { 
+          this.state.loading_cxn_details ? 
+            <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
+          :
+            <Content style={styles.content}>
+              {this.renderTab()}
+            </Content>
+        }
         </Container>
       )
-    )
   }
 }
 
@@ -466,7 +456,7 @@ const styles = {
     flexDirection: "column"
   },
   message: {
-    backgroundColor: "#fff",
+    backgroundColor: Palette.consentOffWhite,
     margin: 10,
     padding: 10,
     borderRadius: 5,
@@ -478,25 +468,27 @@ const styles = {
     fontSize: 14
   },
   messageTime: {
-    color: "#c2c4c6",
-    alignSelf: "flex-end",
+    color: Palette.consentGray,
+    alignSelf: "flex-start",
     fontSize: 14
   },
   actions: {
     margin: 10,
     marginTop: 0,
     borderRadius: 5,
-    backgroundColor: "#fff"
+    backgroundColor: Palette.consentOffWhite
   },
   actionTitle: {
-    backgroundColor: "#bac2ca",
+    backgroundColor: Palette.consentGrayLightest,
     padding: 15,
     borderTopLeftRadius: 5,
-    borderTopRightRadius: 5
+    borderTopRightRadius: 5,
+    borderColor: "red",
+    borderBottomWidth: 1
   },
   actionTitleText: {
     textAlign: "center",
-    color: "#fff"
+    color: Palette.consentOffBlack
   },
   actionList: {
     flex: 1,
@@ -515,8 +507,9 @@ const styles = {
   actionItemText: {
     textAlign: "center",
     backgroundColor: "transparent",
-    color: "#62686d",
-    fontSize: 12
+    color: Palette.consentOffBlack,
+    fontSize: 12,
+    paddingTop: Design.paddingTop / 2
   },
   qrCodeWrap: {
     flex: 6,

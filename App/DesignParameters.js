@@ -13,11 +13,11 @@ export default {
 		"height": 18
 	},
 	"lifekeyHeaderHeight": 115,
-	"headerIconWidth": 38,
-	"headerIconHeight": 38,
-	"footer":{
-		"height": 100
-	},
+	"lifekeyFooterHeight": 100,
+	"headerIconWidth": 40,
+	"headerIconHeight": 40,
+	"footerIconWidth": 25,
+	"footerIconHeight": 25,
 	"fonts": {
 		"registration": "Roboto",
 	},

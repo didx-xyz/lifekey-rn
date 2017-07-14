@@ -15,34 +15,34 @@ import RcItemDetail from "./ResourceComponents/rc-DetailView"
 import MobileIcon from "../Components/MobileIcon"
 import LandlineIcon from "../Components/LandlineIcon"
 import EnvelopeIcon from "../Components/EnvelopeIcon"
+import LocationIcon from "../Components/LocationIcon"
 import Design from "../DesignParameters"
 import Palette from "../Palette"
 
 class LcContactDetail extends Component {
-  
-  constructor(props) {
-    super(props)
-  }
 
   mobileIcon (listCardHeading) {
     switch (listCardHeading) {
       case "Mobile Phone":
-        return (<MobileIcon width={22} height={30} stroke="#666" />)
+        return (<MobileIcon width={22} height={30} stroke={Palette.consentGrayDark} />)
         break;
       case "Landline":
-        return (<LandlineIcon width={28} height={18} stroke="#666" />)
+        return (<LandlineIcon width={28} height={18} stroke={Palette.consentGrayDark} />)
         break;
       case "Email":
-        return (<EnvelopeIcon width={28} height={18} stroke="#666" />)
+        return (<EnvelopeIcon width={28} height={18} stroke={Palette.consentGrayDark} />)
+        break;
+      case "Address":
+        return (<LocationIcon width={28} height={18} stroke={Palette.consentGrayDark} />)
         break;
       default:
-        return (<EnvelopeIcon width={28} height={18} stroke="#666" />)
+        return (<EnvelopeIcon width={28} height={18} stroke={Palette.consentGrayDark} />)
     } 
   }
 
   render () {
   
-    const { expanded, listCardHeading, listCardPrimaryDetail, listCardSecondaryDetails } = this.props
+    const { expanded, listCardHeading, listCardPrimaryDetail, listCardSecondaryDetail, listCardTertiaryDetail } = this.props
     console.log("PROPS: ", listCardHeading)
 
     if(expanded)
@@ -58,11 +58,9 @@ class LcContactDetail extends Component {
            { this.mobileIcon(listCardHeading) }    
           </View>
           <View style={styles.listBody}>
-            <Text style={styles.listBodySubtitle}> {listCardHeading} </Text>
-            <Text style={styles.listBodyPrimaryContent}> { listCardPrimaryDetail.length > 18 ? `${listCardPrimaryDetail.substring(0, 17)}...` : listCardPrimaryDetail } </Text>
-            <View>
-              { this.props.listCardSecondaryDetails.map((sdetail, i) => <Text key={i} style={ styles.listBodySecondaryContent }> {sdetail} </Text> )}
-            </View>
+            { !!listCardPrimaryDetail &&  <Text style={styles.listBodyPrimaryContent}> { listCardPrimaryDetail.length > 18 ? `${listCardPrimaryDetail.substring(0, 17)}...` : listCardPrimaryDetail } </Text> }
+            { !!listCardSecondaryDetail && <Text style={styles.listBodySecondaryContent}>{ listCardSecondaryDetail }</Text> }
+            { !!listCardTertiaryDetail && <Text style={styles.listBodyTertiaryContent}>{ listCardTertiaryDetail }</Text> }
           </View>
         </View>
       )
@@ -73,14 +71,17 @@ LcContactDetail.propTypes = {
   "expanded": PropTypes.bool,
   "listCardHeading": PropTypes.string,
   "listCardPrimaryDetail": PropTypes.string,
-  "listCardSecondaryDetails": PropTypes.array,
+  "listCardSecondaryDetail": PropTypes.string,
+  "listCardTertiaryDetail": PropTypes.string,
   "listImageUrl": PropTypes.string
 }
 
 const styles = {
   "listCard":{
     "width": "100%",
-    "flexDirection": "row"
+    "flexDirection": "row",
+    "justifyContent": "center",
+    "alignItems": "center",
   },
   "listImageContainer":{
     "flex": 1,
@@ -101,7 +102,7 @@ const styles = {
     "paddingBottom": 5, 
   },
   "listBodyTitle":{
-    "fontSize": 16,
+    "fontSize": 18,
     "color": Palette.consentGrayDark
   },
   "listBodySubtitle":{
@@ -113,7 +114,11 @@ const styles = {
     "color": Palette.consentGray
   },
   "listBodySecondaryContent":{
-    "fontSize": 12,
+    "fontSize": 18,
+    "color": Palette.consentGray
+  },
+  "listBodyTertiaryContent":{
+    "fontSize": 14,
     "color": Palette.consentGray
   },
   "unexpandedListCard": {

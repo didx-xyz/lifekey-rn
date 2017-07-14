@@ -28,7 +28,9 @@ class LifekeyHeader extends Component {
       <View style={style.navigation}>
         {
           this.props.icons.map((icon, i) => {
-            const position = i === 0 ? { "justifyContent" : "flex-start" } : i === this.props.icons.length - 1 ? { "justifyContent" : "flex-end" } : {}
+
+            const containerPosition = i === 0 ? style.leftContainer : i ===  1 ? {} : style.rightContainer
+            const mainIconStyle = i === 1 ? style.mainHeaderIcon : {}
             const template = 
             (
               <View key={i}>
@@ -36,19 +38,19 @@ class LifekeyHeader extends Component {
                   
                   {
                     i !== this.props.icons.length - 1 ?
-                      (<View style={Object.assign({"justifyContent": "center"}, style.container, position)}>
-                        <View style={style.headerIcon}>{icon.icon}</View>
-                        { 
-                          icon.secondaryItem && <View style={ style.secondaryItemContainer }>{icon.secondaryItem}</View> 
-                        }
-                      </View>)
+                      (
+                        <View style={Object.assign({}, style.container, containerPosition)}>
+                          <View style={Object.assign({}, style.headerIcon, mainIconStyle)}>{icon.icon}</View>
+                          { icon.secondaryItem && <View style={ style.secondaryItemContainer }>{icon.secondaryItem}</View> }
+                        </View>
+                      )
                     :
-                      (<View style={Object.assign({"justifyContent": "center"}, style.container, position)}>
-                        { 
-                          icon.secondaryItem && <View style={ style.secondaryItemContainer }>{icon.secondaryItem}</View> 
-                        }
-                        <View style={style.headerIcon}>{icon.icon}</View>
-                      </View>)
+                      (
+                        <View style={Object.assign({}, style.container, containerPosition)}>
+                          { icon.secondaryItem && <View style={ style.secondaryItemContainer }>{icon.secondaryItem}</View> }
+                          <View style={style.headerIcon}>{icon.icon}</View>
+                        </View>
+                      )
                   }
 
                 </Touchable>
@@ -62,20 +64,17 @@ class LifekeyHeader extends Component {
   }
 
   renderTabs() {
+    
     return (
       <View style={style.tabs}>
         {
           this.props.tabs.map((tab, i) => {
             return (
               <Touchable key={i} onPress={tab.onPress}>
-                <View style={
-                  tab.active ? (
-                    _.assign({}, style.tab, {borderBottomWidth: 2, borderColor: this.props.foregroundHighlightColor})
-                  ) : style.tab
-                }>
+                <View style={style.tab}>
                   <Text style={
                     tab.active ? (
-                      _.assign({}, style.tabText, {color: this.props.foregroundHighlightColor})
+                      Object.assign({}, style.tabText, {color: this.props.foregroundHighlightColor, borderBottomWidth: 2, borderColor: this.props.foregroundHighlightColor})
                     ) : style.tabText
                   }>{tab.text.toUpperCase()}</Text>
                 </View>
@@ -89,18 +88,41 @@ class LifekeyHeader extends Component {
 
   render() {
     return (
-      <View style={_.assign({}, style.header, { backgroundColor: this.props.backgroundColor })}>
+      <View style={Object.assign({}, style.header, { backgroundColor: this.props.backgroundColor })}>
         {this.renderIcons()}
         {this.renderTabs()}
       </View>
     )
   }
 }
+ 
 
 const style = {
   header: {
-    // backgroundColor: "white",
-    flex: 1
+    height: 115
+  },
+  container: {
+    flex: 1,
+    minWidth: 80,
+    flexDirection: "row",
+    alignItems: "center",
+    "justifyContent" : "center"
+  },
+  leftContainer: {
+    "justifyContent" : "flex-start"
+  },
+  rightContainer: {
+    "justifyContent" : "flex-end"
+  },
+  headerIcon: {
+    width: 40,
+    height: 40,
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  mainHeaderIcon: {
+    width: 42,
+    height: 48
   },
   navigation: {
     flex: 2,
@@ -108,21 +130,7 @@ const style = {
     paddingLeft: Design.paddingLeft,
     flexDirection: "row",
     justifyContent: "space-between",
-  },
-  container: {
-    flex: 1,
-    minWidth: 80,
-    flexDirection: "row",
-    // justifyContent: "center",
-    alignItems: "center"
-  },
-  headerIcon: {
-    width: 50,
-    height: 50,
-    // overflow: "hidden",
-    justifyContent: "center",
-    alignItems: "center"
-  },
+  },  
   secondaryItemContainer: {
     // position: "absolute",
     // left: 0,
@@ -146,6 +154,7 @@ const style = {
     alignItems: "center"
   },
   tabText: {
+    flex: 1,
     fontSize: Design.navigationTabFontSize,
     color: Palette.consentGray,
     fontWeight: "bold"
@@ -160,8 +169,8 @@ LifekeyHeader.propTypes = {
 }
 
 LifekeyHeader.defaultProps = {
-  backgroundColor: "white",
+  backgroundColor: Palette.consentWhite,
   foregroundHighlightColor: Palette.consentBlue,
-  foregroundColor: "black"
+  foregroundColor: Palette.consentOffBlack
 }
 export default LifekeyHeader

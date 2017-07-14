@@ -4,6 +4,7 @@ import {
   Text,
   View,
   Dimensions,
+  StatusBar,
   ToastAndroid,
   Image
 } from "react-native"
@@ -13,7 +14,11 @@ import * as Nachos from 'nachos-ui'
 import BackButton from "../Components/BackButton"
 import HelpIcon from "../Components/HelpIcon"
 import HexagonIcon from "../Components/HexagonIcon"
+import CircularImage from "../Components/CircularImage"
+import LifekeyFooter from '../Components/LifekeyFooter'
 import Scene from "../Scene"
+import Design from "../DesignParameters"
+import Palette from "../Palette"
 import Routes from "../Routes"
 import Util from "../Util"
 import Touchable from "../Components/Touchable"
@@ -90,7 +95,7 @@ class Connection extends Scene {
       })
       .catch(error => {
         ToastAndroid.show(`Could not connect...`, ToastAndroid.SHORT)
-        console.log("--------------------------------- ERROR: ", error)
+        // console.log("--------------------------------- ERROR: ", error)
         Logger.warn(JSON.stringify(error))
         this.setState({
           connecting: false
@@ -112,147 +117,140 @@ class Connection extends Scene {
     const iconSize = screenWidth / 25
 
     return (
-      <Container>
+      <View style={styles.content}>
         <BackButton navigator={this.navigator} />
-        <View style={styles.content}>
+        <StatusBar hidden={true} />
+
+        <View style={ {flex: 1} }>
           <View style={styles.logo}>
-            {/* logo goes here 
-            <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/> */}
-            <Image style={{height: "100%", width: "100%"}} source={{ uri: this.props.route.image_uri }}/> 
+            <CircularImage uri={ this.props.route.image_uri } radius={32} borderColor={ Palette.consentWhite } />
+            {/* <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/>  */}
           </View>
-          <View style={styles.name}>
-            <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text>
-          </View>
+          <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text>
+          
 
-          {this.state.isVerified &&
+          {
+            this.state.isVerified &&
             <View style={styles.verified}>
-              <View style={{
-                flexDirection: 'row',
-                width: 76,
-                marginLeft: screenWidth / 2 - 38
-              }}>
-
-                <View style={{
-                  flexDirection: 'column',
-                  justifyContent: 'center',
-                  alignItems: 'center'
-                }}>
-                  <VerifiedIcon width={iconSize} height={iconSize} />
-                </View>
-
-                <Text style={[styles.verifiedText, { flex: 1, textAlign: 'center' }]}>Verified</Text>
-              </View>
-
-
+                <VerifiedIcon width={iconSize} height={iconSize} />
+                <Text style={ styles.verifiedText }>Verified</Text>
             </View>
           }
 
-          <View style={styles.connected}>
+          { /* <View style={styles.connected}>
             <Text style={styles.connectedText}>Connected to 3,421 people.</Text>
-          </View>
-          <View style={styles.greeting}>
-            <Text
-              style={styles.greetingText}>Hi there {Util.ucfirst(ConsentUser.getDisplayNameSync())}. Connecting with {Util.ucfirst(this.props.route.display_name)} will allow you to:</Text>
-          </View>
-          <View style={styles.actions}>
-            { this.state.actions.map((action, i) =>
-              <Text key={i} style={styles.actionsText}>• {action.name}.</Text>
-            )}
-          </View>
-          <View style={styles.connect}>
+          </View> */ }
+          <Text style={ styles.greetingText }>Hi there {Util.ucfirst(ConsentUser.getDisplayNameSync())}. Connecting with {Util.ucfirst(this.props.route.display_name)} will allow you to:</Text>
+          
+          { this.state.actions.map((action, i) =>
+            <Text key={i} style={styles.actionsText}>• {action.name}.</Text>
+          )}
+          
+          <View style={styles.connectButtonContainer}>
             { this.state.connecting ?
-              <Nachos.Spinner color="blue"/>
+              <Nachos.Spinner color={Palette.consentBlue}/>
             :
               <Touchable onPress={this.onBoundPressConnect}>
                 <View>
-                  <HexagonIcon width={100} height={100} textSize={19} textX={18} textY={39} text="Connect" />
+                  <HexagonIcon width={100} height={100} textSize={18} textX={22} textY={43} text="Connect" />
                 </View>
               </Touchable>
             }
           </View>
-          <View style={styles.footer}>
-            <View style={styles.help}>
-              <Touchable onPress={this.onBoundPressHelp}>
-                <HelpIcon width={28} height={28} stroke="#666" />
-              </Touchable>
-            </View>
-            <View style={styles.decline}>
-              <Touchable onPress={this.onBoundPressDecline}>
-                <Text style={styles.declineText}>Not now</Text>
-              </Touchable>
-            </View>
-          </View>
+        
+
         </View>
-      </Container>
+
+        <LifekeyFooter
+          color={ Palette.consentOffBlack }
+          backgroundColor={ Palette.consentWhite }
+          leftButtonText=""
+          rightButtonText="Not now"
+          leftButtonIcon={<HelpIcon width={Design.footerIconWidth} height={Design.footerIconHeight} stroke={Palette.consentOffBlack} />}
+          onPressLeftButton={this.onBoundPressHelp}
+          onPressRightButton={this.onBoundPressDecline}
+        />
+      </View>
     )
   }
 }
 
 const styles = {
   "content": {
-    "flex": 1,
-    "backgroundColor": "#c6cdd3"
+    "height": Dimensions.get('window').height,
+    "backgroundColor": Palette.consentWhite,
+    "paddingTop": Design.paddingTop*2
   },
   "logo": {
-    "height": "13%",
+    "height": 64,
     "justifyContent": "center",
     "alignItems": "center"
   },
-  "name": {
-    "height": "5%",
-    flexDirection: "column",
-    "justifyContent": "center",
-    "alignItems": "center"
-  },
+  // "name": {
+  //   // "height": "5%",
+  //   flexDirection: "column",
+  //   "justifyContent": "center",
+  //   "alignItems": "center"
+  // },
   "nameText": {
-    "color": "#666",
-    "fontSize": 18,
-    "textAlign": "center",
-    marginTop: 5
+    "color": Palette.consentOffBlack,
+    "fontSize": 20,
+    "margin": 5,
+    "textAlign": "center"
   },
   "verified": {
-    "height": "3%"
+    flexDirection: 'row',
+    justifyContent: 'center',
+    alignItems: 'center'
   },
   "verifiedText": {
-    "color": "#666",
+    fontSize: 14,
+    "color": Palette.consentOffBlack,
+    "marginLeft": 3
   },
-  "connected": {
-    "height": "3%",
-    "justifyContent": "center",
-    "alignItems": "center",
-    "marginTop": "2%"
-  },
-  "connectedText": {
-    "color": "#666"
-  },
-  "greeting": {
-    "height": "17%",
-    "justifyContent": "flex-end",
-    "flexDirection": "column",
-    "paddingLeft": "17%",
-    "paddingRight": "17%",
-    "paddingBottom": "5%"
-  },
+  // "connected": {
+  //   "height": "3%",
+  //   "justifyContent": "center",
+  //   "alignItems": "center",
+  //   "marginTop": "2%"
+  // },
+  // "connectedText": {
+  //   "color": Palette.consentGrayDarkest
+  // },
+  // "greeting": {
+  //   "height": "17%",
+  //   "justifyContent": "flex-end",
+  //   "flexDirection": "column",
+  //   "paddingLeft": "17%",
+  //   "paddingRight": "17%",
+  //   "paddingBottom": "5%"
+  // },
   "greetingText": {
+    "color": Palette.consentGrayDark,
     "textAlign": "center",
-    "width": "100%",
-    "color": "#999",
-    "fontSize": 15
+    "width": "75%",
+    "fontSize": 18,
+    "paddingTop": 64,
+    "paddingBottom": 32,
+    "marginLeft": "12.5%",
+    "marginRight": "12.5%"
   },
-  "actions": {
-    "height": "17%",
-    "alignItems": "center",
-    "paddingLeft": "17%",
-    "paddingRight": "17%"
-  },
+  // "actions": {
+  //   "height": "17%",
+  //   "alignItems": "center",
+    
+  // },
   "actionsText": {
+    "fontSize": 14,
     "textAlign": "left",
-    "width": "100%",
-    "color": "#666",
-    "marginTop": 5
+    "width": "50%",
+    "marginLeft": "25%",
+    "marginRight": "25%",
+    "marginTop": 5,
+    "color": Palette.consentOffBlack,
   },
-  "connect": {
-    "height": "25%",
+  "connectButtonContainer": {
+    "flex": 1,    
     "justifyContent": "center",
     "alignItems": "center"
   },

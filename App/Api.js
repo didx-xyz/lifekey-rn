@@ -334,8 +334,6 @@ export default class Api {
     // Try fetch from cache first 
     let cached = ConsentUser.getCached("profile")
 
-    
-
     if(cached){
       console.log('return cached profile')
       console.log("CACHED:::: ", cached)
@@ -345,22 +343,22 @@ export default class Api {
     // else
     return request('/profile', { method: 'GET' }, true).then(data => {
       const profile = data.body
-      ConsentUser.setCached('profile', profile, milliseconds )
+      ConsentUser.updateProfile(profile)
       return profile
     }) 
   }
 
   // 5.5 POST /profile/:did
   static setProfile(data) {
-    checkParameters([
-      'contactAddress',
-      'contactEmail',
-      'contactTelephone',
-      'displayName',
-      'label',
-      'profileColour',
-      'profileImageUri'
-    ], data)
+    // checkParameters([
+    //   'contactAddress',
+    //   'contactEmail',
+    //   'contactTelephone',
+    //   'displayName',
+    //   'label',
+    //   'profileColour',
+    //   'profileImageUri'
+    // ], data)
     return request('/profile', {
       method: 'POST',
       body: JSON.stringify(data)
@@ -408,9 +406,6 @@ export default class Api {
   // #########################
 
   static trustBankLogin(data){
-
-    // console.log("GOT TO API: ", typeof data, " | ", data)
-
     checkParameters([
       'created_by',
       'challenge'

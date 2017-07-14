@@ -1,15 +1,18 @@
 // external dependencies
 import React from "react"
-import { ToastAndroid } from "react-native"
+import { View, ToastAndroid, Dimensions, StatusBar } from "react-native"
 import PropTypes from "prop-types"
 
 // internal dependencies
 import Api from "../Api"
 import Scene from "../Scene"
 import ConsentUser from "../Models/ConsentUser"
-import EditForm from "./Forms/EditForm"
+import EditForm from "../Components/SceneComponents/EditForm"
+import LifekeyFooter from "../Components/LifekeyFooter"
+import ProgressIndicator from "../Components/ProgressIndicator"
 import Countries from "../Countries"
 import Languages from "../Languages"
+import Design from "../DesignParameters"
 import Palette from "../Palette"
 import Routes from "../Routes"
 import Logger from '../Logger'
@@ -40,6 +43,7 @@ class EditProfile extends Scene {
   }
 
   onPressSave() {
+
     const data = {}
     const keys = this.state.entities.map(entity => entity.name)
     const values = keys.map(key => this.state.formTarget[key] || '')
@@ -209,6 +213,9 @@ class EditProfile extends Scene {
         case "displayName":
           formTarget["display_name"] = newValue["displayName"] 
           break
+        case "profileImageUri":
+          formTarget["image_uri"] = newValue["profileImageUri"] 
+          break
         case "contactAddress":
           formTarget["address"] = newValue["contactAddress"]
           break
@@ -245,18 +252,37 @@ class EditProfile extends Scene {
   }
 
   render() {
-    return (<EditForm 
-      formTarget={this.state.formTarget}
-      entities={this.state.entities}
-      onPressSave={this.onBoundPressSave} 
-      onPressCancel={this.onBoundPressCancel} 
-      setStringInputStateValue={this.boundSetStringInputStateValue}
-      setImageInputStateValue={this.boundSetImageInputStateValue}
-      setDateInputStateValue={this.boundSetDateInputStateValue}
-      setSelectInputStateValue={this.boundSetSelectInputStateValue}
-      asyncActionInProgress={this.state.asyncActionInProgress}
-      progressCopy={this.state.progressCopy}></EditForm>)
+
+    
+    return (    
+      !this.state.asyncActionInProgress ?
+        <View style={ styles.container }>
+          <View style={ styles.formContainer }>
+            <EditForm 
+              formTarget={this.state.formTarget}
+              entities={this.state.entities}
+              backgroundColor="transparent"
+              setStringInputStateValue={this.boundSetStringInputStateValue}
+              setImageInputStateValue={this.boundSetImageInputStateValue}
+              setDateInputStateValue={this.boundSetDateInputStateValue}
+              setSelectInputStateValue={this.boundSetSelectInputStateValue}>
+            </EditForm> 
+          </View>
+          <View style={ styles.footerContainer }>
+            <LifekeyFooter
+              backgroundColor="transparent"
+              leftButtonText="Cancel"
+              onPressLeftButton={this.onBoundPressCancel} 
+              rightButtonText="Save"
+              onPressRightButton={this.onBoundPressSave} 
+            />
+          </View>
+        </View>
+      :
+        <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
+      )
   }
+
 }
 
 EditProfile.propTypes = {
@@ -272,6 +298,21 @@ EditProfile.contextTypes = {
   "getEditResourceForm": PropTypes.func,
   "getEditResourceId": PropTypes.func,
   "getEditResourceName": PropTypes.func
+}
+
+const styles = {
+  container: {
+    "height": Dimensions.get('window').height,
+    "width": "100%",
+    "backgroundColor": Palette.consentOffBlack
+  },
+  "formContainer": {
+    "height": Dimensions.get('window').height - Design.lifekeyFooterHeight - StatusBar.currentHeight
+  },
+  "footerContainer": {
+    "height": Design.lifekeyFooterHeight,
+    "width": "100%"
+  }
 }
 
 export default EditProfile

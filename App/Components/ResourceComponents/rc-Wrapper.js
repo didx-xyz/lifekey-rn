@@ -8,6 +8,7 @@ import LcContactDetail from "../lc-ContactDetail"
 import LcEmployment from "../lc-Employment"
 import LcIdentity from "../lc-Identity"
 import LcPerson from "../lc-Person"
+import LcProfile from "../lc-Profile"
 import LcImageDocument from "../lc-ImageDocument"
 
 class RcWrapper extends Component {
@@ -15,16 +16,18 @@ class RcWrapper extends Component {
   renderComponent(resource, resourceType, index){
 
     switch (resourceType.name) {
+      case('Public Profile'):
+        return <LcProfile {...resource} />
       case('Person'):
         return <LcPerson {...resource} />
       case('Identity'):
         return  <LcIdentity {...resource} />
       case('Mobile Phone'):
-        return <LcContactDetail listCardHeading={resourceType.name} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
+        return <LcContactDetail listCardHeading={resource.label} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
       case('Landline'):
-        return <LcContactDetail listCardHeading={resourceType.name} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
+        return <LcContactDetail listCardHeading={resource.label} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
       case('Email'):
-        return <LcContactDetail listCardHeading={resourceType.name} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
+        return <LcContactDetail listCardHeading={resource.label} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
       case('Address'):
         return <LcHomeAddress {...resource} expanded={ false }/>
       case('Employment'):
@@ -38,7 +41,7 @@ class RcWrapper extends Component {
 
   render() {
 
-    const { resourceType, onPressEdit, onPressDelete, onEditResource } = this.props
+    const { resourceType, onPressEdit, onPressDelete, onPressProfile, onEditResource } = this.props
     
     return (
       <View>
@@ -46,12 +49,13 @@ class RcWrapper extends Component {
           resourceType.items.map((resource, i) => {  
 
             const pendingState = resource.pending ? { "opacity": 0.3 } : {}
-            const onEdit = !resource.pending ? () => this.props.onEdit.bind(this) : null
-            const onDelete = !resource.pending ? () => this.props.onDelete.bind(this) : null
+            const onEdit = resourceType.name === "Public Profile" ? onPressProfile  : onPressEdit.bind(this, resource.form, resource.id, resourceType.name)
+            const onDelete = resourceType.name === "Public Profile" ? null  : onPressDelete.bind(this, resource.id)
+            const heading = resourceType.name === "Public Profile" ? "Public Profile" : resource.label
 
             return (
               <View key={i} style={pendingState}>
-                <LifekeyCard  headingText={resourceType.name} onPressEdit={() => onPressEdit(resource.form, resource.id, resourceType.name)} onPressDelete={() => onPressDelete(resource.id)} >
+                <LifekeyCard  headingText={heading} expandable={false} onPressEdit={onEdit} onPressDelete={onDelete} >
                   { this.renderComponent(resource, resourceType, i) }
                 </LifekeyCard>
               </View>

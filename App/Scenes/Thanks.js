@@ -185,6 +185,7 @@ export default class Thanks extends Scene {
   }
 
   render() {
+    
     var icons = [
       {
         // back button
@@ -194,7 +195,6 @@ export default class Thanks extends Scene {
       },
       {
         // smiling face in conversation bubble
-        // icon: (<Image source={require('../Images/smiley_speech_bubble.png')} />),
         icon: (<ThanksIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Palette.consentGrayDarkest}/>),
         borderColor: "white"
       },
@@ -206,7 +206,6 @@ export default class Thanks extends Scene {
       }
     ], tabs = [
       {
-        
         text: 'Offers',
         onPress: _ => alert('not implemented'),
         active: this.state.activeTab === TAB_OFFERS
@@ -220,10 +219,8 @@ export default class Thanks extends Scene {
 
     return (
       <Container>
-        <View style={{borderColor: Palette.consentGrayDark, height: 120}}>
-          <AndroidBackButton onPress={this.hardwareBack.bind(this)} />
-          <LifekeyHeader icons={icons} tabs={tabs} />
-        </View>
+        <AndroidBackButton onPress={this.hardwareBack.bind(this)} />
+        <LifekeyHeader icons={icons} tabs={tabs} />
         <Content style={{backgroundColor: Palette.consentGrayLight}}>
           <Col style={style.flexOne}>
             <View style={style.tab}>{
