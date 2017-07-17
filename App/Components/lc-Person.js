@@ -19,10 +19,6 @@ import Anonymous from "../Images/anonymous_person"
 import RcItemDetail from "./ResourceComponents/rc-DetailView"
 
 class LcPerson extends Component {
-  
-  constructor(props) {
-    super(props)
-  }
 
   render () {
 
@@ -74,8 +70,9 @@ class LcPerson extends Component {
           </View>
           <View style={styles.listBody}>
             <Text style={styles.listBodyContent}>{firstName} {lastName}</Text>
-            <Text style={styles.listBodyTitle}>{preferredLanguageName}</Text>
             <Text style={styles.listBodySubtitle}>{nationalityName}</Text>
+            <Text style={styles.listBodySubtitle}>{birthDate}, {birthPlace}</Text>
+            <Text style={styles.listBodySubtitle}>{preferredLanguageName}</Text>
           </View>
         </View>
       )
@@ -96,6 +93,7 @@ const styles = {
   "image":{
     "height": "100%",
     "width": "100%",
+    "minHeight": 90,
     "resizeMode": "contain",
   },
   "listBody":{
@@ -105,11 +103,11 @@ const styles = {
     "paddingBottom": 5, 
   },
   "listBodyTitle":{
-    "fontSize": 16,
+    "fontSize": 18,
     "color": Palette.consentGrayDark
   },
   "listBodySubtitle":{
-    "fontSize": 10,
+    "fontSize": 12,
     "color": Palette.consentGrayMedium
   },
   "listBodyContent":{

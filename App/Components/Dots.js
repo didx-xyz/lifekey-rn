@@ -4,7 +4,8 @@ import { Dimensions } from "react-native"
 import Svg, { Path, Circle, Rect } from "react-native-svg"
 import PropTypes from "prop-types"
 
-const Dots  = function(props) {
+const Dots = function(props) {
+  
   const { width } = Dimensions.get("window")
 
   const usedWidth = props.width || width

@@ -619,6 +619,7 @@ export default class ConsentUser {
 
   static updateProfile(profile) {
     console.log("UPDATED PROFILE: ", profile)
+    profile.profileImageUri = profile && profile.image_uri ? `data:image/jpg;base64,${profile.image_uri}` : Anonymous.uri
     ConsentUser.setCached('profile', profile, 300000)
   }
 

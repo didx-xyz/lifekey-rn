@@ -11,6 +11,7 @@ import Routes from '../../Routes'
 import Palette from '../../Palette'
 import Api from '../../Api'
 import CameraCrosshair from '../../Components/CameraCrosshair'
+import LifekeyFooter from '../../Components/LifekeyFooter'
 import {
   Text,
   StyleSheet,
@@ -73,22 +74,6 @@ export default class QRCodeScanner extends Scene {
       )
     )
   }
-
-  // connect(data) {
-  //   this.navigator.push({
-  //     ...Routes.connection,
-  //     did: data.data,
-  //     display_name: null // can either be in QR code or fetched http
-  //   })
-  // }
-
-  // _onBarCodeRead(data) {
-  //   // alert(JSON.stringify(data))
-  //   if (this.scannerActive) {
-  //     this.scannerActive = false
-  //     this.connect(data)
-  //   }
-  // }
 
   faceMatch(data) {
 
@@ -165,24 +150,29 @@ export default class QRCodeScanner extends Scene {
       <View style={{ flex: 1, backgroundColor: 'black' }}>
         <AndroidBackButton onPress={() => this._hardwareBackHandler()}/>
         { this.state.showCamera ?
-        <Camera
-          ref={(cam) => { this.camera = cam }}
-          style={style.camera}
-          aspect={Camera.constants.Aspect.fill}
-          orientation={Camera.constants.Orientation.portrait}
-          onBarCodeRead={(data) => this._onBarCodeRead(data)}
-          type={Camera.constants.Type.back}
-          barCodeTypes={['qr']}
-        >
-          <CameraCrosshair ref={(crosshair) => { this.crosshair = crosshair }} width={250} height={250} color={'white'}/>
-        </Camera>
-        :
-        <View style={{ flex: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: 'black' }}>
-          <ActivityIndicator animating={true}/>
-          <Text style={{ color: Palette.consentGrayLightest }}>Loading...</Text>
-        </View>
+          <Camera
+            ref={(cam) => { this.camera = cam }}
+            style={style.camera}
+            aspect={Camera.constants.Aspect.fill}
+            orientation={Camera.constants.Orientation.portrait}
+            onBarCodeRead={(data) => this._onBarCodeRead(data)}
+            type={Camera.constants.Type.back}
+            barCodeTypes={['qr']}
+          >
+            <CameraCrosshair ref={(crosshair) => { this.crosshair = crosshair }} width={250} height={250} color={'white'}/>
+          </Camera>
+          :
+          <View style={{ flex: 8, alignItems: 'center', justifyContent: 'center', backgroundColor: 'black' }}>
+            <ActivityIndicator animating={true}/>
+            <Text style={{ color: Palette.consentGrayLightest }}>Loading...</Text>
+          </View>
         }
-        <View style={style.boxBottom}>
+        <LifekeyFooter
+          backgroundColor={ Palette.consentBlue }
+          leftButtonText="Cancel"
+          onPressLeftButton={() => this.navigator.pop()}
+        />
+        { /* <View style={style.boxBottom}>
           <Grid>
             <Col>
               <TouchableNativeFeedback
@@ -214,7 +204,7 @@ export default class QRCodeScanner extends Scene {
                 }
               </Col>
             </Grid>
-        </View>
+        </View> */}
       </View>
     )
   }

@@ -172,7 +172,13 @@ class Lifekeyrn extends Component {
 
   _getInitialRoute() {
     if (Config.initialRouteFromConfig) return Config.initialRoute
-    const userState = Session.getState().user
+    
+    const sessionState = Session.getState()
+    const userState = sessionState.user
+
+    console.log("INITIAL SESSION STATE: ", sessionState)
+    console.log("INITIAL USERSTATE: ", userState)
+
     return (
       userState && userState.registered ?
       Routes.onboarding.unlock :

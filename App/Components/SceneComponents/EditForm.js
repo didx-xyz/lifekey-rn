@@ -16,6 +16,7 @@ import Touchable from "../../Components/Touchable"
 import Countries from "../../Countries"
 import Languages from "../../Languages"
 import Palette from "../../Palette"
+import Design from "../../DesignParameters"
 import Routes from "../../Routes"
 import Logger from '../../Logger'
 
@@ -23,58 +24,22 @@ class EditForm extends Component{
 
   render(){
     return (
-      <Container>
-        <BackButton onPress={this.props.onPressCancel} />
-        <View style={styles.content}>
-          <View style={styles.heading}>
-            <Text style={styles.headingText}>{this.context.getEditResourceName().toUpperCase()}</Text>
-          </View>
-          <View style={styles.fields}>
-            {
-              !this.props.asyncActionInProgress ?
-                <ScrollView style={styles.scroll}>
-                  <View style={styles.card}>
-                    {this.props.error !== "" &&
-                      <View style={styles.error}>
-                        <Text style={styles.errorText}>
-                          {this.props.error}
-                        </Text>
-                      </View>
-                    }
-                    { this.props.entities.map((entity, i) => this.renderEntity(entity, i)) }
-                  </View>
-                </ScrollView>
-              :
-                <View style={styles.progressContainer}>
-                  <ActivityIndicator color="white" style={styles.progressIndicator}/>
-                  <Text style={styles.progressText}>{this.props.progressCopy}</Text>
-                </View>
+      <View style={ Object.assign({}, styles.content, { backgroundColor: this.props.backgroundColor} )}>
+        <BackButton onPress={ this.props.onPressCancel } /> 
+        <ScrollView style={styles.card}>
+             <View style={styles.heading}>
+              <Text style={styles.headingText}>{this.context.getEditResourceName()}</Text>
+            </View>  
+            { this.props.error !== "" &&
+              <View style={styles.error}>
+                <Text style={styles.errorText}>
+                  {this.props.error}
+                </Text>
+              </View>
             }
-          </View>
-            {
-              this.props.asyncActionInProgress ? null
-              :
-              (
-                <View style={styles.buttons}>
-                  <View style={styles.cancelButton}>
-                    <Touchable onPress={this.props.onPressCancel}>
-                      <Text style={styles.cancelButtonText}>
-                        Cancel
-                      </Text>
-                    </Touchable>
-                  </View>
-                  <View style={styles.saveButton}>
-                    <Touchable onPress={this.props.onPressSave}>
-                      <Text style={styles.saveButtonText}>
-                        Save
-                      </Text>
-                    </Touchable>
-                  </View>
-                </View>
-              )
-            }
-        </View>
-      </Container>
+            { this.props.entities.map((entity, i) => this.renderEntity(entity, i)) }
+        </ScrollView>
+      </View>
     )
   }
 
@@ -140,8 +105,6 @@ class EditForm extends Component{
 
   renderStringInput(entity, i) {
 
-    // const value = (!this.props[entity.name] && entity.name === "label") ? this.state.label : this.state[entity.name]
-
     return (
       <TextInput
         style={styles.textInput}
@@ -177,12 +140,13 @@ class EditForm extends Component{
   renderPhotographInput(entity, i) {
     const pick = () => {
       ImagePicker.showImagePicker({
-        maxWidth: 1000,
-        maxHeight: 1000,
+        maxWidth: 800,
+        maxHeight: 800,
         quality: 0.6
       }, (response) => {
-        if (response.fileSize > 1024 /* b → kb */ * 1024 /* kb → mb */ * 7.5) {
-          alert("file is too big")
+        console.log("file is this big: " + response.fileSize + " | " + response.data.length)
+        if (response.data.length > 65535) { // (2^16 - 1)) {
+          ToastAndroid.show('Image is too large. Please try again...', ToastAndroid.LONG)
           return
         }
 
@@ -212,7 +176,6 @@ class EditForm extends Component{
       }
     })
 
-    // const country = Countries.find(c => c["alpha-2"] === this.props.formTarget[entity.name])
     return this.renderSelectInput(entity, data, entity.initialValue)
 
   }
@@ -226,7 +189,6 @@ class EditForm extends Component{
       }
     })
 
-    // const language = Languages.find(l => l["alpha3-b"] === this.props.formTarget[entity.name])
     return this.renderSelectInput(entity, data, entity.initialValue)
   }
 
@@ -273,44 +235,31 @@ EditForm.contextTypes = {
   "getEditResourceName": PropTypes.func
 }
 
+const fontSize = 18
 const styles = {
   "content": {
-    "height": "100%",
-    "backgroundColor": Palette.consentOffBlack
+    "alignSelf": "center",
+    "alignItems": "center",
+    "justifyContent": "center",
+  },
+  "card": {
+    "backgroundColor": Palette.consentOffWhite,
+    "margin": 10,
+    "paddingLeft": 10,
+    "paddingRight": 10,
   },
   "heading": {
-    "height": "10%",
-    "alignItems": "center",
+    "height": 64,
+    "width": "100%",
+    "borderBottomWidth": 1,
+    "borderBottomColor": Palette.consentBlue,
+    "alignItems": "flex-start",
     "justifyContent": "center"
   },
   "headingText": {
     "textAlign": "left",
-    "color": "white",
-    "fontSize": 16
-  },
-  "fields": {
-    "height": "80%",
-    "width": "100%"
-  },
-  "scroll": {
-    "padding": 10
-  },
-  "card": {
-    "backgroundColor": "#fff",
-    "paddingLeft": 10,
-    "paddingRight": 10,
-  },
-  "progressContainer": {
-    "flex": 1,
-    "alignItems": "center",
-    "justifyContent": "center"
-  },
-  "progressIndicator": {
-    "width": 75,
-    "height": 75
-  },
-  "progressText":{
-    "color": "white"
+    "color": Palette.consentBlue,
+    "fontSize": 20
   },
   "formField": {
     "paddingTop": 5,
@@ -320,6 +269,7 @@ const styles = {
     "flexDirection": "row",
     "alignItems": "center",
     "justifyContent": "center",
+    "minHeight": 56
   },
   "formFieldLabel": {
     "height": 40,
@@ -341,7 +291,7 @@ const styles = {
     "height": 40,
     "color": "#666",
     "fontWeight": "100",
-    "fontSize": 14,
+    "fontSize": fontSize,
     "textAlign": "left"
   },
   "selectElement":{
@@ -367,7 +317,7 @@ const styles = {
     "fontWeight": "100",
     "paddingTop": 10,
     "paddingBottom": 10,
-    "fontSize": 14,
+    "fontSize": fontSize,
     "backgroundColor": "green"
   },
   "datePicker":{
@@ -391,12 +341,12 @@ const styles = {
     "dateText": {
       "color": "#666",
       "fontWeight": "100",
-      "fontSize": 14,
+      "fontSize": fontSize,
     },
     "placeholderText": {
       "color": "#666",
       "fontWeight": "100",
-      "fontSize": 14,
+      "fontSize": fontSize,
       "textAlign": "left",
     }
   },
@@ -411,7 +361,7 @@ const styles = {
     "fontWeight": "100",
     "paddingTop": 10,
     "paddingBottom": 10,
-    "fontSize": 14
+    "fontSize": fontSize
   },
   "photographLabel": {
     "flex": 1,
@@ -422,34 +372,7 @@ const styles = {
   "photographLabelText": {
     "fontWeight": "100",
     "color": "#666",
-    "fontSize": 14
-  },
-  "buttons": {
-    "height": "10%",
-    "width": "100%",
-    "flexDirection": "row",
-    "paddingBottom": 10
-  },
-  "cancelButton": {
-    "flex": 1,
-    "justifyContent": "center",
-    "paddingLeft": 45
-  },
-  "cancelButtonText": {
-    "color": "#fff",
-    "fontSize": 16,
-    "textAlign": "left"
-  },
-  "saveButton": {
-    "flex": 1,
-    "justifyContent": "center",
-    "alignItems": "flex-end",
-    "paddingRight": 45
-  },
-  "saveButtonText": {
-    "color": "#fff",
-    "fontSize": 16,
-    "textAlign": "right"
+    "fontSize": fontSize
   },
   "error": {
     "flex": 1

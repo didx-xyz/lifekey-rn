@@ -6,9 +6,11 @@
  */
 
 import React, { Component } from 'react'
+import PropTypes from "prop-types"
 import ActivityIndicator from "ActivityIndicator"
 import AppLogo from '../Images/logo_big.png'
 import Scene from '../Scene'
+import Design from '../DesignParameters'
 import Palette from '../Palette'
 import Api from '../Api'
 import Session from '../Session'
@@ -20,15 +22,16 @@ import LifekeyFooter from '../Components/LifekeyFooter'
 import Touchable from '../Components/Touchable'
 import AndroidBackButton from 'react-native-android-back-button'
 import ConsentConnection from '../Models/ConsentConnection'
-import Design from '../DesignParameters'
 import HexagonIcon from '../Components/HexagonIcon'
 import ConsentUser from '../Models/ConsentUser'
 import SearchBox from '../Components/SearchBox'
 import ThanksIcon from '../Components/ThanksIcon'
 import SlipIcon from '../Components/SlipIcon'
+import ProgressIndicator from "../Components/ProgressIndicator"
 import _ from 'lodash'
 
 import {
+  TouchableOpacity,
   Text,
   View,
   Dimensions,
@@ -46,7 +49,7 @@ import {
 const TAB_CONNECTED = 0
 const TAB_SUGGESTED = 1
 
-export default class Main extends Scene {
+class Main extends Scene {
 
   constructor(props) {
     super(props)
@@ -59,11 +62,14 @@ export default class Main extends Scene {
       progressCopy: 'Loading...',
       asyncActionInProgress: true
     }
+
+    this.onBoundPressProfile = this.onPressProfile.bind(this)
   }
 
   componentDidMount() {
     super.componentDidMount()
     this.loadConnections()
+    this.loadProfile()
     this.loadActiveClients()
     this.refreshThanksBalance()
   }
@@ -71,8 +77,23 @@ export default class Main extends Scene {
   componentDidFocus() {
     super.componentDidFocus()
     this.loadConnections()
+    this.loadProfile()
     this.loadActiveClients()
     this.refreshThanksBalance()
+  }
+
+  async loadProfile() {
+    let userName
+    try {
+      var userData = await Api.getMyData()
+      userName = userData.resourcesByType.find(rt => rt.name === 'Person').items[0].firstName
+    } catch(e) {
+      console.log('thanks balance', e)
+    }
+    console.log('USER DATA', Object.keys(userData))
+    this.setState({
+      userName: userName
+    })
   }
 
   async refreshThanksBalance() {
@@ -219,98 +240,95 @@ export default class Main extends Scene {
     })
   }
 
+  onPressProfile() {
+    console.log("CONTEXT: ", this.context)
+    this.context.onEditResource("http://schema.cnsnt.io/public_profile_form", null, "Public Profile")
+    this.navigator.push({ ...Routes.editProfile })
+  }
+
   render() {
+
+    var icons= [
+      {
+        icon: (<SlipIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Palette.consentGrayDark} />),
+        onPress: () => this.navigator.push(Routes.messages),
+        borderColor: "white"
+      },
+      {
+        icon: <Image style={{height: "100%", width: "100%"}} source={AppLogo}/>,
+        onPress: () => alert('test'),
+        onLongPress: () => {
+          if (Config.DEBUG) {
+            this.navigator.push(Routes.debug.main)
+          }
+        },
+        borderColor: "white"
+      },
+      {
+        icon: (<ThanksIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Palette.consentGrayDark} />),
+        onPress: () => this.navigator.push(Routes.thanks),
+        borderColor: "white",
+        secondaryItem: this.state.thanksBalanceAmount ? <Text>{this.state.thanksBalanceAmount}</Text> : (<ActivityIndicator width={Design.headerIconWidth / 1.5} height={Design.headerIconHeight / 1.5} color={Palette.consentGrayDark} />)
+      }
+    ], tabs=[
+      {
+        text: 'Connected',
+        onPress: () => this.setTab(TAB_CONNECTED),
+        active: this.state.activeTab === 0
+      },
+      {
+        text: 'Suggested',
+        onPress: () => this.setTab(TAB_SUGGESTED),
+        active: this.state.activeTab === 1
+      }
+    ]
+
     return (
       <Container>
-        <View style={style.headerWrapper}>
-          <AndroidBackButton onPress={() => this._hardwareBack()} />
-          <StatusBar hidden={false} />
-          <LifekeyHeader
-            icons={[
-              {
-                icon: (<SlipIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Palette.consentGrayDark} />),
-                onPress: () => this.navigator.push(Routes.messages),
-                borderColor: "white"
-              },
-              {
-                icon: <Image style={{height: "100%", width: "100%"}} source={AppLogo}/>,
-                onPress: () => alert('test'),
-                onLongPress: () => {
-                  if (Config.DEBUG) {
-                    this.navigator.push(Routes.debug.main)
-                  }
-                },
-                borderColor: "white"
-              },
-              {
-                icon: (<ThanksIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Palette.consentGrayDark} />),
-                onPress: () => this.navigator.push(Routes.thanks),
-                borderColor: "white",
-                secondaryItem: this.state.thanksBalanceAmount ? <Text>{this.state.thanksBalanceAmount}</Text> : (<ActivityIndicator width={Design.headerIconWidth / 1.5} height={Design.headerIconHeight / 1.5} color={Palette.consentGrayDark} />)
-              }
-            ]}
-            tabs={[
-              {
-                text: 'Connected',
-                onPress: () => this.setTab(TAB_CONNECTED),
-                active: this.state.activeTab === 0
-              },
-              {
-                text: 'Suggested',
-                onPress: () => this.setTab(TAB_SUGGESTED),
-                active: this.state.activeTab === 1
-              }
-            ]}
-          />
+        <AndroidBackButton onPress={() => this._hardwareBack()} />
+        <StatusBar hidden={false} />
+        <LifekeyHeader icons={icons} tabs={tabs} />
+        { 
 
-        </View>
-        <Content>
-          <Col style={{ flex: 1 }}>
+          <View style={{ flex: 1 }}>
             {
               !this.state.asyncActionInProgress ? 
-                <View style={{ flex: 10, backgroundColor: Palette.consentGrayLightest }}>
+                <View style={{ flex: 1, backgroundColor: Palette.consentGrayLightest }}>
+                  
                   { this.state.activeTab === 0 ?
 
-                    /* CONNECTED TAB */
-                    <View style={{ flex: 1 }}>
-                      <SearchBox
-                        text={this.state.searchText}
-                        onChangeText={(text) => this.updateSearch(text)}
-                      />
-
-                      { /* LIST OF CONNECTIONS */ }
-                      {this.state.connections.filter((connection) => {
-                        // If not empty
-                        if (this.state.searchText !== '') {
-                          // uppercase connection name and substring name to search text length
-                          const connectionSubUpper = connection.display_name
-                                                     .substr(0, this.state.searchText.length)
-                                                     .toUpperCase()
-                          // uppsercase search text
-                          const searchTextUpper = this.state.searchText.toUpperCase()
-                          // compare
-                          return connectionSubUpper === searchTextUpper
-                        } else {
-                          // match because no search text
-                          return true
+                    !this.state.connections.length ?
+                      /* ZERO DATA VIEW */ 
+                      <View style={ style.contentContainer }>
+                        { this.state.userName && 
+                          <Text>
+                            <Text style={ style.defaultFont }>
+                              Hi there { this.state.userName }, 
+                              {"\n\n"}
+                              You have no connections yet, have a look at some
+                            </Text>
+                            <Text onPress={() => this.setTab(TAB_SUGGESTED)} style={ Object.assign({}, style.defaultFont, { "color": Palette.consentBlue }) }> suggestions.</Text>
+                            <Text style={ style.defaultFont }>  
+                              {"\n\n"}
+                              Or, start setting up your public
+                            </Text>
+                            <Text onPress={this.onBoundPressProfile} style={ Object.assign({}, style.defaultFont, { "color": Palette.consentBlue }) }> profile.</Text>
+                          </Text>
                         }
-                      }).map((connection, i) => (
-                          <ListItem
-                            key={i}
-                            style={style.listItem}
-                            onPress={() => this.goToConnectionDetails(this.state.connections[i])}
-                          >
-                            <View style={style.listItemWrapper}>
-                              <Image
-                                style={style.listItemImage}
-                                source={{ uri: connection.image_uri }}
-                              />
-                              <Text style={style.listItemText}>{connection.display_name}</Text>
-                            </View>
-                          </ListItem>
-                      ))}
-
-                    </View>
+                      </View>
+                      :
+                      /* CONNECTED VIEW */
+                      <View style={ style.contentContainer }>
+                        { this.state.connections.map((connection, i) => (
+                            <ListItem key={i} style={style.listItem} onPress={() => this.goToConnectionDetails(this.state.connections[i])}>
+                              <View style={style.listItemWrapper}>
+                                <Image style={style.listItemImage} source={{ uri: connection.image_uri }}/>
+                                <Text style={style.listItemText}>{connection.display_name}</Text>
+                              </View>
+                            </ListItem>
+                          ))
+                        }
+                      </View>
                     :
                     /* SUGGESTED TAB */
                     <View style={{ flex: 1 }}>
@@ -331,37 +349,34 @@ export default class Main extends Scene {
                       ))}
                     </View>
                   }
+
                 </View>
               :
-                <View style={style.progressContainer}>
-                  <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/> 
-                  <Text style={style.progressText}>{this.state.progressCopy}</Text>
-                </View>
+                <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
             }
-
-
-          </Col>
-        </Content>
-        <Footer style={style.footer}>
-          <LifekeyFooter
-            leftButtonText="Me"
-            rightButtonText="Scan"
-            onPressLeftButton={() => this.navigator.push(Routes.me)}
-            onPressRightButton={() => this.navigator.push(Routes.camera.qrCodeScanner)}
-          />
-        </Footer>
+          </View>
+        }
+        <LifekeyFooter
+          backgroundColor={ Palette.consentBlue }
+          leftButtonText="Me"
+          rightButtonText="Scan"
+          rightButtonIcon={<ThanksIcon width={Design.footerIconWidth} height={Design.footerIconHeight} stroke={Palette.consentWhite} />}
+          onPressLeftButton={() => this.navigator.push(Routes.me)}
+          onPressRightButton={() => this.navigator.push(Routes.camera.qrCodeScanner)}
+        />
       </Container>
     )
   }
 }
 
 const style = {
-  headerWrapper: {
-    borderColor: Palette.consentGrayDark,
-    height: Design.lifekeyHeaderHeight
+  contentContainer: {
+    flex: 1,
+    padding: Design.paddingRight
   },
   listItem: {
-    marginLeft: 10
+    marginLeft: 10,
+    minHeight: 50
   },
   listItemWrapper: {
     flex: 1,
@@ -370,7 +385,7 @@ const style = {
     alignItems: 'center'
   },
   listItemText: {
-    fontSize: 16,
+    fontSize: 18,
     flex: 1,
     marginLeft: 10
   },
@@ -380,20 +395,21 @@ const style = {
     borderRadius: 45,
     marginLeft: 10
   },
-  footer: {
-    height: Dimensions.get('window').height / 6
-  },
-  "progressContainer": {
-    // "backgroundColor": Palette.consentBlue,
-    "flex": 1,
-    "alignItems": "center",
-    "justifyContent": "center"
-  },
-  "progressIndicator": {
-    "width": 75,
-    "height": 75 
-  },
-  "progressText":{
-    "color": Palette.consentGrayDark
+  "defaultFont":{
+    fontFamily: Design.fonts.registration,
+    fontWeight: Design.fontWeights.light,
+    fontSize: 38,
+    lineHeight: 48
   },
 }
+
+Main.contextTypes = {
+  // behavior
+  "onEditResource": PropTypes.func,
+  "onSaveResource": PropTypes.func,
+
+  // state
+  "getShouldClearResourceCache": PropTypes.func
+}
+
+export default Main

@@ -1,7 +1,7 @@
 // external dependencies
 import React from "react"
 import { Text, View, ScrollView, ToastAndroid, Image } from "react-native"
-import { Container } from "native-base"
+import { Container, Card, CardItem } from "native-base"
 import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
@@ -10,13 +10,17 @@ import Session from "../Session"
 import Routes from "../Routes"
 import Palette from "../Palette"
 import Design from "../DesignParameters"
+import LifekeyFooter from '../Components/LifekeyFooter'
 import BackButton from "../Components/BackButton"
 import HelpIcon from "../Components/HelpIcon"
+import TickIcon from "../Components/TickIcon"
 import CircularImage from "../Components/CircularImage"
 import HexagonIcon from "../Components/HexagonIcon"
+import AddCategoryButton from "../Components/lc-AddCategoryButton"
 import InformationRequestResource from "../Components/InformationRequestResource"
 import LocationIcon from "../Components/LocationIcon"
 import MarketingIcon from "../Components/MarketingIcon"
+import ProgressIndicator from "../Components/ProgressIndicator"
 import Scene from "../Scene"
 import PeriodIcon from "../Components/PeriodIcon"
 import Touchable from "../Components/Touchable"
@@ -166,11 +170,13 @@ class InformationRequest extends Scene {
         <BackButton navigator={this.navigator} />
         <View style={styles.content}>
           {
-            !this.state.asyncActionInProgress ? 
+            this.state.asyncActionInProgress ? 
+              <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
+            :
               <View style={styles.resourceItemContainer}>
                   <ScrollView contentContainerStyle={styles.resourceScrollView}>
                     <View style={styles.name}>
-                      {/* logo here */}
+                      {/* logo */}
                       <CircularImage uri={this.state.botImageUri} radius={25} borderColor={Palette.consentGrayLight} />   
                       <Text style={styles.nameText}>
                         {this.state.botDisplayName}
@@ -178,42 +184,24 @@ class InformationRequest extends Scene {
                     </View>
                     <View style={styles.description}>
                       <Text style={styles.descriptionText}>
-                        Would like to see the following information: 
+                        { this.state.missing.length === 0 ? 'Would like to see the following information:' : 'You are missing one or more pieces of information, please update before sharing' }
                       </Text>
                     </View>
-
-                    { /* <View>
-                      <View style={styles.description}>
-                        <Text style={styles.descriptionText}>
-                          This BOT would like to see the following information: 
-                        </Text>
-                      </View>
-                      <View style={styles.wantedItems}>
-                        
-                        { this.props.route.required_entities.map((entity, i) => {
-                          return (
-                            <View key={i} style={styles.wantedItemContainer}>
-                              <Text  style={styles.wantedItemsText}>
-                                { entity.name }
-                              </Text>
-                            </View>
-                          )
-                        }) }
-                      </View>
-                    </View> */}
 
                     { this.state.complete.length > 0 && 
                       <View>  
                         { 
                           this.state.complete.map((entity, i) => {
                             return (
-                              <View key={i} style={styles.resourceItem}>
-                                <Text style={styles.resourceItemTextHeading}>
-                                  { entity.name }
-                                </Text>
-                                <Text style={styles.resourceItemText}>
-                                  { entity.presentFields }
-                                </Text>
+                              <View key={entity.name} style={ styles.resourceItem }>
+                                <Card style={styles.card}>
+                                  <CardItem>
+                                    <View style={styles.cardHeader}>
+                                      <Text style={ Object.assign({}, styles.cardHeadingText, { "color": Palette.consentOffBlack })}>{entity.name.toUpperCase()}</Text>
+                                      <TickIcon width={ Design.headerIconWidth/2 } height={ Design.headerIconHeight/2 } stroke={Palette.consentBlue} />
+                                    </View>
+                                  </CardItem>
+                                </Card>
                               </View>
                             )
                           }) 
@@ -225,20 +213,9 @@ class InformationRequest extends Scene {
                       <View>
                           { this.state.partial.map((entity, i) => {
                             return (
-                              <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id, entity.name)}>
-                                <View style={Object.assign({}, styles.resourceItem, styles.partialResource)}>
-                                  <Text style={styles.resourceItemText}>
-                                    { entity.name }
-                                  </Text>
-                                </View>
-                                {/* <Text style={styles.missingItemsText}>
-                                  You need to complete {entity.name}... specifically the field(s):&nbsp;
-                                    { entity.missingFields.map((item, j) => {
-                                      return (j !== entity.missingFields.length - 1) ? `${item}, ` : `${item}`
-                                    })
-                                  }
-                                </Text> */}
-                              </Touchable>
+                              <View style={ Object.assign({}, styles.resourceItem, styles.partialResource) }>
+                                <AddCategoryButton name={entity.name} form={entity.form}></AddCategoryButton>
+                              </View>
                             )
                           }) }
                       </View>
@@ -248,64 +225,43 @@ class InformationRequest extends Scene {
                       <View>
                         { this.state.missing.map((entity, i) => {
                           return (
-                            <Touchable key={i} onPress={() => this.onPressMissing(entity.form, entity.id, entity.name)}>
-                              <View style={Object.assign({}, styles.resourceItem, styles.missingResource)}>
-                                <Text style={styles.resourceItemText}>
-                                  { entity.name }
-                                </Text>
-                                <Text style={styles.missingResourceItemText}>
-                                  Tap to create this resource
-                                </Text>
-                              </View>
-                            </Touchable>
+                            <View key={entity.name} style={ styles.resourceItem }>
+                              <AddCategoryButton name={entity.name} 
+                                                 form={entity.form} 
+                                                 color={Palette.consentRed}
+                                                 onEditResource={this.context.onEditResource.bind(this)}></AddCategoryButton>
+                            </View>
                           )
                         }) }
                       </View>
                     }
-                    {
-                      this.state.partial.length > 0 || this.state.missing.length > 0 &&
-                      <View>
-                        <View style={styles.missingItems}>
-                          <Text style={styles.missingItemsText}>
-                            You are missing one or more pieces of information, please update before sharing.
-                          </Text>
-                        </View>
-                        <View style={Object.assign({}, styles.shareView, {"opacity": 0.5})}>
-                          <HexagonIcon width={100} height={100} textSize={19} textX={30} textY={43} text="Share" />
-                        </View>
-                      </View>
-                    }
-                    {
-                      this.state.partial.length < 1 && this.state.missing.length < 1 &&
-                      <Touchable onPress={this.onBoundPressShare}>
-                        <View style={styles.shareView}>
-                          <HexagonIcon width={100} height={100} textSize={19} textX={30} textY={43} text="Share" />
-                        </View>
-                      </Touchable>
-                    }
                   </ScrollView>
-              </View>
-            :
-              <View style={styles.progressContainer}>
-                <ActivityIndicator color={Palette.consentGrayDark} style={styles.progressIndicator}/> 
-                <Text style={styles.progressText}>{ this.state.progressCopy }</Text>
+                  {
+                    this.state.partial.length > 0 || this.state.missing.length > 0 &&
+                    <View style={ Object.assign({}, styles.shareView, { "opacity": 0.5 }) }>
+                      <HexagonIcon width={100} height={100} textSize={19} text="Share" fill={Palette.consentGrayMedium} />
+                    </View>
+                  }
+                  {
+                    this.state.partial.length < 1 && this.state.missing.length < 1 &&
+                    <Touchable onPress={this.onBoundPressShare}>
+                      <View style={styles.shareView}>
+                        <HexagonIcon width={100} height={100} textSize={18} text="Share" textColor={Palette.consentWhite} />
+                      </View>
+                    </Touchable>
+                  }
               </View>
           }
           
-          <View style={styles.bottom}>
-            <View style={styles.decline}>
-              <Touchable onPress={this.onBoundPressDecline}>
-                <Text style={styles.declineText}>
-                  Cancel
-                </Text>
-              </Touchable>
-            </View>
-            <View style={styles.help}>
-              <Touchable onPress={this.onBoundPressHelp}>
-                <HelpIcon width={32} height={32} stroke="#fff" />
-              </Touchable>
-            </View>
-          </View>
+          <LifekeyFooter
+            backgroundColor={ Palette.consentOffBlack }
+            leftButtonText="Cancel"
+            rightButtonText=""
+            rightButtonIcon={<HelpIcon width={Design.footerIconWidth} height={Design.footerIconHeight} stroke={Palette.consentWhite} />}
+            onPressLeftButton={this.onBoundPressDecline}
+            onPressRightButton={this.onBoundPressHelp}
+          />
+
         </View>
       </Container>
     )
@@ -317,33 +273,31 @@ const styles = {
     flex: 1,
     "backgroundColor": Palette.consentOffBlack
   },
+  "name": {
+    "flexDirection": "row",
+    alignItems: "center",
+    justifyContent: "center"
+  },
+  "nameText": {
+    "color": Palette.consentOffBlack,
+    "fontSize": 18,
+    "paddingLeft": Design.paddingRight/2
+  },
   "description": {
-    height: 50,
-    paddingLeft: "20%",
-    paddingRight: "20%"
+    minHeight: 50,
+    padding: 20,
+    paddingTop: 0
   },
   "descriptionText": {
-    color: "#666",
+    color: Palette.consentGrayDark,
     fontSize: 15,
     textAlign: "center"
   },
-  "progressContainer": {
-    "flex": 1,
-    "alignItems": "center",
-    "justifyContent": "center"
-  },
-  "progressIndicator": {
-    "width": 75,
-    "height": 75 
-  },
-  "progressText":{
-    "color": "white"
-  },
   "resourceItemContainer": {
+    "flex": 1,
     "borderRadius": 10,
     "backgroundColor": Palette.consentGrayLight,
     "margin": "3%",
-    "height": "84%",
     "paddingLeft": Design.paddingRight/2,
     "paddingRight": Design.paddingRight/2,
     "paddingTop": Design.paddingRight/2
@@ -353,21 +307,15 @@ const styles = {
     "alignItems": "center",
   },
   "resourceItem":{
-    "backgroundColor": Palette.consentGrayMedium,
-    "padding": Design.paddingTop,
-    "margin": Design.paddingTop/2,
-    "width": "100%",
-    "shadowColor": "red",
-    "shadowOffset": { "height": 4, "width": 0 },
-    "shadowOpacity": 0.8,
+    "width": "100%"
   },
   "partialResource": {
     "borderLeftColor": "orange",
     "borderLeftWidth": 5
   },
   "missingResource": {
-    "borderLeftColor": Palette.consentRed,
-    "borderLeftWidth": 5
+    "backgroundColor": Palette.consentRed,
+    "paddingLeft": 5
   },
   "resourceItemTextHeading":{
     "color": Palette.consentOffBlack
@@ -377,16 +325,6 @@ const styles = {
   },
   "missingResourceItemText": {
     "color": Palette.consentRed
-  },
-  "name": {
-    "flexDirection": "row",
-    alignItems: "center",
-    justifyContent: "center"
-  },
-  "nameText": {
-    "color": Palette.consentGrayDark,
-    "fontSize": 16,
-    "paddingLeft": Design.paddingRight/2
   },
   "missingItems":{
     "justifyContent": "center",
@@ -400,31 +338,34 @@ const styles = {
     "textAlign": "center",
     "color": "white"
   },
-  "bottom": {
-    "height": "10%",
-    "flexDirection": "row",
-    "paddingLeft": "12%",
-    "paddingRight": "12%"
-  },
-  "decline": {
-    "flex": 1,
-    "alignItems": "flex-start",
-    "justifyContent": "center"
-  },
-  "declineText": {
-    "color": "#fff",
-    "textAlign": "left",
-    "fontSize": 17
-  },
-  "help": {
-    "flex": 1,
-    "alignItems": "flex-end",
-    "justifyContent": "center"
-  },
   "shareView": {
     "flexDirection": "row",
     "alignItems": "center",
     "justifyContent": "center",
+    "padding": Design.paddingTop
+  },
+  "card": {
+    "marginTop": 1
+  },
+  "cardHeader": {
+    "flex": 1,
+    "flexDirection": "row",
+    "justifyContent": "space-between",
+    "alignItems": "center"
+  },
+  "cardHeadingText": {
+    "fontSize": 10,
+    "fontWeight": "bold"
+  },
+  "cardHeadingIcon": {
+    "marginTop": -10,
+    "color": Palette.consentGrayDark
+  },
+  "cardHeadingIconSmall": {
+    "fontSize": 30
+  },
+  "cardHeadingIconLarge": {
+    "fontSize": 32
   }
 }
 

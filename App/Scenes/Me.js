@@ -20,6 +20,7 @@ import BackButton from "../Components/BackButton"
 import BackIcon from "../Components/BackIcon"
 import HelpIcon from "../Components/HelpIcon"
 import GearIcon from "../Components/GearIcon"
+import ProgressIndicator from "../Components/ProgressIndicator"
 import Design from "../DesignParameters"
 import Logger from "../Logger"
 
@@ -106,16 +107,19 @@ class Me extends Scene {
   fetchMyData() {
     
     return Promise.all([
-      Api.getMyData(),
-      Api.myProfile()
+      Api.myProfile(),
+      Api.getMyData()
     ]).then(values => {
 
-      const data = values[0]
-      const profile = values[1]    
-
+      const profile = values[0]    
+      let data = values[1]
+      if(data.resourcesByType.find(rt => rt.name === "Public Profile").items.length === 0){
+        data.resourcesByType.find(rt => rt.name === "Public Profile").items.push(profile)
+      }
+      
       this.setState({
         "sortedBadges": data.badges,
-        "profilePicUrl": data.profilePicUrl,
+        // "profilePicUrl": profile.profileImageUri,
         "sortedResourceTypes": data.resourcesByType,
         "profile": profile,
         "asyncActionInProgress": false
@@ -164,8 +168,10 @@ class Me extends Scene {
   // End Context Menu functionality 
 
   render() {
-    const profilepic = this.state.profilePicUrl ? <CircularImage uri={this.state.profilePicUrl} radius={25} borderColor="white" /> : <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/>
-    const headerIcons = [
+    
+    console.log("PROFILE: ", this.state.profile)
+    const profilepic = this.state.profile ? <CircularImage uri={this.state.profile.profileImageUri} radius={25} borderColor="white" /> : <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/>
+    const icons = [
       {
         icon: <BackIcon width={16} height={16}/>,
         onPress: () => this.navigator.pop(),
@@ -177,22 +183,38 @@ class Me extends Scene {
       },
       {
         icon: (
-               <ModalDropdown 
-                ref={el => this.contextMenu = el}
-                options={[
-                  { "value":'Help', onClick: this.onPressHelp.bind(this, "me", helpScreens, "pop") }, 
-                  { "value":'Legal', onClick: () => { alert("Navigate to legal") }}, 
-                  { "value":'Logout', onClick: () => { alert("Logout...") }}
-                ]}
-                dropdownStyle={style.contextMenu}
-                renderRow={this.renderContextMenuRow.bind(this)}
-                onSelect={ (idx, value) => this.onContextMenuItemSelect(idx, value) }
-               >
-                <GearIcon width={38} height={38} stroke={Palette.consentGrayDark} />
-               </ModalDropdown>
-              ),
+          <ModalDropdown 
+            ref={el => this.contextMenu = el}
+            options={[
+              { "value":'Help', onClick: this.onPressHelp.bind(this, "me", helpScreens, "pop") }, 
+              { "value":'Legal', onClick: () => { alert("Navigate to legal") }}, 
+              { "value":'Logout', onClick: () => { alert("Logout...") }}
+            ]}
+            dropdownStyle={style.contextMenu}
+            renderRow={this.renderContextMenuRow.bind(this)}
+            onSelect={ (idx, value) => this.onContextMenuItemSelect(idx, value) }
+           >
+          <GearIcon width={38} height={38} stroke={Palette.consentGrayDark} />
+          </ModalDropdown>
+        ),
         onPress: () => { this.onBoundShowContextMenu() },
         borderColor: "white"
+      }
+    ], tabs = [
+      {
+        text: "Connect",
+        onPress: () => this.setState({ activeTab: CONNECT }, this.scrollViewToTop.bind(this)),
+        active: this.state.activeTab === CONNECT
+      },
+      {
+        text: "My Data",
+        onPress: () => this.setState({ activeTab: MY_DATA }, this.scrollViewToTop.bind(this)),
+        active: this.state.activeTab === MY_DATA
+      },
+      {
+        text: "Badges",
+        onPress: () => this.setState({ activeTab: BADGES }, this.scrollViewToTop.bind(this)),
+        active: this.state.activeTab === BADGES
       }
     ]
 
@@ -200,36 +222,14 @@ class Me extends Scene {
       <Container>
         <View style={style.headerWrapper}>
           <BackButton navigator={this.navigator} />
-          <LifekeyHeader
-          icons={headerIcons}
-          tabs={[
-            {
-              text: "Connect",
-              onPress: () => this.setState({ activeTab: CONNECT }, this.scrollViewToTop.bind(this)),
-              active: this.state.activeTab === CONNECT
-            },
-            {
-              text: "My Data",
-              onPress: () => this.setState({ activeTab: MY_DATA }, this.scrollViewToTop.bind(this)),
-              active: this.state.activeTab === MY_DATA
-            },
-            {
-              text: "Badges",
-              onPress: () => this.setState({ activeTab: BADGES }, this.scrollViewToTop.bind(this)),
-              active: this.state.activeTab === BADGES
-            }
-          ]}
-          />
+          <LifekeyHeader icons={icons} tabs={tabs} />
         </View>
         <ScrollView ref={(sv) => { this.state.scrollview = sv }} style={style.contentContainer}>
           {
             !this.state.asyncActionInProgress ? 
               this.renderTab()
             :
-              <View style={style.progressContainer}>
-                <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/> 
-                <Text style={style.progressText}>{this.state.progressCopy}</Text>
-              </View>
+              <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
           }
 
         </ScrollView>
@@ -245,7 +245,7 @@ class Me extends Scene {
     case CONNECT:
       return <Connect profile={this.state.profile} onPressProfile={this.onBoundPressProfile} onPressHelp={ this.onBoundPressHelp }></Connect>
     case MY_DATA:
-      return <MyData sortedResourceTypes={this.state.sortedResourceTypes} onPressDelete={ this.onBoundPressDelete } onPressEdit={ this.onBoundPressEdit }></MyData>
+      return <MyData sortedResourceTypes={this.state.sortedResourceTypes} onPressDelete={ this.onBoundPressDelete } onPressEdit={ this.onBoundPressEdit } onPressProfile={this.onBoundPressProfile}></MyData>
     case BADGES:
       return <Badges badges={this.state.sortedBadges}></Badges>
     }
@@ -270,33 +270,17 @@ const style = {
     "borderColor": Palette.consentGrayDark,
     "height": Design.lifekeyHeaderHeight
   },
-  "content": {
-    "backgroundColor": "#eee"
-  },
   "contentContainer":{
-    "flex": 1
+    "flex": 1,
+    "backgroundColor": Palette.consentGrayLightest,
   },
   "connectTab": {
     "flex": 1,
-    // "height": `${100 - Design.navigationContainerHeight}%`,
     "backgroundColor": Palette.consentGrayLightest,
     "alignItems": "center",
     "justifyContent": "center",
     "paddingRight": Design.paddingRight,
     "paddingLeft": Design.paddingLeft,
-  },
-  "progressContainer": {
-    // "backgroundColor": Palette.consentBlue,
-    "flex": 1,
-    "alignItems": "center",
-    "justifyContent": "center"
-  },
-  "progressIndicator": {
-    "width": 75,
-    "height": 75 
-  },
-  "progressText":{
-    "color": Palette.consentGrayDark
   },
   "switchButtonContainer":{
     "flex": 2,

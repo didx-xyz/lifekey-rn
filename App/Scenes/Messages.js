@@ -8,8 +8,12 @@ import BackButton from "../Components/BackButton"
 import HelpIcon from "../Components/HelpIcon"
 import Scene from "../Scene"
 import Routes from "../Routes"
+import Design from '../DesignParameters'
+import Palette from '../Palette'
 import Touchable from "../Components/Touchable"
 import ConsentMessage from '../Models/ConsentMessage'
+import LifekeyFooter from '../Components/LifekeyFooter'
+import ProgressIndicator from "../Components/ProgressIndicator"
 import Logger from '../Logger'
 
 const MESSAGES = 0
@@ -29,7 +33,9 @@ class Messages extends Scene {
     this.state = {
       activeTab: MESSAGES,
       messages: [],
-      activities: []
+      activities: [],
+      asyncActionInProgress: true,
+      progressCopy: "Loading messages..."
     }
   }
 
@@ -41,10 +47,10 @@ class Messages extends Scene {
   refreshMessages() {
     ConsentMessage.all()
     .then(messages => {
-      this.setState({messages: messages})
+      this.setState({asyncActionInProgress: false, messages: messages})
     }).catch(err => {
       console.log(err)
-      this.setState({messages: []})
+      this.setState({asyncActionInProgress: false, messages: []})
     })
   }
 
@@ -82,22 +88,25 @@ class Messages extends Scene {
   }
 
   renderMessage(msg, idx, msgs) {
+
+    const bottomLineColor = idx < msgs.length - 1 ? Palette.consentBlue : Palette.consentWhite
+
     return (
       <View style={styles.message} key={idx}>
+        {/* series of divs forming a graphic */}
         <View style={styles.messageImage}>
-          {/* image here */}
-          <Text>+</Text>
+          <View style={ Object.assign({}, styles.messageImageLine, {"flex": 3, "backgroundColor": Palette.consentBlue}) }></View> 
+          <View style={styles.messageImageDot}></View>
+          <View style={ Object.assign({}, styles.messageImageLine, {"flex": 5, "backgroundColor": bottomLineColor}) }></View> 
         </View>
         <View style={styles.messageContent}>
           <View style={styles.messageDescription}>
             <Text style={styles.messageDescriptionText}>
               <Text style={styles.bold}>{msg.from_name}</Text>
-
-
+              
               {/*NOTE*/}
               {/*the whitespace character here is intentional*/}
               <Text> {msg.message_text}</Text>
-
 
             </Text>
           </View>
@@ -132,49 +141,9 @@ class Messages extends Scene {
   renderTop() {
     return (
       <View style={styles.top}>
-
-      { /* Left Tab Button */ }
-        <View style={styles.topButton}>
-          <Touchable onPress={() => this.setState({ activeTab: MESSAGES })}>
-            <Text
-              style={[
-                styles.topButtonText,
-                this.state.activeTab === MESSAGES ? { color: "#1e76ff" } : {}
-            ]}>
-              MESSAGES
-            </Text>
-          </Touchable>
-        </View>
-
-        { /* Right Tab Button */ }
-        <View style={styles.topButton}>
-          <Touchable onPress={() => this.setState({ activeTab: ACTIVITY })}>
-            <Text
-              style={[
-                styles.topButtonText,
-                this.state.activeTab === ACTIVITY ? { color: "#1e76ff" } : {}
-            ]}>
-              ACTIVITY
-            </Text>
-          </Touchable>
-        </View>
-      </View>
-    )
-  }
-
-  renderBottom() {
-    return (
-      <View style={styles.bottom}>
-        <View style={styles.bottomLeft}>
-          <Touchable onPress={() => this.onPressHelp()}>
-            {/* <HelpIcon width={24} height={24} stroke="#666" /> */}
-            <Text style={styles.bottomRightText}>Help</Text>
-          </Touchable>
-        </View>
-        <View style={styles.bottomRight}>
-          <Touchable onPress={() => this.onPressDone()}>
-            <Text style={styles.bottomRightText}>Done</Text>
-          </Touchable>
+        <View style={Object.assign({}, styles.messageImage, {"height": "100%"}) }>
+          {/* image here */}
+          { this.state.messages.length && <View style={ {"flex": 1, "width": 1, "marginBottom": -Design.paddingBottom, "backgroundColor": Palette.consentBlue} }></View> }
         </View>
       </View>
     )
@@ -182,62 +151,51 @@ class Messages extends Scene {
 
   render() {
     return (
-      <Container>
-        <BackButton navigator={this.navigator} />
-        <View style={{height: 80}}>
-          {this.renderTop()}
-        </View>
-        <Content style={{flex: 8}}>
-          <View style={{flex: 8}}>
-            {this.state.activeTab === MESSAGES ? (
-              this.renderMessages()
-            ) : (
-              this.renderActivities()
-            )}
+      !this.state.asyncActionInProgress ? 
+        <Container>
+          <BackButton navigator={this.navigator} />
+          <View style={{height: 80}}>
+            {this.renderTop()}
           </View>
-        </Content>
-        <View style={{height: 80}}>
-          <View style={{flex: 1}}>
-            {this.renderBottom()}
-          </View>
-        </View>
-      </Container>
+          <Content style={{flex: 8}}>
+            <View style={{flex: 8}}>
+              {this.state.activeTab === MESSAGES ? (
+                this.renderMessages()
+              ) : (
+                this.renderActivities()
+              )}
+            </View>
+          </Content>
+          <LifekeyFooter
+            color={ Palette.consentOffBlack }
+            backgroundColor={ Palette.consentWhite }
+            rightButtonText="Done"
+            onPressRightButton={this.onPressDone.bind(this)}
+          />
+        </Container>
+      :
+        <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
     )
   }
 }
 
 const styles = {
   content: {
-    backgroundColor: "#fff"
+    backgroundColor: Palette.consentOffWhite
   },
   bold: {
     fontWeight: "bold"
   },
   top: {
-    flex: 1,
-    flexDirection: 'row',
-    justifyContent: 'space-between'
+    width: "100%",
+    height: Design.lifekeyHeaderHeight,
+    paddingLeft: Design.paddingLeft
   },
-  topButton: {
+  topLine: {
     paddingTop: 30,
     paddingRight: 45,
     paddingBottom: 30,
     paddingLeft: 45
-  },
-  topButtonText: {
-    fontSize: 12,
-    fontWeight: "bold"
-  },
-  topRight: {
-    paddingTop: 30,
-    paddingRight: 45,
-    paddingBottom: 30,
-    paddingLeft: 45
-  },
-  topRightText: {
-    color: "#999",
-    fontSize: 12,
-    fontWeight: "bold"
   },
   middle: {
     flex: 1,
@@ -248,12 +206,26 @@ const styles = {
   message: {
     flex: 1,
     flexDirection: "row",
-    padding: 15
+    justifyContent: "center",
+    alignItems: "center",
+    paddingLeft: Design.paddingLeft,
+    padding: Design.paddingRight,
   },
   messageImage: {
     width: 30,
     justifyContent: "center",
-    alignItems: "center"
+    alignItems: "center",
+    marginTop: -Design.paddingRight, // Pull the image into the padded region of it's parent. 
+    marginBottom: -Design.paddingRight
+  },
+  messageImageLine:{
+    "width": 1
+  },
+  messageImageDot:{
+    "width": 10,
+    "height": 10,
+    "borderRadius": 5,
+    "backgroundColor": Palette.consentBlue
   },
   messageContent: {
     flex: 1

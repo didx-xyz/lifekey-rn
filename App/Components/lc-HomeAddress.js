@@ -14,6 +14,7 @@ import PropTypes from "prop-types"
 import Api from "../Api"
 import Design from "../DesignParameters"
 import Palette from "../Palette"
+import Countries from "../Countries"
 import RcItemDetail from "./ResourceComponents/rc-DetailView"
 
 class LcHomeAddress extends Component {
@@ -21,12 +22,15 @@ class LcHomeAddress extends Component {
   render () {
 
     const { expanded, streetAddress, suburb, province, country, postOfficeBoxNumber, postalCode } = this.props
+    const nationalityName = country ? Countries.find(c => c["alpha-2"] === country).name : "Not yet set"
     const astreetAddress = streetAddress ? streetAddress.replace(/ /g, '+') : null
     const asuburb = suburb ? suburb.replace(/ /g, '+') : null
     const aprovince = province ? province.replace(/ /g, '+') : null
     const acountry = country ? country.replace(/ /g, '+') : null
     
     let address = `https://maps.googleapis.com/maps/api/staticmap?center=${astreetAddress},${asuburb},${aprovince},${acountry}&zoom=14&size=400x400&${get_static_style(mapStyle)}&key=AIzaSyBRbL0z5NgbnbMRFWxRPUTO2RCr-2vNnkY`
+
+    const isPostalAddress = (!!postOfficeBoxNumber && !!postalCode) && !streetAddress
 
     if(expanded)
       return (
@@ -41,11 +45,26 @@ class LcHomeAddress extends Component {
       )
     else
       return (
-        <View style={styles.container}>
-          <Image style={styles.map} source={{ uri: `${address}` }} />
-          <View style={styles.innerFrame}>
-            <Text style={styles.imageText}> {streetAddress},{suburb},{province},{country} </Text>
-          </View>
+        <View>
+          { isPostalAddress ? 
+              <View style={styles.container}>
+                <View style={styles.map}></View>
+                <View style={styles.innerFrame}>
+                  { postOfficeBoxNumber && <Text style={ Object.assign({}, styles.imageText, {"fontSize": 18} )}>PO Box {postOfficeBoxNumber}</Text> }
+                  { (suburb && province) && <Text style={ Object.assign({}, styles.imageText, {"fontSize": 12}) }>{suburb}, {postalCode} {province}</Text> }
+                  { /* country && <Text style={ Object.assign({}, styles.imageText, {"fontSize": 12} )}>{country}</Text> */ }
+                </View>
+              </View>
+            :
+              <View style={styles.container}>
+                <Image style={styles.map} source={{ uri: `${address}` }} />
+                <View style={styles.innerFrame}>
+                  { streetAddress && <Text style={ Object.assign({}, styles.imageText, {"fontSize": 18} )}>{streetAddress}</Text> }
+                  { (suburb && province) && <Text style={ Object.assign({}, styles.imageText, {"fontSize": 12}) }>{suburb}, {postalCode} {province}</Text> }
+                  { /* country && <Text style={ Object.assign({}, styles.imageText, {"fontSize": 12} )}>{country}</Text> */ }
+                </View>
+              </View>
+          }
         </View>    
       )
   }
@@ -62,9 +81,10 @@ const styles = {
   "map": {
     "position": "absolute",
     "top": 0,
-    "bottom": -20,
+    "bottom": -10,
     "right": -20,
-    "left": -20
+    "left": -20,
+    "backgroundColor": Palette.consentGrayMedium
   },
   "innerFrame": {
       "flex": 1, 
@@ -76,7 +96,7 @@ const styles = {
     "width": "100%" 
   },
   "imageText": {
-    "color": Palette.consentBlue
+    "color": Palette.consentOffBlack
   },
   "unexpandedListCard": {
     "width": "100%",

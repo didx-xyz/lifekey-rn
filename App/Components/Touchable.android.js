@@ -11,11 +11,7 @@ const Touchable = function(props) {
   )
 
   return (
-    <TouchableNativeFeedback
-      background={background}
-      delayPressIn={0}
-      {...props}
-    >
+    <TouchableNativeFeedback useForeground={true} ripple={{ "borderless": true }} background={background} delayPressIn={0} {...props} >
       {props.children}
     </TouchableNativeFeedback>
   )

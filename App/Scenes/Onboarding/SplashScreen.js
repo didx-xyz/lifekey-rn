@@ -12,14 +12,14 @@ import Logger from '../../Logger'
 import Session from '../../Session'
 import Touchable from '../../Components/Touchable'
 import ConsentUser from '../../Models/ConsentUser'
+import LifekeyFooter from '../../Components/LifekeyFooter'
 
 import {
   Text,
   View,
   StyleSheet,
   StatusBar,
-  Image,
-  Dimensions
+  Image
 } from 'react-native'
 
 import {
@@ -32,6 +32,8 @@ import {
 } from 'native-base'
 
 import BackButton from '../../Components/BackButton'
+import Design from '../../DesignParameters'
+import Palette from '../../Palette'
 
 export default class SplashScreen extends Scene {
 
@@ -45,13 +47,15 @@ export default class SplashScreen extends Scene {
     StatusBar.setHidden(true)
   }
 
-  _readyUp() {
-    // Delay things so it doesn't look weird
+  initialize() {
     setTimeout(() => {
       this.setState({
         ready: true
       }, () => {
         const userState = Session.getState().user
+
+        console.log("SESSIONSTATE: ", Session.getState())
+
         if (userState && userState.registered) {
           this.navigator.push({
             ...Routes.authenticationPrompt,
@@ -60,19 +64,18 @@ export default class SplashScreen extends Scene {
           })
         }
       })
-    }, 1000)
+    }, 1000) // This works with 0, but doesn't work without the settimeout. Smells fishy... 
   }
 
   componentWillReceiveProps(nextProps) {
     if (nextProps.booted && !this.pushedRoute) {
       this.pushedRoute = true
-      this._readyUp()
+      this.initialize()
     }
   }
 
   componentDidMount() {
     super.componentDidFocus()
-    // Give the token a fighting chance man
     setTimeout(() => {
       ConsentUser.getToken()
       .then(result => {
@@ -103,119 +106,52 @@ export default class SplashScreen extends Scene {
   }
 
   render() {
-    const scan = (
-      <Touchable
-        onPress={() => this.navigator.push(Routes.camera.qrCodeScanner)}
-      >
-        <View style={style.buttonView} >
-          <Text style={[style.buttonText]}>Scan</Text>
-        </View>
-      </Touchable>
-    )
-
-    const start = (
-      <Touchable
-        onPress={() => this.navigator.push(Routes.onboarding.register)}
-      >
-        <View style={style.buttonView} >
-          <Text style={[style.buttonText]}>{ this.state.ready ? 'Let\'s start' : '' }</Text>
-        </View>
-      </Touchable>
-    )
 
     return (
       <Container>
-        <Content>
-          <BackButton navigator={this.navigator} onPress={() => false} />
-          <StatusBar hidden={true} />
-          <Grid>
-            <Col style={{ flex: 1, height: Dimensions.get('window').height }}>
+        <BackButton navigator={this.navigator} onPress={() => false} />
+        <StatusBar hidden={true} />
+          
+          <View style={ style.contentContainer }>
+              <View style={[style.firstRow, { backgroundColor: this.state.tokenAvailable ? null : 'red' }]}>
+                <Touchable style={{ flex: 1 }} delayLongPress={500} onLongPress={() => this.navigator.push(Routes.debug.main)} >
+                  <Image style={{ width: 150, height: 150 }} source={require('../../../App/Images/logo_big.png')} />
+                </Touchable>
+                <Text style={ style.text }>Securely store and verify personal information.</Text>
+              </View>
+              <LifekeyFooter
+                backgroundColor={ Palette.consentBlue }
+                middleButtonText={ this.state.ready && "Let's start"}
+                middleButtonIcon={ !this.state.ready && <Spinner color={ Palette.consentWhite }/>}
+                onPressMiddleButton={() => this.navigator.push(Routes.onboarding.register)}
+              />
+          </View>
 
-                <Row
-                  style={[style.firstRow, { backgroundColor: this.state.tokenAvailable ? null : 'red' }]}
-                >
-                  <Touchable
-                    style={{ flex: 1 }}
-                    delayLongPress={500}
-                    onLongPress={() => this.navigator.push(Routes.debug.main)}
-                  >
-                    <Image
-                      style={{ width: 150, height: 150 }}
-                      source={require('../../../App/Images/logo_big.png')}
-                    />
-                  </Touchable>
-                </Row>
-
-
-              <Row style={[style.secondRow]}>
-                <Row style={{ flex: 1, alignItems: 'center', justifyContent: 'center', flexDirection: 'column' }}>
-                  <View style={{ flex: 1, padding: 20, paddingTop: 40, paddingBottom: 40 }}>
-                    
-                    <View style={{ flex: 1, justifyContent: 'flex-end', paddingBottom: 2 }}>
-                      { !this.state.ready && <Spinner color="blue"/> }
-                      <Text style={{ fontSize: 20, textAlign: 'center' }}>Securely store and verify personal information.</Text>
-                    </View>
-
-                  </View>
-                </Row>
-              </Row>
-              <Row style={[style.thirdRow]}>
-                {this.state.ready ?
-                  <Text>Trusted Partner Logos</Text>
-                  :
-                  <Text>Connecting to Consent...</Text>
-                }
-              </Row>
-              <Row style={[style.buttonsRow]}>
-                <Col>
-                  {scan}
-                </Col>
-                <Col>
-                  {start}
-                </Col>
-              </Row>
-            </Col>
-          </Grid>
-
-        </Content>
       </Container>
     )
   }
 }
 
-const style = StyleSheet.create({
+const style = {
+  contentContainer: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center"
+  },
   firstRow: {
-    backgroundColor: 'white',
-    flex: 10,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  secondRow: {
-    backgroundColor: '#F5F6F6',
-    flex: 11,
-    flexDirection: 'column',
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  thirdRow: {
-    backgroundColor: '#ECEEEE',
-    flex: 4,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  buttonsRow: {
-    backgroundColor: '#216BFF',
-    flex: 5,
-    alignItems: 'center',
-    justifyContent: 'center'
-  },
-  buttonView: {
+    width: "100%",
+    backgroundColor: Palette.consentWhite,
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
   },
-  buttonText: {
-    color: 'white',
-    fontSize: 20
+  "text": {
+    "color": Palette.consentBlue,
+    "maxWidth": 200, 
+    "fontSize": 16, 
+    "textAlign": 
+    "center", 
+    "marginTop": 64,
+    "marginBottom": -96 // To center image, negate the font size (over two lines) along with the top margin.
   }
-})
+}

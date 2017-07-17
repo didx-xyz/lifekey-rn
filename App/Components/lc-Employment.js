@@ -31,14 +31,36 @@ class LcEmployment extends Component {
     else
       return (
         <View>
-          { /* <LcSummary summary={`${position} at ${company}`}></LcSummary> */ }
-          <Text>{position} at {company}</Text>
+          <View style={styles.listBody}>
+            <Text style={styles.listBodyContent}>{company}</Text>
+            <Text style={styles.listBodyTitle}>{position}</Text>
+            <Text style={styles.listBodySubtitle}>{startDate} - {endDate}</Text>
+          </View>
         </View>
       )
   }
 }
 
 const styles = {
+  "listBody":{
+    "flex": 1,
+    "justifyContent": "space-around",  
+    "paddingTop": 5,
+    "paddingBottom": 5, 
+  },
+  "listBodyTitle":{
+    "fontSize": 18,
+    "color": Palette.consentGrayDark,
+    "paddingBottom": 5
+  },
+  "listBodySubtitle":{
+    "fontSize": 12,
+    "color": Palette.consentGrayMedium
+  },
+  "listBodyContent":{
+    "fontSize": 25,
+    "color": Palette.consentGray
+  },
   "unexpandedListCard": {
     "width": "100%",
     "flexDirection": "column"
