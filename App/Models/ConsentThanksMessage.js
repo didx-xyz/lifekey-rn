@@ -33,32 +33,6 @@ class ConsentThanksMessage {
     })
   }
 
-  // static async add(created_at, from_user, amount, reason) {
-  //   const newThanksMessage = { created_at, from_user, amount, reason }
-  //   try {
-  //     const item = await AsyncStorage.getItem(STORAGE_KEY)
-  //     if (item) {
-  //       const newItem = item.concat(newThanksMessage)
-  //       const newItemJSON = JSON.parse(newItem)
-  //       const result = await AsyncStorage.setItem(STORAGE_KEY, newItemJSON)
-  //       if (result) {
-  //         Logger.info('Thanks saved', result)
-  //       } else {
-  //         Logger.warn('Thanks not saved', result)
-  //       }
-  //     }
-  //   } catch (error) {
-  //     Logger.warn('Key does not yet exist', error)
-  //     const firstItemJSON = JSON.parse(newThanksMessage)
-  //     const result = await AsyncStorage.setItem(STORAGE_KEY, firstItemJSON)
-  //     if (result) {
-  //       Logger.info('Thanks saved', result)
-  //     } else {
-  //       Logger.warn('Thanks not saved', result)
-  //     }
-  //   }
-  // }
-
   static all() {
     return AsyncStorage.getItem(
       STORAGE_KEY
