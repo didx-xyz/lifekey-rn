@@ -30,6 +30,7 @@ import ConsentUser from '../Models/ConsentUser'
 
 import fp from 'react-native-fingerprint-android'
 
+// FIXME this class needs an appstate listener to cancel any fingerprint authentication if the app goes to background
 export default class AuthenticationPrompt extends Scene {
   
   constructor(props) {
