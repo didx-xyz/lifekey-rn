@@ -5,14 +5,14 @@ class ConsentUserConnectionMessage {
 
   static storageKey = 'user_connection_message'
 
-  static async add(from_name, message_text, timestamp) {
+  static async add(from_did, message_text, timestamp) {
     try {
       const itemJSON = await AsyncStorage.getItem(this.storageKey)
       if (itemJSON) {
         // exists
         const item = JSON.parse(itemJSON)
         const updatedItem = item.concat([{
-          from_name: from_name,
+          from_did: from_did,
           message_text: message_text,
           timestamp: timestamp
         }])
@@ -24,7 +24,7 @@ class ConsentUserConnectionMessage {
       } else {
         // does not exist, create first record
         const itemJSON = JSON.stringify([{
-          from_name: from_name,
+          from_did: from_did,
           message_text: message_text,
           timestamp: timestamp
         }])
@@ -61,7 +61,7 @@ class ConsentUserConnectionMessage {
     try {
       const itemJSON = await ConsentUserConnectionMessage.all()
       return itemJSON.filter(i => {
-        return i.from_name === user
+        return i.from_did === user
       })
     } catch (error) {
       console.log(error)
