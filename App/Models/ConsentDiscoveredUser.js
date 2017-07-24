@@ -66,10 +66,9 @@ class ConsentDiscoveredUser {
    * @throws {Error} E_USER_ALREADY_EXISTS
    * @returns {boolean} success true on success
    */
-  static add(id, did, nickname, colour, image_uri, display_name, address, tel, email) {
+  static add(did, nickname, colour, image_uri, display_name, address, tel, email) {
 
     const newDiscoveredUser = {
-      id,
       did,
       nickname,
       colour,
