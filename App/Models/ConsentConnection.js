@@ -22,30 +22,19 @@ const LOGTAG = 'ConsentConnection'
 
 class ConsentConnection {
 
-  /**
-   * Add a connection
-   * @param {number} id the id of the connection
-   * @param {number} to_id the id of the user connected to
-   * @returns {boolean} true on success
-   * @throws {Error} E_COULD_NOT_FETCH_PROFILE
-   *                 E_CONNECTION_ALREADY_EXISTS
-   *                 E_COULD_NOT_SET_ITEM
-   */
   static add(id, to_did) {
-    Logger.info('id - did', JSON.stringify({ id, to_did }))
-    if (!id ||
-        !to_did ||
+    // Logger.info('id - did', JSON.stringify({ id, to_did }))
+    if (!(id && to_did) ||
         typeof to_did !== 'string' ||
         !(typeof id === 'string' || typeof id === 'number')) {
-      Promise.reject(new Error(`${id} is not a valid id or ${to_did} is not a valid did`))
+      return Promise.reject(new Error(`${id} is not a valid id or ${to_did} is not a valid did`))
     }
 
     // Fetch profile and load connections storage
     return Promise.all([
       Api.profile({ did: to_did }),
       AsyncStorage.getItem(STORAGE_KEY)
-    ])
-    .then(result => {
+    ]).then(result => {
       // Rename for clarity
       const response = result[0]
       const connectionsItemJSON = result[1]
@@ -53,6 +42,7 @@ class ConsentConnection {
       // Check response is as expected
       if (!response || !response.body || response.status !== 200) {
         Logger.warn(`Unexpected response from server. Profile for ${to_did} will not be updated.`)
+        return
       }
 
       // Reassign for clarity
@@ -62,7 +52,7 @@ class ConsentConnection {
 
       // Build object
       const newConnectionItem = {
-        id: parseInt(id, 10),
+        id: parseInt(id, 10) || null,
         to_did: to_did
       }
 
