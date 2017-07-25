@@ -18,6 +18,7 @@ import ConsentUserConnectionMessage from './Models/ConsentUserConnectionMessage'
 import {ToastAndroid} from 'react-native'
 import ConsentMessage from './Models/ConsentMessage'
 
+// FIXME the switch block nestled within this class should be changed to a jump table
 class FirebaseHandler {
   static humanReadableMessageType(message_type) {
     if (message_type === 'received_thanks') return 'Received Thanks'
@@ -35,6 +36,7 @@ class FirebaseHandler {
   }
   static messageReceived(eventEmitter, message) {
     if (message && message.type) {
+      Logger.firebase('message', JSON.stringify(message))
       Logger.firebase('message.type', message.type)
       
       new Promise(function(resolve) {
@@ -47,7 +49,12 @@ class FirebaseHandler {
           resolve.bind(resolve, null)
         )
       }).then(function(from_user) {
-        var nickname = from_user ? (from_user.nickname || from_user.display_name) : 'LifeQi'
+        from_user = from_user || {}
+        var nickname = (
+          from_user.nickname || from_user.display_name ?
+          from_user.nickname || from_user.display_name :
+          'LifeQi'
+        )
         return Promise.all([
           nickname,
           ConsentMessage.add(
@@ -66,21 +73,13 @@ class FirebaseHandler {
               nickname,
               message.amount,
               message.reason
-            ).then(function() {
-              ToastAndroid.show('added new thanks message record', ToastAndroid.SHORT)
-            }).catch(function(err) {
-              Logger.warn('Unable to access app storage. Thanks not saved.', err)
-            })
+            ).catch(console.log.bind(console, 'error saving thanks'))
           case 'received_did':
-            ConsentUser.setDid(
+            return ConsentUser.setDid(
               message.did_value
             ).then(did => {
-              Logger.info(`DID set to ${did}`, this.filename)
               eventEmitter.emit('received_did')
-            }).catch(error => {
-              Logger.error('Could not set DID', this.filename, error)
-            })
-          break
+            }).catch(console.log.bind(console, 'could not set DID'))
           case 'user_connection_request':
             Promise.all([
               Api.respondConnectionRequest({
@@ -104,44 +103,31 @@ class FirebaseHandler {
             })
           break
           case 'user_connection_created':
-            Api.profile({
-              did: message.other_user_did
-            }).then(function(profile) {
-              console.log('profile', profile)
-              return Promise.all([
-                ConsentConnection.add(
-                  message.user_connection_id,
-                  message.other_user_did
-                ),
-                ConsentDiscoveredUser.add(
-                  message.other_user_did,
-                  profile.body.user.display_name,
-                  profile.body.user.colour,
-                  profile.body.user.image_uri,
-                  profile.body.user.display_name,
-                  profile.body.user.address,
-                  profile.body.user.tel,
-                  profile.body.user.email
-                )
-              ])
-            }).then(_ => {
-              Logger.info('Connection added successfully')
+            return ConsentConnection.add(
+              message.user_connection_id,
+              message.other_user_did
+            ).then(function() {
               eventEmitter.emit('user_connection_created')
-            }).catch(error => {
-              Logger.warn("Could not add user connection", error)
-            })
-          break
-          case 'sent_activiation_email':
-          break
+              return Api.profile({did: message.other_user_did})
+            }).then(function(profile) {
+              return ConsentDiscoveredUser.add(
+                message.other_user_did,
+                profile.body.user.display_name,
+                profile.body.user.colour,
+                profile.body.user.image_uri,
+                profile.body.user.display_name,
+                profile.body.user.address,
+                profile.body.user.tel,
+                profile.body.user.email
+              )
+            }).catch(console.log.bind(console, 'user_connection_created error'))
           case 'app_activation_link_clicked':
-            eventEmitter.emit('app_activation_link_clicked')
-          break
+            return eventEmitter.emit('app_activation_link_clicked')
           case 'information_sharing_agreement_request':
-            eventEmitter.emit('information_sharing_agreement_request', message)
-          break
+            return eventEmitter.emit('information_sharing_agreement_request', message)
           case 'resource_pushed':
             message.resource_ids = JSON.parse(message.resource_ids)
-            Promise.all(
+            return Promise.all(
               message.resource_ids.map(id => Api.getResource({id: id}))
             ).then(results => {
               return Promise.resolve(
@@ -151,20 +137,23 @@ class FirebaseHandler {
               )
             }).then(verified_identity => {
               Session.update({has_verified_identity: !!verified_identity})
+              // FIXME add to storage
             }).catch(console.log)
-          break
           case 'user_message_received':
-            ConsentUserConnectionMessage.add(
-              message.from_did,
-              message.message,
-              new Date
-            ).catch(console.log)
+            return Promise.all([
+              ConsentUserConnectionMessage.add(
+                message.from_did,
+                message.message,
+                new Date
+              )
+            ]).then(function() {
+              eventEmitter.emit('user_message_received', message.from_did)
+            }).catch(console.log)
+          case 'sent_activiation_email':
+            // KEEPME
           break
           default:
-            // Logger.firebase(JSON.stringify(message))
-            // if (message.notification) {
-            //   Logger.info(message.notification.title + ' - ' + message.notification.body, this.filename)
-            // }
+            // KEEPME
           break
         }
       }).catch(Logger.warn)
