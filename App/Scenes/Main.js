@@ -5,6 +5,7 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
+import Svg, {Circle} from 'react-native-svg'
 import React, { Component } from 'react'
 import PropTypes from "prop-types"
 import ActivityIndicator from "ActivityIndicator"
@@ -28,6 +29,7 @@ import SearchBox from '../Components/SearchBox'
 import ThanksIcon from '../Components/ThanksIcon'
 import SlipIcon from '../Components/SlipIcon'
 import ProgressIndicator from "../Components/ProgressIndicator"
+import ConsentDiscoveredUser from '../Models/ConsentDiscoveredUser'
 import _ from 'lodash'
 
 import {
@@ -53,6 +55,9 @@ class Main extends Scene {
 
   constructor(props) {
     super(props)
+    this.first_load = true
+    this.is_mounted = false
+    this.cxn_unread_msgs = {}
     this.state = {
       activeTab: TAB_CONNECTED,
       searchText: '',
@@ -68,120 +73,162 @@ class Main extends Scene {
 
   componentDidMount() {
     super.componentDidMount()
-    this.loadConnections()
-    this.loadProfile()
-    this.loadActiveClients()
-    this.refreshThanksBalance()
+    this.props.firebaseInternalEventEmitter.addListener('user_message_received', this.set_unread.bind(this))
+    this.is_mounted = true
+    Promise.all([
+      this.loadConnections(),
+      this.loadProfile(),
+      this.refreshThanksBalance()
+    ]).catch(console.log.bind(console, 'error in component_did_mount'))
+  }
+
+  componentWillUnmount() {
+    this.props.firebaseInternalEventEmitter.removeListener('user_message_received', this.set_unread.bind(this))
+    this.is_mounted = false
   }
   
   componentDidFocus() {
+    if (this.first_load) {
+      this.first_load = false
+      return
+    }
     super.componentDidFocus()
-    this.loadConnections()
-    this.loadProfile()
-    this.loadActiveClients()
-    this.refreshThanksBalance()
+    Promise.all([
+      this.loadConnections(),
+      this.loadProfile(),
+      this.refreshThanksBalance()
+    ]).catch(console.log.bind(console, 'error in component_did_focus'))
   }
 
-  async loadProfile() {
-    let userName
-    try {
-      var userData = await Api.getMyData()
-      userName = userData.resourcesByType.find(rt => rt.name === 'Person').items[0].firstName
-    } catch(e) {
-      console.log('thanks balance', e)
-    }
-    console.log('USER DATA', Object.keys(userData))
-    this.setState({
-      userName: userName
+  set_unread(from) {
+    this.cxn_unread_msgs[from] = true
+  }
+
+  cxn_has_unread(cxn) {
+    return this.cxn_unread_msgs[cxn.to_did]
+  }
+
+  remove_cxn_from_unread_backlog(cxn) {
+    delete this.cxn_unread_msgs[cxn.to_did]
+  }
+
+  loadProfile() {
+    if (!this.is_mounted || this.state.userName) return
+    return Api.getMyData().then(userData => {
+      this.setState({
+        userName: userData.resourcesByType.find(
+          rt => rt.name === 'Person'
+        ).items[0].firstName
+      }, function() {
+        console.log('loadProfile')
+      })
+    }).catch(err => {
+      console.log('get my data error', err)
+      this.setState({userName: 'error'})
     })
   }
 
-  async refreshThanksBalance() {
-    try {
-      var balance = await ConsentUser.refreshThanksBalance()
-    } catch (e) {
-      console.log('thanks balance', e)
+  refreshThanksBalance() {
+    if (!this.is_mounted) return
+    return ConsentUser.refreshThanksBalance().then(balance => {
+      this.setState({
+        asyncActionInProgress: false,
+        thanksBalanceAmount: balance
+      }, function() {
+        console.log('refreshThanksBalance')
+      })
+    }).catch(err => {
+      console.log('thanks balance', err)
       this.setState({
         asyncActionInProgress: false,
         thanksBalanceAmount: '0'
+      }, function() {
+        console.log('refreshThanksBalance error')
       })
-      return
-    }
-    this.setState({
-      asyncActionInProgress: false,
-      thanksBalanceAmount: balance
     })
   }
 
-  async loadConnections(callback) {
-    try {
-      var connections = await ConsentConnection.all()
-    } catch (e) {
-      console.log('consent connections all', e)
+  loadConnections(callback) {
+    if (!this.is_mounted) {
+      (callback || function() {})()
+      return
+    }
+    return ConsentConnection.all().then(all => {
+      this.setState({
+        connections: all,
+        asyncActionInProgress: false
+      }, callback || function() {
+        console.log('load_connections')
+      })
+    }).catch(err => {
+      console.log('get all connections error')
       this.setState({
         connections: [],
         asyncActionInProgress: false
-      }, callback || function() {})
-      return
-    }
-    this.setState({
-      connections: connections,
-      asyncActionInProgress: false
-    }, callback || function() {})
+      }, callback || function() {
+        console.log('load_connections error')
+      })
+    })
   }
 
-  async loadActiveClients(callback) {
-
-    try {
-      var activeBots = await Api.getActiveBots()
-    } catch (e) {
-      console.log('get active bots', e)
-      this.setState({
-        asyncActionInProgress: false,
-        suggestedConnections: []
-      })
+  loadActiveClients(callback) {
+    if (!this.is_mounted) {
+      (callback || function() {})()
       return
     }
-    if (activeBots && activeBots.body && Array.isArray(activeBots.body)) {
-      this.setState({
-        progressCopy: 'Sorting suggestions...'
-      }, async () => {
-        try {
-          var profileResponses = await Promise.all(
+    return Api.getActiveBots().then(activeBots => {
+      if (!(activeBots && activeBots.body && Array.isArray(activeBots.body))) {
+        return Promise.reject('active bots error')
+      }
+      return new Promise((resolve, reject) => {
+        this.setState({
+          progressCopy: 'Sorting suggestions...'
+        }, async _ => {
+          console.log('loadActiveClients')
+          Promise.all(
             activeBots.body.map(bot => {
               return Api.profile({did: bot.did})
             })
-          )
-        } catch (e) {
-          console.log('profile requests', e)
-          this.setState({
-            asyncActionInProgress: false,
-            suggestedConnections: []
-          })
-          return
-        }
-        const updatedSuggestedConnections = profileResponses.map(response => {
-          if (response.body && response.body.user) {
-            return response.body.user
-          } else {
-            Logger.warn("Unexpected bot profile data")
-            return {}
-          }
+          ).then(profileResponses => {
+            return Promise.resolve(
+              profileResponses.map(response => {
+                if (response.body && response.body.user) {
+                  return response.body.user
+                } else {
+                  Logger.warn("Unexpected bot profile data")
+                  return {}
+                }
+              })
+            )
+          }).then(updatedSuggestedConnections => {
+            return Promise.resolve(
+              updatedSuggestedConnections.filter(x => {
+                return !this.state.connections.find(y => x.did === y.to_did)
+              })
+            )
+          }).then(updatedSuggestedConnectionsWithoutConnected => {
+            this.setState({
+              asyncActionInProgress: false,
+              suggestedConnections: updatedSuggestedConnectionsWithoutConnected
+            }, resolve)
+          }).catch(reject)
         })
-        const updatedSuggestedConnectionsWithoutConnected = updatedSuggestedConnections.filter(x => {
-          return !this.state.connections.find(y => x.did === y.to_did)
-        })
-        this.setState({
-          asyncActionInProgress: false,
-          suggestedConnections: updatedSuggestedConnectionsWithoutConnected
-        }, callback || function() {})
       })
-    } else {
-      Logger.warn('Directory listing result unexpected')
-    }
+    }).then(callback || function() {
+      console.log('loadActiveClients')
+    }).catch(err => {
+      console.log('get active bots error', err)
+      this.setState({
+        asyncActionInProgress: false,
+        suggestedConnections: []
+      }, function() {
+        console.log('loadActiveClients error')
+      })
+    })
   }
 
   setTab(tab) {
+    if (!this.is_mounted) return
     switch (tab) {
       case TAB_CONNECTED:
         this.setState({
@@ -208,11 +255,17 @@ class Main extends Scene {
   }
 
   updateSearch(text) {
-    this.setState({searchText: text})
+    if (!this.is_mounted) return
+    this.setState({searchText: text}, function() {
+      console.log('updateSearch')
+    })
   }
 
   clearSearch() {
-    this.setState({searchText: ''})
+    if (!this.is_mounted) return
+    this.setState({searchText: ''}, function() {
+      console.log('clearSearch')
+    })
   }
 
   _hardwareBack() {
@@ -231,6 +284,10 @@ class Main extends Scene {
   }
 
   goToConnectionDetails(connection) {
+    if (this.cxn_has_unread(connection)) {
+      console.log('cxn has unread')
+      this.remove_cxn_from_unread_backlog(connection)
+    }
     this.navigator.push({
       ...Routes.connectionDetails,
       user_did: connection.to_did,
@@ -319,14 +376,22 @@ class Main extends Scene {
                       :
                       /* CONNECTED VIEW */
                       <View style={ style.contentContainer }>
-                        { this.state.connections.map((connection, i) => (
-                            <ListItem key={i} style={style.listItem} onPress={() => this.goToConnectionDetails(this.state.connections[i])}>
-                              <View style={style.listItemWrapper}>
-                                <Image style={style.listItemImage} source={{ uri: connection.image_uri }}/>
-                                <Text style={style.listItemText}>{connection.display_name}</Text>
-                              </View>
-                            </ListItem>
-                          ))
+                        {
+                          this.state.connections.map((connection, i) => {
+                            return (
+                              <ListItem key={i} style={style.listItem} onPress={() => this.goToConnectionDetails(connection)}>
+                                <View style={style.listItemWrapper}>
+                                  <Image style={style.listItemImage} source={{ uri: connection.image_uri }}/>
+                                  <Text style={style.listItemText}>{connection.display_name}</Text>
+                                   {this.cxn_has_unread(connection) ? (
+                                     <Svg width={20} height={20}>
+                                       <Circle cx={10} cy={10} r={5} fill={'#216BFF'} strokeWidth={1} stroke={'#216BFF'} />
+                                     </Svg>
+                                    ) : null}
+                                </View>
+                              </ListItem>
+                            )
+                          })
                         }
                       </View>
                     :
