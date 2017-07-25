@@ -658,13 +658,11 @@ export default class ConsentUser {
   }
 
   static flattenCachedResources(arr) {
-    let that = this
     if (Array.isArray(arr)) {
-      return arr.reduce(function(done,curr){
-        return done.concat(that.flattenCachedResources(curr))
-        }, [])
-    } 
-    else {
+      return arr.reduce(function(done, curr) {
+        return done.concat(ConsentUser.flattenCachedResources(curr))
+      }, [])
+    } else {
       return arr
     }
   }
