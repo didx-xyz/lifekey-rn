@@ -95,13 +95,6 @@ class Lifekeyrn extends Component {
     this.initFirebaseHandlerEvents()
     this._initialRoute = this._getInitialRoute()
 
-    // What is this? - werner
-    this._messaging.getInitialNotification().then(notification => {
-      Logger.info('_messaging.getInitialNotification', notification)
-      // TODO check the structure of `notification`
-      // and decide which scene to dispatch
-    }).catch(console.log)
-
     // context behavior
     this.onBoundEditResource = this.onEditResource.bind(this)
     this.onBoundSaveResource = this.onSaveResource.bind(this)
@@ -116,12 +109,6 @@ class Lifekeyrn extends Component {
     this.boundGetEditResourceName = this.getEditResourceName.bind(this)
     this.boundGetShouldClearResourceCache = this.getShouldClearResourceCache.bind(this)
     this.boundUserHasActivated = this.userHasActivated.bind(this)
-
-    this._messaging.getInitialNotification().then(notification => {
-      Logger.info('_messaging.getInitialNotification', notification)
-      // TODO check the structure of `notification`
-      // and decide which scene to dispatch
-    }).catch(console.log)
   }
 
   getEditResourceForm() {
@@ -361,6 +348,7 @@ class Lifekeyrn extends Component {
                     route,
                     navigator,
                     _navigationEventEmitter: this._navigationEventEmitter, // Navigator events
+                    firebaseInternalEventEmitter: this.firebaseInternalEventEmitter,
                     passProps: route.passProps || {} // allow views to pass data to new views
                   }
                 )}
