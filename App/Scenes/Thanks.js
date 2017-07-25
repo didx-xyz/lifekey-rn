@@ -122,7 +122,7 @@ export default class Thanks extends Scene {
                     'You were awarded',
                     receipt.amount,
                     'Thanks by',
-                    receipt.from.nickname
+                    receipt.from
                   ].concat(
                     receipt.reason ?
                     ['for', receipt.reason].join(' ') :

@@ -10,6 +10,8 @@ import PropTypes from "prop-types"
 import Scene from '../../Scene'
 import Design from '../../DesignParameters'
 import Palette from '../../Palette'
+import Crypto from '../../Crypto'
+import Config from '../../Config'
 // import Routes from '../../Routes'
 import Logger from '../../Logger'
 import ConsentUser from '../../Models/ConsentUser'
@@ -42,7 +44,7 @@ import {
 
 import fp from 'react-native-fingerprint-android'
 
-// import HexagonDots from '../../Components/HexagonDots'
+import HexagonDots from '../../Components/HexagonDots'
 // import Dots from '../../Components/Dots'
 import OnboardingTextInputAndroid from '../../Components/OnboardingTextInputAndroid'
 import EventTimeline from '../../Components/EventTimeline'
@@ -287,6 +289,7 @@ class Register extends Scene {
 
 
   requestMagicLink() {
+    ToastAndroid.show('Registering...', ToastAndroid.SHORT)
     Promise.all([
       fp.isHardwareDetected(),
       fp.hasPermission(),
@@ -294,11 +297,16 @@ class Register extends Scene {
     ]).then(res => {
       var [hardware, permission, enrolled] = res
       return ConsentUser.register(this.state.user, hardware && permission && enrolled)
-    }).then(result => {
-      ToastAndroid.show('Registering...', ToastAndroid.SHORT)
     }).catch(error => {
       console.log(error)
       ToastAndroid.show('Registration unsuccessful...', ToastAndroid.SHORT)
+      Crypto.getKeyAliases().then(function(aliases) {
+        return Promise.all(
+          aliases.map(Crypto.deleteKeyEntry)
+        )
+      }).catch(
+        console.log.bind(console, 'error while deleting keystore private key entries')
+      )
       this.resetRegistration()
     })
   }
