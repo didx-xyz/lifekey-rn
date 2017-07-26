@@ -562,7 +562,7 @@ export default class ConsentUser {
     })
   }
 
-  // NEW 
+  // * USER DATA AND PROFILE * //
 
   static async refreshThanksBalance() {
     return Api.thanksBalance().then(function(res) {
@@ -618,8 +618,10 @@ export default class ConsentUser {
   }
 
   static updateProfile(profile) {
-    console.log("UPDATED PROFILE: ", profile)
-    profile.profileImageUri = profile && profile.image_uri ? `data:image/jpg;base64,${profile.image_uri}` : Anonymous.uri
+    
+    // console.log("UPDATED PROFILE: ", profile)
+    profile.image_uri = Common.ensureDataUrlIsCleanOfContext(profile.image_uri)
+    profile.image_uri = `data:image/jpg;base64,${profile.image_uri}`
     ConsentUser.setCached('profile', profile, 300000)
   }
 
@@ -776,4 +778,14 @@ export default class ConsentUser {
     return { resourcesByType: resourceTypes, profilePicUrl: identityPhotographUri }
 
   }
+
+  // * END USER DATA AND PROFILE * //
+
+  // * USER CONNECTIONS * //
+
+
+    
+
+
+  // * END USER CONNECTIONS * //
 }

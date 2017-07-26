@@ -29,7 +29,6 @@ import {
   Keyboard,
   Platform,
   Animated,
-  InteractionManager,
   TextInput,
   ToastAndroid
 } from 'react-native'

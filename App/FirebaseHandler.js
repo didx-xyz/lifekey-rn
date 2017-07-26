@@ -18,8 +18,8 @@ import ConsentUserConnectionMessage from './Models/ConsentUserConnectionMessage'
 import {ToastAndroid} from 'react-native'
 import ConsentMessage from './Models/ConsentMessage'
 
-// FIXME the switch block nestled within this class should be changed to a jump table
 class FirebaseHandler {
+  
   static humanReadableMessageType(message_type) {
     if (message_type === 'received_thanks') return 'Received Thanks'
     if (message_type === 'received_did') return 'Received a Decentralised Identifier'
@@ -34,6 +34,114 @@ class FirebaseHandler {
     if (message_type === 'user_message_received') return 'Received User Connection Message'
     return 'Unknown Message Type'
   }
+  
+  static received_thanks(message, eventEmitter) {
+    return ConsentThanksMessage.add(
+      new Date,
+      nickname,
+      message.amount,
+      message.reason
+    ).catch(console.log.bind(console, 'error saving thanks'))
+  }
+  
+  static user_connection_request(message, eventEmitter) {
+    // Make this more intelligent 
+
+    Logger.firebase('user_connection_request', message)
+    Api.getMyConnections(300000, true)
+  }
+  
+  static user_connection_created(message, eventEmitter) {
+    Logger.firebase('user_connection_created', message)
+    ConsentConnection.add(
+      message.user_connection_id,
+      message.to_did
+    ).then(_ => {
+      Logger.info('Connection added successfully')
+      eventEmitter.emit('user_connection_created')
+      return Api.profile({did: message.other_user_did})
+    }).then(function(profile) {
+      return ConsentDiscoveredUser.add(
+        message.other_user_did,
+        profile.body.user.display_name,
+        profile.body.user.colour,
+        profile.body.user.image_uri,
+        profile.body.user.display_name,
+        profile.body.user.address,
+        profile.body.user.tel,
+        profile.body.user.email
+      )
+    }).catch(console.log.bind(console, 'user_connection_created error'))
+  }
+  
+  static user_connection_deleted(message, eventEmitter) {}
+  
+  static information_sharing_agreement_request(message, eventEmitter) {
+    Logger.firebase('information_sharing_agreement_request', message)
+    eventEmitter.emit('information_sharing_agreement_request', message)
+  }
+  
+  static information_sharing_agreement_request_rejected(message, eventEmitter) {}
+  
+  static information_sharing_agreement_request_accepted(message, eventEmitter) {}
+  
+  static information_sharing_agreement_deleted(message, eventEmitter) {}
+  
+  static information_sharing_agreement_updated(message, eventEmitter) {}
+  
+  static resource_pushed(message, eventEmitter) {
+    message.resource_ids = JSON.parse(message.resource_ids)
+    return Promise.all(
+      message.resource_ids.map(id => Api.getResource({id: id}))
+    ).then(results => {
+      return Promise.resolve(
+        results.find(
+          result => result.body.schema.indexOf('schema.cnsnt.io/verified_identity') > -1
+        )
+      )
+    }).then(verified_identity => {
+      Session.update({has_verified_identity: !!verified_identity})
+      // FIXME add to storage
+    }).catch(console.log)
+  }
+  
+  static sent_activation_email(message, eventEmitter) {
+    Logger.firebase('sent_activiation_email')
+  }
+  
+  static app_activation_link_clicked(message, eventEmitter) {
+    Logger.firebase('app_activation_link_clicked')
+    eventEmitter.emit('app_activation_link_clicked')
+  }
+  
+  static received_did(message, eventEmitter) {
+    Logger.firebase('received_did')
+    ConsentUser.setDid(
+      message.did_value
+    ).then(did => {
+      Logger.info(`DID set to ${did}`, this.filename)
+      eventEmitter.emit('received_did')
+    }).catch(error => {
+      Logger.error('Could not set DID', this.filename, error)
+    })
+  }
+  
+  static received_thanks(message, eventEmitter) {}
+  
+  static user_message_received(message, eventEmitter) {
+    return Promise.all([
+      ConsentUserConnectionMessage.add(
+        message.from_did,
+        message.message,
+        new Date
+      )
+    ]).then(function() {
+      eventEmitter.emit('user_message_received', message.from_did)
+    }).catch(console.log)
+  }
+
+  static isa_ledgered(message, eventEmitter) {}
+
   static messageReceived(eventEmitter, message) {
     if (message && message.type) {
       Logger.firebase('message', JSON.stringify(message))
@@ -66,96 +174,9 @@ class FirebaseHandler {
       }).then(function(res) {
         var [nickname] = res
         
-        switch (message.type) {
-          case 'received_thanks':
-            return ConsentThanksMessage.add(
-              new Date,
-              nickname,
-              message.amount,
-              message.reason
-            ).catch(console.log.bind(console, 'error saving thanks'))
-          case 'received_did':
-            return ConsentUser.setDid(
-              message.did_value
-            ).then(did => {
-              eventEmitter.emit('received_did')
-            }).catch(console.log.bind(console, 'could not set DID'))
-          case 'user_connection_request':
-            Promise.all([
-              Api.respondConnectionRequest({
-                user_connection_request_id: message.user_connection_request_id,
-                accepted: true
-              }),
-              ConsentDiscoveredUser.add(
-                message.from_id,
-                message.from_did,
-                message.from_nickname
-              )
-            ]).then(result => {
-              const {
-                response,
-                connectionRequests,
-                discoveredUsers
-              } = result
-              Logger.info('Connection Request Accepted')
-            }).catch(error => {
-              Logger.error(error)
-            })
-          break
-          case 'user_connection_created':
-            return ConsentConnection.add(
-              message.user_connection_id,
-              message.other_user_did
-            ).then(function() {
-              eventEmitter.emit('user_connection_created')
-              return Api.profile({did: message.other_user_did})
-            }).then(function(profile) {
-              return ConsentDiscoveredUser.add(
-                message.other_user_did,
-                profile.body.user.display_name,
-                profile.body.user.colour,
-                profile.body.user.image_uri,
-                profile.body.user.display_name,
-                profile.body.user.address,
-                profile.body.user.tel,
-                profile.body.user.email
-              )
-            }).catch(console.log.bind(console, 'user_connection_created error'))
-          case 'app_activation_link_clicked':
-            return eventEmitter.emit('app_activation_link_clicked')
-          case 'information_sharing_agreement_request':
-            return eventEmitter.emit('information_sharing_agreement_request', message)
-          case 'resource_pushed':
-            message.resource_ids = JSON.parse(message.resource_ids)
-            return Promise.all(
-              message.resource_ids.map(id => Api.getResource({id: id}))
-            ).then(results => {
-              return Promise.resolve(
-                results.find(
-                  result => result.body.schema.indexOf('schema.cnsnt.io/verified_identity') > -1
-                )
-              )
-            }).then(verified_identity => {
-              Session.update({has_verified_identity: !!verified_identity})
-              // FIXME add to storage
-            }).catch(console.log)
-          case 'user_message_received':
-            return Promise.all([
-              ConsentUserConnectionMessage.add(
-                message.from_did,
-                message.message,
-                new Date
-              )
-            ]).then(function() {
-              eventEmitter.emit('user_message_received', message.from_did)
-            }).catch(console.log)
-          case 'sent_activiation_email':
-            // KEEPME
-          break
-          default:
-            // KEEPME
-          break
-        }
+        // invoke firebase message handler
+        FirebaseHandler[message.type](message, eventEmitter)
+        
       }).catch(Logger.warn)
     } else if (message.notification) {
       Logger.firebase(JSON.stringify(message))

@@ -14,7 +14,7 @@ import Config from '../../Config'
 import Touchable from '../../Components/Touchable'
 import ConsentUser from '../../Models/ConsentUser'
 
-import { Text, View, Image } from 'react-native'
+import { Text, View, Image, Dimensions, StatusBar } from 'react-native'
 import { Container, Content } from 'native-base'
 
 // internal dependencies
@@ -44,11 +44,6 @@ class Badges extends Component  {
                         <View style={styles.badgeName}>
                           <Text style={styles.badgeNameText}>{b.name}</Text>                      
                         </View>
-                        { /* <View style={styles.badgeDescription}>
-                          <Text style={styles.badgeDescriptionText}>
-                            Complete RICA documentation with verification from Absa Bank.
-                          </Text> 
-                        </View> */ }
                       </View>
                     </View>
                 )
@@ -64,13 +59,13 @@ class Badges extends Component  {
 
 const styles = {
   "content": { 
-    "height": 650,
+    "height": Dimensions.get('window').height - Design.lifekeyHeaderHeight - StatusBar.currentHeight,
     "flex": 1,
     "backgroundColor": Palette.consentGrayLightest,
     "alignItems": "center",
     "justifyContent": "flex-start",
-    "paddingRight": Design.paddingRight,
-    "paddingLeft": Design.paddingLeft,
+    "paddingRight": Design.paddingRight / 2,
+    "paddingLeft": Design.paddingLeft / 2,
   },
   "badge": {
     "flex": 1,

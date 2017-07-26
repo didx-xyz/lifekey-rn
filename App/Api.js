@@ -96,7 +96,7 @@ export default class Api {
       'accepted' // true/false (in body)
     ], data)
     return request(`/management/connection/${data.user_connection_request_id}`, {
-      body: JSON.stringify({ accepted: data.accepted }),
+      body: JSON.stringify({ accepted: data.accepted === "yes" ? true : false }),
       method: 'POST'
     }, true, fingerprint)
   }
@@ -115,11 +115,17 @@ export default class Api {
   static requestISA(data, fingerprint = false) {
     checkParameters([
       'to',
-      'requested_schemas',
+      // 'requested_schemas',
+      'required_entities',
       'purpose',
       'license'
     ], data)
+
+    console.log("typecheck to: ", data.to, " | license: ", data.license, " | purpose: ", data.purpose)
+    console.log('typecheck required_entities', Array.isArray(data.required_entities) && data.required_entities.length)
+
     return request('/management/isa', {
+      body: JSON.stringify(data),
       method: 'POST'
     }, true, fingerprint)
   }
@@ -200,7 +206,10 @@ export default class Api {
   
   static getMyData(milliseconds = 300000){
     let cached = ConsentUser.getCached("myData")
-    if (cached && cached.valid) return Promise.resolve(cached)
+    if (cached && cached.valid) {
+      console.log("SERVED CACHED")
+      return Promise.resolve(cached)
+    }
     return Promise.all([
       this.allResourceTypes(),
       this.allResources()
@@ -335,8 +344,8 @@ export default class Api {
     let cached = ConsentUser.getCached("profile")
 
     if(cached){
-      console.log('return cached profile')
-      console.log("CACHED:::: ", cached)
+      console.log('SERVED cached profile')
+      // console.log("CACHED:::: ", cached)
       return Promise.resolve(cached)
     }
     
@@ -350,15 +359,6 @@ export default class Api {
 
   // 5.5 POST /profile/:did
   static setProfile(data) {
-    // checkParameters([
-    //   'contactAddress',
-    //   'contactEmail',
-    //   'contactTelephone',
-    //   'displayName',
-    //   'label',
-    //   'profileColour',
-    //   'profileImageUri'
-    // ], data)
     return request('/profile', {
       method: 'POST',
       body: JSON.stringify(data)
@@ -410,10 +410,88 @@ export default class Api {
       'created_by',
       'challenge'
     ], data)
-    return request(`/trustbanklogin`, {
+    return request(`/web-auth`, {
       method: 'POST',
       body: JSON.stringify(data)
     })
+  }
+
+  // #########################
+  // ###### CONNECTIONS ######
+  // #########################
+
+  static getMyConnections(milliseconds = 300000, skipCache = false){
+
+    if(!skipCache){
+      let cached = ConsentUser.getCached("myConnections")
+      if (cached && cached.valid) {
+        console.log("SERVED CACHED CONNECTIONS")
+        return Promise.resolve(cached)
+      }
+    }
+    
+    return Promise.all([
+      this.allConnections(),
+      this.getActiveBots()
+    ]).then( async values => {
+
+
+      console.log("ENABLED ORIGINAL: ", values[0].body.enabled)
+      console.log("UNENABLED ORIGINAL: ", values[0].body.unacked)
+
+
+      const enabledConnections = (await this.getConnectionProfiles(values[0].body.enabled, "other_user_did")) 
+                                            .map(connection => connection.body.user)
+
+      const enabledPeerConnections = enabledConnections.filter(connection => connection.is_human)
+                                                       .map(connection => { 
+                                                         const original = values[0].body.enabled.find(obj => obj.other_user_did === connection.did)
+                                                         return Object.assign({}, connection, { user_connection_id: original.user_connection_id, image_uri: `data:image/jpg;base64,${connection.image_uri}` })
+                                                       })
+
+      const enabledBotConnections = enabledConnections.filter(connection => !connection.is_human)
+
+      console.log("ENABLED PEERS: ", enabledPeerConnections)
+      console.log("ENABLED BOTS: ", enabledBotConnections)
+
+      const pendingPeerConnections = (await this.getConnectionProfiles(values[0].body.unacked, "from_did"))
+                                                .map(connection => connection.body.user)
+                                                .filter(connection => connection.is_human)
+                                                .map(connection => { 
+                                                  const original = values[0].body.unacked.find(obj => obj.from_did === connection.did)
+                                                  return Object.assign({}, connection, { user_connection_request_id: original.user_connection_request_id })
+                                                })
+                                                .map(connection => Object.assign({}, connection, { image_uri: `data:image/jpg;base64,${connection.image_uri}` }))
+
+      const pendingBotConnections = (await this.getConnectionProfiles(values[1].body, "did"))
+                                               .map(x => x.body.user)
+                                               .filter(x => !x.is_human)
+                                               .filter(x => !enabledConnections.some(y => x.did === y.did))
+
+      console.log("PENDING PEERS: ", pendingPeerConnections)
+      console.log("PENDING BOTS: ", pendingBotConnections)
+
+      const myConnections = {
+        "peerConnections": enabledPeerConnections,
+        "botConnections": enabledBotConnections,
+        "pendingPeerConnections": pendingPeerConnections,
+        "pendingBotConnections": pendingBotConnections
+      }
+
+      ConsentUser.setCached("myConnections", myConnections, 300000)
+      return ConsentUser.getCached("myConnections")
+
+    })
+  }
+
+  static getConnectionProfiles(connections, propertyName){
+
+    return Promise.all(
+      connections.map(connection => {
+        return this.profile({did: connection[propertyName]})
+      })
+    )
+
   }
 
 

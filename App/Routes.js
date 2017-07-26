@@ -1,9 +1,3 @@
-/**
- * Lifekey App
- * @copyright 2016 Global Consent Ltd
- * Civvals, 50 Seymour Street, London, England, W1H 7JG
- * @author Werner Roets <werner@io.co.za>
- */
 
 // Debug
 import DebugMain from './Scenes/Debug/DebugMain'
@@ -19,21 +13,18 @@ import DebugListIsas from './Scenes/Debug/DebugListIsas'
 // Main
 import Main from './Scenes/Main'
 import Me from './Scenes/Me'
+import Menu from './Scenes/Menu'
 import HelpGeneral from './Scenes/HelpGeneral'
-import HelpScreens from './Scenes/Onboarding/HelpScreens'
-import MeConnect from './Scenes/MeConnect'
 import FaceMatch from './Scenes/FaceMatch'
 import SetPin from './Scenes/Onboarding/SetPin'
 import Unlocked from './Scenes/Onboarding/Unlocked'
 import ConnectionDetails from './Scenes/ConnectionDetails'
-import ConfirmInformationShare from './Scenes/ConfirmInformationShare'
 import Connection from './Scenes/Connection'
-import ConnectionP2P from './Scenes/ConnectionP2P'
+import ConnectionPeerToPeer from './Scenes/ConnectionP2P'
+import ConnectionPeerToPeerRequest from './Scenes/ConnectionP2PRequest'
+import ConnectionDetailsPeerToPeer from './Scenes/ConnectionDetailsP2P'
 import InformationRequest from './Scenes/InformationRequest'
-import SelectResourceOfType from './Scenes/SelectResourceOfType'
-import Badges from './Scenes/Badges'
 import Messages from './Scenes/Messages'
-import BadgeDetail from './Scenes/BadgeDetail'
 import EditResource from './Scenes/EditResource'
 import EditProfile from './Scenes/EditProfile'
 import Thanks from './Scenes/Thanks'
@@ -53,19 +44,16 @@ import SelfieCam from './Scenes/Camera/SelfieCam'
 export default {
   main: { scene: Main },
   me: { scene: Me },
+  menu: { scene: Menu },
   helpGeneral: { scene: HelpGeneral },
-  helpScreens: { scene: HelpScreens },
-  meConnect: { scene: MeConnect },
   faceMatch: { scene: FaceMatch },
   connectionDetails: { scene: ConnectionDetails },
-  confirmInformationShare: { scene: ConfirmInformationShare },
   connection: { scene: Connection },
-  ConnectionPeerToPeer: { scene: ConnectionP2P },
+  connectionDetailsPeerToPeer: { scene: ConnectionDetailsPeerToPeer },
+  connectionPeerToPeer: { scene: ConnectionPeerToPeer },
+  connectionPeerToPeerRequest: { scene: ConnectionPeerToPeerRequest },
   informationRequest: { scene: InformationRequest },
-  selectResourceOfType: { scene: SelectResourceOfType },
-  badges: { scene: Badges },
   messages: { scene: Messages },
-  badgeDetail: { scene: BadgeDetail },
   editResource: { scene: EditResource },
   editProfile: { scene: EditProfile },
   thanks: {scene: Thanks},

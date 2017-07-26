@@ -10,6 +10,7 @@ import Scene from '../../Scene'
 import Routes from '../../Routes'
 import Palette from '../../Palette'
 import Api from '../../Api'
+import Common from '../../Common'
 import CameraCrosshair from '../../Components/CameraCrosshair'
 import LifekeyFooter from '../../Components/LifekeyFooter'
 import {
@@ -38,9 +39,11 @@ export default class QRCodeScanner extends Scene {
       readyToScan: true
     }
     this.scannerActive = true
+
+    this.onBoundCancel = this.onCancel.bind(this)
   }
   _onAttention() {
-    StatusBar.setHidden(true)
+    Common.toggleStatusBar(StatusBar, true, "fade")
   }
 
   componentWillMount() {
@@ -53,7 +56,8 @@ export default class QRCodeScanner extends Scene {
     this._onAttention()
 
   }
-  _hardwareBackHandler() {
+  onCancel() {
+    Common.toggleStatusBar(StatusBar, false, "fade") // Try control this better from a centralized point.
     this.navigator.pop()
     return true
   }
@@ -93,8 +97,9 @@ export default class QRCodeScanner extends Scene {
 
   connectP2P(data) {
     const parsedData = JSON.parse(data.data)
+    console.log("PARSED PROFILE: ", parsedData)
     this.navigator.push({
-      ...Routes.ConnectionPeerToPeer,
+      ...Routes.connectionPeerToPeerRequest,
       profile: parsedData
     })
   }
@@ -103,6 +108,8 @@ export default class QRCodeScanner extends Scene {
     
     console.log("TRUSTBANK 1: ", data.data)
     const parsedData = JSON.parse(data.data)
+
+    console.log("PARSED 1: ", parsedData)
 
     return Api.trustBankLogin(parsedData).then(response => {
 
@@ -124,9 +131,9 @@ export default class QRCodeScanner extends Scene {
   _onBarCodeRead(data) {
 
     console.log("DATA: ", data)
-    
 
     if (this.scannerActive) {
+      
       this.scannerActive = false
 
       // Here we need to build a switch that identifies the nature of the request 
@@ -148,7 +155,7 @@ export default class QRCodeScanner extends Scene {
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: 'black' }}>
-        <AndroidBackButton onPress={() => this._hardwareBackHandler()}/>
+        <AndroidBackButton onPress={this.onBoundCancel}/>
         { this.state.showCamera ?
           <Camera
             ref={(cam) => { this.camera = cam }}
@@ -170,7 +177,7 @@ export default class QRCodeScanner extends Scene {
         <LifekeyFooter
           backgroundColor={ Palette.consentBlue }
           leftButtonText="Cancel"
-          onPressLeftButton={() => this.navigator.pop()}
+          onPressLeftButton={this.onBoundCancel}
         />
         { /* <View style={style.boxBottom}>
           <Grid>

@@ -11,10 +11,11 @@ import ActivityIndicator from "ActivityIndicator"
 // internal dependencies
 import Api from "../../Api"
 import ConsentUser from "../../Models/ConsentUser"
-import BackButton from "../../Components/BackButton"
 import Touchable from "../../Components/Touchable"
+import GearIcon from "../../Components/GearIcon"
 import Countries from "../../Countries"
 import Languages from "../../Languages"
+import Common from "../../Common"
 import Palette from "../../Palette"
 import Design from "../../DesignParameters"
 import Routes from "../../Routes"
@@ -25,10 +26,14 @@ class EditForm extends Component{
   render(){
     return (
       <View style={ Object.assign({}, styles.content, { backgroundColor: this.props.backgroundColor} )}>
-        <BackButton onPress={ this.props.onPressCancel } /> 
         <ScrollView style={styles.card}>
-             <View style={styles.heading}>
+            <View style={styles.heading}>
               <Text style={styles.headingText}>{this.context.getEditResourceName()}</Text>
+              <Touchable onPress={this.props.onDelete} hitSlop={Common.touchableArea}>
+                <View style={ styles.deleteContainer}>
+                  <GearIcon width={30} height={30} stroke={Palette.consentGrayDark}></GearIcon>
+                </View>
+              </Touchable> 
             </View>  
             { this.props.error !== "" &&
               <View style={styles.error}>
@@ -105,6 +110,8 @@ class EditForm extends Component{
 
   renderStringInput(entity, i) {
 
+    const keyboardType = this.determineKeyboardType(entity)
+
     return (
       <TextInput
         style={styles.textInput}
@@ -113,10 +120,41 @@ class EditForm extends Component{
         placeholder={entity.initialValue}
         autoCapitalize="sentences"
         autoCorrect={false}
+        keyboardType={keyboardType}
         returnKeyType="done"
         underlineColorAndroid="rgba(0, 0, 0, 0)"
       />
     )
+  }
+
+  determineKeyboardType(entity){
+    
+    let keyboardType
+    
+    switch(entity.name){
+      case("email"):
+        keyboardType = "email-address"
+        break
+      case("contactEmail"):
+        keyboardType = "email-address"
+        break
+      case("contactTelephone"):
+        keyboardType = "numeric"
+        break
+      case("telephone"):
+        keyboardType = "numeric"
+        break
+      case("postOfficeBoxNumber"):
+        keyboardType = "numeric"
+        break
+      case("postalCode"):
+        keyboardType = "numeric"
+        break
+      default:
+        keyboardType = "default"
+    }
+
+    return keyboardType
   }
 
   renderDateInput(entity, i) {
@@ -251,15 +289,23 @@ const styles = {
   "heading": {
     "height": 64,
     "width": "100%",
+    "flexDirection": "row",
     "borderBottomWidth": 1,
     "borderBottomColor": Palette.consentBlue,
-    "alignItems": "flex-start",
-    "justifyContent": "center"
+    // "alignItems": "flex-start",
+    "alignItems": "center",
+    "justifyContent": "space-around"
   },
   "headingText": {
+    "flex": 4,
     "textAlign": "left",
     "color": Palette.consentBlue,
     "fontSize": 20
+  },
+  "deleteContainer":{
+    "flex": 1,
+    "alignItems": "center",
+    "justifyContent": "center",
   },
   "formField": {
     "paddingTop": 5,

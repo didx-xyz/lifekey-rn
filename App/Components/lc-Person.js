@@ -71,7 +71,7 @@ class LcPerson extends Component {
           <View style={styles.listBody}>
             <Text style={styles.listBodyContent}>{firstName} {lastName}</Text>
             <Text style={styles.listBodySubtitle}>{nationalityName}</Text>
-            <Text style={styles.listBodySubtitle}>{birthDate}, {birthPlace}</Text>
+            <Text style={styles.listBodySubtitle}>{ birthDate ? <Text>{birthDate}, {birthPlace}</Text> : <Text>Not yet set</Text>}</Text>
             <Text style={styles.listBodySubtitle}>{preferredLanguageName}</Text>
           </View>
         </View>

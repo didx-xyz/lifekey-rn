@@ -31,7 +31,9 @@ class LcProfile extends Component {
       email
     } = this.props
 
-    const identityPhotographUri = image_uri ? `data:image/jpg;base64,${image_uri}` : Anonymous.uri
+    const identityPhotographUri = image_uri || Anonymous.uri
+
+    console.log("PROFILE PHOTO: " , identityPhotographUri)
 
     return (
         <View style={styles.cardContainer}>

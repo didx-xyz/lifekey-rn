@@ -70,7 +70,7 @@ class LifekeyHeader extends Component {
         {
           this.props.tabs.map((tab, i) => {
             return (
-              <Touchable key={i} onPress={tab.onPress}>
+              <Touchable key={i} onPress={tab.onPress} noRipple={true}>
                 <View style={style.tab}>
                   <Text style={
                     tab.active ? (
