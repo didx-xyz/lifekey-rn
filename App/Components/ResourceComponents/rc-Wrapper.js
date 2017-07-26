@@ -26,29 +26,27 @@ class RcWrapper extends Component {
     }
   }
 
-  onWrapperShareIntent(resourceTypeName, resourceTypeSchema, resourceId) {
+  onWrapperShareIntent(resourceId) {
     this.setState({
       modalVisible: true,
-      resourceTypeName: resourceTypeName,
-      resourceTypeSchema: resourceTypeSchema,
       resourceId: resourceId
     });
-    console.log("SHARED IN WRAPPER! ", resourceTypeName)
+    console.log("SHARED IN WRAPPER! ", resourceId)
   }
 
   onPeerSelection(peer){
     console.log("PICKED PEER: ", peer.did)
     this.setState({
-      peerId: peer.did
+      peerId: peer.did,
+      isa_id: peer.isa_id
     });
   }
   onShareConfirm(next) {
-    if(!this.state.resourceTypeName || !this.state.resourceTypeSchema || !this.state.resourceId || !this.state.peerId) return 
-    this.props.onPressShare(this.state.resourceTypeName, this.state.resourceTypeSchema , this.state.peerId, this.state.resourceId)
+    if(!this.state.isa_id || !this.state.peerId || !this.state.resourceId) return 
+    this.props.onPressShare(this.state.isa_id, this.state.peerId, this.state.resourceId)
     this.setState({
       modalVisible: false,
-      resourceTypeName: null,
-      resourceTypeSchema: null,
+      isa_id: null,
       resourceId: null,
       peerId: null
     });
@@ -56,8 +54,7 @@ class RcWrapper extends Component {
   onShareDeny() {
     this.setState({
       modalVisible: false,
-      resourceTypeName: null,
-      resourceTypeSchema: null,
+      isa_id: null,
       resourceId: null,
       peerId: null
     });
@@ -119,7 +116,7 @@ class RcWrapper extends Component {
             const pendingState = resource.pending ? { "opacity": 0.3 } : {}
             const onEdit = resourceType.name === "Public Profile" ? onPressProfile  : onPressEdit.bind(this, resource.form, resource.id, resourceType.name)
             // const onDelete = resourceType.name === "Public Profile" ? null  : onPressDelete.bind(this, resource.id)
-            const onShare = resourceType.name === "Public Profile" ? null  : this.onWrapperShareIntent.bind(this, resourceType.name, resource.schema, resource.id ) //
+            const onShare = resourceType.name === "Public Profile" ? null  : this.onWrapperShareIntent.bind(this, resource.id ) //
             const heading = resourceType.name === "Public Profile" ? "Public Profile" : resource.label
 
             return (

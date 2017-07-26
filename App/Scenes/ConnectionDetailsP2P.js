@@ -28,12 +28,12 @@ import Logger from "../Logger"
 
 import MyData from "../Components/SceneComponents/MyData"
 import Connect from "../Components/SceneComponents/Connect"
-import Badges from "../Components/SceneComponents/Badges"
+import ConnectionData from "../Components/SceneComponents/ConnectionData"
 import CircularImage from "../Components/CircularImage"
 
 const CONNECT = 0
-const MY_DATA = 1
-const BADGES = 2
+const CONNECTION_DATA = 1
+const MY_DATA = 2
 
 const helpScreens = [ 
   { "image": require("../Images/onboarding_test.png"), "heading": "Identify", "copy": "Qi Identity is my digital passport" }, 
@@ -49,58 +49,58 @@ class ConnectionDetailsPeerToPeer extends Scene {
     super(...params)
 
     this.state = {
-      "activeTab": MY_DATA,
-      "tabName": "My Data",
-      "resources": [],
-      "resourceTypes": [],
+      "activeTab": CONNECTION_DATA,
+      // "tabName": "Connection Data",
       "sortedResourceTypes": [],
-      "sortedBadges": [],
+      "connectionData": [],
+      "fullResources": [],
       "informationSource": "MY CODE",
-      "progressCopy": "Loading...",
-      "asyncActionInProgress": true,
-      "scrollview": null
+      "progressCopy": "Loading connection data...",
+      "asyncActionInProgress": true
     }
 
-    this.onBoundPressHelp = this.onPressHelp.bind(this)
-    this.onBoundPressDelete = this.onPressDelete.bind(this)
-    this.onBoundPressEdit = this.onPressEdit.bind(this)
-    this.onBoundShowContextMenu = this.onShowContextMenu.bind(this)
-    this.onBoundPressProfile = this.onPressProfile.bind(this)
+    this.onBoundFetchFullResource = this.fetchFullResource.bind(this)
+
+    // this.onBoundPressHelp = this.onPressHelp.bind(this)
+    // this.onBoundPressDelete = this.onPressDelete.bind(this)
+    // this.onBoundPressEdit = this.onPressEdit.bind(this)
+    // this.onBoundShowContextMenu = this.onShowContextMenu.bind(this)
+    // this.onBoundPressProfile = this.onPressProfile.bind(this)
   }
 
-  onPressHelp(destination, helpScreens, navigationType) {
-    this.navigator.push({...Routes.helpGeneral, "destination": destination, "screens": helpScreens, "navigationType": navigationType })
-  }
+  // onPressHelp(destination, helpScreens, navigationType) {
+  //   this.navigator.push({...Routes.helpGeneral, "destination": destination, "screens": helpScreens, "navigationType": navigationType })
+  // }
 
-  onPressEdit(form, id = null, name = null) {
-    this.context.onEditResource(form, id, name)
-  }
+  // onPressEdit(form, id = null, name = null) {
+  //   this.context.onEditResource(form, id, name)
+  // }
 
-  onPressDelete(id){
-    ConsentUser.setPendingState(id, 'pendingDelete')
-    this.fetchMyData().then(() => {
-      Api.deleteResource({ id })
-       .then(() => {
-        ConsentUser.removeFromState(id)
-        this.fetchMyData()
-        ToastAndroid.show('Resource deleted...', ToastAndroid.SHORT)
-       })
-       .catch(error => {
-        ToastAndroid.show('Failed to delete resource...', ToastAndroid.SHORT)
-        Logger.warn('Could not delete resource: ', error)
-       })
-    }) 
-  }
+  // onPressDelete(id){
+  //   ConsentUser.setPendingState(id, 'pendingDelete')
+  //   this.fetchOurData().then(() => {
+  //     Api.deleteResource({ id })
+  //      .then(() => {
+  //       ConsentUser.removeFromState(id)
+  //       this.fetchOurData()
+  //       ToastAndroid.show('Resource deleted...', ToastAndroid.SHORT)
+  //      })
+  //      .catch(error => {
+  //       ToastAndroid.show('Failed to delete resource...', ToastAndroid.SHORT)
+  //       Logger.warn('Could not delete resource: ', error)
+  //      })
+  //   }) 
+  // }
 
-  onPressProfile() {
-    this.context.onEditResource("http://schema.cnsnt.io/public_profile_form", null, "Public Profile")
-    this.navigator.push({ ...Routes.editProfile })
-  }
+  // onPressProfile() {
+  //   this.context.onEditResource("http://schema.cnsnt.io/public_profile_form", null, "Public Profile")
+  //   this.navigator.push({ ...Routes.editProfile })
+  // }
 
   componentDidMount() {
     super.componentDidMount()
     this.interaction = InteractionManager.runAfterInteractions(() => {   
-      this.fetchMyData()
+      this.fetchOurData()
     })
   }
 
@@ -118,23 +118,51 @@ class ConnectionDetailsPeerToPeer extends Scene {
     if(this.interaction) this.interaction.cancel()
   }
 
-  fetchMyData() {
+  fetchFullResource(resourceId){
+
+    console.log("resourceId FETCH: ", resourceId)
+
+    Api.getResource({ id: resourceId }).then(result => {
+
+      // TODO - ASYNC STORAGE
+      console.log("RESULT: ", result)
+      // const fullResource = result
+      
+      const newArray = [ ...this.state.fullResources, result ]
+
+      this.setState(
+        { 
+          fullResources: newArray, 
+          connectionData: this.state.connectionData.filter(datum => datum.id !== resourceId) 
+        })
+    })
+    .catch(error => {
+      console.log("Error loading resource: ", error)
+    })
+  }
+
+  fetchOurData() {
     
     return Promise.all([
-      Api.myProfile(),
+      Api.connectionResources(this.props.route.connection_did),
       Api.getMyData()
     ]).then(values => {
 
-      const profile = values[0]    
+      const connectionData = values[0].body  
+
+      console.log("CONNECTION DATA: ", connectionData)
+
+      // Add props.route.profile to connectionData
+      // if(connectionData.resourcesByType.find(rt => rt.name === "Public Profile").items.length === 0){
+      //   data.resourcesByType.find(rt => rt.name === "Public Profile").items.push(profile)
+      // }
+
       let data = values[1]
-      if(data.resourcesByType.find(rt => rt.name === "Public Profile").items.length === 0){
-        data.resourcesByType.find(rt => rt.name === "Public Profile").items.push(profile)
-      }
       
       this.setState({
-        "sortedBadges": data.badges,
+        "connectionData": connectionData,
+        "fullResources": [], // TODO - ASYNC CALL FOR FULL RESOURCES 
         "sortedResourceTypes": data.resourcesByType,
-        "profile": profile,
         "asyncActionInProgress": false
       })
 
@@ -143,124 +171,73 @@ class ConnectionDetailsPeerToPeer extends Scene {
     })
   }
 
-  scrollViewToTop() {
-    if(this.state.scrollview){
-      // This has to run after animations complete... https://stackoverflow.com/questions/33208477/react-native-android-scrollview-scrollto-not-working
-      setTimeout(() => {
-        this.state.scrollview.scrollTo({x: 0, y: 0})
-      }, 0)
-    }
-    else{
-      console.log("Skipped the scroll")
-    }
-  }
-
-  // Context Menu functionality 
-
-  onShowContextMenu(){
-    this.contextMenu && this.contextMenu.show()
-  }
-
-  renderContextMenuRow(rowData, rowID, highlighted){
-    let evenRow = rowID % 2; 
-    return (
-      <TouchableHighlight>
-        <View style={[style.contextMenuOptions, { "backgroundColor": evenRow ? Palette.consentGrayLightest : "white" }]}>
-          <Text style={[ highlighted && { "color": Palette.consentBlue } ]}>
-            {`${rowData.value}`}
-          </Text>
-        </View>
-      </TouchableHighlight>
-    );
-  }
-
-  onContextMenuItemSelect(index, option){
-    option.onClick()
-  }
-
-  // End Context Menu functionality 
-
   render() {
     
-    const profilepic = this.state.profile ? <CircularImage uri={this.state.profile.profileImageUri} radius={25} borderColor="white" /> : <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/>
-    const icons = [
-      {
-        icon: <BackIcon width={16} height={16}/>,
-        onPress: () => this.navigator.pop(),
-        borderColor: "white"
-      },
-      {
-        icon: profilepic,
-        borderColor: "white"
-      },
-      {
-        icon: (
-          <ModalDropdown 
-            ref={el => this.contextMenu = el}
-            options={[
-              { "value":'Help', onClick: this.onPressHelp.bind(this, "me", helpScreens, "pop") }, 
-              { "value":'Legal', onClick: () => { alert("Navigate to legal") }}, 
-              { "value":'Logout', onClick: () => { alert("Logout...") }}
-            ]}
-            dropdownStyle={style.contextMenu}
-            renderRow={this.renderContextMenuRow.bind(this)}
-            onSelect={ (idx, value) => this.onContextMenuItemSelect(idx, value) }
-           >
-          <GearIcon width={38} height={38} stroke={Palette.consentGrayDark} />
-          </ModalDropdown>
-        ),
-        onPress: () => { this.onBoundShowContextMenu() },
-        borderColor: "white"
-      }
-    ], tabs = [
-      {
-        text: "Connect",
-        onPress: () => this.setState({ activeTab: CONNECT }, this.scrollViewToTop.bind(this)),
-        active: this.state.activeTab === CONNECT
-      },
-      {
-        text: "My Data",
-        onPress: () => this.setState({ activeTab: MY_DATA }, this.scrollViewToTop.bind(this)),
-        active: this.state.activeTab === MY_DATA
-      },
-      {
-        text: "Badges",
-        onPress: () => this.setState({ activeTab: BADGES }, this.scrollViewToTop.bind(this)),
-        active: this.state.activeTab === BADGES
-      }
-    ]
+    // const profilepic = this.state.connectionData ? <CircularImage uri={this.state.profile.profileImageUri} radius={25} borderColor="white" /> : <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/>
+    // const icons = [
+    //   {
+    //     icon: <BackIcon width={16} height={16}/>,
+    //     onPress: () => this.navigator.pop(),
+    //     borderColor: "white"
+    //   },
+    //   {
+    //     icon: profilepic,
+    //     borderColor: "white"
+    //   },
+    //   {
+    //     icon: (<GearIcon width={38} height={38} stroke={Palette.consentGrayDark} />),
+    //     onPress: () => { this.onBoundShowContextMenu() },
+    //     borderColor: "white"
+    //   }
+    // ], tabs = [
+    //   {
+    //     text: "Connect",
+    //     onPress: () => this.setState({ activeTab: CONNECT }, this.scrollViewToTop.bind(this)),
+    //     active: this.state.activeTab === CONNECT
+    //   },
+    //   {
+    //     text: "My Data",
+    //     onPress: () => this.setState({ activeTab: MY_DATA }, this.scrollViewToTop.bind(this)),
+    //     active: this.state.activeTab === MY_DATA
+    //   },
+    //   {
+    //     text: "Badges",
+    //     onPress: () => this.setState({ activeTab: BADGES }, this.scrollViewToTop.bind(this)),
+    //     active: this.state.activeTab === BADGES
+    //   }
+    // ]
 
     return (
       <Container>
         <View style={style.headerWrapper}>
           
           <BackButton navigator={this.navigator} />
-          <LifekeyHeader icons={icons} tabs={tabs} />
+          { /* <LifekeyHeader icons={icons} tabs={tabs} /> */ }
         </View>
-        <ScrollView ref={(sv) => { this.state.scrollview = sv }} style={style.contentContainer}>
+        <ScrollView style={style.contentContainer}>
           {
             !this.state.asyncActionInProgress ? 
               this.renderTab()
             :
               <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
           }
-
         </ScrollView>
 
       </Container>
     )
+
+    
   }
 
   renderTab() {
     
     switch (this.state.activeTab) {
-
     case CONNECT:
       return <Connect profile={this.state.profile} onPressProfile={this.onBoundPressProfile} onPressHelp={ this.onBoundPressHelp }></Connect>
+    case CONNECTION_DATA:
+      return <ConnectionData connectionData={this.state.connectionData} fullResources={this.state.fullResources} onFetchFullResource={this.onBoundFetchFullResource}></ConnectionData>
     case MY_DATA:
       return <MyData sortedResourceTypes={this.state.sortedResourceTypes} onPressDelete={ this.onBoundPressDelete } onPressEdit={ this.onBoundPressEdit } onPressProfile={this.onBoundPressProfile}></MyData>
-    case BADGES:
-      return <Badges badges={this.state.sortedBadges}></Badges>
     }
   }
 

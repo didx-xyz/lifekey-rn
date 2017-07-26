@@ -94,6 +94,9 @@ class FirebaseHandler {
     return Promise.all(
       message.resource_ids.map(id => Api.getResource({id: id}))
     ).then(results => {
+
+      alert("RESULTS: " + results)
+
       return Promise.resolve(
         results.find(
           result => result.body.schema.indexOf('schema.cnsnt.io/verified_identity') > -1

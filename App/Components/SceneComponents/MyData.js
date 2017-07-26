@@ -111,7 +111,8 @@ class MyData extends Component {
     selectData.data = this.props.sortedResourceTypes.map((resourceType, i) => {
       
       if(resourceType.name !== "Malformed" && 
-         resourceType.name !== "Person" && 
+         resourceType.name !== "Person" &&
+         resourceType.name !== "Profile" && 
          resourceType.name !== "Verifiable Claims" &&
          resourceType.name !== "Decentralized Identifier" &&
          resourceType.name !== "Miscellaneous"){

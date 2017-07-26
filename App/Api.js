@@ -193,6 +193,9 @@ export default class Api {
       'isa_id',
       'resources'
     ], data)
+
+    console.log(" ******************** DATA PUSH ISA: ", data)
+
     return request(`/management/push/${data.isa_id}`, {
       method: 'POST',
       body: JSON.stringify({resources: data.resources})
@@ -262,6 +265,11 @@ export default class Api {
   // 0 GET /resource
   static allResources(milliseconds = 300000) {
     return request("/resource?all=1")
+  }
+
+  static connectionResources(connectionDid) {
+    // return request(`/resource?pushed=1&pushed_by=${encodeURIComponent(connectionDid)}`)
+    return request(`/resource?pushed=1&pushed_by=${connectionDid}`)
   }
 
   // 1 GET /resource/:resource_id
@@ -435,10 +443,8 @@ export default class Api {
       this.getActiveBots()
     ]).then( async values => {
 
-
       console.log("ENABLED ORIGINAL: ", values[0].body.enabled)
       console.log("UNENABLED ORIGINAL: ", values[0].body.unacked)
-
 
       const enabledConnections = (await this.getConnectionProfiles(values[0].body.enabled, "other_user_did")) 
                                             .map(connection => connection.body.user)
@@ -446,12 +452,18 @@ export default class Api {
       const enabledPeerConnections = enabledConnections.filter(connection => connection.is_human)
                                                        .map(connection => { 
                                                          const original = values[0].body.enabled.find(obj => obj.other_user_did === connection.did)
-                                                         return Object.assign({}, connection, { user_connection_id: original.user_connection_id, image_uri: `data:image/jpg;base64,${connection.image_uri}` })
+                                                         return Object.assign({}, 
+                                                                              connection, 
+                                                                              { 
+                                                                                isa_id: original.sharing_isa_id, 
+                                                                                user_connection_id: original.user_connection_id, 
+                                                                                image_uri: `data:image/jpg;base64,${connection.image_uri}` 
+                                                                              })
                                                        })
 
       const enabledBotConnections = enabledConnections.filter(connection => !connection.is_human)
 
-      console.log("ENABLED PEERS: ", enabledPeerConnections)
+      console.log("ENABLED PEERS: ", enabledPeerConnections.map(x => x.isa_id))
       console.log("ENABLED BOTS: ", enabledBotConnections)
 
       const pendingPeerConnections = (await this.getConnectionProfiles(values[0].body.unacked, "from_did"))

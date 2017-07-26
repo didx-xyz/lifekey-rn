@@ -18,7 +18,7 @@ class LifekeyList extends Component {
               <View style={style.listItemWrapper}>
                 <Image style={style.listItemImage} source={{ uri: connection.image_uri }}/>
                 <Text style={style.listItemText}>{connection.display_name}</Text>
-                {this.props.cxn_unread_msgs[connection.did] && (
+                {this.props.cxn_unread_msgs && this.props.cxn_unread_msgs[connection.did] && (
                   <Svg width={20} height={20}>
                     <Circle cx={10} cy={10} r={5} fill={'#216BFF'} strokeWidth={1} stroke={'#216BFF'} />
                   </Svg>

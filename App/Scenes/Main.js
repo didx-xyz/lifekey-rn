@@ -115,11 +115,13 @@ class Main extends Scene {
   }
 
   cxn_has_unread(cxn) {
-    return this.cxn_unread_msgs[cxn.to_did]
+    // return this.cxn_unread_msgs[cxn.to_did]
+    return this.cxn_unread_msgs[cxn.did]
   }
 
   remove_cxn_from_unread_backlog(cxn) {
-    delete this.cxn_unread_msgs[cxn.to_did]
+    // delete this.cxn_unread_msgs[cxn.to_did]
+    delete this.cxn_unread_msgs[cxn.did]
   }
 
   loadProfile() {
@@ -222,7 +224,8 @@ class Main extends Scene {
   goToPeerConnectionDetails(connection) {
     this.navigator.push({
       ...Routes.connectionDetailsPeerToPeer,
-      user_did: connection.did,
+      isa_did: connection.isa_id,
+      connection_did: connection.did,
       id: connection.id,
       display_name: connection.display_name,
       image_uri: connection.image_uri

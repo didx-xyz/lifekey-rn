@@ -50,7 +50,7 @@ class Me extends Scene {
 
     this.state = {
       "activeTab": MY_DATA,
-      "tabName": "My Data",
+      // "tabName": "My Data",
       "resources": [],
       "resourceTypes": [],
       "sortedResourceTypes": [],
@@ -93,44 +93,31 @@ class Me extends Scene {
   //   }) 
   // }
 
-  onPressShare(resourceTypeName, resourceTypeSchema, peerId, resourceId){
+  onPressShare(isa_id, peerId, resourceId){
     
-    console.log("SHARED IN ME! ", resourceTypeName, " | ", resourceTypeSchema, " | ", peerId)
-
-    // 'to'
-    // 'requested_schemas',
-    // 'purpose',
-    // 'license'
+    console.log("SHARED IN ME! ", isa_id, " | ", peerId, " | ", resourceId)
 
     const data = { 
-      to: peerId,
-      required_entities: [
-        {
-          address: resourceTypeSchema, 
-          name: resourceTypeName
-        }
-      ],
-      purpose: 'Consent peer to peer sharing',
-      license: 'Consent Peer to Peer license'
-
+      isa_id: isa_id,
+      resources: [ resourceId ]
     }
 
     console.log("ISA DATA: ", data)
 
     ConsentUser.setPendingState(resourceId, 'pendingShare')
     this.fetchMyData().then(() => {
-      Api.requestISA(data)
+      Api.pushISA(data)
        .then(() => {
 
         console.log("GOT BACK HERE ")
 
         ConsentUser.setPendingState(resourceId, null)
         this.fetchMyData()
-        ToastAndroid.show('Resource sharing requested...', ToastAndroid.LONG)
+        ToastAndroid.show('Resource shared...', ToastAndroid.LONG)
        })
        .catch(error => {
-        ToastAndroid.show('Failed to request resource sharing...', ToastAndroid.SHORT)
-        console.log('Could not establish isa request: ', error) //JSON.stringify(error))
+        ToastAndroid.show('Failed to share resource...', ToastAndroid.SHORT)
+        console.log('Could not establish isa request: ', JSON.stringify(error))
        })
     }) 
   }
