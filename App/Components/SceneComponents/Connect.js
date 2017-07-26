@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react'
-import { Text, View, Image, Dimensions } from 'react-native'
+import { Text, View, Image, Dimensions, StatusBar } from 'react-native'
 import { Container, Content } from 'native-base'
 import ActivityIndicator from "ActivityIndicator"
 import Session from '../../Session'
@@ -37,6 +37,8 @@ class Connect extends Component  {
     this.onBoundPressProfile = this.props.onPressProfile.bind(this)
     this.onBoundPressShare = this.onPressShare.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
+
+    console.log("USER QR: ", `http://staging.api.lifekey.cnsnt.io/qr-2/${ConsentUser.getDidSync()}?cache=${new Date().getTime()}`)
   }
 
   _hardwareBack() {
@@ -134,7 +136,7 @@ class Connect extends Component  {
 
 const styles = {
   "content": { 
-    "height": Dimensions.get('window').height - Design.lifekeyHeaderHeight,
+    "height": Dimensions.get('window').height - Design.lifekeyHeaderHeight - StatusBar.currentHeight,
     "backgroundColor": Palette.consentGrayLightest,
     "alignItems": "center",
     "justifyContent": "flex-start",
@@ -161,7 +163,8 @@ const styles = {
   },
   "switchButtonLeft":{
     "borderTopLeftRadius": 20,
-    "borderBottomLeftRadius": 20
+    "borderBottomLeftRadius": 20,
+    "marginRight": -1 // To mitigate strange anti-aliasing line that appears between buttons
   },
   "switchButtonRight":{
     "borderTopRightRadius": 20,

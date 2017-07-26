@@ -45,11 +45,14 @@ class Lifekeyrn extends Component {
       // behavior
       "onEditResource": this.onBoundEditResource,
       "onSaveResource": this.onBoundSaveResource,
+      "onDeleteResource": this.onBoundDeleteResource,
+      "onSetModalVisible": this.onSetModalVisible,
 
       // state
       "getEditResourceForm": this.boundGetEditResourceForm,
       "getEditResourceId": this.boundGetEditResourceId,
       "getEditResourceName": this.boundGetEditResourceName,
+      "getModalVisible": this.boundGetModalVisible,
       "getShouldClearResourceCache": this.boundGetShouldClearResourceCache,
       "userHasActivated": this.boundUserHasActivated
     }
@@ -105,15 +108,19 @@ class Lifekeyrn extends Component {
     // context behavior
     this.onBoundEditResource = this.onEditResource.bind(this)
     this.onBoundSaveResource = this.onSaveResource.bind(this)
+    this.onBoundDeleteResource = this.onDeleteResource.bind(this)
+    this.onSetModalVisible = this.setModalVisible.bind(this)
 
     // context state
     this.shouldClearResourceCache = true
     this.editResourceForm = null
     this.editResourceId = null
     this.editResourceName = null
+    this.modalVisible = false
     this.boundGetEditResourceForm = this.getEditResourceForm.bind(this)
     this.boundGetEditResourceId = this.getEditResourceId.bind(this)
     this.boundGetEditResourceName = this.getEditResourceName.bind(this)
+    this.boundGetModalVisible = this.getModalVisible.bind(this)
     this.boundGetShouldClearResourceCache = this.getShouldClearResourceCache.bind(this)
     this.boundUserHasActivated = this.userHasActivated.bind(this)
 
@@ -156,6 +163,9 @@ class Lifekeyrn extends Component {
   }
 
   onEditResource(form, id, name) {
+
+    console.log("GOT TO CONTEXT EDIT")
+
     this.editResourceForm = form
     this.editResourceId = id
     this.editResourceName = name
@@ -166,8 +176,39 @@ class Lifekeyrn extends Component {
       this.navigator.push(Routes.editResource)
   }
 
+  setModalVisible(value){
+    console.log("Context set modal: ", value)
+    this.modalVisible = value
+  }
+  getModalVisible(){
+    console.log("Context get modal: ", this.modalVisible)
+    return !!this.modalVisible
+  }
+
   onSaveResource() {
     this.shouldClearResourceCache = true
+  }
+
+  onDeleteResource(){
+    
+
+    const id = this.getEditResourceId()
+
+    if(!id) return
+
+    console.log("CONTEXT RESOURCE DELETE: ", id)
+
+    ConsentUser.setPendingState(id, 'pendingDelete')
+    Api.deleteResource({ id })
+       .then(() => {
+        ConsentUser.removeFromState(id)
+        this.navigator.popToRoute(Routes.me)
+        ToastAndroid.show('Resource deleted...', ToastAndroid.LONG)
+       })
+       .catch(error => {
+        ToastAndroid.show('Failed to delete resource...', ToastAndroid.LONG)
+        Logger.warn('Could not delete resource: ', error)
+       })
   }
 
   _getInitialRoute() {
@@ -234,6 +275,12 @@ class Lifekeyrn extends Component {
       }
     )
     this.firebaseInternalEventEmitter.addListener(
+      'user_connection_request',
+      () => {
+        ToastAndroid.show('Connection requested', ToastAndroid.SHORT)
+      }
+    )
+    this.firebaseInternalEventEmitter.addListener(
       'received_did',
       () => {
         console.log("LIFEKEYRN: received_did event")
@@ -250,6 +297,13 @@ class Lifekeyrn extends Component {
     this.firebaseInternalEventEmitter.addListener(
       'information_sharing_agreement_request',
       (message) => {}
+    )
+
+    this.firebaseInternalEventEmitter.addListener(
+      'webauth_failure',
+      (message) => {
+        ToastAndroid.show('WEB AUTH FAILURE: ' + message + " | " + message.webauth_failure_type)
+      }
     )
   }
 
@@ -382,11 +436,14 @@ Lifekeyrn.childContextTypes = {
   // behavior
   "onEditResource": PropTypes.func,
   "onSaveResource": PropTypes.func,
+  "onDeleteResource": PropTypes.func,
+  "onSetModalVisible": PropTypes.func,
 
   // state
   "getEditResourceForm": PropTypes.func,
   "getEditResourceId": PropTypes.func,
   "getEditResourceName": PropTypes.func,
+  "getModalVisible": PropTypes.func,
   "getShouldClearResourceCache": PropTypes.func,
 
   "userHasActivated": PropTypes.func

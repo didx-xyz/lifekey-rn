@@ -10,20 +10,22 @@ import Api from '../Api'
 import BackButton from "../Components/BackButton"
 import BackIcon from "../Components/BackIcon"
 import Verification from "../Components/SceneComponents/Verification"
+import Common from "../Common"
 import Palette from "../Palette"
 import Scene from "../Scene"
 import Button from "../Components/Button"
 import ProgressIndicator from "../Components/ProgressIndicator"
 
+class ConnectionPeerToPeerRequest extends Scene {
 
-class FaceMatch extends Scene {
   constructor(...params) {
     super(...params)
 
     this.state = {
-      "progressCopy": "Loading...",
-      "asyncInProgress": true, 
-      "imageDataUrl": "" 
+      "progressCopy": "Fetching connection details...",
+      "asyncInProgress": true,
+      "peerRequest": "not now",
+      "userHasVerified": false
     }
 
     this.boundOnResultGiven = this.onResultGiven.bind(this)
@@ -32,78 +34,68 @@ class FaceMatch extends Scene {
   }
 
   componentDidMount() {
-    this.loadImage()
+    super.componentDidMount()
+    Api.profile({ did: this.props.route.profile.did }).then(result => {
+      
+      let profile = result.body.user
+      profile.image_uri = Common.ensureDataUrlHasContext(profile.image_uri)
+
+      console.log("PROFILE ISA: ", profile.image_uri)
+
+      this.setState({
+        "asyncInProgress": false,
+        "profile": profile
+      })
+
+    })
+
   }
 
   onResultGiven(result){
-    
     this.setState({
-      "progressCopy": "Sending your answer...",
-      "asyncInProgress": true
-    }, () => {
-      this.setState({
-        "asyncInProgress": false,
-        "userHasVerified": true,
-        "faceMatch": result 
-      })
+      "asyncInProgress": false,
+      "userHasVerified": true,
+      "peerRequest": result 
     })
   }
 
-  
   onChangeOfMind() {
     this.setState({
       "asyncInProgress": false,
       "userHasVerified": false,
-      "faceMatch": null
+      "peerRequest": "not now"
     })
   }
 
   onContinue() {
 
-    this.setState({
-      "progressCopy": "Sending your answer...",
-      "asyncInProgress": true
-    }, () => {
-      Api.facialVerificationResult(this.state.userDid, this.state.userToken, this.state.faceMatch).then(response => {
-        if(response.status === 200){
-          this.navigator.replace({ ...Routes.main })
-        }
-        else{
-          console.log("Facematch result non-200")
-          this.onChangeOfMind()
-        }
-      })
-      .catch(error => {
-        console.log("Facematch error: ", error)
-      })
-    })
-  }
-
-  async loadImage() {
-    try{
-
-      const urlPieces = this.props.route.url.split("/")
-      const userdid = urlPieces[urlPieces.length - 2]
-      const token = urlPieces[urlPieces.length - 1]
-
-      const response = await Api.facialVerificationQrScanResponse(userdid, token)
-      
-      const time = new Date()
-      const parsedValue = JSON.parse(response.body.value); 
-      console.log("Time spent waiting : ", (Date.now() - time.getTime())*1000)
-
-      const url = `data:image/jpeg;base64,${parsedValue.identityPhotograph}}`
-
-      this.setState({
-        "asyncInProgress": false,
-        "imageDataUrl": url,
-        "userDid": userdid,
-        "userToken": token
-      })
-      
+    if(this.state.peerRequest === "not now"){
+      this.navigator.replace({ ...Routes.main })
     }
-    catch(e){
-      console.log("ERROR: ", e)
+    else{
+      
+      this.setState({
+        "progressCopy": "Sending your request...",
+        "asyncInProgress": true
+      }, () => {
+        Api.requestConnection({ target: this.state.profile.did })
+          .then(response => {
+
+            console.log("RESPONSE: ", response)
+
+          if(response.status >= 200 && response.status < 400 ){
+            this.navigator.replace({ ...Routes.main })
+          }
+          else{
+            console.log("peerRequest result non-200")
+            this.onChangeOfMind()
+          }
+        })
+        .catch(error => {
+          console.log("peerRequest error: ", error)
+        })
+      })
+
     }
   }
 
@@ -112,26 +104,26 @@ class FaceMatch extends Scene {
       <Container style={styles.container}>
       {
         !this.state.asyncInProgress ? 
-          (this.state.imageDataUrl && !this.state.userHasVerified) ?
+          (this.state.profile && !this.state.userHasVerified) ?
             <Verification 
               tone="affirmative" 
               backgroundColor={ Palette.consentGrayLight }
-              imageUri={ this.state.imageDataUrl } 
-              titleText="Facial Verification"
-              messageText="Is this the person who's QR Code you scanned?" 
-              doubtText="I'm not sure"
-              onResultGiven={ this.onResultGiven.bind(this, "not sure") }>
+              imageUri={ this.state.profile.image_uri } 
+              titleText="Peer Connection"
+              messageText={`Would you like to connect with ${this.state.profile.display_name}`}
+              doubtText="Not now"
+              onResultGiven={ this.onResultGiven.bind(this, "not now") }>
                 <Button affirmative={false} buttonText={"No"} onClick={this.onResultGiven.bind(this, "no")} />
                 <Button affirmative={true} buttonText={"Yes"} onClick={this.onResultGiven.bind(this, "yes")} />
-              </Verification>
+            </Verification>
           :
-            this.state.faceMatch === "yes" ?
+            this.state.peerRequest === "yes" ?
               <Verification 
                 tone="affirmative" 
                 backgroundColor={ Palette.consentGrayLight }
-                imageUri={ this.state.imageDataUrl } 
-                titleText="Matched"
-                messageText="Thank you for your response." 
+                imageUri={ this.state.profile.image_uri } 
+                titleText="Request ready!"
+                messageText={`Connection request sent to ${this.state.profile.display_name}`} 
                 doubtText="I would like to change my mind"
                 onResultGiven={ this.boundOnChangeOfMind }>
                   <Button affirmative={true} buttonText={"Continue"} onClick={ this.boundOnContinue } />
@@ -140,9 +132,9 @@ class FaceMatch extends Scene {
               <Verification
                 tone="negative" 
                 backgroundColor={ Palette.consentGrayLight }
-                imageUri={ this.state.imageDataUrl } 
-                titleText="No result"
-                messageText="Thank you, we have recorded your response and will follow up." 
+                imageUri={ this.state.profile.image_uri } 
+                titleText="Request cancelled"
+                messageText="Thank you" 
                 doubtText="I would like to change my mind"
                 onResultGiven={ this.boundOnChangeOfMind }>
                   <Button affirmative={true} buttonText={"Continue"} onClick={ this.boundOnContinue } />
@@ -163,4 +155,4 @@ const styles = {
   }
 }
 
-export default FaceMatch
+export default ConnectionPeerToPeerRequest

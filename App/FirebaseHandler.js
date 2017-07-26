@@ -73,27 +73,34 @@ class FirebaseHandler {
             Logger.error('Could not set DID', this.filename, error)
           })
         break
+        // case 'user_connection_request':
+        //   Promise.all([
+        //     Api.respondConnectionRequest({
+        //       user_connection_request_id: message.user_connection_request_id,
+        //       accepted: true
+        //     }),
+        //     ConsentDiscoveredUser.add(
+        //       message.from_id,
+        //       message.from_did,
+        //       message.from_nickname
+        //     )
+        //   ]).then(result => {
+        //     const {
+        //       response,
+        //       connectionRequests,
+        //       discoveredUsers
+        //     } = result
+        //     Logger.info('Connection Request Accepted')
+        //   }).catch(error => {
+        //     Logger.error(error)
+        //   })
+        // break
         case 'user_connection_request':
-          Promise.all([
-            Api.respondConnectionRequest({
-              user_connection_request_id: message.user_connection_request_id,
-              accepted: true
-            }),
-            ConsentDiscoveredUser.add(
-              message.from_id,
-              message.from_did,
-              message.from_nickname
-            )
-          ]).then(result => {
-            const {
-              response,
-              connectionRequests,
-              discoveredUsers
-            } = result
-            Logger.info('Connection Request Accepted')
-          }).catch(error => {
-            Logger.error(error)
-          })
+
+          // Make this more intelligent 
+
+          Logger.firebase('user_connection_request', message)
+          Api.getMyConnections(300000, true)
         break
         case 'user_connection_created':
           Logger.firebase('user_connection_created', message)

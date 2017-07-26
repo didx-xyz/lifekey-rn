@@ -1,11 +1,5 @@
-/**
- * Lifekey App
- * @copyright 2016 Global Consent Ltd
- * Civvals, 50 Seymour Street, London, England, W1H 7JG
- * @author Werner Roets <werner@io.co.za>
- */
-
 import React, { Component } from 'react'
+import { InteractionManager } from 'react-native'
 import PropTypes from "prop-types"
 import ActivityIndicator from "ActivityIndicator"
 import AppLogo from '../Images/logo_big.png'
@@ -19,6 +13,7 @@ import Logger from '../Logger'
 import Routes from '../Routes'
 import LifekeyHeader from '../Components/LifekeyHeader'
 import LifekeyFooter from '../Components/LifekeyFooter'
+import LifekeyList from '../Components/LifekeyList'
 import Touchable from '../Components/Touchable'
 import AndroidBackButton from 'react-native-android-back-button'
 import ConsentConnection from '../Models/ConsentConnection'
@@ -28,7 +23,6 @@ import SearchBox from '../Components/SearchBox'
 import ThanksIcon from '../Components/ThanksIcon'
 import SlipIcon from '../Components/SlipIcon'
 import ProgressIndicator from "../Components/ProgressIndicator"
-import _ from 'lodash'
 
 import {
   TouchableOpacity,
@@ -56,30 +50,42 @@ class Main extends Scene {
     this.state = {
       activeTab: TAB_CONNECTED,
       searchText: '',
-      connections: [],
+      peerConnections: [],
+      botConnections: [],
+      pendingPeerConnections: [],
+      pendingBotConnections: [],
       profiles: [],
-      suggestedConnections: [],
       progressCopy: 'Loading...',
       asyncActionInProgress: true
     }
 
     this.onBoundPressProfile = this.onPressProfile.bind(this)
+    this.onBoundGoToBotConnectionDetails = this.goToBotConnectionDetails.bind(this)
+    this.onBoundGoToBotConnect = this.goToBotConnect.bind(this)
+    this.onBoundGoToPeerConnectionDetails = this.goToPeerConnectionDetails.bind(this)
+    this.onBoundGoToPeerConnect = this.goToPeerConnect.bind(this)
   }
 
   componentDidMount() {
     super.componentDidMount()
-    this.loadConnections()
-    this.loadProfile()
-    this.loadActiveClients()
-    this.refreshThanksBalance()
+    this.interaction = InteractionManager.runAfterInteractions(() => {   
+      this.loadConnections()
+      this.loadProfile()
+      // this.loadActiveClients()
+      this.refreshThanksBalance()
+    })
   }
   
   componentDidFocus() {
-    super.componentDidFocus()
-    this.loadConnections()
-    this.loadProfile()
-    this.loadActiveClients()
-    this.refreshThanksBalance()
+    // super.componentDidFocus()
+    // this.loadConnections()
+    // this.loadProfile()
+    // this.loadActiveClients()
+    // this.refreshThanksBalance()
+  }
+
+  componentWillUnmount() {
+    if(this.interaction) this.interaction.cancel()
   }
 
   async loadProfile() {
@@ -90,7 +96,7 @@ class Main extends Scene {
     } catch(e) {
       console.log('thanks balance', e)
     }
-    console.log('USER DATA', Object.keys(userData))
+    
     this.setState({
       userName: userName
     })
@@ -114,95 +120,131 @@ class Main extends Scene {
   }
 
   async loadConnections(callback) {
-    try {
-      var connections = await ConsentConnection.all()
-    } catch (e) {
-      console.log('consent connections all', e)
+    
+    Api.getMyConnections().then(connections => {
+
       this.setState({
-        connections: [],
-        asyncActionInProgress: false
-      }, callback || function() {})
-      return
-    }
-    this.setState({
-      connections: connections,
-      asyncActionInProgress: false
-    }, callback || function() {})
+        "peerConnections": connections.peerConnections,
+        "botConnections": connections.botConnections,
+        "pendingPeerConnections": connections.pendingPeerConnections,
+        "pendingBotConnections": connections.pendingBotConnections,
+        "asyncActionInProgress": false
+      })
+
+    })
+    .catch(error => {
+      console.log("ERROR LOADING CONNECTIONS: ", error)
+    })
+
+    // return Promise.all([
+    //   Api.allConnections(),
+    //   Api.getActiveBots()
+    // ]).then( async values => {
+
+
+    //   console.log("ENABLED ORIGINAL: ", values[0].body.enabled)
+    //   console.log("UNENABLED ORIGINAL: ", values[0].body.unacked)
+
+
+    //   const enabledConnections = (await this.getConnectionProfiles(values[0].body.enabled, "other_user_did")) 
+    //                                         .map(connection => connection.body.user)
+
+    //   const enabledPeerConnections = enabledConnections.filter(connection => connection.is_human)
+    //                                                    .map(connection => { 
+    //                                                      const original = values[0].body.enabled.find(obj => obj.other_user_did === connection.did)
+    //                                                      return Object.assign({}, connection, { user_connection_id: original.user_connection_id, image_uri: `data:image/jpg;base64,${connection.image_uri}` })
+    //                                                    })
+
+    //   const enabledBotConnections = enabledConnections.filter(connection => !connection.is_human)
+
+    //   console.log("ENABLED PEERS: ", enabledPeerConnections)
+    //   console.log("ENABLED BOTS: ", enabledBotConnections)
+
+    //   const pendingPeerConnections = (await this.getConnectionProfiles(values[0].body.unacked, "from_did"))
+    //                                             .map(connection => connection.body.user)
+    //                                             .filter(connection => connection.is_human)
+    //                                             .map(connection => { 
+    //                                               const original = values[0].body.unacked.find(obj => obj.from_did === connection.did)
+    //                                               return Object.assign({}, connection, { user_connection_request_id: original.user_connection_request_id })
+    //                                             })
+    //                                             .map(connection => Object.assign({}, connection, { image_uri: `data:image/jpg;base64,${connection.image_uri}` }))
+
+    //   const pendingBotConnections = (await this.getConnectionProfiles(values[1].body, "did"))
+    //                                            .map(x => x.body.user)
+    //                                            .filter(x => !x.is_human)
+    //                                            .filter(x => !enabledConnections.some(y => x.did === y.did))
+
+    //   console.log("PENDING PEERS: ", pendingPeerConnections)
+    //   console.log("PENDING BOTS: ", pendingBotConnections)
+
+    //   this.setState({
+    //     "peerConnections": enabledPeerConnections,
+    //     "botConnections": enabledBotConnections,
+    //     "pendingPeerConnections": pendingPeerConnections,
+    //     "pendingBotConnections": pendingBotConnections,
+    //     "asyncActionInProgress": false
+    //   })
+
+    // }).catch(error => {
+    //   Logger.error(error)
+    // })
+
   }
 
-  async loadActiveClients(callback) {
+  // async getConnectionProfiles(connections, propertyName){
 
-    try {
-      var activeBots = await Api.getActiveBots()
-    } catch (e) {
-      console.log('get active bots', e)
-      this.setState({
-        asyncActionInProgress: false,
-        suggestedConnections: []
-      })
-      return
-    }
-    if (activeBots && activeBots.body && Array.isArray(activeBots.body)) {
-      this.setState({
-        progressCopy: 'Sorting suggestions...'
-      }, async () => {
-        try {
-          var profileResponses = await Promise.all(
-            activeBots.body.map(bot => {
-              return Api.profile({did: bot.did})
-            })
-          )
-        } catch (e) {
-          console.log('profile requests', e)
-          this.setState({
-            asyncActionInProgress: false,
-            suggestedConnections: []
-          })
-          return
-        }
-        const updatedSuggestedConnections = profileResponses.map(response => {
-          if (response.body && response.body.user) {
-            return response.body.user
-          } else {
-            Logger.warn("Unexpected bot profile data")
-            return {}
-          }
-        })
-        const updatedSuggestedConnectionsWithoutConnected = updatedSuggestedConnections.filter(x => {
-          return !this.state.connections.find(y => x.did === y.to_did)
-        })
-        this.setState({
-          asyncActionInProgress: false,
-          suggestedConnections: updatedSuggestedConnectionsWithoutConnected
-        }, callback || function() {})
-      })
-    } else {
-      Logger.warn('Directory listing result unexpected')
-    }
-  }
+  //   return Promise.all(
+  //     connections.map(connection => {
+  //       return Api.profile({did: connection[propertyName]})
+  //     })
+  //   )
+
+  // }
+
+  // async loadActiveClients(activeBots, establishedConnections) {
+
+  //   try {
+
+  //     const activeBotsNotYetConnected = updatedSuggestedConnections.filter(x => !establishedConnections.some(y => x.did === y.to_did))
+
+  //     return Promise.resolve(activeBotsNotYetConnected)
+  //   } 
+  //   catch (e) {
+  //     console.log('profile requests', e)
+  //     this.setState({
+  //       asyncActionInProgress: false,
+  //       suggestedConnections: []
+  //     })
+  //     return
+  //   }
+
+  // }
 
   setTab(tab) {
     switch (tab) {
       case TAB_CONNECTED:
-        this.setState({
-          activeTab: tab,
-          progressCopy: 'Loading connections...',
-          asyncActionInProgress: true
-        }, this.loadConnections.bind(this))
+        this.setState({activeTab: tab})
+        // this.setState({
+        //   activeTab: tab,
+        //   progressCopy: 'Loading connections...',
+        //   asyncActionInProgress: true
+        // }, this.loadConnections.bind(this))
       break
       case TAB_SUGGESTED:
-        this.setState({
-          activeTab: tab,
-          progressCopy: 'Loading suggestions...',
-          asyncActionInProgress: true
-        }, this.loadActiveClients.bind(this))
+        this.setState({activeTab: tab})
+        // this.setState({
+        //   activeTab: tab,
+        //   progressCopy: 'Loading suggestions...',
+        //   asyncActionInProgress: true
+        // }, this.loadActiveClients.bind(this))
       break
       default:
-        this.setState({
-          activeTab: tab,
-          progressCopy: 'Loading connections...',
-          asyncActionInProgress: true
-        }, this.loadConnections.bind(this))
+        this.setState({activeTab: tab})
+        // this.setState({
+        //   activeTab: tab,
+        //   progressCopy: 'Loading connections...',
+        //   asyncActionInProgress: true
+        // }, this.loadConnections.bind(this))
       break
     }
   }
@@ -220,7 +262,34 @@ class Main extends Scene {
     return true // was false, changed it to avoid app closing. 
   }
 
-  goToConnect(connection) {
+  /* PEER ROUTES */
+
+  goToPeerConnect(connection) {
+
+    console.log("CONNECTION PEER REQUEST OBJECT: ", connection)
+
+    this.navigator.push({
+      ...Routes.connectionPeerToPeer,
+      did: connection.did,
+      display_name: connection.display_name,
+      image_uri: connection.image_uri,
+      user_connection_request_id: connection.user_connection_request_id
+    })
+  }
+
+  goToPeerConnectionDetails(connection) {
+    this.navigator.push({
+      ...Routes.connectionDetailsPeerToPeer,
+      user_did: connection.did,
+      id: connection.id,
+      display_name: connection.display_name,
+      image_uri: connection.image_uri
+    })
+  }
+
+  /* BOT ROUTES */
+
+  goToBotConnect(connection) {
     this.navigator.push({
       ...Routes.connection,
       did: connection.did,
@@ -230,10 +299,10 @@ class Main extends Scene {
     })
   }
 
-  goToConnectionDetails(connection) {
+  goToBotConnectionDetails(connection) {
     this.navigator.push({
       ...Routes.connectionDetails,
-      user_did: connection.to_did,
+      user_did: connection.did,
       id: connection.id,
       display_name: connection.display_name,
       image_uri: connection.image_uri
@@ -241,9 +310,21 @@ class Main extends Scene {
   }
 
   onPressProfile() {
-    console.log("CONTEXT: ", this.context)
     this.context.onEditResource("http://schema.cnsnt.io/public_profile_form", null, "Public Profile")
     this.navigator.push({ ...Routes.editProfile })
+  }
+
+  renderListItem(list, onItemPress){
+    return(   
+      list.map((connection, i) => (
+        <ListItem key={i} style={style.listItem} onPress={onItemPress.bind(this, connection)}>
+          <View style={style.listItemWrapper}>
+            <Image style={style.listItemImage} source={{ uri: connection.image_uri }}/>
+            <Text style={style.listItemText}>{connection.display_name}</Text>
+          </View>
+        </ListItem>
+      ))
+    )
   }
 
   render() {
@@ -251,7 +332,7 @@ class Main extends Scene {
     var icons= [
       {
         icon: (<SlipIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Palette.consentGrayDark} />),
-        onPress: () => this.navigator.push(Routes.messages),
+        onPress: () => this.navigator.push(Routes.messages), //onPress: () => this.navigator.push({...Routes.messages, direction: 'leftToRight'}),
         borderColor: "white"
       },
       {
@@ -286,68 +367,87 @@ class Main extends Scene {
     return (
       <Container>
         <AndroidBackButton onPress={() => this._hardwareBack()} />
-        <StatusBar hidden={false} />
+        
         <LifekeyHeader icons={icons} tabs={tabs} />
         { 
-
-          <View style={{ flex: 1 }}>
+          <View style={{ flex: 1, backgroundColor: Palette.consentGrayLightest }}>
             {
               !this.state.asyncActionInProgress ? 
-                <View style={{ flex: 1, backgroundColor: Palette.consentGrayLightest }}>
+                <View style={{ flex: 1 }}>
                   
-                  { this.state.activeTab === 0 ?
+                  { 
+                    this.state.activeTab === 0 ?
 
-                    !this.state.connections.length ?
-                      /* ZERO DATA VIEW */ 
+                    (
+                      (!this.state.botConnections.length && !this.state.peerConnections.length) ?
+                        /* ZERO DATA VIEW */ 
+                        <View style={ style.contentContainer }>
+                          { this.state.userName && 
+                            <Text>
+                              <Text style={ style.defaultFont }>
+                                Hi there { this.state.userName }, 
+                                {"\n\n"}
+                                You have no connections yet, have a look at some
+                              </Text>
+                              <Text onPress={() => this.setTab(TAB_SUGGESTED)} style={ Object.assign({}, style.defaultFont, { "color": Palette.consentBlue }) }> suggestions.</Text>
+                              <Text style={ style.defaultFont }>  
+                                {"\n\n"}
+                                Or, start setting up your public
+                              </Text>
+                              <Text onPress={this.onBoundPressProfile} style={ Object.assign({}, style.defaultFont, { "color": Palette.consentBlue }) }> profile.</Text>
+                            </Text>
+                          }
+                        </View>
+                      :
+                        <View style={style.contentContainer}> 
+                          <LifekeyList list={this.state.peerConnections} onItemPress={this.onBoundGoToPeerConnectionDetails}></LifekeyList>
+                        { /* this.renderListItem(this.state.peerConnections, this.onBoundGoToPeerConnectionDetails) */}
+                          <LifekeyList list={this.state.botConnections} onItemPress={this.onBoundGoToBotConnectionDetails}></LifekeyList>
+                        { /* this.renderListItem(this.state.botConnections, this.onBoundGoToBotConnectionDetails) */ }
+                        </View>
+                    )
+                      /* CONNECTED VIEW */
+                      //  <View style={ style.contentContainer }>
+                      //   { this.state.connections.map((connection, i) => (
+                      //       <ListItem key={i} style={style.listItem} onPress={() => this.goToConnectionDetails(this.state.connections[i])}>
+                      //         <View style={style.listItemWrapper}>
+                      //           <Image style={style.listItemImage} source={{ uri: connection.image_uri }}/>
+                      //           <Text style={style.listItemText}>{connection.display_name}</Text>
+                      //         </View>
+                      //       </ListItem>
+                      //     ))
+                      //   }
+                      // </View> 
+                  :
+                    !this.state.pendingPeerConnections.length && !this.state.pendingBotConnections ?
                       <View style={ style.contentContainer }>
                         { this.state.userName && 
                           <Text>
                             <Text style={ style.defaultFont }>
-                              Hi there { this.state.userName }, 
-                              {"\n\n"}
-                              You have no connections yet, have a look at some
+                              There are currently no more suggested connections.
                             </Text>
-                            <Text onPress={() => this.setTab(TAB_SUGGESTED)} style={ Object.assign({}, style.defaultFont, { "color": Palette.consentBlue }) }> suggestions.</Text>
-                            <Text style={ style.defaultFont }>  
-                              {"\n\n"}
-                              Or, start setting up your public
-                            </Text>
-                            <Text onPress={this.onBoundPressProfile} style={ Object.assign({}, style.defaultFont, { "color": Palette.consentBlue }) }> profile.</Text>
                           </Text>
                         }
                       </View>
-                      :
-                      /* CONNECTED VIEW */
-                      <View style={ style.contentContainer }>
-                        { this.state.connections.map((connection, i) => (
-                            <ListItem key={i} style={style.listItem} onPress={() => this.goToConnectionDetails(this.state.connections[i])}>
-                              <View style={style.listItemWrapper}>
-                                <Image style={style.listItemImage} source={{ uri: connection.image_uri }}/>
-                                <Text style={style.listItemText}>{connection.display_name}</Text>
-                              </View>
-                            </ListItem>
-                          ))
-                        }
-                      </View>
                     :
+                      <View style={style.contentContainer}> 
+                        <LifekeyList list={this.state.pendingPeerConnections} onItemPress={this.onBoundGoToPeerConnect}></LifekeyList>
+                      { /* this.renderListItem(this.state.pendingPeerConnections, this.onBoundGoToPeerConnect) */ }
+                        <LifekeyList list={this.state.pendingBotConnections} onItemPress={this.onBoundGoToBotConnect}></LifekeyList>
+                      { /* this.renderListItem(this.state.pendingBotConnections, this.onBoundGoToBotConnect) */ }
+                      </View>
+
                     /* SUGGESTED TAB */
-                    <View style={{ flex: 1 }}>
-                      { this.state.suggestedConnections.map((suggestedConnection, i) => (
-                        <ListItem
-                          key={i}
-                          style={style.listItem}
-                          onPress={() => this.goToConnect(this.state.suggestedConnections[i])}
-                        >
-                            <View style={style.listItemWrapper}>
-                              <Image
-                                style={style.listItemImage}
-                                source={{ uri: suggestedConnection.image_uri }}
-                              />
-                              <Text style={style.listItemText}>{suggestedConnection.display_name}</Text>
-                            </View>
-                        </ListItem>
-                      ))}
-                    </View>
+                    // <View style={{ flex: 1 }}>
+                    //   { this.state.suggestedConnections.map((suggestedConnection, i) => (
+                    //     <ListItem key={i} style={style.listItem} onPress={() => this.goToConnect(this.state.suggestedConnections[i])}>
+                    //         <View style={style.listItemWrapper}>
+                    //           <Image style={style.listItemImage} source={{ uri: suggestedConnection.image_uri }} />
+                    //           <Text style={style.listItemText}>{suggestedConnection.display_name}</Text>
+                    //         </View>
+                    //     </ListItem>
+                    //   ))}
+                    // </View>
                   }
 
                 </View>
@@ -372,14 +472,17 @@ class Main extends Scene {
 const style = {
   contentContainer: {
     flex: 1,
-    padding: Design.paddingRight
+    // padding: Design.paddingRight
   },
   listItem: {
-    marginLeft: 10,
+    marginLeft: -Design.paddingRight / 2.5,
+    marginRight: -Design.paddingRight / 2.5,
     minHeight: 50
   },
   listItemWrapper: {
     flex: 1,
+    marginLeft: Design.paddingRight,
+    marginRight: Design.paddingRight,
     flexDirection: 'row',
     justifyContent: 'center',
     alignItems: 'center'

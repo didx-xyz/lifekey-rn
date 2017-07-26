@@ -9,7 +9,8 @@ import {
   DeviceEventEmitter,
   ActivityIndicator,
   TouchableOpacity,
-  AsyncStorage
+  AsyncStorage,
+  StatusBar
 } from 'react-native'
 
 import pt from 'prop-types'
@@ -236,6 +237,7 @@ export default class AuthenticationPrompt extends Scene {
   render() {
     return (
       <Container style={{ padding: 10, backgroundColor: Palette.consentBlue }}>
+        <StatusBar hidden={false} />
         <BackButton navigator={this.navigator} />
         {this.render_authorisation_prompt_message_and_feedback()}
         { this.render_dot_animation() }

@@ -10,11 +10,22 @@ const Touchable = function(props) {
     Palette.consentGrayLight, true
   )
 
+  if(props.noRipple){
+  	return (
+	    <TouchableNativeFeedback hitSlop={props.hitSlop} background={null} delayPressIn={0} {...props} >
+	      {props.children}
+	    </TouchableNativeFeedback>
+	  )
+  }
+  
   return (
-    <TouchableNativeFeedback useForeground={true} ripple={{ "borderless": true }} background={background} delayPressIn={0} {...props} >
+    <TouchableNativeFeedback hitSlop={props.hitSlop} ripple={{ "borderless": true }} background={background} delayPressIn={0} {...props} >
       {props.children}
     </TouchableNativeFeedback>
   )
+
 }
 
 export default Touchable
+
+

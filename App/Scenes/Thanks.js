@@ -8,6 +8,7 @@ import Logger from '../Logger'
 import Routes from '../Routes'
 import Api from '../Api'
 import LifekeyHeader from '../Components/LifekeyHeader'
+import LifekeyCard from '../Components/LifekeyCard'
 import Touchable from '../Components/Touchable'
 import BackIcon from '../Components/BackIcon'
 import AndroidBackButton from 'react-native-android-back-button'
@@ -18,7 +19,6 @@ import ThanksIcon from '../Components/ThanksIcon'
 import {
   Text,
   View,
-  StyleSheet,
   Dimensions,
   Image
 } from 'react-native'
@@ -181,7 +181,16 @@ export default class Thanks extends Scene {
 
   renderOffersTab() {
     // NOTE offers is not yet implemented
-    return this.renderReceipts()
+    return (
+
+      <LifekeyCard headingText={"ACME INC."} leftButtonText={"SHARE"} rightButtonText={"REDEEM"} onPressDelete={() => console.log("hello")} onPressEdit={() => console.log("hello")}>
+        <View style={ style.offerCard }>
+          <Text style={ style.offerHeading }>Give a friend a 100 thanks</Text>
+          <Text style={ style.offerDescription }>Get a friend started and you'll get 100 thanks too.</Text>
+        </View>
+      </LifekeyCard>
+
+    )
   }
 
   render() {
@@ -207,7 +216,7 @@ export default class Thanks extends Scene {
     ], tabs = [
       {
         text: 'Offers',
-        onPress: _ => alert('not implemented'),
+        onPress: _ => this.setTab(TAB_OFFERS),
         active: this.state.activeTab === TAB_OFFERS
       },
       {
@@ -303,5 +312,21 @@ const style = {
     // fontWeight: 'bold',
     fontSize: 12,
     paddingLeft: 10
+  },
+  offerCard:{
+    justifyContent: "center",
+    alignItems: "center"
+  },
+  offerBrand:{
+    flex: 1
+  },
+  offerHeading: {
+    fontSize: 24,
+    fontWeight: "bold",
+    textAlign: "center"
+  },
+  offerDescription: {
+    textAlign: "center",
+    width: "50%"
   }
 }

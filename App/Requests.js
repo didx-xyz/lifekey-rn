@@ -77,6 +77,7 @@ const wrappedFetch = function(url, options) {
 }
 
 const onResponse = function(response) {
+
   Logger.networkResponse(response.status, new Date(), response._bodyText)
 
   switch (parseInt(response.status, 10)) {

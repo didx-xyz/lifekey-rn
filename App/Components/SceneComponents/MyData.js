@@ -25,9 +25,10 @@ class MyData extends Component {
   RC_render(resourceType){
     console.log("RC RENDER: ", resourceType)
     if(!this.validResourceType(resourceType)) return
-    return <RcWrapper onPressDelete={this.props.onPressDelete} 
+    return <RcWrapper onPressShare={this.props.onPressShare} 
                       onPressEdit={this.props.onPressEdit} 
                       onPressProfile={this.props.onPressProfile}
+                      peerConnections={this.props.peerConnections}
                       resourceType={resourceType}></RcWrapper>
   }
 
@@ -128,7 +129,7 @@ class MyData extends Component {
 
     return (
     
-      <View>
+      <View style={ {"flex": 1, "alignItems": "stretch"} }>
         <View style={styles.addHeadingContainer}>
           <Touchable onPress={ toggle } style={styles.addHeadingContainer}><Text style={styles.addHeading}>+ Add data</Text></Touchable>
         </View>

@@ -119,8 +119,6 @@ class Connection extends Scene {
     return (
       <View style={styles.content}>
         <BackButton navigator={this.navigator} />
-        <StatusBar hidden={true} />
-
         <View style={ {flex: 1} }>
           <View style={styles.logo}>
             <CircularImage uri={ this.props.route.image_uri } radius={32} borderColor={ Palette.consentWhite } />
@@ -177,7 +175,7 @@ class Connection extends Scene {
 
 const styles = {
   "content": {
-    "height": Dimensions.get('window').height,
+    "height": Dimensions.get('window').height - StatusBar.currentHeight,
     "backgroundColor": Palette.consentWhite,
     "paddingTop": Design.paddingTop*2
   },
