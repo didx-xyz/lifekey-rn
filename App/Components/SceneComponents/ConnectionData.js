@@ -10,10 +10,11 @@ import Design from "../../DesignParameters"
 import LifekeyCard from "../LifekeyCard"
 import { Card, CardItem } from "native-base"
 
-import RcWrapper from "../ResourceComponents/rc-Wrapper"
+import RcWrapperLight from "../ResourceComponents/rc-Wrapper-Light"
 import ModalPicker from "react-native-modal-picker"
 import LcAddCategoryButton from "../lc-AddCategoryButton"
 import Touchable from "../Touchable"
+import TickIcon from "../TickIcon"
 
 class TheirData extends Component {
 
@@ -24,11 +25,8 @@ class TheirData extends Component {
   RC_render(resourceType){
     console.log("RC RENDER: ", resourceType)
     if(!this.validResourceType(resourceType)) return
-    return <RcWrapper onPressShare={this.props.onPressShare} 
-                      onPressEdit={this.props.onPressEdit} 
-                      onPressProfile={this.props.onPressProfile}
-                      peerConnections={this.props.peerConnections}
-                      resourceType={resourceType}></RcWrapper>
+    
+    return <RcWrapperLight resourceType={resourceType} includeResourceType={true}></RcWrapperLight>
   }
 
   // fetchFullResource(resourceId){
@@ -50,29 +48,62 @@ class TheirData extends Component {
 
   render() {
 
+    const shallowConnectionData = this.props.shallowConnectionData
     const connectionData = this.props.connectionData
-    const fullResources = this.props.fullResources
+    const fullConnectionData = this.props.myData.find(rt => rt.name === "ConnectionData")
 
-    console.log("FULL RESOURCES: ", fullResources, " | ", Array.isArray(fullResources))
+    const profile = connectionData.find(rt => rt.name === "Public Profile")
+    const person = connectionData.find(rt => rt.name === "Person")
+    const identity = connectionData.find(rt => rt.name === "Identity")
+    const email = connectionData.find(rt => rt.name === "Email")
+    const mobile = connectionData.find(rt => rt.name === "Mobile Phone")
+    const landline = connectionData.find(rt => rt.name === "Landline")
+    const address = connectionData.find(rt => rt.name === "Address")
+    const employment = connectionData.find(rt => rt.name === "Employment")
+    const poIdentity = connectionData.find(rt => rt.name === "Proof Of Identity") 
+    const poResidence = connectionData.find(rt => rt.name === "Proof Of Residence")
+    const verifiableClaims = connectionData.find(rt => rt.name === "Verifiable Claims")
+    
+
+    // const profile = { name: "Public Profile", items: fullConnectionData.items["Public Profile"] }
+    // const person = { name: "Person", items: fullConnectionData.items["Person"] }
+    // const identity = { name: "Identity", items: fullConnectionData.items["Identity"] }
+    // const email = { name: "Email", items: fullConnectionData.items["Email"] }
+    // const mobile = { iname: "Mobile Phone", tems: fullConnectionData.items["Mobile Phone"] }
+    // const landline = { name: "Landline", items: fullConnectionData.items["Landline"] }
+    // const address = { name: "Address", items: fullConnectionData.items["Address"] }
+    // const employment = { name: "Employment", items: fullConnectionData.items["Employment"] }
+    // const poIdentity = { name: "Proof Of Identity", items: fullConnectionData.items["Proof Of Identity"] }
+    // const poResidence = { name: "Proof Of Residence", items: fullConnectionData.items["Proof Of Residence"] }
 
     return (
       <View>
         <View>
         { 
-          connectionData.map((datum, i) => {
+          shallowConnectionData.map((entity, i) => {
+            console.log("DATUM: ", entity)
+
             return (
-
-              <Touchable key={datum.id} onPress={this.props.onFetchFullResource.bind(this, datum.id)}>
-                <Text>{ datum.alias }</Text>
-              </Touchable>
-
+              <View key={entity.id} style={ styles.resourceItem }>
+                <Card style={styles.card}>
+                  <CardItem>
+                    <Touchable onPress={this.props.onFetchFullResource.bind(this, entity.id)}>
+                      <View style={styles.cardHeader}>
+                        <Text style={ Object.assign({}, styles.cardHeadingText, { "color": Palette.consentOffBlack })}>{entity.alias.toUpperCase()}</Text>
+                        <TickIcon width={ Design.headerIconWidth/2 } height={ Design.headerIconHeight/2 } stroke={Palette.consentBlue} />
+                      </View>
+                      </Touchable>
+                    </CardItem>
+                </Card>
+              </View>
             )
-          })
+          }) 
         }
         </View>
         <View>
-        { 
+        { /*
           fullResources.map((datum, i) => {
+            console.log("FULL DATUM: ", datum)
             return (
 
               <Touchable key={datum.id}>
@@ -81,7 +112,34 @@ class TheirData extends Component {
 
             )
           })
-        }
+        */ }
+
+          {/* Who you are */}
+          <View style={styles.groupContainer}>
+            { this.RC_render(profile) }
+            { this.RC_render(person) }
+            { this.RC_render(identity) }
+            { this.RC_render(poIdentity) }
+          </View>
+
+          {/* How to reach you */}
+          <View style={styles.groupContainer}>
+            { this.RC_render(email) }
+            { this.RC_render(mobile) }
+            { this.RC_render(landline) }
+          </View>
+
+          {/* Where you are */}  
+          <View style={styles.groupContainer}>
+            { this.RC_render(address) }
+            { this.RC_render(poResidence) }
+          </View>
+
+          {/* What you do */}  
+          <View style={styles.groupContainer}>
+            { this.RC_render(employment) }
+          </View>
+
         </View>
       </View>
     )
@@ -136,6 +194,9 @@ class TheirData extends Component {
 }
 
 const styles = {
+  "groupContainer": {
+    "paddingTop": 0
+  },
   "addHeadingContainer":{
     "paddingTop": Design.paddingTop + 10,
     "paddingBottom": Design.paddingBottom + 10,
@@ -192,6 +253,32 @@ const styles = {
     "flexDirection": "row",
     "justifyContent": "flex-start",
     "alignItems": "stretch"
+  },
+  "resourceItem":{
+    "width": "100%"
+  },
+  "card": {
+    "marginTop": 1
+  },
+  "cardHeader": {
+    "flex": 1,
+    "flexDirection": "row",
+    "justifyContent": "space-between",
+    "alignItems": "center"
+  },
+  "cardHeadingText": {
+    "fontSize": 10,
+    "fontWeight": "bold"
+  },
+  "cardHeadingIcon": {
+    "marginTop": -10,
+    "color": Palette.consentGrayDark
+  },
+  "cardHeadingIconSmall": {
+    "fontSize": 30
+  },
+  "cardHeadingIconLarge": {
+    "fontSize": 32
   }
 }
 

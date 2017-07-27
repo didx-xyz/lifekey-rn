@@ -50,52 +50,16 @@ class ConnectionDetailsPeerToPeer extends Scene {
 
     this.state = {
       "activeTab": CONNECTION_DATA,
-      // "tabName": "Connection Data",
-      "sortedResourceTypes": [],
+      "shallowConnectionData": [],
       "connectionData": [],
-      "fullResources": [],
-      "informationSource": "MY CODE",
+      "myData": [],
       "progressCopy": "Loading connection data...",
       "asyncActionInProgress": true
     }
 
     this.onBoundFetchFullResource = this.fetchFullResource.bind(this)
 
-    // this.onBoundPressHelp = this.onPressHelp.bind(this)
-    // this.onBoundPressDelete = this.onPressDelete.bind(this)
-    // this.onBoundPressEdit = this.onPressEdit.bind(this)
-    // this.onBoundShowContextMenu = this.onShowContextMenu.bind(this)
-    // this.onBoundPressProfile = this.onPressProfile.bind(this)
   }
-
-  // onPressHelp(destination, helpScreens, navigationType) {
-  //   this.navigator.push({...Routes.helpGeneral, "destination": destination, "screens": helpScreens, "navigationType": navigationType })
-  // }
-
-  // onPressEdit(form, id = null, name = null) {
-  //   this.context.onEditResource(form, id, name)
-  // }
-
-  // onPressDelete(id){
-  //   ConsentUser.setPendingState(id, 'pendingDelete')
-  //   this.fetchOurData().then(() => {
-  //     Api.deleteResource({ id })
-  //      .then(() => {
-  //       ConsentUser.removeFromState(id)
-  //       this.fetchOurData()
-  //       ToastAndroid.show('Resource deleted...', ToastAndroid.SHORT)
-  //      })
-  //      .catch(error => {
-  //       ToastAndroid.show('Failed to delete resource...', ToastAndroid.SHORT)
-  //       Logger.warn('Could not delete resource: ', error)
-  //      })
-  //   }) 
-  // }
-
-  // onPressProfile() {
-  //   this.context.onEditResource("http://schema.cnsnt.io/public_profile_form", null, "Public Profile")
-  //   this.navigator.push({ ...Routes.editProfile })
-  // }
 
   componentDidMount() {
     super.componentDidMount()
@@ -125,8 +89,6 @@ class ConnectionDetailsPeerToPeer extends Scene {
     Api.getResource({ id: resourceId }).then(result => {
 
       // TODO - ASYNC STORAGE
-      console.log("RESULT: ", result)
-      // const fullResource = result
       
       const newArray = [ ...this.state.fullResources, result ]
 
@@ -148,21 +110,21 @@ class ConnectionDetailsPeerToPeer extends Scene {
       Api.getMyData()
     ]).then(values => {
 
-      const connectionData = values[0].body  
+      const shallowConnectionData = values[0].body  
+      const myData = values[1]
 
-      console.log("CONNECTION DATA: ", connectionData)
+      console.log("MY DATA: ", myData)
 
-      // Add props.route.profile to connectionData
-      // if(connectionData.resourcesByType.find(rt => rt.name === "Public Profile").items.length === 0){
-      //   data.resourcesByType.find(rt => rt.name === "Public Profile").items.push(profile)
-      // }
+      /* Currently this function calls everything from cache - but could be adapted to work with async storage */
+      ConsentUser.sortConnectionData()
 
-      let data = values[1]
+      const allConnections = ConsentUser.getCached("myConnections")
+      const connection = allConnections.peerConnections.find(c => c.did === this.props.route.connection_did)   
       
       this.setState({
-        "connectionData": connectionData,
-        "fullResources": [], // TODO - ASYNC CALL FOR FULL RESOURCES 
-        "sortedResourceTypes": data.resourcesByType,
+        "shallowConnectionData": shallowConnectionData,
+        "connectionData": connection.resourcesByType,
+        "myData": myData.resourcesByType, 
         "asyncActionInProgress": false
       })
 
@@ -235,7 +197,7 @@ class ConnectionDetailsPeerToPeer extends Scene {
     case CONNECT:
       return <Connect profile={this.state.profile} onPressProfile={this.onBoundPressProfile} onPressHelp={ this.onBoundPressHelp }></Connect>
     case CONNECTION_DATA:
-      return <ConnectionData connectionData={this.state.connectionData} fullResources={this.state.fullResources} onFetchFullResource={this.onBoundFetchFullResource}></ConnectionData>
+      return <ConnectionData shallowConnectionData={this.state.shallowConnectionData} connectionData={this.state.connectionData} myData={this.state.myData} onFetchFullResource={this.onBoundFetchFullResource}></ConnectionData>
     case MY_DATA:
       return <MyData sortedResourceTypes={this.state.sortedResourceTypes} onPressDelete={ this.onBoundPressDelete } onPressEdit={ this.onBoundPressEdit } onPressProfile={this.onBoundPressProfile}></MyData>
     }

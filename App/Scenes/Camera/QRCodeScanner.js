@@ -118,7 +118,7 @@ export default class QRCodeScanner extends Scene {
         this.navigator.push({...Routes.main})
       }
       else{
-
+        console.log("HELLO: ", response)
       }
 
     }).catch(error => {
