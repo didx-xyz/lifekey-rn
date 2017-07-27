@@ -11,6 +11,7 @@ import LifekeyCard from "../LifekeyCard"
 import { Card, CardItem } from "native-base"
 
 import RcWrapper from "../ResourceComponents/rc-Wrapper"
+import RcWrapperLight from "../ResourceComponents/rc-Wrapper-Light"
 import ModalPicker from "react-native-modal-picker"
 import LcAddCategoryButton from "../lc-AddCategoryButton"
 import Touchable from "../Touchable"
@@ -25,11 +26,15 @@ class MyData extends Component {
   RC_render(resourceType){
     console.log("RC RENDER: ", resourceType)
     if(!this.validResourceType(resourceType)) return
-    return <RcWrapper onPressShare={this.props.onPressShare} 
-                      onPressEdit={this.props.onPressEdit} 
-                      onPressProfile={this.props.onPressProfile}
-                      peerConnections={this.props.peerConnections}
-                      resourceType={resourceType}></RcWrapper>
+
+    if(this.props.light)
+      return <RcWrapperLight resourceType={resourceType} includeResourceType={true}></RcWrapperLight>
+    else
+      return <RcWrapper onPressShare={this.props.onPressShare} 
+                        onPressEdit={this.props.onPressEdit} 
+                        onPressProfile={this.props.onPressProfile}
+                        peerConnections={this.props.peerConnections}
+                        resourceType={resourceType}></RcWrapper>
   }
 
   VC_render(resourceType) {

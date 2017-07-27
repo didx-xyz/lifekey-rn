@@ -34,7 +34,7 @@ class Connect extends Component  {
 
     this.onBoundPressMyCode= this.onPressMyCode.bind(this)
     this.onBoundPressFaceMatch = this.onPressFaceMatch.bind(this)
-    this.onBoundPressProfile = this.props.onPressProfile.bind(this)
+    this.onBoundPressProfile = this.props.connectWithMe && this.props.onPressProfile.bind(this)
     this.onBoundPressShare = this.onPressShare.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
 
@@ -68,10 +68,15 @@ class Connect extends Component  {
     return(  
       <View>
         <View style={styles.qrCodeContainer}>
-          <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-2/${ConsentUser.getDidSync()}?cache=${new Date().getTime()}` }} />
+          { /* <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-2/${ConsentUser.getDidSync()}?cache=${new Date().getTime()}` }} /> */ 
+
+            console.log("PROFILE DID AND STATE DID MATCH: ", this.props.profile.did === ConsentUser.getDidSync())
+
+          }
+          <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-2/${this.props.profile.did}?cache=${new Date().getTime()}` }} />
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.text}>Invite other people to connect with you by sharing your unique ID code</Text>
+          <Text style={styles.text}>Invite other people to connect with { this.props.connectWithMe ? <Text>you</Text> : <Text>{this.props.profile.display_name}</Text> } by sharing { this.props.connectWithMe ? <Text>your</Text> : <Text>their</Text> } unique ID code</Text>
         </View>
       </View>
     )
@@ -100,19 +105,23 @@ class Connect extends Component  {
       <View style={styles.content}>
         { !!this.props.profile.display_name ?
           <View style={ {"flex": 1} }>
-            <View style={styles.switchButtonContainer}>
-              <View style={Object.assign({}, styles.switchButton, styles.switchButtonLeft, 
-                {"backgroundColor": this.state.informationSource === "MY CODE" ? Palette.consentBlue : Palette.consentGrayLightest})}>
-                <Touchable onPress={this.onBoundPressMyCode}>
-                  <Text style={Object.assign({}, styles.switchButtonText, {"color": this.state.informationSource === "MY CODE" ? "white" : Palette.consentBlue})}>MY CODE</Text>
-                </Touchable>
+            { this.props.connectWithMe ?
+              <View style={styles.switchButtonContainer}>
+                <View style={Object.assign({}, styles.switchButton, styles.switchButtonLeft, 
+                  {"backgroundColor": this.state.informationSource === "MY CODE" ? Palette.consentBlue : Palette.consentGrayLightest})}>
+                  <Touchable onPress={this.onBoundPressMyCode}>
+                    <Text style={Object.assign({}, styles.switchButtonText, {"color": this.state.informationSource === "MY CODE" ? "white" : Palette.consentBlue})}>MY CODE</Text>
+                  </Touchable>
+                </View>
+                <View style={Object.assign({}, styles.switchButton, styles.switchButtonRight, {"backgroundColor": this.state.informationSource === "FACE MATCH" ? Palette.consentBlue : Palette.consentGrayLightest})}>
+                  <Touchable onPress={this.onBoundPressFaceMatch}>
+                    <Text style={Object.assign({}, styles.switchButtonText, {"color": this.state.informationSource === "FACE MATCH" ? "white" : Palette.consentBlue})}>FACE MATCH</Text>
+                  </Touchable>
+                </View>
               </View>
-              <View style={Object.assign({}, styles.switchButton, styles.switchButtonRight, {"backgroundColor": this.state.informationSource === "FACE MATCH" ? Palette.consentBlue : Palette.consentGrayLightest})}>
-                <Touchable onPress={this.onBoundPressFaceMatch}>
-                  <Text style={Object.assign({}, styles.switchButtonText, {"color": this.state.informationSource === "FACE MATCH" ? "white" : Palette.consentBlue})}>FACE MATCH</Text>
-                </Touchable>
-              </View>
-            </View>
+              :
+              <View style={styles.switchButtonContainer}></View>
+            }
             <View style={styles.informationContainer}>
               { this.currentInformationState() }
             </View>   

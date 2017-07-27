@@ -20,8 +20,6 @@ class RcWrapperLight extends Component {
 
   renderComponent(resource, resourceType, index){
 
-    console.log("RESOURCE RENDER: ", resource, " | ", resourceType)
-
     switch (resourceType.name) {
       case('Public Profile'):
         return <LcProfile {...resource} />

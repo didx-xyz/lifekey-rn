@@ -14,11 +14,11 @@ class Button extends Component {
     const backgroundColor = affirmative ? Palette.consentBlue : Palette.consentRed
 
     return (
-      <View style={Object.assign({}, styles.button, { backgroundColor })}>
-        <Touchable onPress={onClick}>
+      <Touchable onPress={onClick}>
+        <View style={Object.assign({}, styles.button, { backgroundColor })}>
           <Text style={styles.buttonText}>{buttonText}</Text>
-        </Touchable>
-      </View>
+        </View>
+      </Touchable>
     )
   }
 }

@@ -133,9 +133,15 @@ class RcWrapper extends Component {
                     >
                    <View style={{ "flex": 1 }}>
                       <View style={ styles.modalBackdrop }></View>
-
-                      <View style={ {flex: 1} }>
-                        <LifekeyList list={this.props.peerConnections} onItemPress={this.onPeerSelection.bind(this)}></LifekeyList>
+                      <View style={ styles.modalListContainer }>
+                        <View style={ styles.modalListContainerHeading }>
+                          <View style={styles.description}>
+                            <Text style={styles.descriptionText}>
+                              Who would you like to share this resource with? 
+                            </Text>
+                          </View>
+                        </View>  
+                        <LifekeyList list={this.props.peerConnections} activelist={this.state.peerId} onItemPress={this.onPeerSelection.bind(this)}></LifekeyList>
                         { /*  this.renderConnections(this.props.peerConnections) */ }
                       </View>
                       <LifekeyFooter
@@ -171,7 +177,31 @@ const styles= {
     "zIndex": 0,
     "opacity": 0.9,
     "backgroundColor": Palette.consentOffBlack
-  }
+  },
+  "modalListContainer":{
+    "flex": 1,
+    "margin": Design.paddingLeft,
+    "marginBottom": 0,
+    "backgroundColor": Palette.consentGrayLightest,
+    "borderRadius": 10
+  },
+  "modalListContainerHeading":{
+    "height": 100,
+    "borderBottomWidth": 1,
+    "borderColor": Palette.consentGrayLight,
+    "alignItems": "center",
+    "justifyContent": "center"
+  },
+  "description": {
+    // minHeight: 50,
+    width: "60%",
+    paddingTop: 0
+  },
+  "descriptionText": {
+    color: Palette.consentGrayDark,
+    fontSize: 15,
+    textAlign: "center"
+  },
 }
 
 export default RcWrapper
