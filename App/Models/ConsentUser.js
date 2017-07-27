@@ -680,6 +680,43 @@ export default class ConsentUser {
     return resources
   }
 
+  static sortConnectionData(){
+
+    /* This should organise resources under resource types and store them under connections */
+    const allConnections = this.getCached("myConnections")
+    const resources = this.getCached("allResources")
+    const resourceTypes = this.getCached("allResourceTypes")
+
+    // console.log("IM HERE. IM LISTENING: ", allConnections)
+
+    if(!allConnections) return
+
+    let connections = allConnections.peerConnections
+
+  // console.log("CONNECTIONS: ", connections )
+
+    connections.forEach(connection => { 
+      
+      let shallowResourceTypes = [ ...resourceTypes ]
+      let connectionResources = resources.filter(r => r.from_user_did === connection.did)
+
+      shallowResourceTypes.forEach(rt => {
+        rt.items = connectionResources.filter(r => Common.schemaCheck(r.schema, rt.url) || `${rt.url}_form` === r.form) 
+      })
+
+      connection.resourcesByType = shallowResourceTypes
+
+      console.log("CONNECTION RT: ", connection.resourcesByType)
+
+    })
+
+    // console.log("CONNECTIONS: ", connections)
+
+    const newAllConnections = Object.assign({}, allConnections, { "peerConnections": connections })
+    this.setCached("myConnections", newAllConnections, 300000)
+
+  }
+
   static sortBadges(resources){
 
     var badges = Object.values(resources).map((v, i) => {
@@ -736,11 +773,15 @@ export default class ConsentUser {
 
   static sortMyData(resources, resourceTypes) {
 
+
     // Add logically seperate resources types that aren't persisted in server 
     resourceTypes.push({ name: 'Malformed', url: null, items: [] })
     resourceTypes.push({ name: 'Verifiable Claims', url: null, items: [] })
     resourceTypes.push({ name: 'Decentralized Identifier', url: 'http://schema.cnsnt.io/decentralised_identifier', items: [] })
     resourceTypes.push({ name: 'Miscellaneous', url: null, items: [] })
+
+    /* Experimental - note the items property is an object */
+    // resourceTypes.push({ name: 'ConnectionData', url: null, items: {} }) 
 
     // Sort known items and verifiable claims  
     resourceTypes.map(rt => {
@@ -751,7 +792,7 @@ export default class ConsentUser {
       else{
         rt.items = resources.filter(r => {
 
-          if(r.is_verifiable_claim){
+          if(r.is_verifiable_claim || r.from_user_did){
             return false
           }
 
@@ -778,6 +819,8 @@ export default class ConsentUser {
     return { resourcesByType: resourceTypes, profilePicUrl: identityPhotographUri }
 
   }
+
+  
 
   // * END USER DATA AND PROFILE * //
 

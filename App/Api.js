@@ -194,8 +194,6 @@ export default class Api {
       'resources'
     ], data)
 
-    console.log(" ******************** DATA PUSH ISA: ", data)
-
     return request(`/management/push/${data.isa_id}`, {
       method: 'POST',
       body: JSON.stringify({resources: data.resources})
@@ -223,12 +221,14 @@ export default class Api {
           alias: resource.alias,
           schema: resource.schema, 
           is_verifiable_claim: resource.is_verifiable_claim,
+          from_user_did: resource.from_user_did,
           ...JSON.parse(resource.value)
         }
       })
+      ConsentUser.setCached("allResources", updatedResources, 300000)
       ConsentUser.cacheMyData(updatedResources)
       return ConsentUser.getCached("myData")
-    }).catch(Logger.error)
+    })
   }
 
   static getFlattenedResources(){
@@ -268,8 +268,34 @@ export default class Api {
   }
 
   static connectionResources(connectionDid) {
-    // return request(`/resource?pushed=1&pushed_by=${encodeURIComponent(connectionDid)}`)
-    return request(`/resource?pushed=1&pushed_by=${connectionDid}`)
+    
+    return request(`/resource?pushed=1&pushed_by=${connectionDid}`).then(results => {
+
+      console.log("SHALLOW RESULTS: ", results)
+
+      return results
+    })
+
+    // return request("/resource?all=1")
+    // let connections = ConsentUser.getCached("myConnections")
+      
+    // let connection = this.connections.find(con => con.did === connectionDid)
+
+
+    // if (cached && cached.valid) {
+    //   console.log("SERVED CACHED")
+    //   return Promise.resolve(cached)
+    // }
+    // return request("/resource?all=1").then(response => {
+
+    //   const connectionData = response.body  
+
+    //   console.log("CONNECTION DATA: ", connectionData)
+      
+      
+      
+    //   return connectionData
+    // })
   }
 
   // 1 GET /resource/:resource_id
