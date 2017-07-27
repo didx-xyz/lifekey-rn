@@ -50,7 +50,7 @@ class TheirData extends Component {
 
     const shallowConnectionData = this.props.shallowConnectionData
     const connectionData = this.props.connectionData
-    const fullConnectionData = this.props.myData.find(rt => rt.name === "ConnectionData")
+    // const fullConnectionData = this.props.myData.find(rt => rt.name === "ConnectionData")
 
     const profile = connectionData.find(rt => rt.name === "Public Profile")
     const person = connectionData.find(rt => rt.name === "Person")

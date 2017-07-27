@@ -59,6 +59,7 @@ class Main extends Scene {
     this.first_load = true
     this.is_mounted = false
     this.cxn_unread_msgs = {}
+    
     this.state = {
       activeTab: TAB_CONNECTED,
       searchText: '',
@@ -308,57 +309,9 @@ class Main extends Scene {
         { 
           <View style={{ flex: 1, backgroundColor: Palette.consentGrayLightest }}>
             {
+              
               !this.state.asyncActionInProgress ? 
-                <View style={{ flex: 1 }}>
-                  
-                  { 
-                    this.state.activeTab === 0 ?
-
-                    (
-                      (!this.state.botConnections.length && !this.state.peerConnections.length) ?
-                        /* ZERO DATA VIEW */ 
-                        <View style={ style.contentContainer }>
-                          { this.state.userName && 
-                            <Text>
-                              <Text style={ style.defaultFont }>
-                                Hi there { this.state.userName }, 
-                                {"\n\n"}
-                                You have no connections yet, have a look at some
-                              </Text>
-                              <Text onPress={() => this.setTab(TAB_SUGGESTED)} style={ Object.assign({}, style.defaultFont, { "color": Palette.consentBlue }) }> suggestions.</Text>
-                              <Text style={ style.defaultFont }>  
-                                {"\n\n"}
-                                Or, start setting up your public
-                              </Text>
-                              <Text onPress={this.onBoundPressProfile} style={ Object.assign({}, style.defaultFont, { "color": Palette.consentBlue }) }> profile.</Text>
-                            </Text>
-                          }
-                        </View>
-                      :
-                        <View style={style.contentContainer}> 
-                          <LifekeyList list={this.state.peerConnections} onItemPress={this.onBoundGoToPeerConnectionDetails}></LifekeyList>
-                          <LifekeyList cxn_unread_msgs={this.cxn_unread_msgs} list={this.state.botConnections} onItemPress={this.onBoundGoToBotConnectionDetails}></LifekeyList>
-                        </View>
-                    )
-                  :
-                    !this.state.pendingPeerConnections.length && !this.state.pendingBotConnections ?
-                      <View style={ style.contentContainer }>
-                        { this.state.userName && 
-                          <Text>
-                            <Text style={ style.defaultFont }>
-                              There are currently no more suggested connections.
-                            </Text>
-                          </Text>
-                        }
-                      </View>
-                    :
-                      <View style={style.contentContainer}> 
-                        <LifekeyList list={this.state.pendingPeerConnections} onItemPress={this.onBoundGoToPeerConnect}></LifekeyList>
-                        <LifekeyList list={this.state.pendingBotConnections} onItemPress={this.onBoundGoToBotConnect}></LifekeyList>
-                      </View>
-                  }
-
-                </View>
+                this.renderTab()
               :
                 <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
             }
@@ -374,6 +327,73 @@ class Main extends Scene {
         />
       </Container>
     )
+  }
+
+  renderTab() {
+    
+    switch (this.state.activeTab) {
+      case TAB_CONNECTED:
+        return this.renderConnections()
+      case TAB_SUGGESTED:
+        return this.renderSuggestedConnections()
+    }
+  }
+
+  renderConnections(){
+
+    /* ZERO DATA VIEW */
+    if(!this.state.botConnections.length && !this.state.peerConnections.length){
+      return (
+        <View style={ style.contentContainer }>
+          { this.state.userName && 
+            <Text>
+              <Text style={ style.defaultFont }>
+                Hi there { this.state.userName }, 
+                {"\n\n"}
+                You have no connections yet, have a look at some
+              </Text>
+              <Text onPress={() => this.setTab(TAB_SUGGESTED)} style={ Object.assign({}, style.defaultFont, { "color": Palette.consentBlue }) }> suggestions.</Text>
+              <Text style={ style.defaultFont }>  
+                {"\n\n"}
+                Or, start setting up your public
+              </Text>
+              <Text onPress={this.onBoundPressProfile} style={ Object.assign({}, style.defaultFont, { "color": Palette.consentBlue }) }> profile.</Text>
+            </Text>
+          }
+        </View>
+      )
+    }
+
+    return(
+      <View style={style.contentContainer}> 
+        <LifekeyList list={this.state.peerConnections} onItemPress={this.onBoundGoToPeerConnectionDetails}></LifekeyList>
+        <LifekeyList cxn_unread_msgs={this.cxn_unread_msgs} list={this.state.botConnections} onItemPress={this.onBoundGoToBotConnectionDetails}></LifekeyList>
+      </View>
+    )
+  }
+
+  renderSuggestedConnections(){
+    /* ZERO DATA VIEW */
+    if(!this.state.pendingPeerConnections.length && !this.state.pendingBotConnections.length){
+      return (
+        <View style={ style.contentContainer }>
+          { this.state.userName && 
+            <Text>
+              <Text style={ style.defaultFont }>
+                There are currently no more suggested connections.
+              </Text>
+            </Text>
+          }
+        </View>
+      )
+    }
+      
+    return(
+      <View style={style.contentContainer}> 
+        <LifekeyList list={this.state.pendingPeerConnections} onItemPress={this.onBoundGoToPeerConnect}></LifekeyList>
+        <LifekeyList list={this.state.pendingBotConnections} onItemPress={this.onBoundGoToBotConnect}></LifekeyList>
+      </View>
+    ) 
   }
 }
 

@@ -216,6 +216,8 @@ class Me extends Scene {
 
   render() {
     
+    console.log("PROFILE: ", this.state.profile, " | ", (this.state.profile && this.state.profile.image_uri))
+
     const identityPhotographUri = (this.state.profile && this.state.profile.image_uri) ? this.state.profile.image_uri : Anonymous.uri
     const profilepic = this.state.profile ? <CircularImage uri={ identityPhotographUri } radius={25} borderColor="white" /> : <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/>
     const icons = [
@@ -296,9 +298,8 @@ class Me extends Scene {
     switch (this.state.activeTab) {
 
     case CONNECT:
-      return <Connect profile={this.state.profile} onPressProfile={this.onBoundPressProfile} onPressHelp={ this.onBoundPressHelp }></Connect>
+      return <Connect profile={this.state.profile} connectWithMe={true} onPressProfile={this.onBoundPressProfile} onPressHelp={ this.onBoundPressHelp }></Connect>
     case MY_DATA:
-      // return <MyData sortedResourceTypes={this.state.sortedResourceTypes} onPressDelete={ this.onBoundPressDelete } onPressEdit={ this.onBoundPressEdit } onPressProfile={this.onBoundPressProfile}></MyData>
       return <MyData sortedResourceTypes={this.state.sortedResourceTypes} peerConnections={this.state.peerConnections} onPressShare={ this.onBoundPressShare } onPressEdit={ this.onBoundPressEdit } onPressProfile={this.onBoundPressProfile}></MyData>
     case BADGES:
       return <Badges badges={this.state.sortedBadges}></Badges>

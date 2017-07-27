@@ -10,15 +10,24 @@ import { ListItem } from 'native-base'
 class LifekeyList extends Component {
 
   render(){
+
+    console.log("ACTIVE LIST: ", this.props.activelist)
+
     return(   
       <View>
         { 
           this.props.list.map((connection, i) => (
+
             <ListItem key={i} style={style.listItem} onPress={this.props.onItemPress.bind(this, connection)}>
               <View style={style.listItemWrapper}>
                 <Image style={style.listItemImage} source={{ uri: connection.image_uri }}/>
                 <Text style={style.listItemText}>{connection.display_name}</Text>
                 {this.props.cxn_unread_msgs && this.props.cxn_unread_msgs[connection.did] && (
+                  <Svg width={20} height={20}>
+                    <Circle cx={10} cy={10} r={5} fill={'#216BFF'} strokeWidth={1} stroke={'#216BFF'} />
+                  </Svg>
+                )}
+                {this.props.activelist === connection.did && (
                   <Svg width={20} height={20}>
                     <Circle cx={10} cy={10} r={5} fill={'#216BFF'} strokeWidth={1} stroke={'#216BFF'} />
                   </Svg>

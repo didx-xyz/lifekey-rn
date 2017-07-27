@@ -619,9 +619,16 @@ export default class ConsentUser {
 
   static updateProfile(profile) {
     
-    // console.log("UPDATED PROFILE: ", profile)
-    profile.image_uri = Common.ensureDataUrlIsCleanOfContext(profile.image_uri)
-    profile.image_uri = `data:image/jpg;base64,${profile.image_uri}`
+    console.log("NEW PROFILE: ", profile)
+    if(profile.image_uri){
+      profile.image_uri = Common.ensureDataUrlIsCleanOfContext(profile.image_uri)
+      profile.image_uri = `data:image/jpg;base64,${profile.image_uri}`
+    }
+    else{
+      profile.image_uri = Anonymous.uri
+    }
+    console.log("UPDATED PROFILE: ", profile)
+    
     ConsentUser.setCached('profile', profile, 300000)
   }
 
@@ -687,18 +694,15 @@ export default class ConsentUser {
     const resources = this.getCached("allResources")
     const resourceTypes = this.getCached("allResourceTypes")
 
-    // console.log("IM HERE. IM LISTENING: ", allConnections)
-
     if(!allConnections) return
 
     let connections = allConnections.peerConnections
 
-  // console.log("CONNECTIONS: ", connections )
-
     connections.forEach(connection => { 
       
-      let shallowResourceTypes = [ ...resourceTypes ]
-      let connectionResources = resources.filter(r => r.from_user_did === connection.did)
+      /* Really important to ensure that original resourceTypes remain unmutated */
+      let shallowResourceTypes = [ ...resourceTypes.map(rt => Object.assign({}, rt)) ]
+      let connectionResources = resources.filter(r => !!r.from_user_did && r.from_user_did === connection.did)
 
       shallowResourceTypes.forEach(rt => {
         rt.items = connectionResources.filter(r => Common.schemaCheck(r.schema, rt.url) || `${rt.url}_form` === r.form) 
@@ -706,11 +710,7 @@ export default class ConsentUser {
 
       connection.resourcesByType = shallowResourceTypes
 
-      console.log("CONNECTION RT: ", connection.resourcesByType)
-
     })
-
-    // console.log("CONNECTIONS: ", connections)
 
     const newAllConnections = Object.assign({}, allConnections, { "peerConnections": connections })
     this.setCached("myConnections", newAllConnections, 300000)

@@ -41,6 +41,7 @@ export default class Common {
 
     //strip image context 
     static ensureDataUrlIsCleanOfContext(url){
+        if(!url) return ''
         const result = url.split(',')[1];
         if(result)
             return result
@@ -49,6 +50,7 @@ export default class Common {
     }
 
     static ensureDataUrlHasContext(url){
+        if(!url) return ''
         url = this.ensureDataUrlIsCleanOfContext(url)    
         return `data:image/jpg;base64,${url}`
     }

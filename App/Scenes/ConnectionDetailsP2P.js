@@ -25,10 +25,11 @@ import PanTab from "../Components/PanTab"
 import ProgressIndicator from "../Components/ProgressIndicator"
 import Design from "../DesignParameters"
 import Logger from "../Logger"
+import Anonymous from "../Images/anonymous_person"
 
-import MyData from "../Components/SceneComponents/MyData"
 import Connect from "../Components/SceneComponents/Connect"
 import ConnectionData from "../Components/SceneComponents/ConnectionData"
+import MyData from "../Components/SceneComponents/MyData"
 import CircularImage from "../Components/CircularImage"
 
 const CONNECT = 0
@@ -50,6 +51,7 @@ class ConnectionDetailsPeerToPeer extends Scene {
 
     this.state = {
       "activeTab": CONNECTION_DATA,
+      "connectionProfile": null,
       "shallowConnectionData": [],
       "connectionData": [],
       "myData": [],
@@ -106,14 +108,17 @@ class ConnectionDetailsPeerToPeer extends Scene {
   fetchOurData() {
     
     return Promise.all([
+      Api.profile({ did: this.props.route.connection_did }),
       Api.connectionResources(this.props.route.connection_did),
       Api.getMyData()
     ]).then(values => {
 
-      const shallowConnectionData = values[0].body  
-      const myData = values[1]
+      const connectionProfile = values[0].body.user
 
-      console.log("MY DATA: ", myData)
+      console.log("PROFILE: ", connectionProfile)
+
+      const shallowConnectionData = values[1].body  
+      const myData = values[2]
 
       /* Currently this function calls everything from cache - but could be adapted to work with async storage */
       ConsentUser.sortConnectionData()
@@ -122,6 +127,7 @@ class ConnectionDetailsPeerToPeer extends Scene {
       const connection = allConnections.peerConnections.find(c => c.did === this.props.route.connection_did)   
       
       this.setState({
+        "connectionProfile": connectionProfile,
         "shallowConnectionData": shallowConnectionData,
         "connectionData": connection.resourcesByType,
         "myData": myData.resourcesByType, 
@@ -135,46 +141,48 @@ class ConnectionDetailsPeerToPeer extends Scene {
 
   render() {
     
-    // const profilepic = this.state.connectionData ? <CircularImage uri={this.state.profile.profileImageUri} radius={25} borderColor="white" /> : <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/>
-    // const icons = [
-    //   {
-    //     icon: <BackIcon width={16} height={16}/>,
-    //     onPress: () => this.navigator.pop(),
-    //     borderColor: "white"
-    //   },
-    //   {
-    //     icon: profilepic,
-    //     borderColor: "white"
-    //   },
-    //   {
-    //     icon: (<GearIcon width={38} height={38} stroke={Palette.consentGrayDark} />),
-    //     onPress: () => { this.onBoundShowContextMenu() },
-    //     borderColor: "white"
-    //   }
-    // ], tabs = [
-    //   {
-    //     text: "Connect",
-    //     onPress: () => this.setState({ activeTab: CONNECT }, this.scrollViewToTop.bind(this)),
-    //     active: this.state.activeTab === CONNECT
-    //   },
-    //   {
-    //     text: "My Data",
-    //     onPress: () => this.setState({ activeTab: MY_DATA }, this.scrollViewToTop.bind(this)),
-    //     active: this.state.activeTab === MY_DATA
-    //   },
-    //   {
-    //     text: "Badges",
-    //     onPress: () => this.setState({ activeTab: BADGES }, this.scrollViewToTop.bind(this)),
-    //     active: this.state.activeTab === BADGES
-    //   }
-    // ]
+    const identityPhotographUri = (this.state.connectionProfile && this.state.connectionProfile.image_uri) ? Common.ensureDataUrlHasContext(this.state.connectionProfile.image_uri) : Anonymous.uri
+    const profilepic = this.state.connectionProfile ? <CircularImage uri={ identityPhotographUri } radius={25} borderColor="white" /> : <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/>
+
+    const icons = [
+      {
+        icon: <BackIcon width={16} height={16}/>,
+        onPress: () => this.navigator.pop(),
+        borderColor: "white"
+      },
+      {
+        icon: profilepic,
+        borderColor: "white"
+      },
+      {
+        icon: (<View width={38} height={38}></View>),
+        onPress: () => { },
+        borderColor: "white"
+      }
+    ], tabs = [
+      {
+        text: "Connect",
+        onPress: () => this.setState({ activeTab: CONNECT }),
+        active: this.state.activeTab === CONNECT
+      },
+      {
+        text: "Their Data",
+        onPress: () => this.setState({ activeTab: CONNECTION_DATA }),
+        active: this.state.activeTab === CONNECTION_DATA
+      },
+      {
+        text: "My Data",
+        onPress: () => this.setState({ activeTab: MY_DATA }),
+        active: this.state.activeTab === MY_DATA
+      }
+    ]
 
     return (
       <Container>
         <View style={style.headerWrapper}>
           
           <BackButton navigator={this.navigator} />
-          { /* <LifekeyHeader icons={icons} tabs={tabs} /> */ }
+          <LifekeyHeader icons={icons} tabs={tabs} /> 
         </View>
         <ScrollView style={style.contentContainer}>
           {
@@ -195,11 +203,13 @@ class ConnectionDetailsPeerToPeer extends Scene {
     
     switch (this.state.activeTab) {
     case CONNECT:
-      return <Connect profile={this.state.profile} onPressProfile={this.onBoundPressProfile} onPressHelp={ this.onBoundPressHelp }></Connect>
+      return <Connect profile={this.state.connectionProfile} connectWithMe={false}></Connect>
     case CONNECTION_DATA:
-      return <ConnectionData shallowConnectionData={this.state.shallowConnectionData} connectionData={this.state.connectionData} myData={this.state.myData} onFetchFullResource={this.onBoundFetchFullResource}></ConnectionData>
+      // return <ConnectionData shallowConnectionData={this.state.shallowConnectionData} connectionData={this.state.connectionData} myData={this.state.myData} onFetchFullResource={this.onBoundFetchFullResource}></ConnectionData>
+      return <MyData sortedResourceTypes={this.state.connectionData} light={true} ></MyData>
     case MY_DATA:
-      return <MyData sortedResourceTypes={this.state.sortedResourceTypes} onPressDelete={ this.onBoundPressDelete } onPressEdit={ this.onBoundPressEdit } onPressProfile={this.onBoundPressProfile}></MyData>
+      return <MyData sortedResourceTypes={this.state.myData} light={true}></MyData>
+      // return <ConnectionData shallowConnectionData={[]} connectionData={this.state.myData}></ConnectionData>
     }
   }
 
