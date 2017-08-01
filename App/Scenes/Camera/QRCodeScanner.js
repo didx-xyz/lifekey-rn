@@ -38,24 +38,19 @@ export default class QRCodeScanner extends Scene {
       showCamera: false,
       readyToScan: true
     }
-    this.scannerActive = true
+    // this.scannerActive = true
 
     this.onBoundCancel = this.onCancel.bind(this)
   }
-  _onAttention() {
-    Common.toggleStatusBar(StatusBar, true, "fade")
-  }
 
-  componentWillMount() {
-    super.componentWillMount()
-    this._onAttention()
-  }
+  // componentWillMount() {
+  //   super.componentWillMount()
+  // }
 
-  componentWillFocus() {
-    super.componentWillFocus()
-    this._onAttention()
+  // componentWillFocus() {
+  //   super.componentWillFocus()
+  // }
 
-  }
   onCancel() {
     Common.toggleStatusBar(StatusBar, false, "fade") // Try control this better from a centralized point.
     this.navigator.pop()
@@ -74,14 +69,15 @@ export default class QRCodeScanner extends Scene {
     InteractionManager.runAfterInteractions(() =>
       setTimeout(() =>
         this.setState({ showCamera: true }),
-        500
+        800
       )
+      // this.setState({ showCamera: true })
     )
   }
 
   faceMatch(data) {
 
-    this.navigator.push({
+    this.navigator.replace({
       ...Routes.faceMatch,
       url: data.data
     })
@@ -98,7 +94,7 @@ export default class QRCodeScanner extends Scene {
   connectP2P(data) {
     const parsedData = JSON.parse(data.data)
     console.log("PARSED PROFILE: ", parsedData)
-    this.navigator.push({
+    this.navigator.replace({
       ...Routes.connectionPeerToPeerRequest,
       profile: parsedData
     })
@@ -115,7 +111,7 @@ export default class QRCodeScanner extends Scene {
 
       if(response.requestSuccesfullySent){
         alert("Logging in...")
-        this.navigator.push({...Routes.main})
+        this.navigator.replace({...Routes.main})
       }
       else{
         console.log("HELLO: ", response)
@@ -132,9 +128,9 @@ export default class QRCodeScanner extends Scene {
 
     console.log("DATA: ", data)
 
-    if (this.scannerActive) {
+    // if (this.scannerActive) {
       
-      this.scannerActive = false
+    //   this.scannerActive = false
 
       // Here we need to build a switch that identifies the nature of the request 
       const isFaceMatch = data.data.indexOf('facial-verification')
@@ -148,7 +144,7 @@ export default class QRCodeScanner extends Scene {
       }
       else
         this.connectP2P(data)
-    }
+    // }
   }
 
 

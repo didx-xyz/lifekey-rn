@@ -28,21 +28,12 @@ import Logger from "../Logger"
 import Anonymous from "../Images/anonymous_person"
 
 import Connect from "../Components/SceneComponents/Connect"
-import ConnectionData from "../Components/SceneComponents/ConnectionData"
 import MyData from "../Components/SceneComponents/MyData"
 import CircularImage from "../Components/CircularImage"
 
 const CONNECT = 0
 const CONNECTION_DATA = 1
 const MY_DATA = 2
-
-const helpScreens = [ 
-  { "image": require("../Images/onboarding_test.png"), "heading": "Identify", "copy": "Qi Identity is my digital passport" }, 
-  { "image": require("../Images/qr.png"), "heading": "Connect", "copy": "Qi Code connects me in a snap & replaces paperwork" }, 
-  { "image": require("../Images/phone.png"), "heading": "Access", "copy": "Qi Access magically logs me in without usernames & passwords" }, 
-  { "image": require("../Images/share.png"), "heading": "Secure", "copy": "Qi Safe secures my personal information under my control" }, 
-  { "image": require("../Images/rewards.png"), "heading": "Rewards", "copy": "Qi Rewards give me Thanks Points and personalised offers" }
-]
 
 class ConnectionDetailsPeerToPeer extends Scene {
   
@@ -60,11 +51,13 @@ class ConnectionDetailsPeerToPeer extends Scene {
     }
 
     this.onBoundFetchFullResource = this.fetchFullResource.bind(this)
+    this.onBoundDelete = this.onDelete.bind(this)
 
   }
 
   componentDidMount() {
     super.componentDidMount()
+    this.props.firebaseInternalEventEmitter.addListener('resource_pushed', this.refreshConnection.bind(this))
     this.interaction = InteractionManager.runAfterInteractions(() => {   
       this.fetchOurData()
     })
@@ -81,17 +74,25 @@ class ConnectionDetailsPeerToPeer extends Scene {
   }
 
   componentWillUnmount() {
-    if(this.interaction) this.interaction.cancel()
+    this.props.firebaseInternalEventEmitter.removeListener('resource_pushed', this.refreshConnection.bind(this))
+    if (this.interaction) this.interaction.cancel()
+  }
+
+  onDelete(){
+
+    this.navigator.push({...Routes.connectionPeerToPeerDelete})
+    this.navigator.push({
+      ...Routes.connectionPeerToPeerDelete,
+      profile: this.state.connectionProfile,
+      user_connection_id: this.props.route.user_connection_id
+    })
   }
 
   fetchFullResource(resourceId){
 
-    console.log("resourceId FETCH: ", resourceId)
-
     Api.getResource({ id: resourceId }).then(result => {
 
       // TODO - ASYNC STORAGE
-      
       const newArray = [ ...this.state.fullResources, result ]
 
       this.setState(
@@ -115,15 +116,12 @@ class ConnectionDetailsPeerToPeer extends Scene {
 
       const connectionProfile = values[0].body.user
 
-      console.log("PROFILE: ", connectionProfile)
-
       const shallowConnectionData = values[1].body  
       const myData = values[2]
 
       /* Currently this function calls everything from cache - but could be adapted to work with async storage */
-      ConsentUser.sortConnectionData()
-
       const allConnections = ConsentUser.getCached("myConnections")
+
       const connection = allConnections.peerConnections.find(c => c.did === this.props.route.connection_did)   
       
       this.setState({
@@ -137,6 +135,18 @@ class ConnectionDetailsPeerToPeer extends Scene {
     }).catch(error => {
       Logger.error(error)
     })
+  }
+
+  refreshConnection(){
+    
+    const allConnections = ConsentUser.getCached("myConnections")
+    const connection = allConnections.peerConnections.find(c => c.did === this.props.route.connection_did)   
+    
+    this.setState({
+      "connectionData": connection.resourcesByType,
+      "asyncActionInProgress": false
+    })
+    ToastAndroid.show(`A new resource was just added...`, ToastAndroid.SHORT)
   }
 
   render() {
@@ -155,8 +165,8 @@ class ConnectionDetailsPeerToPeer extends Scene {
         borderColor: "white"
       },
       {
-        icon: (<View width={38} height={38}></View>),
-        onPress: () => { },
+        icon: (<BackIcon width={16} height={16}/>),
+        onPress: () => this.onBoundDelete(),
         borderColor: "white"
       }
     ], tabs = [
@@ -179,8 +189,7 @@ class ConnectionDetailsPeerToPeer extends Scene {
 
     return (
       <Container>
-        <View style={style.headerWrapper}>
-          
+        <View style={style.headerWrapper}>       
           <BackButton navigator={this.navigator} />
           <LifekeyHeader icons={icons} tabs={tabs} /> 
         </View>
@@ -192,11 +201,8 @@ class ConnectionDetailsPeerToPeer extends Scene {
               <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
           }
         </ScrollView>
-
       </Container>
     )
-
-    
   }
 
   renderTab() {
@@ -205,11 +211,9 @@ class ConnectionDetailsPeerToPeer extends Scene {
     case CONNECT:
       return <Connect profile={this.state.connectionProfile} connectWithMe={false}></Connect>
     case CONNECTION_DATA:
-      // return <ConnectionData shallowConnectionData={this.state.shallowConnectionData} connectionData={this.state.connectionData} myData={this.state.myData} onFetchFullResource={this.onBoundFetchFullResource}></ConnectionData>
       return <MyData sortedResourceTypes={this.state.connectionData} light={true} ></MyData>
     case MY_DATA:
       return <MyData sortedResourceTypes={this.state.myData} light={true}></MyData>
-      // return <ConnectionData shallowConnectionData={[]} connectionData={this.state.myData}></ConnectionData>
     }
   }
 

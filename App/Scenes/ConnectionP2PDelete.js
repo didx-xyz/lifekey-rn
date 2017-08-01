@@ -8,6 +8,7 @@ import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
 import Api from '../Api'
+import ConsentUser from "../Models/ConsentUser"
 import BackButton from "../Components/BackButton"
 import BackIcon from "../Components/BackIcon"
 import Verification from "../Components/SceneComponents/Verification"
@@ -17,7 +18,7 @@ import Scene from "../Scene"
 import Button from "../Components/Button"
 import ProgressIndicator from "../Components/ProgressIndicator"
 
-class ConnectionPeerToPeerRequest extends Scene {
+class ConnectionPeerToPeerDelete extends Scene {
 
   constructor(...params) {
     super(...params)
@@ -91,27 +92,31 @@ class ConnectionPeerToPeerRequest extends Scene {
       "progressCopy": "Sending your request...",
       "asyncInProgress": true
     }, () => {
-      Api.requestConnection({ target: this.state.profile.did })
-        .then(response => {
+      
+      Api.deleteConnection({user_connection_id: this.props.route.user_connection_id})
+         .then(response => {
 
-        if(response.status >= 200 && response.status < 400 ){
-          this.navigator.pop()
-        }
-        else{
-          this.onError("")
-        }
-      })
-      .catch(error => {
-        this.setState({ "asyncInProgress": false}, () => {
-          this.onError("")
-        })
-      })
+           if(response.status >= 200 && response.status < 400 ){
+              ConsentUser.removeEnabledPeerConnection(this.props.route.user_connection_id)
+              ToastAndroid.show("Connection deleted...", ToastAndroid.LONG)
+              this.navigator.replace({ ...Routes.main })
+            }
+            else{
+              this.onError("")
+            }
+
+         })
+         .catch(error => {
+          console.log("DELETE ERROR: ", JSON.stringify(error))
+           ToastAndroid.show(`Something went wrong. Please try again...`, ToastAndroid.SHORT)
+         })
+
     })
 
   }
 
   onError(errorMessage){
-    ToastAndroid.show(`There was an issue requesting a connection... ${errorMessage}`, ToastAndroid.LONG)
+    ToastAndroid.show(`There was an issue deleting this connection... ${errorMessage}`, ToastAndroid.LONG)
     this.onChangeOfMind()
   }
 
@@ -127,7 +132,7 @@ class ConnectionPeerToPeerRequest extends Scene {
               backgroundColor={ Palette.consentGrayLight }
               imageUri={ this.state.profile.image_uri } 
               titleText="Peer Connection"
-              messageText={`Would you like to connect with ${this.state.profile.display_name}`}
+              messageText={`Would you like to disconnect from ${this.state.profile.display_name}`}
               doubtText="Not now"
               onResultGiven={ this.onResultGiven.bind(this, "not now") }>
                 <Button affirmative={false} buttonText={"No"} onClick={this.onResultGiven.bind(this, "no")} />
@@ -139,8 +144,8 @@ class ConnectionPeerToPeerRequest extends Scene {
                 tone="affirmative" 
                 backgroundColor={ Palette.consentGrayLight }
                 imageUri={ this.state.profile.image_uri } 
-                titleText="Request ready!"
-                messageText={`Send connection request to ${this.state.profile.display_name}?`} 
+                titleText="Remove now"
+                messageText={`Are you sure?`} 
                 doubtText="I would like to change my mind"
                 onResultGiven={ this.boundOnChangeOfMind }>
                   <Button affirmative={true} buttonText={"Continue"} onClick={ this.boundOnContinue } />
@@ -150,8 +155,8 @@ class ConnectionPeerToPeerRequest extends Scene {
                 tone="negative" 
                 backgroundColor={ Palette.consentGrayLight }
                 imageUri={ this.state.profile.image_uri } 
-                titleText="Request cancelled"
-                messageText="Thank you" 
+                titleText="Disconnection cancelled"
+                messageText={`You and ${this.state.profile.display_name} are still connected`}
                 doubtText="I would like to change my mind"
                 onResultGiven={ this.boundOnChangeOfMind }>
                   <Button affirmative={true} buttonText={"Continue"} onClick={ this.boundOnCancel } />
@@ -172,4 +177,4 @@ const styles = {
   }
 }
 
-export default ConnectionPeerToPeerRequest
+export default ConnectionPeerToPeerDelete

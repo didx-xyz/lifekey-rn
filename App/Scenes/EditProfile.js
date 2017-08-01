@@ -62,9 +62,9 @@ class EditProfile extends Scene {
 
     this.setState(state, () => {
 
-      return Api.setProfile(data).then(
-        this.onBoundSave
-      ).catch(console.log)
+      return Api.setProfile(data)
+                .then(this.onBoundSave)
+                .catch(console.log)
     })
     //End set UI state
   }
@@ -74,6 +74,7 @@ class EditProfile extends Scene {
     this.context.onSaveResource()
 
     ConsentUser.updateProfile(this.state.formTarget)
+    ConsentUser.updateState(this.state.formTarget)
 
     ToastAndroid.show('Profile saved!', ToastAndroid.SHORT)
 

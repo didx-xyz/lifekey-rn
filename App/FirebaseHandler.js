@@ -1,15 +1,10 @@
-/**
- * Lifekey App
- * @copyright 2017 Global Consent Ltd
- * Civvals, 50 Seymour Street, London, England, W1H 7JG
- * @author Werner Roets <werner@io.co.za>
- */
-
 import Logger from './Logger'
 import Api from './Api'
 import Session from './Session'
 import ConsentConnection from './Models/ConsentConnection'
 import ConsentUser from './Models/ConsentUser'
+import ConsentUserShare from './Models/ConsentUserShare'
+import ConsentShareLog from './Models/ConsentShareLog'
 import ConsentConnectionRequest from './Models/ConsentConnectionRequest'
 import ConsentDiscoveredUser from './Models/ConsentDiscoveredUser'
 import ConsentISA from './Models/ConsentISA'
@@ -45,36 +40,83 @@ class FirebaseHandler {
   }
   
   static user_connection_request(message, eventEmitter) {
+    
     // Make this more intelligent 
-
     Logger.firebase('user_connection_request', message)
-    Api.getMyConnections(300000, true)
+    console.log("USER_CONNECTION_REQUEST: ", message)
+
+    ConsentConnectionRequest.add(message.user_connection_request_id, message.from_id, message.from_did, message.from_nickname)
+                            .then( _ => {
+                              Logger.info('Connection request added successfully')
+                              return Api.profile({did: message.from_did})
+                            })
+                            .then(function(profile) {
+
+                              profile = profile.body.user
+
+                              const newConnection = Object.assign({}, profile, 
+                                                { 
+                                                  user_connection_request_id: message.user_connection_request_id, 
+                                                  image_uri: `data:image/jpg;base64,${profile.image_uri}` 
+                                                })
+
+                              ConsentUser.addNewPendingPeerConnection(newConnection)
+
+                              eventEmitter.emit('user_connection_request', message.from_nickname)
+                            })
+                            .catch(console.log)
   }
   
   static user_connection_created(message, eventEmitter) {
+
     Logger.firebase('user_connection_created', message)
-    ConsentConnection.add(
-      message.user_connection_id,
-      message.to_did
-    ).then(_ => {
-      Logger.info('Connection added successfully')
-      eventEmitter.emit('user_connection_created')
-      return Api.profile({did: message.other_user_did})
-    }).then(function(profile) {
-      return ConsentDiscoveredUser.add(
-        message.other_user_did,
-        profile.body.user.display_name,
-        profile.body.user.colour,
-        profile.body.user.image_uri,
-        profile.body.user.display_name,
-        profile.body.user.address,
-        profile.body.user.tel,
-        profile.body.user.email
-      )
-    }).catch(console.log.bind(console, 'user_connection_created error'))
+
+    // Check human 
+
+    ConsentConnection.add(message.user_connection_id, message.to_did)
+                     .then( _ => {
+                        Logger.info('Connection added successfully')
+                        return Api.profile({did: message.other_user_did})
+                     })
+                     .then(profile => {
+                        
+                        if(profile.body.user.is_human){
+
+                          profile = profile.body.user
+
+                          let newConnection = Object.assign({}, profile, 
+                                              { 
+                                                isa_id: message.sharing_isa_id, 
+                                                user_connection_id: message.user_connection_id, 
+                                                image_uri: `data:image/jpg;base64,${profile.image_uri}` 
+                                              })
+
+                          // Sort resource types - TODO: fix confusing signature
+                          newConnection = ConsentUser.sortConnectionData([newConnection])[0]
+
+                          ConsentUser.addNewEnabledPeerConnection(newConnection)
+                          ConsentUser.removePendingPeerConnection(newConnection)
+                          eventEmitter.emit('user_connection_created', profile.display_name)
+
+                        }
+                        else{
+                          return Promise.resolve(profile)
+                        }
+
+                      }).catch(console.log.bind(console, 'user_connection_created error'))
+
   }
   
-  static user_connection_deleted(message, eventEmitter) {}
+  static user_connection_deleted(message, eventEmitter) {
+
+    ConsentUser.removeEnabledPeerConnection(message.user_connection_id)
+
+    // TODO: remove all cached and stored resources from the other party 
+    ConsentShareLog.all_by_user(message.user_connection_id)
+    ConsentUserShare.remove_all_by_user(message.user_connection_id)
+
+    eventEmitter.emit('user_connection_deleted', message.user_connection_id)
+  }
   
   static information_sharing_agreement_request(message, eventEmitter) {
     Logger.firebase('information_sharing_agreement_request', message)
@@ -94,8 +136,14 @@ class FirebaseHandler {
     return Promise.all(
       message.resource_ids.map(id => Api.getResource({id: id}))
     ).then(results => {
-
-      alert("RESULTS: " + results)
+      
+      // FIXME add to storage and cache
+      results.forEach(result => {
+          ConsentUserShare.add(result.body)
+          const resource = Api.shapeResource(result.body)
+          ConsentUser.updateConnectionState(resource)
+        }
+      )
 
       return Promise.resolve(
         results.find(
@@ -104,7 +152,8 @@ class FirebaseHandler {
       )
     }).then(verified_identity => {
       Session.update({has_verified_identity: !!verified_identity})
-      // FIXME add to storage
+      eventEmitter.emit('resource_pushed', message.attribute)
+      console.log("RESOURCE PUSHED AND EMITTED.")
     }).catch(console.log)
   }
   

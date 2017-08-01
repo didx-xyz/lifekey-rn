@@ -33,7 +33,7 @@ class LcProfile extends Component {
 
     const identityPhotographUri = image_uri || Anonymous.uri
 
-    console.log("PROFILE PHOTO: " , identityPhotographUri)
+    // console.log("PROFILE PHOTO: " , identityPhotographUri)
 
     return (
         <View style={styles.cardContainer}>

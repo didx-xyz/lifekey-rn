@@ -204,9 +204,6 @@ class Lifekeyrn extends Component {
     const sessionState = Session.getState()
     const userState = sessionState.user
 
-    console.log("INITIAL SESSION STATE: ", sessionState)
-    console.log("INITIAL USERSTATE: ", userState)
-
     return (
       userState && userState.registered ?
       Routes.onboarding.unlock :
@@ -258,26 +255,24 @@ class Lifekeyrn extends Component {
     this.firebaseInternalEventEmitter.addListener(
       'user_connection_created',
       () => {
-        ToastAndroid.show('Connection created', ToastAndroid.SHORT)
+        // ToastAndroid.show('Connection created', ToastAndroid.SHORT)
       }
     )
     this.firebaseInternalEventEmitter.addListener(
       'user_connection_request',
       () => {
-        ToastAndroid.show('Connection requested', ToastAndroid.SHORT)
+        // ToastAndroid.show('Connection requested', ToastAndroid.SHORT)
       }
     )
     this.firebaseInternalEventEmitter.addListener(
       'received_did',
       () => {
-        console.log("LIFEKEYRN: received_did event")
         this.setState({ "userDidPresent" : true }, this.checkDidAndActivation)
       }
     )
     this.firebaseInternalEventEmitter.addListener(
       'app_activation_link_clicked',
       () => {
-        console.log("LIFEKEYRN: userHasActivated event")
         this.setState({ "userHasActivated" : true }, this.checkDidAndActivation)
       }
     )

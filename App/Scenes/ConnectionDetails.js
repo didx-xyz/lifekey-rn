@@ -44,6 +44,7 @@ import Palette from '../Palette'
 import Touchable from '../Components/Touchable'
 
 import InformationRequest from '../Components/SceneComponents/InformationRequest'
+import Connect from "../Components/SceneComponents/Connect"
 
 const CONNECT = 0
 const ACTIVITY = 1
@@ -69,7 +70,7 @@ class ConnectionDetails extends Scene {
       enabled_isas: [],
       display_name: this.props.route.display_name,
       current_user_display_name: Session.getState().user.display_name,
-      connection_id: this.props.route.id, // id of the connection request
+      // connection_id: this.props.route.id, // id of the connection request
       user_did: this.props.route.user_did, // did of the user connected to
       messages: [],
       modalVisible: false
@@ -140,7 +141,11 @@ class ConnectionDetails extends Scene {
       ConsentUserConnectionMessage.from(this.state.user_did)
     ]).then(res => {
       var [profile, messages] = res
+
+      // console.log("CONNECTION PROFILE: ", profile)
+
       this.setState({
+        connectionProfile: profile.body.user,
         colour: profile.body.user.colour,
         image_uri: profile.body.user.image_uri,
         actions_url: profile.body.user.actions_url,
@@ -288,44 +293,35 @@ class ConnectionDetails extends Scene {
 
   renderTab() {
     switch (this.state.activeTab) {
-      case CONNECT:
-        return (
-          <View style={{ height: Dimensions.get('window').height - Design.lifekeyHeaderHeight - StatusBar.currentHeight }}>
+      case CONNECT: 
+        return <Connect profile={this.state.connectionProfile} connectWithMe={false}></Connect>
+        // return (
+        //   <View style={{ height: Dimensions.get('window').height - Design.lifekeyHeaderHeight - StatusBar.currentHeight }}>
 
-            <View style={styles.qrCodeWrap}>
-              <Image source={{uri: `${Config.http.baseUrl}/qr/${this.state.user_did}` }} style={{ width: 200, height: 200 }}
-              />
-            </View>
+        //     <View style={styles.qrCodeWrap}>
+        //       <Image source={{uri: `${Config.http.baseUrl}/qr/${this.state.user_did}` }} style={{ width: 200, height: 200 }}
+        //       />
+        //     </View>
 
-            <View style={styles.connectHelpTextWrap}>
-              <Text style={{ textAlign: 'center' }}>
-                Invite other people to connect with {this.state.display_name} by sharing this unique code.
-              </Text>
-            </View>
+        //     <View style={styles.connectHelpTextWrap}>
+        //       <Text style={{ textAlign: 'center' }}>
+        //         Invite other people to connect with {this.state.display_name} by sharing this unique code.
+        //       </Text>
+        //     </View>
 
-            { /* <LifekeyFooter
-              color={ Palette.consentOffBlack }
-              backgroundColor={ Palette.consentGrayMedium }
-              leftButtonText=""
-              rightButtonText="Share"
-              leftButtonIcon={<Icon name="ios-arrow-round-up" size={Design.footerIconHeight} color="#000"/>}
-              onPressLeftButton={() => alert('todo')}
-              onPressRightButton={() => alert('todo')}
-            /> */ }
-
-          </View>
-        )
+        //   </View>
+        // )
       case ACTIVITY:
         return (
           <ScrollView style={styles.messages}>
-            <View style={styles.message}>
+            { /* <View style={styles.message}>
               <Text style={styles.messageText}>
                 Hi {this.state.current_user_display_name}. Thank you for connecting with {this.state.display_name}. Please select an action from the options below to continue.
               </Text>
               <Text style={styles.messageTime}>
                 2 mins
               </Text>
-            </View>
+            </View> */}
             <View style={styles.actions}>
               <View style={ styles.actionTitle}>
                 <Text style={styles.actionTitleText}>Invitations from {this.state.display_name}</Text>
@@ -518,7 +514,7 @@ const styles = {
     height: Design.lifekeyHeaderHeight
   },
   content: {
-    backgroundColor: Palette.consentGrayMedium
+    backgroundColor: Palette.consentGrayLight
   },
   top: {
     flexDirection: "row",

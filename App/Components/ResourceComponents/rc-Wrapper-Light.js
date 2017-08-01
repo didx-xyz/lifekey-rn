@@ -55,9 +55,10 @@ class RcWrapperLight extends Component {
 
             let heading = resourceType.name === "Public Profile" ? "Public Profile" : resource.label
             heading = includeResourceType ? `${heading} (${resourceType.name})` : heading
+            let id = resourceType.name === "Public Profile" ? "Public Profile" : resource.id
 
             return (
-              <View key={resource.id}>
+              <View key={id}>
                 <LifekeyCard  headingText={heading} expandable={false} >
                   { this.renderComponent(resource, resourceType, i) }
                 </LifekeyCard>

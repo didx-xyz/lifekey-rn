@@ -22,6 +22,7 @@ import ConnectionDetails from './Scenes/ConnectionDetails'
 import Connection from './Scenes/Connection'
 import ConnectionPeerToPeer from './Scenes/ConnectionP2P'
 import ConnectionPeerToPeerRequest from './Scenes/ConnectionP2PRequest'
+import ConnectionPeerToPeerDelete from './Scenes/ConnectionP2PDelete'
 import ConnectionDetailsPeerToPeer from './Scenes/ConnectionDetailsP2P'
 import InformationRequest from './Scenes/InformationRequest'
 import Messages from './Scenes/Messages'
@@ -51,6 +52,7 @@ export default {
   connection: { scene: Connection },
   connectionDetailsPeerToPeer: { scene: ConnectionDetailsPeerToPeer },
   connectionPeerToPeer: { scene: ConnectionPeerToPeer },
+  connectionPeerToPeerDelete: { scene: ConnectionPeerToPeerDelete },
   connectionPeerToPeerRequest: { scene: ConnectionPeerToPeerRequest },
   informationRequest: { scene: InformationRequest },
   messages: { scene: Messages },

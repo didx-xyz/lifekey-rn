@@ -619,7 +619,7 @@ export default class ConsentUser {
 
   static updateProfile(profile) {
     
-    console.log("NEW PROFILE: ", profile)
+    // console.log("NEW PROFILE: ", profile)
     if(profile.image_uri){
       profile.image_uri = Common.ensureDataUrlIsCleanOfContext(profile.image_uri)
       profile.image_uri = `data:image/jpg;base64,${profile.image_uri}`
@@ -627,7 +627,7 @@ export default class ConsentUser {
     else{
       profile.image_uri = Anonymous.uri
     }
-    console.log("UPDATED PROFILE: ", profile)
+    // console.log("UPDATED PROFILE: ", profile)
     
     ConsentUser.setCached('profile', profile, 300000)
   }
@@ -652,13 +652,13 @@ export default class ConsentUser {
     this.setCached("myData", myData, 300000)
   }
 
-  static cacheMyData(resources){
+  static cacheMyData(resources, profile){
 
     let resourceTypes = [...this.state.allResourceTypes.data]
 
     resources = this.verifyAndFixSchemaProperty(resources)
     const badges = this.sortBadges(resources)
-    let myData = this.sortMyData(resources, resourceTypes)
+    let myData = this.sortMyData(resources, resourceTypes, profile)
 
     myData.badges = badges
     myData.valid = true
@@ -685,36 +685,6 @@ export default class ConsentUser {
     })
 
     return resources
-  }
-
-  static sortConnectionData(){
-
-    /* This should organise resources under resource types and store them under connections */
-    const allConnections = this.getCached("myConnections")
-    const resources = this.getCached("allResources")
-    const resourceTypes = this.getCached("allResourceTypes")
-
-    if(!allConnections) return
-
-    let connections = allConnections.peerConnections
-
-    connections.forEach(connection => { 
-      
-      /* Really important to ensure that original resourceTypes remain unmutated */
-      let shallowResourceTypes = [ ...resourceTypes.map(rt => Object.assign({}, rt)) ]
-      let connectionResources = resources.filter(r => !!r.from_user_did && r.from_user_did === connection.did)
-
-      shallowResourceTypes.forEach(rt => {
-        rt.items = connectionResources.filter(r => Common.schemaCheck(r.schema, rt.url) || `${rt.url}_form` === r.form) 
-      })
-
-      connection.resourcesByType = shallowResourceTypes
-
-    })
-
-    const newAllConnections = Object.assign({}, allConnections, { "peerConnections": connections })
-    this.setCached("myConnections", newAllConnections, 300000)
-
   }
 
   static sortBadges(resources){
@@ -771,7 +741,7 @@ export default class ConsentUser {
     return badges
   }
 
-  static sortMyData(resources, resourceTypes) {
+  static sortMyData(resources, resourceTypes, profile) {
 
 
     // Add logically seperate resources types that aren't persisted in server 
@@ -819,6 +789,119 @@ export default class ConsentUser {
     return { resourcesByType: resourceTypes, profilePicUrl: identityPhotographUri }
 
   }
+
+  static cacheMyConnection(myConnections){
+
+    const sortedPeerConnections = this.sortConnectionData(myConnections.peerConnections)
+
+    const newAllConnections = Object.assign({}, myConnections, { "peerConnections": sortedPeerConnections })
+    this.setCached("myConnections", newAllConnections, 300000)
+  }
+
+  static sortConnectionData(peerConnections){
+
+    /* This should organise resources under resource types and store them under connections */
+    const resources = this.getCached("allResources")
+    const resourceTypes = this.getCached("allResourceTypes")
+
+    if(!peerConnections) return
+
+    peerConnections.forEach(connection => { 
+      
+      /* Really important to ensure that original resourceTypes remain unmutated */
+      let shallowResourceTypes = [ ...resourceTypes.map(rt => Object.assign({}, rt)) ]
+      let connectionResources = resources.filter(r => !!r.from_user_did && r.from_user_did === connection.did)
+
+      shallowResourceTypes.forEach(rt => {
+        
+        rt.items = connectionResources.filter(r => Common.schemaCheck(r.schema, rt.url) || `${rt.url}_form` === r.form) 
+
+        /* Order important */
+        if(rt.name === "Public Profile"){
+          rt.items = [ Object.assign({}, connection) ]
+        }
+
+      })
+
+      connection.resourcesByType = shallowResourceTypes
+
+    })
+
+    return peerConnections
+
+  }
+
+  static updateConnectionState(resource) {
+
+    const allConnections = this.getCached("myConnections")
+
+    if(!allConnections) return
+
+    let connection = allConnections.peerConnections.find(c => c.did === resource.from_user_did)
+
+    connection.resourcesByType.forEach(rt => {
+      
+      const match = !!resource.schema ? Common.schemaCheck(resource.schema, rt.url) : `${rt.url}_form` === resource.form
+      const existing = rt.items.some(item => item.id === resource.id)
+      const resourceTypeIsVerifiableClaim = rt.name === 'Verifiable Claims'
+
+      if((resourceTypeIsVerifiableClaim && resource.is_verifiable_claim) || match){
+        existing ? (rt.items = rt.items.map(item => item.id === resource.id ? resource : item)) : rt.items.push(resource)
+      }
+    })
+
+    const newAllConnections = Object.assign({}, allConnections, 
+                                            { "peerConnections": allConnections.peerConnections
+                                                                               .map(pc => { 
+                                                                                     return pc.did === resource.from_user_did ? connection : pc 
+                                                                                  }) 
+                                                                               })
+
+    this.setCached("myConnections", newAllConnections, 300000)
+
+  }
+
+  static addNewEnabledPeerConnection(connectionProfile){
+
+    console.log("CONNECTION ENABLED PROFILE: ", connectionProfile)
+
+    const connections = this.getCached("myConnections")
+    const newConnections = Object.assign({}, connections, { peerConnections: [ ...connections.peerConnections, connectionProfile ]})
+    this.setCached("myConnections", newConnections, 300000)
+
+  }
+
+  static addNewPendingPeerConnection(connectionProfile){
+
+    console.log("CONNECTION PENDING PROFILE: ", connectionProfile)
+
+    const connections = this.getCached("myConnections")
+    const newConnections = Object.assign({}, connections, { pendingPeerConnections: [ ...connections.pendingPeerConnections, connectionProfile ]})
+    this.setCached("myConnections", newConnections, 300000)
+
+  }
+
+  static removeEnabledPeerConnection(removeUserConnectionId){
+
+    const connections = this.getCached("myConnections")
+    const newConnections = Object.assign({}, connections, 
+                                         { peerConnections: connections.peerConnections
+                                                                       .filter(c => c.user_connection_id !== removeUserConnectionId) })
+    this.setCached("myConnections", newConnections, 300000)
+
+  }
+
+  static removePendingPeerConnection(connectionProfile){
+
+    const connections = this.getCached("myConnections")
+    const newConnections = Object.assign({}, connections, 
+                                         { pendingPeerConnections: connections.pendingPeerConnections
+                                                                       .filter(c => c.did !== connectionProfile.did) })
+    this.setCached("myConnections", newConnections, 300000)
+
+  }
+
+  
 
   
 

@@ -13,6 +13,8 @@ class Verification extends Component  {
 
   render() {
 
+    // console.log("VERIFICATION RENDER: ", this.props)
+
     const titleColour = this.props.tone === "affirmative" ? Palette.consentBlue : Palette.consentRed
 
     return (    

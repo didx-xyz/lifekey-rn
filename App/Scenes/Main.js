@@ -1,14 +1,6 @@
 
-/**
- * Lifekey App
- * @copyright 2016 Global Consent Ltd
- * Civvals, 50 Seymour Street, London, England, W1H 7JG
- * @author Werner Roets <werner@io.co.za>
- */
-
-
 import React, { Component } from 'react'
-import { InteractionManager } from 'react-native'
+import { InteractionManager, ToastAndroid } from 'react-native'
 import PropTypes from "prop-types"
 import ActivityIndicator from "ActivityIndicator"
 import AppLogo from '../Images/logo_big.png'
@@ -26,6 +18,7 @@ import LifekeyList from '../Components/LifekeyList'
 import Touchable from '../Components/Touchable'
 import AndroidBackButton from 'react-native-android-back-button'
 import ConsentConnection from '../Models/ConsentConnection'
+import ConsentConnectionRequest from '../Models/ConsentConnectionRequest'
 import HexagonIcon from '../Components/HexagonIcon'
 import ConsentUser from '../Models/ConsentUser'
 import SearchBox from '../Components/SearchBox'
@@ -51,6 +44,7 @@ import {
 
 const TAB_CONNECTED = 0
 const TAB_SUGGESTED = 1
+const TAB_PEERREQUESTS = 2
 
 class Main extends Scene {
 
@@ -82,18 +76,26 @@ class Main extends Scene {
   componentDidMount() {
     super.componentDidMount()
     this.props.firebaseInternalEventEmitter.addListener('user_message_received', this.set_unread.bind(this))
+    this.props.firebaseInternalEventEmitter.addListener('user_connection_request', this.setNewConnectionRequest.bind(this))
+    this.props.firebaseInternalEventEmitter.addListener('user_connection_created', this.setNewConnection.bind(this))
+    this.props.firebaseInternalEventEmitter.addListener('user_connection_deleted', this.deleteExistingPeerConnection.bind(this))
     this.is_mounted = true
     this.interaction = InteractionManager.runAfterInteractions(() => {
       Promise.all([
         this.loadConnections(),
         this.loadProfile(),
         this.refreshThanksBalance()
-      ]).catch(console.log.bind(console, 'error in component_did_mount'))
+      ])
+      .then(response => this.setState({"asyncActionInProgress": false}))
+      .catch(console.log.bind(console, 'error in component_did_mount'))
     })
   }
 
   componentWillUnmount() {
     this.props.firebaseInternalEventEmitter.removeListener('user_message_received', this.set_unread.bind(this))
+    this.props.firebaseInternalEventEmitter.removeListener('user_connection_request', this.setNewConnectionRequest.bind(this))
+    this.props.firebaseInternalEventEmitter.removeListener('user_connection_created', this.setNewConnection.bind(this))
+    this.props.firebaseInternalEventEmitter.removeListener('user_connection_deleted', this.deleteExistingPeerConnection.bind(this))
     this.is_mounted = false
     if (this.interaction) this.interaction.cancel()
   }
@@ -111,17 +113,28 @@ class Main extends Scene {
     ]).catch(console.log.bind(console, 'error in component_did_focus'))
   }
 
+  setNewConnectionRequest(from){
+    this.loadConnections()
+    ToastAndroid.show(`${from} just requested that you connect...`, ToastAndroid.SHORT)
+  }
+  setNewConnection(from){
+    this.loadConnections()
+    ToastAndroid.show(`You and ${from} are now connected...`, ToastAndroid.SHORT)
+  }
+  deleteExistingPeerConnection(){
+    this.loadConnections()
+    ToastAndroid.show(`Connection deleted...`, ToastAndroid.SHORT)
+  }
+
   set_unread(from) {
     this.cxn_unread_msgs[from] = true
   }
 
   cxn_has_unread(cxn) {
-    // return this.cxn_unread_msgs[cxn.to_did]
     return this.cxn_unread_msgs[cxn.did]
   }
 
   remove_cxn_from_unread_backlog(cxn) {
-    // delete this.cxn_unread_msgs[cxn.to_did]
     delete this.cxn_unread_msgs[cxn.did]
   }
 
@@ -145,7 +158,6 @@ class Main extends Scene {
     if (!this.is_mounted) return
     return ConsentUser.refreshThanksBalance().then(balance => {
       this.setState({
-        asyncActionInProgress: false,
         thanksBalanceAmount: balance
       }, function() {
         console.log('refreshThanksBalance')
@@ -153,7 +165,6 @@ class Main extends Scene {
     }).catch(err => {
       console.log('thanks balance', err)
       this.setState({
-        asyncActionInProgress: false,
         thanksBalanceAmount: '0'
       }, function() {
         console.log('refreshThanksBalance error')
@@ -161,20 +172,18 @@ class Main extends Scene {
     })
   }
 
-  loadConnections(callback) {
+  loadConnections(callback, cacheFor, skipCache) {
     if (!this.is_mounted) {
       (callback || function() {})()
       return
     }
     return Api.getMyConnections().then(connections => {
 
-      
       this.setState({
         "peerConnections": connections.peerConnections,
         "botConnections": connections.botConnections,
         "pendingPeerConnections": connections.pendingPeerConnections,
-        "pendingBotConnections": connections.pendingBotConnections,
-        "asyncActionInProgress": false
+        "pendingBotConnections": connections.pendingBotConnections
       })
 
     })
@@ -223,10 +232,12 @@ class Main extends Scene {
   }
 
   goToPeerConnectionDetails(connection) {
+
     this.navigator.push({
       ...Routes.connectionDetailsPeerToPeer,
       isa_did: connection.isa_id,
       connection_did: connection.did,
+      user_connection_id: connection.user_connection_id,
       id: connection.id,
       display_name: connection.display_name,
       image_uri: connection.image_uri
@@ -298,6 +309,11 @@ class Main extends Scene {
         text: 'Suggested',
         onPress: () => this.setTab(TAB_SUGGESTED),
         active: this.state.activeTab === 1
+      },
+      {
+        text: 'Requests',
+        onPress: () => this.setTab(TAB_PEERREQUESTS),
+        active: this.state.activeTab === 2
       }
     ]
 
@@ -336,6 +352,8 @@ class Main extends Scene {
         return this.renderConnections()
       case TAB_SUGGESTED:
         return this.renderSuggestedConnections()
+      case TAB_PEERREQUESTS:
+        return this.renderPeerRequests()
     }
   }
 
@@ -346,7 +364,7 @@ class Main extends Scene {
       return (
         <View style={ style.contentContainer }>
           { this.state.userName && 
-            <Text>
+            <Text style={style.defaultTextContainer}>
               <Text style={ style.defaultFont }>
                 Hi there { this.state.userName }, 
                 {"\n\n"}
@@ -373,8 +391,9 @@ class Main extends Scene {
   }
 
   renderSuggestedConnections(){
+    
     /* ZERO DATA VIEW */
-    if(!this.state.pendingPeerConnections.length && !this.state.pendingBotConnections.length){
+    if(!this.state.pendingBotConnections.length){
       return (
         <View style={ style.contentContainer }>
           { this.state.userName && 
@@ -390,8 +409,31 @@ class Main extends Scene {
       
     return(
       <View style={style.contentContainer}> 
-        <LifekeyList list={this.state.pendingPeerConnections} onItemPress={this.onBoundGoToPeerConnect}></LifekeyList>
         <LifekeyList list={this.state.pendingBotConnections} onItemPress={this.onBoundGoToBotConnect}></LifekeyList>
+      </View>
+    ) 
+  }
+
+  renderPeerRequests(){
+    
+    /* ZERO DATA VIEW */
+    if(!this.state.pendingPeerConnections.length){
+      return (
+        <View style={ style.contentContainer }>
+          { this.state.userName && 
+            <Text>
+              <Text style={ style.defaultFont }>
+                There are currently no peer requests.
+              </Text>
+            </Text>
+          }
+        </View>
+      )
+    }
+      
+    return(
+      <View style={style.contentContainer}> 
+        <LifekeyList list={this.state.pendingPeerConnections} onItemPress={this.onBoundGoToPeerConnect}></LifekeyList>
       </View>
     ) 
   }
@@ -400,7 +442,6 @@ class Main extends Scene {
 const style = {
   contentContainer: {
     flex: 1,
-    // padding: Design.paddingRight
   },
   listItem: {
     marginLeft: -Design.paddingRight / 2.5,
@@ -426,11 +467,14 @@ const style = {
     borderRadius: 45,
     marginLeft: 10
   },
+  "defaultTextContainer":{
+    "padding": Design.paddingRight
+  },
   "defaultFont":{
     fontFamily: Design.fonts.registration,
     fontWeight: Design.fontWeights.light,
-    fontSize: 38,
-    lineHeight: 48
+    fontSize: 28,
+    lineHeight: 36
   },
 }
 

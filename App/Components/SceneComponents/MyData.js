@@ -24,7 +24,7 @@ class MyData extends Component {
   }
 
   RC_render(resourceType){
-    console.log("RC RENDER: ", resourceType)
+    
     if(!this.validResourceType(resourceType)) return
 
     if(this.props.light)
@@ -136,9 +136,11 @@ class MyData extends Component {
     return (
     
       <View style={ {"flex": 1, "alignItems": "stretch"} }>
-        <View style={styles.addHeadingContainer}>
-          <Touchable onPress={ toggle } style={styles.addHeadingContainer}><Text style={styles.addHeading}>+ Add data</Text></Touchable>
-        </View>
+        { !this.props.light &&
+          <View style={styles.addHeadingContainer}>
+            <Touchable onPress={ toggle } style={styles.addHeadingContainer}><Text style={styles.addHeading}>+ Add data</Text></Touchable>
+          </View>
+        }
 
         {/* You are just a number now 
         <View style={styles.groupContainer}>

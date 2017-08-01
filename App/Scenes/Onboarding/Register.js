@@ -1,9 +1,3 @@
-/**
- * Lifekey App
- * @copyright 2016 - 2017 Global Consent Ltd
- * Civvals, 50 Seymour Street, London, England, W1H 7JG
- * @author Werner Roets <werner@io.co.za>
- */
 
 import React from 'react'
 import PropTypes from "prop-types"
@@ -21,6 +15,7 @@ import Svg, { Circle } from "react-native-svg"
 
 import {
   Dimensions,
+  InteractionManager,
   Text,
   View,
   StyleSheet,
@@ -67,7 +62,6 @@ class Register extends Scene {
     super(props)
 
     this.screenData = [
- 
       {
         largeText: 'Create your username',
         smallText: 'Don\'t worry you can change this at any time',
@@ -99,7 +93,6 @@ class Register extends Scene {
         largeText: 'Something went wrong!',
         smallText: 'There was an error while trying to register. Please try again.'
       }
-
     ]
 
     this.state = {
@@ -127,7 +120,7 @@ class Register extends Scene {
   }
 
   _keyboardDidShow(e) {
-    let newSize = this.state.step === STEP_PIN ? Dimensions.get('window').height - 150 : Dimensions.get('window').height - Design.paddingBottom*3
+    let newSize = this.state.step === STEP_PIN ? Dimensions.get('window').height - 175 : Dimensions.get('window').height - Design.paddingBottom
     this.setState({screenHeight: newSize})
   }
 
@@ -208,6 +201,7 @@ class Register extends Scene {
   componentWillUnmount () {
     this.keyboardDidShowListener.remove();
     this.keyboardDidHideListener.remove();
+    if (this.interaction) this.interaction.cancel()
   }
 
   _hardwareBackHandler() {
@@ -289,24 +283,26 @@ class Register extends Scene {
 
   requestMagicLink() {
     ToastAndroid.show('Registering...', ToastAndroid.SHORT)
-    Promise.all([
-      fp.isHardwareDetected(),
-      fp.hasPermission(),
-      fp.hasEnrolledFingerprints()
-    ]).then(res => {
-      var [hardware, permission, enrolled] = res
-      return ConsentUser.register(this.state.user, hardware && permission && enrolled)
-    }).catch(error => {
-      console.log(error)
-      ToastAndroid.show('Registration unsuccessful...', ToastAndroid.SHORT)
-      Crypto.getKeyAliases().then(function(aliases) {
-        return Promise.all(
-          aliases.map(Crypto.deleteKeyEntry)
+    this.interaction = InteractionManager.runAfterInteractions(() => {
+      Promise.all([
+        fp.isHardwareDetected(),
+        fp.hasPermission(),
+        fp.hasEnrolledFingerprints()
+      ]).then(res => {
+        var [hardware, permission, enrolled] = res
+        return ConsentUser.register(this.state.user, hardware && permission && enrolled)
+      }).catch(error => {
+        console.log(error)
+        ToastAndroid.show('Registration unsuccessful...', ToastAndroid.SHORT)
+        Crypto.getKeyAliases().then(function(aliases) {
+          return Promise.all(
+            aliases.map(Crypto.deleteKeyEntry)
+          )
+        }).catch(
+          console.log.bind(console, 'error while deleting keystore private key entries')
         )
-      }).catch(
-        console.log.bind(console, 'error while deleting keystore private key entries')
-      )
-      this.resetRegistration()
+        this.resetRegistration()
+      })
     })
   }
 
@@ -380,7 +376,7 @@ class Register extends Scene {
       
         <View>
           <AndroidBackButton onPress={() => this._hardwareBackHandler()}/>
-          <StatusBar hidden={true} />
+          <StatusBar hidden={false} />
           <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()} >
             <View style={ screenStyle }>
               

@@ -29,11 +29,13 @@ class EditForm extends Component{
         <ScrollView style={styles.card}>
             <View style={styles.heading}>
               <Text style={styles.headingText}>{this.context.getEditResourceName()}</Text>
-              <Touchable onPress={this.props.onDelete} hitSlop={Common.touchableArea}>
-                <View style={ styles.deleteContainer}>
-                  <GearIcon width={30} height={30} stroke={Palette.consentGrayDark}></GearIcon>
-                </View>
-              </Touchable> 
+              { !!this.context.getEditResourceId() &&
+                <Touchable onPress={this.props.onDelete} hitSlop={Common.touchableArea}>
+                  <View style={ styles.deleteContainer}>
+                    <GearIcon width={30} height={30} stroke={Palette.consentGrayDark}></GearIcon>
+                  </View>
+                </Touchable> 
+              }
             </View>  
             { this.props.error !== "" &&
               <View style={styles.error}>
@@ -182,8 +184,8 @@ class EditForm extends Component{
         maxHeight: 800,
         quality: 0.6
       }, (response) => {
-        console.log("file is this big: " + response.fileSize + " | " + response.data.length)
-        if (response.data.length > 65535) { // (2^16 - 1)) {
+        // console.log("file is this big: " + response.fileSize + " | " + response.data.length)
+        if (response.data && response.data.length > 65535) { // (2^16 - 1)) {
           ToastAndroid.show('Image is too large. Please try again...', ToastAndroid.LONG)
           return
         }

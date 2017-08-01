@@ -157,10 +157,10 @@ class Me extends Scene {
     ]).then(values => {
 
       const profile = values[0]    
-      let data = values[1]
-      if(data.resourcesByType.find(rt => rt.name === "Public Profile").items.length === 0){
-        data.resourcesByType.find(rt => rt.name === "Public Profile").items.push(profile)
-      }
+      const data = values[1]
+      // if(data.resourcesByType.find(rt => rt.name === "Public Profile").items.length === 0){
+      data.resourcesByType.find(rt => rt.name === "Public Profile").items = [ profile ]
+      // }
 
       const connections = values[2]
       
@@ -216,7 +216,7 @@ class Me extends Scene {
 
   render() {
     
-    console.log("PROFILE: ", this.state.profile, " | ", (this.state.profile && this.state.profile.image_uri))
+    // console.log("PROFILE: ", this.state.profile, " | ", (this.state.profile && this.state.profile.image_uri))
 
     const identityPhotographUri = (this.state.profile && this.state.profile.image_uri) ? this.state.profile.image_uri : Anonymous.uri
     const profilepic = this.state.profile ? <CircularImage uri={ identityPhotographUri } radius={25} borderColor="white" /> : <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/>

@@ -68,12 +68,9 @@ class Connect extends Component  {
     return(  
       <View>
         <View style={styles.qrCodeContainer}>
-          { /* <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-2/${ConsentUser.getDidSync()}?cache=${new Date().getTime()}` }} /> */ 
-
-            console.log("PROFILE DID AND STATE DID MATCH: ", this.props.profile.did === ConsentUser.getDidSync())
-
-          }
-          <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-2/${this.props.profile.did}?cache=${new Date().getTime()}` }} />
+          <Image style={styles.qrContainerImage} source={require('../../Images/QRFrame.png')}>
+            <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-2/${this.props.profile.did}?cache=${new Date().getTime()}` }} />
+          </Image>
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.text}>Invite other people to connect with { this.props.connectWithMe ? <Text>you</Text> : <Text>{this.props.profile.display_name}</Text> } by sharing { this.props.connectWithMe ? <Text>your</Text> : <Text>their</Text> } unique ID code</Text>
@@ -90,7 +87,9 @@ class Connect extends Component  {
       return (
         <View>
           <View style={styles.qrCodeContainer}>
-            <Image style={styles.qrImage} onError={this.onImageError.bind(this)} source={{ uri: `http://staging.api.lifekey.cnsnt.io/facial-verification?user_did=${ConsentUser.getDidSync()}&cachebust=${Date.now()}` }} />
+            <Image style={styles.qrContainerImage} source={require('../../Images/QRFrame.png')}>
+              <Image style={styles.qrImage} onError={this.onImageError.bind(this)} source={{ uri: `http://staging.api.lifekey.cnsnt.io/facial-verification?user_did=${ConsentUser.getDidSync()}&cachebust=${Date.now()}` }} />
+            </Image>
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text}>Get someone else to scan this QR Code to verify your facial match</Text>
@@ -107,17 +106,17 @@ class Connect extends Component  {
           <View style={ {"flex": 1} }>
             { this.props.connectWithMe ?
               <View style={styles.switchButtonContainer}>
-                <View style={Object.assign({}, styles.switchButton, styles.switchButtonLeft, 
-                  {"backgroundColor": this.state.informationSource === "MY CODE" ? Palette.consentBlue : Palette.consentGrayLightest})}>
-                  <Touchable onPress={this.onBoundPressMyCode}>
+                <Touchable onPress={this.onBoundPressMyCode}>
+                  <View style={Object.assign({}, styles.switchButton, styles.switchButtonLeft, 
+                    {"backgroundColor": this.state.informationSource === "MY CODE" ? Palette.consentBlue : Palette.consentGrayLightest})}>
                     <Text style={Object.assign({}, styles.switchButtonText, {"color": this.state.informationSource === "MY CODE" ? "white" : Palette.consentBlue})}>MY CODE</Text>
-                  </Touchable>
-                </View>
-                <View style={Object.assign({}, styles.switchButton, styles.switchButtonRight, {"backgroundColor": this.state.informationSource === "FACE MATCH" ? Palette.consentBlue : Palette.consentGrayLightest})}>
-                  <Touchable onPress={this.onBoundPressFaceMatch}>
+                  </View>
+                </Touchable>
+                <Touchable onPress={this.onBoundPressFaceMatch}>
+                  <View style={Object.assign({}, styles.switchButton, styles.switchButtonRight, {"backgroundColor": this.state.informationSource === "FACE MATCH" ? Palette.consentBlue : Palette.consentGrayLightest})}>
                     <Text style={Object.assign({}, styles.switchButtonText, {"color": this.state.informationSource === "FACE MATCH" ? "white" : Palette.consentBlue})}>FACE MATCH</Text>
-                  </Touchable>
-                </View>
+                  </View>
+                </Touchable>
               </View>
               :
               <View style={styles.switchButtonContainer}></View>
@@ -153,11 +152,13 @@ const styles = {
     "paddingLeft": Design.paddingLeft,
   },
   "switchButtonContainer":{
-    "flex": 1,
+    // "flex": 1,
+    "minHeight": 100,
     "flexDirection": "row",
     "width": "100%",
-    "alignItems": "center",
-    "justifyContent": "center"
+    "alignItems": "flex-end",
+    "justifyContent": "center",
+    "paddingBottom": 15
   },
   "switchButton":{
     "height": 30,
@@ -188,21 +189,27 @@ const styles = {
     "justifyContent": "center"
   },
   "qrCodeContainer": {
-    "flex": 2,
+    "flex": 3,
     "alignItems": "center",
     "justifyContent": "center"
   },
+  "qrContainerImage":{
+    "width": 226,
+    "height": 256,
+  },
   "qrImage": {
-    "width": 220,
-    "height": 220
+    "width": 140,
+    "height": 140,
+    "marginLeft": 43, //-15
+    "marginTop": 58 //+15
   },
   "textContainer": {
-    "flex": 2,
+    "flex": 1,
     "width": "100%",
     "flexDirection": "row",
     "alignItems": "flex-start",
-    "justifyContent": "center",
-    "paddingTop": 50
+    "justifyContent": "flex-start",
+    "paddingTop": 15,
   },
   "text":{
     "color": Palette.consentGrayDark,

@@ -88,6 +88,8 @@ class EditResource extends Scene {
       "newResource": newResource
     }
 
+    console.log("NEW IMAGE DOC: ", options)
+
     this.setState(state, () => {
       if (this.state.formTarget.id) {
         return Api.updateResource(newResource).then(
@@ -99,7 +101,11 @@ class EditResource extends Scene {
           options
         ).then(
           this.onBoundSave
-        ).catch(alert)
+        ).catch(error => { 
+          console.log("ERROR SAVING RESOURCE: ", JSON.stringify(error)) 
+          ToastAndroid.show('There was an error trying to save this resource. Please try again...', ToastAndroid.LONG)
+          this.setState({ "asyncActionInProgress": false })
+        })
       }
     })
 

@@ -31,10 +31,19 @@ class ConnectionPeerToPeer extends Scene {
   }
 
   onResultGiven(result){
+  
+    // TODO - Fix this MAGNIFICENT BUG
+    // Two setstates are called here - the first being seemingly useless. However, if on the callback setstate is called in isolation
+    // then the Verification component styling falls to pieces, as does it's rendering of its props.children (Button components)... 
+
     this.setState({
-      "asyncInProgress": false,
-      "userHasVerified": true,
-      "peerConnection": result 
+      "asyncInProgress": true
+    }, () => {
+      this.setState({
+        "asyncInProgress": false,
+        "userHasVerified": true,
+        "peerConnection": result 
+      })
     })
   }
   
