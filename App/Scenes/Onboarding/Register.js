@@ -102,6 +102,7 @@ class Register extends Scene {
         email: '',
         pin: ''
       },
+      loading_indicator: false,
       moveTransitionValue: new Animated.Value(300),
       fadeTransitionValue: new Animated.Value(0),
       inputFadeTransitionValue: new Animated.Value(1),
@@ -282,27 +283,29 @@ class Register extends Scene {
 
 
   requestMagicLink() {
-    ToastAndroid.show('Registering...', ToastAndroid.SHORT)
-    this.interaction = InteractionManager.runAfterInteractions(() => {
-      Promise.all([
+    (new Promise(resolve => {
+      ToastAndroid.show('Registering...', ToastAndroid.SHORT)
+      this.setState({loading_indicator: true}, resolve)
+    })).then(_ => {
+      return Promise.all([
         fp.isHardwareDetected(),
         fp.hasPermission(),
         fp.hasEnrolledFingerprints()
-      ]).then(res => {
-        var [hardware, permission, enrolled] = res
-        return ConsentUser.register(this.state.user, hardware && permission && enrolled)
-      }).catch(error => {
-        console.log(JSON.stringify(error))
-        ToastAndroid.show('Registration unsuccessful...', ToastAndroid.SHORT)
-        Crypto.getKeyAliases().then(function(aliases) {
-          return Promise.all(
-            aliases.map(function(alias) {
-              console.log("ALIAS: ", alias)
-              return Crypto.deleteKeyEntry(alias)
-            })
-          )
-        }).catch(
-          console.log.bind(console, 'error while deleting keystore private key entries')
+      ])
+    }).then(res => {
+      var [hardware, permission, enrolled] = res
+      return ConsentUser.register(this.state.user, hardware && permission && enrolled)
+    }).then(user => {
+      this.setState({loading_indicator: false})
+    }).catch(error => {
+      this.setState({loading_indicator: false})
+      console.log(error)
+      ToastAndroid.show('Registration unsuccessful...', ToastAndroid.SHORT)
+      Crypto.getKeyAliases().then(function(aliases) {
+        return Promise.all(
+          aliases.map(function(alias) {
+            return Crypto.deleteKeyEntry(alias)
+          })
         )
         this.resetRegistration()
       })
@@ -341,7 +344,7 @@ class Register extends Scene {
           </View>
         )
       case STEP_PIN:
-        return <AuthScreen pin={ this.state.user.pin } onValueChanged={ this.boundSetUserPin } paddingTop={ proportion } paddingBottom={ proportion/2 }></AuthScreen>
+        return <AuthScreen loading_indicator={this.state.loading_indicator} pin={ this.state.user.pin } onValueChanged={ this.boundSetUserPin } paddingTop={ proportion } paddingBottom={ proportion/2 }></AuthScreen>
       case STEP_MAGIC_LINK:
         return (
           <View style={[style.textInputRow]}>
