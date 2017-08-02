@@ -103,7 +103,7 @@ class EditResource extends Scene {
           this.onBoundSave
         ).catch(error => { 
           console.log("ERROR SAVING RESOURCE: ", JSON.stringify(error)) 
-          ToastAndroid.show('There was an error trying to save this resource. Please try again...', ToastAndroid.LONG)
+          ToastAndroid.show('There was an error trying to save this resource. Ensure the name is unique...', ToastAndroid.LONG)
           this.setState({ "asyncActionInProgress": false })
         })
       }

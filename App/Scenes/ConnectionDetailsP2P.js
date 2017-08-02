@@ -122,9 +122,15 @@ class ConnectionDetailsPeerToPeer extends Scene {
 
       /* filter out my data with the collection of whats been shared with this connection */
       const myData = values[2].resourcesByType.map(rt => { 
-        rt.items = [ ...rt.items.filter(item => values[3].some(sw => sw.resource_id === item.id)) ]
-        return rt
+        
+        let newRtItems = [ ...rt.items.map(i => Object.assign({}, i)) ]
+        let newRt = Object.assign({}, rt)
+
+        newRt.items = [ ...newRtItems.filter(item => values[3].some(sw => sw.resource_id === item.id)) ]
+        return newRt
       })
+
+
 
       /* Currently this function calls everything from cache - but could be adapted to work with async storage */
       const allConnections = ConsentUser.getCached("myConnections")

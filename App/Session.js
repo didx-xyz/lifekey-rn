@@ -36,6 +36,7 @@ export default class Session {
       state = deepmerge(state, data)
       Logger.session(JSON.stringify(state))
     } else {
+      console.log("ERROR IN SESSION")
       throw 'Update only accepts objects'
     }
   }

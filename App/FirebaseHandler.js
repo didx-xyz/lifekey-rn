@@ -169,7 +169,9 @@ class FirebaseHandler {
     }).then(verified_identity => {
       Session.update({has_verified_identity: !!verified_identity})
       eventEmitter.emit('resource_pushed', message.attribute)
-    }).catch(console.log)
+    }).catch(error => {
+      console.log("Hit this error in FB Handler: ", error)
+    })
   }
   
   static sent_activation_email(message, eventEmitter) {
