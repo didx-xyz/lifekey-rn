@@ -38,8 +38,8 @@ class LcPerson extends Component {
       preferredLanguage  
     } = this.props
 
-    const nationalityName = nationality ? Countries.find(c => c["alpha-2"] === nationality).name : "Not yet set"
-    const preferredLanguageName = preferredLanguage ? Languages.find(l => l["alpha3-b"] === preferredLanguage).English : "Not yet set"
+    const nationalityName = nationality ? Countries.find(c => c["alpha-2"] === nationality).name : ""
+    const preferredLanguageName = preferredLanguage ? Languages.find(l => l["alpha3-b"] === preferredLanguage).English : ""
     const identityPhotographUri = identityPhotograph ? `data:image/jpg;base64,${identityPhotograph}` : Anonymous.uri
 
     if(expanded)
@@ -70,8 +70,8 @@ class LcPerson extends Component {
           </View>
           <View style={styles.listBody}>
             <Text style={styles.listBodyContent}>{firstName} {lastName}</Text>
-            <Text style={styles.listBodySubtitle}>{nationalityName}</Text>
-            <Text style={styles.listBodySubtitle}>{ birthDate ? <Text>{birthDate}, {birthPlace}</Text> : <Text>Not yet set</Text>}</Text>
+            <Text style={styles.listBodySubtitle}>{nationalityName}</Text> 
+            <Text style={styles.listBodySubtitle}>{ birthDate ? <Text>{birthDate}, {birthPlace}</Text> : <Text></Text>}</Text>
             <Text style={styles.listBodySubtitle}>{preferredLanguageName}</Text>
           </View>
         </View>

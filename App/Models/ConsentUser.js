@@ -611,8 +611,14 @@ export default class ConsentUser {
       if((resourceTypeIsVerifiableClaim && resource.is_verifiable_claim) || match){
         existing ? (rt.items = rt.items.map(item => item.id === resource.id ? resource : item)) : rt.items.push(resource)
 
+        // this.updateBadges(resource)        
+
         const newBadge = this.determineBadge(resource)
-        console.log("HIT BADGE TERRITORY!!!: ", newBadge)
+        // console.log("NEW BADGE: ", newBadge)
+        // console.log("BADGE COLLECTION LENGTH: ", myData.badges.length)
+
+        // const badgeTypeExists = (!!newBadge && myData.badges.some(b => b.name === newBadge.name))
+
         if(!!newBadge){
           myData.badges.push(newBadge)
         }
@@ -625,7 +631,7 @@ export default class ConsentUser {
   }
 
   static updateBadges(resource){
-
+    
   }
 
   static updateProfile(profile) {
@@ -711,8 +717,6 @@ export default class ConsentUser {
   }
 
   static determineBadge(v){
-    
-    console.log("NEW BADGE: ", v)
 
     const check = v.schema ? v.schema : v.form
 
