@@ -630,7 +630,7 @@ export default class ConsentUser {
 
   static updateProfile(profile) {
     
-    // console.log("NEW PROFILE: ", profile)
+    console.log("NEW PROFILE: ", profile)
     if(profile.image_uri){
       profile.image_uri = Common.ensureDataUrlIsCleanOfContext(profile.image_uri)
       profile.image_uri = `data:image/jpg;base64,${profile.image_uri}`
@@ -638,7 +638,7 @@ export default class ConsentUser {
     else{
       profile.image_uri = Anonymous.uri
     }
-    // console.log("UPDATED PROFILE: ", profile)
+    console.log("UPDATED PROFILE: ", profile)
     
     ConsentUser.setCached('profile', profile, 300000)
   }

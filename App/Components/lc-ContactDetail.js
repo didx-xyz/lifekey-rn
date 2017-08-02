@@ -61,7 +61,7 @@ class LcContactDetail extends Component {
           <RcItemDetail objKey={listCardHeading} value={listCardPrimaryDetail}></RcItemDetail>
         </View>
       )
-    else
+    else if(listCardPrimaryDetail || listCardSecondaryDetail || listCardTertiaryDetail){
       return (  
         <View style={styles.listCard}>
           <View style={styles.listImageContainer}>
@@ -74,6 +74,9 @@ class LcContactDetail extends Component {
           </View>
         </View>
       )
+    }
+    else
+      return null
   }
 }
 
