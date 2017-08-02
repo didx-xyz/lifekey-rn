@@ -110,9 +110,9 @@ export default class SplashScreen extends Scene {
       <Container>
         <BackButton navigator={this.navigator} onPress={() => false} />
           <View style={ style.contentContainer }>
-              <View style={[style.firstRow, { backgroundColor: this.state.tokenAvailable ? null : 'red' }]}>
+              <View style={ style.firstRow} >
                 <Touchable style={{ flex: 1 }} delayLongPress={500} onLongPress={() => this.navigator.push(Routes.debug.main)} >
-                  <Image style={{ width: 150, height: 150 }} source={require('../../../App/Images/logo_big.png')} />
+                  <Image style={{ width: 150, height: 150 }} source={require('../../../App/Images/Qi1.gif')} />
                 </Touchable>
                 <Text style={ style.text }>Securely store and verify personal information.</Text>
               </View>
@@ -131,18 +131,19 @@ export default class SplashScreen extends Scene {
 const style = {
   contentContainer: {
     flex: 1,
+    backgroundColor: Palette.consentBlue,
     alignItems: "center",
     justifyContent: "center"
   },
   firstRow: {
     width: "100%",
-    backgroundColor: Palette.consentWhite,
+    backgroundColor: Palette.consentBlue,
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center'
   },
   "text": {
-    "color": Palette.consentBlue,
+    "color": Palette.consentWhite,
     "maxWidth": 200, 
     "fontSize": 16, 
     "textAlign": 

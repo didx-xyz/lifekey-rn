@@ -111,13 +111,19 @@ class ConnectionDetailsPeerToPeer extends Scene {
     return Promise.all([
       Api.profile({ did: this.props.route.connection_did }),
       Api.connectionResources(this.props.route.connection_did),
-      Api.getMyData()
+      Api.getMyData(),
+      Api.connectionSharedWith(this.props.route.connection_did),
     ]).then(values => {
 
       const connectionProfile = values[0].body.user
 
       const shallowConnectionData = values[1].body  
-      const myData = values[2]
+
+      /* filter out my data with the collection of whats been shared with this connection */
+      const myData = values[2].resourcesByType.map(rt => { 
+        rt.items = [ ...rt.items.filter(item => values[3].some(sw => sw.resource_id === item.id)) ]
+        return rt
+      })
 
       /* Currently this function calls everything from cache - but could be adapted to work with async storage */
       const allConnections = ConsentUser.getCached("myConnections")
@@ -128,7 +134,7 @@ class ConnectionDetailsPeerToPeer extends Scene {
         "connectionProfile": connectionProfile,
         "shallowConnectionData": shallowConnectionData,
         "connectionData": connection.resourcesByType,
-        "myData": myData.resourcesByType, 
+        "myData": myData, 
         "asyncActionInProgress": false
       })
 
