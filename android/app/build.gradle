@@ -10,8 +10,8 @@ import com.android.build.OutputFile
 
 // react
 project.ext.react = [
-    bundleAssetName: "index.bundle",
-    entryFile: "index.js",
+    bundleAssetName: "index.android.bundle",
+    entryFile: "index.android.js",
     bundleInRelease: true,
     jsBundleDirRelease: "$buildDir/intermediates/assets/release",
     resourcesDirRelease: "$buildDir/intermediates/res/merged/release"
@@ -35,7 +35,7 @@ def enableSeparateBuildPerCPUArchitecture = true
 /**
  * Run Proguard to shrink the Java bytecode in release builds.
  */
-def enableProguardInReleaseBuilds = false
+def enableProguardInReleaseBuilds = true
 
 android {
     compileSdkVersion 23
