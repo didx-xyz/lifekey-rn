@@ -106,11 +106,9 @@ class Main extends Scene {
       return
     }
     super.componentDidFocus()
-    Promise.all([
-      this.loadConnections(),
-      this.loadProfile(),
-      this.refreshThanksBalance()
-    ]).catch(console.log.bind(console, 'error in component_did_focus'))
+    this.loadConnections()
+    this.loadProfile()
+    this.refreshThanksBalance()
   }
 
   setNewConnectionRequest(from){
