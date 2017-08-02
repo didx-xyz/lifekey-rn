@@ -85,7 +85,7 @@ class ConsentDiscoveredUser {
         const discoveredUsers = JSON.parse(itemJSON)
         if (discoveredUsers.find(discoveredUser => discoveredUser.did === did)) {
           // already exists
-          Logger.info(`DiscoveredUser ${id} already exists`)
+          Logger.info(`DiscoveredUser ${did} already exists`)
           return Promise.resolve(false)
         } else {
           // merge new connection

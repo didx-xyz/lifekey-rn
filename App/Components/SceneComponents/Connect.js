@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react'
-import { Text, View, Image, Dimensions } from 'react-native'
+import { Text, View, Image, Dimensions, StatusBar } from 'react-native'
 import { Container, Content } from 'native-base'
 import ActivityIndicator from "ActivityIndicator"
 import Session from '../../Session'
@@ -34,9 +34,11 @@ class Connect extends Component  {
 
     this.onBoundPressMyCode= this.onPressMyCode.bind(this)
     this.onBoundPressFaceMatch = this.onPressFaceMatch.bind(this)
-    this.onBoundPressProfile = this.props.onPressProfile.bind(this)
+    this.onBoundPressProfile = this.props.connectWithMe && this.props.onPressProfile.bind(this)
     this.onBoundPressShare = this.onPressShare.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
+
+    console.log("USER QR: ", `http://staging.api.lifekey.cnsnt.io/qr-2/${ConsentUser.getDidSync()}?cache=${new Date().getTime()}`)
   }
 
   _hardwareBack() {
@@ -66,10 +68,13 @@ class Connect extends Component  {
     return(  
       <View>
         <View style={styles.qrCodeContainer}>
-          <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-2/${ConsentUser.getDidSync()}?cache=${new Date().getTime()}` }} />
+          <Image style={styles.qrContainerImage} source={require('../../Images/QRFrame3.png')}> 
+            <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-2/${this.props.profile.did}?cache=${new Date().getTime()}` }} /> 
+            {/*<Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-scale3/${this.props.profile.did}?cache=${new Date().getTime()}` }} /> */}
+          </Image> 
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.text}>Invite other people to connect with you by sharing your unique ID code</Text>
+          <Text style={styles.text}>Invite other people to connect with { this.props.connectWithMe ? <Text>you</Text> : <Text>{this.props.profile.display_name}</Text> } by sharing { this.props.connectWithMe ? <Text>your</Text> : <Text>their</Text> } unique ID code</Text>
         </View>
       </View>
     )
@@ -83,7 +88,9 @@ class Connect extends Component  {
       return (
         <View>
           <View style={styles.qrCodeContainer}>
-            <Image style={styles.qrImage} onError={this.onImageError.bind(this)} source={{ uri: `http://staging.api.lifekey.cnsnt.io/facial-verification?user_did=${ConsentUser.getDidSync()}&cachebust=${Date.now()}` }} />
+            <Image style={styles.qrContainerImage} source={require('../../Images/QRFrame3.png')}>
+              <Image style={styles.qrImage} onError={this.onImageError.bind(this)} source={{ uri: `http://staging.api.lifekey.cnsnt.io/facial-verification?user_did=${ConsentUser.getDidSync()}&cachebust=${Date.now()}` }} />
+            </Image>
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text}>Get someone else to scan this QR Code to verify your facial match</Text>
@@ -98,19 +105,23 @@ class Connect extends Component  {
       <View style={styles.content}>
         { !!this.props.profile.display_name ?
           <View style={ {"flex": 1} }>
-            <View style={styles.switchButtonContainer}>
-              <View style={Object.assign({}, styles.switchButton, styles.switchButtonLeft, 
-                {"backgroundColor": this.state.informationSource === "MY CODE" ? Palette.consentBlue : Palette.consentGrayLightest})}>
+            { this.props.connectWithMe ?
+              <View style={styles.switchButtonContainer}>
                 <Touchable onPress={this.onBoundPressMyCode}>
-                  <Text style={Object.assign({}, styles.switchButtonText, {"color": this.state.informationSource === "MY CODE" ? "white" : Palette.consentBlue})}>MY CODE</Text>
+                  <View style={Object.assign({}, styles.switchButton, styles.switchButtonLeft, 
+                    {"backgroundColor": this.state.informationSource === "MY CODE" ? Palette.consentBlue : Palette.consentGrayLightest})}>
+                    <Text style={Object.assign({}, styles.switchButtonText, {"color": this.state.informationSource === "MY CODE" ? "white" : Palette.consentBlue})}>MY CODE</Text>
+                  </View>
                 </Touchable>
-              </View>
-              <View style={Object.assign({}, styles.switchButton, styles.switchButtonRight, {"backgroundColor": this.state.informationSource === "FACE MATCH" ? Palette.consentBlue : Palette.consentGrayLightest})}>
                 <Touchable onPress={this.onBoundPressFaceMatch}>
-                  <Text style={Object.assign({}, styles.switchButtonText, {"color": this.state.informationSource === "FACE MATCH" ? "white" : Palette.consentBlue})}>FACE MATCH</Text>
+                  <View style={Object.assign({}, styles.switchButton, styles.switchButtonRight, {"backgroundColor": this.state.informationSource === "FACE MATCH" ? Palette.consentBlue : Palette.consentGrayLightest})}>
+                    <Text style={Object.assign({}, styles.switchButtonText, {"color": this.state.informationSource === "FACE MATCH" ? "white" : Palette.consentBlue})}>FACE MATCH</Text>
+                  </View>
                 </Touchable>
               </View>
-            </View>
+              :
+              <View style={styles.switchButtonContainer}></View>
+            }
             <View style={styles.informationContainer}>
               { this.currentInformationState() }
             </View>   
@@ -134,7 +145,7 @@ class Connect extends Component  {
 
 const styles = {
   "content": { 
-    "height": Dimensions.get('window').height - Design.lifekeyHeaderHeight,
+    "height": Dimensions.get('window').height - Design.lifekeyHeaderHeight - StatusBar.currentHeight,
     "backgroundColor": Palette.consentGrayLightest,
     "alignItems": "center",
     "justifyContent": "flex-start",
@@ -142,11 +153,13 @@ const styles = {
     "paddingLeft": Design.paddingLeft,
   },
   "switchButtonContainer":{
-    "flex": 1,
+    // "flex": 1,
+    "minHeight": 100,
     "flexDirection": "row",
     "width": "100%",
-    "alignItems": "center",
-    "justifyContent": "center"
+    "alignItems": "flex-end",
+    "justifyContent": "center",
+    "paddingBottom": 15
   },
   "switchButton":{
     "height": 30,
@@ -161,7 +174,8 @@ const styles = {
   },
   "switchButtonLeft":{
     "borderTopLeftRadius": 20,
-    "borderBottomLeftRadius": 20
+    "borderBottomLeftRadius": 20,
+    "marginRight": -1 // To mitigate strange anti-aliasing line that appears between buttons
   },
   "switchButtonRight":{
     "borderTopRightRadius": 20,
@@ -176,21 +190,27 @@ const styles = {
     "justifyContent": "center"
   },
   "qrCodeContainer": {
-    "flex": 2,
+    "flex": 3,
     "alignItems": "center",
     "justifyContent": "center"
   },
+  "qrContainerImage":{
+    "width": 225,
+    "height": 225
+  },
   "qrImage": {
-    "width": 220,
-    "height": 220
+    "width": 120,
+    "height": 120,
+    "marginLeft": 52.5, //-15
+    "marginTop": 52.5 //+15
   },
   "textContainer": {
-    "flex": 2,
+    "flex": 1,
     "width": "100%",
     "flexDirection": "row",
     "alignItems": "flex-start",
-    "justifyContent": "center",
-    "paddingTop": 50
+    "justifyContent": "flex-start",
+    "paddingTop": 15,
   },
   "text":{
     "color": Palette.consentGrayDark,

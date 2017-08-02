@@ -6,6 +6,8 @@ import Session from './Session'
 import Logger from './Logger'
 import Common from './Common'
 import ConsentUser from './Models/ConsentUser'
+import ConsentConnectionRequest from './Models/ConsentConnectionRequest'
+import ConsentShareLog from './Models/ConsentShareLog'
 import ConsentError, {ErrorCode} from './ConsentError'
 import {request, rejectionWithError} from './Requests'
 
@@ -72,6 +74,106 @@ export default class Api {
     })
   }
 
+  // #########################
+  // ###### CONNECTIONS ######
+  // #########################
+
+  static getMyConnections(milliseconds = 300000, skipCache = false){
+
+    if(!skipCache){
+      let cached = ConsentUser.getCached("myConnections")
+
+      if (cached) {
+        console.log("SERVED CACHED CONNECTIONS")
+        return Promise.resolve(cached)
+      }
+    }
+    
+    return Promise.all([
+      this.allConnections(),
+      this.getActiveBots(),
+      ConsentConnectionRequest.all(),
+      //new - get them cached upfront 
+      this.initializeResourcesAndTypes()
+      // this.allResourceTypes(),
+      // this.allResources()
+    ]).then( async values => {
+
+      // console.log("ENABLED ORIGINAL: ", values[0].body.enabled)
+      // console.log("UNENABLED ORIGINAL: ", values[0].body.unacked)
+      // console.log("ASYNC CONNECTION REQUESTS: ", values[2])
+
+      // console.log("resources in api my connection: ", values[3])
+
+      const enabledConnections = (await this.getConnectionProfiles(values[0].body.enabled, "other_user_did")) 
+                                            .map(connection => connection.body.user)
+
+      const enabledPeerConnections = enabledConnections.filter(connection => connection.is_human)
+                                                       .map(connection => { 
+                                                         const original = values[0].body.enabled.find(obj => obj.other_user_did === connection.did)
+                                                         return Object.assign({}, 
+                                                                              connection, 
+                                                                              { 
+                                                                                isa_id: original.sharing_isa_id, 
+                                                                                user_connection_id: original.user_connection_id, 
+                                                                                image_uri: `data:image/jpg;base64,${connection.image_uri}` 
+                                                                              })
+                                                       })
+
+      const enabledBotConnections = enabledConnections.filter(connection => !connection.is_human)
+
+      // console.log("ENABLED PEERS: ", enabledPeerConnections.map(x => x.user_connection_id))
+      // console.log("ENABLED BOTS: ", enabledBotConnections)
+
+      const pendingPeerConnections = (await this.getConnectionProfiles(values[0].body.unacked, "from_did"))
+                                                .map(connection => connection.body.user)
+                                                .filter(connection => connection.is_human)
+                                                .map(connection => { 
+                                                  const original = values[0].body.unacked.find(obj => obj.from_did === connection.did)
+                                                  return Object.assign({}, connection, { user_connection_request_id: original.user_connection_request_id })
+                                                })
+                                                .map(connection => Object.assign({}, connection, { image_uri: `data:image/jpg;base64,${connection.image_uri}` }))
+
+      const pendingBotConnections = (await this.getConnectionProfiles(values[1].body, "did"))
+                                               .map(x => x.body.user)
+                                               .filter(x => !x.is_human)
+                                               .filter(x => !enabledConnections.some(y => x.did === y.did))
+
+      // console.log("PENDING PEERS: ", pendingPeerConnections)
+      console.log("PENDING BOTS: ", pendingBotConnections)
+
+      const myConnections = {
+        "peerConnections": enabledPeerConnections,
+        "botConnections": enabledBotConnections,
+        "pendingPeerConnections": pendingPeerConnections,
+        "pendingBotConnections": pendingBotConnections
+      }
+
+      // ConsentUser.setCached("myConnections", myConnections, 300000)
+
+      console.log("API CONN END: ", myConnections)
+
+      ConsentUser.cacheMyConnection(myConnections)
+      return ConsentUser.getCached("myConnections")
+
+    })
+  }
+
+  static getConnectionProfiles(connections, propertyName){
+
+    return Promise.all(
+      connections.map(connection => {
+        return this.profile({did: connection[propertyName]})
+      })
+    )
+
+  }
+
+  // Get all unacked and enabled connections
+  static allConnections() {
+    return request('/management/connection')
+  }
+
   /*
    * Make a connection request with a target
    * 2 POST /management/connection
@@ -84,11 +186,6 @@ export default class Api {
     }, true, fingerprint)
   }
 
-  // Get all unacked and enabled connections
-  static allConnections() {
-    return request('/management/connection')
-  }
-
   // Accept a connection request
   static respondConnectionRequest(data, fingerprint = false) {
     checkParameters([
@@ -96,7 +193,7 @@ export default class Api {
       'accepted' // true/false (in body)
     ], data)
     return request(`/management/connection/${data.user_connection_request_id}`, {
-      body: JSON.stringify({ accepted: data.accepted }),
+      body: JSON.stringify({ accepted: data.accepted === "yes" ? true : false }),
       method: 'POST'
     }, true, fingerprint)
   }
@@ -111,15 +208,25 @@ export default class Api {
     }, true, fingerprint)
   }
 
+  // #########################
+  // ########## ISA ##########
+  // #########################
+
   // Request an ISA
   static requestISA(data, fingerprint = false) {
     checkParameters([
       'to',
-      'requested_schemas',
+      // 'requested_schemas',
+      'required_entities',
       'purpose',
       'license'
     ], data)
+
+    console.log("typecheck to: ", data.to, " | license: ", data.license, " | purpose: ", data.purpose)
+    console.log('typecheck required_entities', Array.isArray(data.required_entities) && data.required_entities.length)
+
     return request('/management/isa', {
+      body: JSON.stringify(data),
       method: 'POST'
     }, true, fingerprint)
   }
@@ -187,6 +294,7 @@ export default class Api {
       'isa_id',
       'resources'
     ], data)
+
     return request(`/management/push/${data.isa_id}`, {
       method: 'POST',
       body: JSON.stringify({resources: data.resources})
@@ -197,26 +305,107 @@ export default class Api {
   // #### RESOURCE ####
   // ##################
 
-  
-  static getMyData(milliseconds = 300000){
-    let cached = ConsentUser.getCached("myData")
-    if (cached && cached.valid) return Promise.resolve(cached)
+  static initializeResourcesAndTypes(milliseconds = 300000){
     return Promise.all([
       this.allResourceTypes(),
-      this.allResources()
+      this.allResources(),
+      this.myProfile()
     ]).then(values => {
-      const updatedResources = values[1].body.map(resource => {
-        return {
-          id: resource.id,
-          alias: resource.alias,
-          schema: resource.schema, 
-          is_verifiable_claim: resource.is_verifiable_claim,
-          ...JSON.parse(resource.value)
-        }
-      })
-      ConsentUser.cacheMyData(updatedResources)
+      
+      // console.log("INITIAILIZE VALUES: ", values)
+
+      const resourcesAndTypes = {
+        resourceTypes: values[0],
+        resources: values[1],
+        profile: values[2]
+      }
+      
+      // console.log("RESOURCES AND TYPES: ", resourcesAndTypes )
+
+      return Promise.resolve(resourcesAndTypes)
+
+    })
+  }
+
+  static allResourceTypes(milliseconds = 300000) {
+    let cached = ConsentUser.getCached("allResourceTypes")
+    if (cached !== null) return Promise.resolve(cached)
+    return request("http://schema.cnsnt.io/resources").then(data => {
+      ConsentUser.setCached("allResourceTypes", data.resources, milliseconds)
+      return Promise.resolve(data.resources)
+    }) 
+  }
+
+  // 0 GET /resource
+  static allResources(milliseconds = 300000) {
+    // return request("/resource?all=1")
+    // let cached = ConsentUser.getCached("allResources")
+    // if (cached !== null) return Promise.resolve(cached)
+
+    return request("/resource?all=1").then(data => {
+      
+      // const updatedResources = data.body.map(resource => {
+      //   return {
+      //     id: resource.id,
+      //     alias: resource.alias,
+      //     schema: resource.schema, 
+      //     is_verifiable_claim: resource.is_verifiable_claim,
+      //     from_user_did: resource.from_user_did,
+      //     ...JSON.parse(resource.value)
+      //   }
+      // })
+      const updatedResources = data.body.map(resource => this.shapeResource(resource))
+      ConsentUser.setCached("allResources", updatedResources, 300000)
+      return Promise.resolve(updatedResources)
+
+    }) 
+  }
+
+  static shapeResource(resource){
+    return {
+      id: resource.id,
+      alias: resource.alias,
+      schema: resource.schema, 
+      is_verifiable_claim: resource.is_verifiable_claim,
+      from_user_did: resource.from_user_did,
+      ...JSON.parse(resource.value)
+    }
+  }
+
+  static getMyData(milliseconds = 300000){
+    let cached = ConsentUser.getCached("myData")
+    if (cached && cached.valid) {
+      console.log("MY DATA SERVED CACHED")
+      return Promise.resolve(cached)
+    }
+    // return Promise.all([
+    //   // this.allResourceTypes(),
+    //   // this.allResources()
+    // ]).then(values => {
+    return this.initializeResourcesAndTypes().then(values => {
+    
+      console.log("MY DATA NOT CACHE: ")
+      // const updatedResources = values[1]
+      const updatedResources = values.resources
+
+      ConsentUser.setCached("allResources", updatedResources, 300000)
+      ConsentUser.cacheMyData(updatedResources, values.profile)
       return ConsentUser.getCached("myData")
-    }).catch(Logger.error)
+
+      // const updatedResources = values[1].body.map(resource => {
+      //   return {
+      //     id: resource.id,
+      //     alias: resource.alias,
+      //     schema: resource.schema, 
+      //     is_verifiable_claim: resource.is_verifiable_claim,
+      //     from_user_did: resource.from_user_did,
+      //     ...JSON.parse(resource.value)
+      //   }
+      // })
+      // ConsentUser.setCached("allResources", updatedResources, 300000)
+      // ConsentUser.cacheMyData(updatedResources)
+      // return ConsentUser.getCached("myData")
+    })
   }
 
   static getFlattenedResources(){
@@ -230,13 +419,7 @@ export default class Api {
     }).catch(Logger.error)
   }
 
-  static allResourceTypes(milliseconds = 300000) {
-    let cached = ConsentUser.getCached("allResourceTypes")
-    if (cached !== null) return Promise.resolve(cached)
-    return request("http://schema.cnsnt.io/resources").then(data => {
-      ConsentUser.setCached("allResourceTypes", data.resources, milliseconds)
-    }) 
-  }
+  
 
   static getResourceForm(form, milliseconds = 600000) {
     form = Common.ensureUrlHasProtocol(form)
@@ -250,9 +433,26 @@ export default class Api {
     })
   }
 
-  // 0 GET /resource
-  static allResources(milliseconds = 300000) {
-    return request("/resource?all=1")
+  static connectionResources(connectionDid) {
+    
+    return request(`/resource?pushed=1&pushed_by=${connectionDid}`)
+    .then(results => {
+
+      // console.log("SHALLOW RESULTS: ", results)
+
+      return results
+    })
+  }
+
+  static connectionSharedWith(connectionDid) {
+    
+    return ConsentShareLog.all_by_user(connectionDid)
+                          .then(results => {
+
+                            console.log("SHARED WITH RESULTS: ", results)
+
+                            return results
+                          })
   }
 
   // 1 GET /resource/:resource_id
@@ -335,8 +535,8 @@ export default class Api {
     let cached = ConsentUser.getCached("profile")
 
     if(cached){
-      console.log('return cached profile')
-      console.log("CACHED:::: ", cached)
+      console.log('SERVED cached profile')
+      // console.log("CACHED:::: ", cached)
       return Promise.resolve(cached)
     }
     
@@ -350,15 +550,6 @@ export default class Api {
 
   // 5.5 POST /profile/:did
   static setProfile(data) {
-    // checkParameters([
-    //   'contactAddress',
-    //   'contactEmail',
-    //   'contactTelephone',
-    //   'displayName',
-    //   'label',
-    //   'profileColour',
-    //   'profileImageUri'
-    // ], data)
     return request('/profile', {
       method: 'POST',
       body: JSON.stringify(data)
@@ -410,11 +601,13 @@ export default class Api {
       'created_by',
       'challenge'
     ], data)
-    return request(`/trustbanklogin`, {
+    return request(`/web-auth`, {
       method: 'POST',
       body: JSON.stringify(data)
     })
   }
+
+
 
 
   // 14 POST /facial-verfication token

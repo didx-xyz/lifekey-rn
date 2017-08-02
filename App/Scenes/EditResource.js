@@ -32,6 +32,7 @@ class EditResource extends Scene {
     this.onBoundPressCancel = this.onPressCancel.bind(this)
     this.onBoundPressSave = this.onPressSave.bind(this)
     this.onBoundSave = this.onSave.bind(this)
+    this.onBoundDelete = this.onDelete.bind(this)
 
     this.boundSetStringInputStateValue = this.setStringInputStateValue.bind(this)
     this.boundSetImageInputStateValue = this.setImageInputStateValue.bind(this)
@@ -42,6 +43,11 @@ class EditResource extends Scene {
 
   onPressCancel() {
     this.navigator.pop()
+  }
+
+  onDelete(){
+    console.log("EDIT RESOURCE DELETE")
+    this.context.onDeleteResource()
   }
 
   onPressSave() {
@@ -82,6 +88,8 @@ class EditResource extends Scene {
       "newResource": newResource
     }
 
+    console.log("NEW IMAGE DOC: ", options)
+
     this.setState(state, () => {
       if (this.state.formTarget.id) {
         return Api.updateResource(newResource).then(
@@ -93,9 +101,14 @@ class EditResource extends Scene {
           options
         ).then(
           this.onBoundSave
-        ).catch(alert)
+        ).catch(error => { 
+          console.log("ERROR SAVING RESOURCE: ", JSON.stringify(error)) 
+          ToastAndroid.show('There was an error trying to save this resource. Please try again...', ToastAndroid.LONG)
+          this.setState({ "asyncActionInProgress": false })
+        })
       }
     })
+
     //End set UI state
   }
 
@@ -111,7 +124,17 @@ class EditResource extends Scene {
 
     ToastAndroid.show('Resource saved!', ToastAndroid.SHORT)
 
-    this.navigator.pop()
+    const routes = this.navigator.getCurrentRoutes()
+
+    // if(routes[routes.length - 2].scene[0])
+    // if(routes[routes.length - 2].scene.name === "ConnectionDetails"){
+    //   this.navigator.push({
+    //     ...Routes.connectionDetails,
+    //     setModalVisible: true
+    //   })
+    // }
+    // else
+      this.navigator.pop()
   }
 
   componentDidMount() {
@@ -239,6 +262,7 @@ class EditResource extends Scene {
               formTarget={this.state.formTarget}
               entities={this.state.entities}
               backgroundColor="transparent"
+              onDelete={this.onBoundDelete}
               setStringInputStateValue={this.boundSetStringInputStateValue}
               setImageInputStateValue={this.boundSetImageInputStateValue}
               setDateInputStateValue={this.boundSetDateInputStateValue}
@@ -270,6 +294,7 @@ EditResource.contextTypes = {
   
   // behavior
   "onSaveResource": PropTypes.func,
+  "onDeleteResource": PropTypes.func,
 
   // state
   "getEditResourceForm": PropTypes.func,

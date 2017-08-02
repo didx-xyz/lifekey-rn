@@ -8,21 +8,39 @@ const HexagonDots  = function(props) {
 
   switch (props.current) {
     case 0:
-      image = require("../Images/dots-01.png")
+      image = require("../Images/1.1.gif")
       break
     case 1:
-      image = require("../Images/dots-02.png")
+      image = require("../Images/2.1.gif")
       break
     case 2:
-      image = require("../Images/dots-03.png")
+      image = require("../Images/3.1.gif")
       break
     case 3:
-      image = require("../Images/dots-04.png")
+      image = require("../Images/4.1.gif")
       break
     default:
-      image = require("../Images/dots-05.png")
+      image = require("../Images/5.1.gif")
       break
   }
+
+  // switch (props.current) {
+  //   case 0:
+  //     image = require("../Images/1.gif")
+  //     break
+  //   case 1:
+  //     image = require("../Images/2.gif")
+  //     break
+  //   case 2:
+  //     image = require("../Images/3.gif")
+  //     break
+  //   case 3:
+  //     image = require("../Images/4.gif")
+  //     break
+  //   default:
+  //     image = require("../Images/5.gif")
+  //     break
+  // }
 
   return <Image style={{ height: props.height || 67, width: props.width || 67, resizeMode: "contain" }} source={image} />
 }

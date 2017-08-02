@@ -562,7 +562,7 @@ export default class ConsentUser {
     })
   }
 
-  // NEW 
+  // * USER DATA AND PROFILE * //
 
   static async refreshThanksBalance() {
     return Api.thanksBalance().then(function(res) {
@@ -610,6 +610,13 @@ export default class ConsentUser {
 
       if((resourceTypeIsVerifiableClaim && resource.is_verifiable_claim) || match){
         existing ? (rt.items = rt.items.map(item => item.id === resource.id ? resource : item)) : rt.items.push(resource)
+
+        const newBadge = this.determineBadge(resource)
+        console.log("HIT BADGE TERRITORY!!!: ", newBadge)
+        if(!!newBadge){
+          myData.badges.push(newBadge)
+        }
+
       }
     })
 
@@ -617,9 +624,22 @@ export default class ConsentUser {
 
   }
 
+  static updateBadges(resource){
+
+  }
+
   static updateProfile(profile) {
-    console.log("UPDATED PROFILE: ", profile)
-    profile.profileImageUri = profile && profile.image_uri ? `data:image/jpg;base64,${profile.image_uri}` : Anonymous.uri
+    
+    // console.log("NEW PROFILE: ", profile)
+    if(profile.image_uri){
+      profile.image_uri = Common.ensureDataUrlIsCleanOfContext(profile.image_uri)
+      profile.image_uri = `data:image/jpg;base64,${profile.image_uri}`
+    }
+    else{
+      profile.image_uri = Anonymous.uri
+    }
+    // console.log("UPDATED PROFILE: ", profile)
+    
     ConsentUser.setCached('profile', profile, 300000)
   }
 
@@ -643,13 +663,13 @@ export default class ConsentUser {
     this.setCached("myData", myData, 300000)
   }
 
-  static cacheMyData(resources){
+  static cacheMyData(resources, profile){
 
     let resourceTypes = [...this.state.allResourceTypes.data]
 
     resources = this.verifyAndFixSchemaProperty(resources)
     const badges = this.sortBadges(resources)
-    let myData = this.sortMyData(resources, resourceTypes)
+    let myData = this.sortMyData(resources, resourceTypes, profile)
 
     myData.badges = badges
     myData.valid = true
@@ -680,65 +700,82 @@ export default class ConsentUser {
 
   static sortBadges(resources){
 
+    console.log("SORT BADGES:", resources )
+
     var badges = Object.values(resources).map((v, i) => {
-
-      if(!v.claim || !v.claim.isCredential){
-        return null
-      }
-
-      if (v.form === "http://schema.cnsnt.io/pirate_name_form") {
-        return {
-          "name": "Pirate Name",
-          "description": "Hello ",
-          "image": require('../../App/Images/pirate_name.png')
-        }
-      } else if (v.form === "http://schema.cnsnt.io/verified_identity_form") {
-        return {
-          "name": "Verified Identity",
-          "description": "Hello ",
-          "image": require('../../App/Images/verified_identity.png')
-        }
-      } else if (v.form === "http://schema.cnsnt.io/full_name_form") {
-        return {
-          "name": "Full Name",
-          "description": "Hello ",
-          "image": require('../../App/Images/full_name.png')
-        }
-      } else if (v.form === "http://schema.cnsnt.io/contact_email_form") {
-        return {
-          "name": "Verified Email",
-          "description": "Hello ",
-          "image": require('../../App/Images/contact_email.png')
-        }
-      } else if (v.form === "http://schema.cnsnt.io/contact_mobile_form") {
-        return {
-          "name": "Verified Mobile",
-          "description": "Hello ",
-          "image": require('../../App/Images/contact_mobile.png')
-        }
-      } else if(v.form === "http://schema.cnsnt.io/verified_face_match_form"){
-        return {
-          "name": "Verified FaceMatch",
-          "description": "Hello ",
-          "image": require('../../App/Images/verified_face_match.png')
-        }
-      } else {
-        // FIXME
-        return null
-      }
+      return this.determineBadge(v)
     })
     .filter(v => !!v)
 
     return badges
   }
 
-  static sortMyData(resources, resourceTypes) {
+  static determineBadge(v){
+    
+    console.log("NEW BADGE: ", v)
+
+    const check = v.schema ? v.schema : v.form
+
+    //NEW
+
+    if(!v.claim || !v.claim.isCredential || !v.schema){
+      return null
+    }
+
+    if (check === "http://schema.cnsnt.io/pirate_name") {
+      return {
+        "name": "Pirate Name",
+        "description": "Hello ",
+        "image": require('../../App/Images/pirate_name.png')
+      }
+    } else if (check === "http://schema.cnsnt.io/verified_identity") {
+      return {
+        "name": "Verified Identity",
+        "description": "Hello ",
+        "image": require('../../App/Images/verified_identity.png')
+      }
+    } else if (check === "http://schema.cnsnt.io/full_name") {
+      return {
+        "name": "Full Name",
+        "description": "Hello ",
+        "image": require('../../App/Images/full_name.png')
+      }
+    } else if (check === "http://schema.cnsnt.io/contact_email") {
+      return {
+        "name": "Verified Email",
+        "description": "Hello ",
+        "image": require('../../App/Images/contact_email.png')
+      }
+    } else if (check === "http://schema.cnsnt.io/contact_mobile") {
+      return {
+        "name": "Verified Mobile",
+        "description": "Hello ",
+        "image": require('../../App/Images/contact_mobile.png')
+      }
+    } else if(check === "http://schema.cnsnt.io/verified_face_match"){
+      return {
+        "name": "Verified FaceMatch",
+        "description": "Hello ",
+        "image": require('../../App/Images/verified_face_match.png')
+      }
+    } else {
+      // FIXME
+      console.log("HIT HERE 1: ", v)
+      return null
+    }
+  }
+
+  static sortMyData(resources, resourceTypes, profile) {
+
 
     // Add logically seperate resources types that aren't persisted in server 
     resourceTypes.push({ name: 'Malformed', url: null, items: [] })
     resourceTypes.push({ name: 'Verifiable Claims', url: null, items: [] })
     resourceTypes.push({ name: 'Decentralized Identifier', url: 'http://schema.cnsnt.io/decentralised_identifier', items: [] })
     resourceTypes.push({ name: 'Miscellaneous', url: null, items: [] })
+
+    /* Experimental - note the items property is an object */
+    // resourceTypes.push({ name: 'ConnectionData', url: null, items: {} }) 
 
     // Sort known items and verifiable claims  
     resourceTypes.map(rt => {
@@ -749,7 +786,7 @@ export default class ConsentUser {
       else{
         rt.items = resources.filter(r => {
 
-          if(r.is_verifiable_claim){
+          if(r.is_verifiable_claim || r.from_user_did){
             return false
           }
 
@@ -776,4 +813,153 @@ export default class ConsentUser {
     return { resourcesByType: resourceTypes, profilePicUrl: identityPhotographUri }
 
   }
+
+  static cacheMyConnection(myConnections){
+
+    const sortedPeerConnections = this.sortConnectionData(myConnections.peerConnections)
+
+    const newAllConnections = Object.assign({}, myConnections, { "peerConnections": sortedPeerConnections })
+    this.setCached("myConnections", newAllConnections, 300000)
+  }
+
+  static sortConnectionData(peerConnections){
+
+    /* This should organise resources under resource types and store them under connections */
+    const resources = this.getCached("allResources")
+    const resourceTypes = this.getCached("allResourceTypes")
+
+    if(!peerConnections) return
+
+    peerConnections.forEach(connection => { 
+      
+      /* Really important to ensure that original resourceTypes remain unmutated */
+      let shallowResourceTypes = [ ...resourceTypes.map(rt => Object.assign({}, rt)) ]
+      let connectionResources = resources.filter(r => !!r.from_user_did && r.from_user_did === connection.did)
+
+      shallowResourceTypes.forEach(rt => {
+        
+        rt.items = connectionResources.filter(r => Common.schemaCheck(r.schema, rt.url) || `${rt.url}_form` === r.form) 
+
+        /* Order important */
+        if(rt.name === "Public Profile"){
+          rt.items = [ Object.assign({}, connection) ]
+        }
+
+      })
+
+      console.log("GOT HERE: 1")
+
+      connection.resourcesByType = shallowResourceTypes
+
+    })
+
+    return peerConnections
+
+  }
+
+  static updateConnectionState(resource) {
+
+    const allConnections = this.getCached("myConnections")
+
+    if(!allConnections) return
+
+    let connection = allConnections.peerConnections.find(c => c.did === resource.from_user_did)
+
+    console.log("GOT HERE: 1", connection)
+
+    connection.resourcesByType.forEach(rt => {
+      
+      const match = !!resource.schema ? Common.schemaCheck(resource.schema, rt.url) : `${rt.url}_form` === resource.form
+      const existing = rt.items.some(item => item.id === resource.id)
+      const resourceTypeIsVerifiableClaim = rt.name === 'Verifiable Claims'
+
+      if((resourceTypeIsVerifiableClaim && resource.is_verifiable_claim) || match){
+        existing ? (rt.items = rt.items.map(item => item.id === resource.id ? resource : item)) : rt.items.push(resource)
+      }
+    })
+
+    const newAllConnections = Object.assign({}, allConnections, 
+                                            { "peerConnections": allConnections.peerConnections
+                                                                               .map(pc => { 
+                                                                                     return pc.did === resource.from_user_did ? connection : pc 
+                                                                                  }) 
+                                                                               })
+
+    this.setCached("myConnections", newAllConnections, 300000)
+
+  }
+
+  static addNewEnabledPeerConnection(connectionProfile){
+
+    console.log("CONNECTION ENABLED PROFILE: ", connectionProfile)
+
+    const connections = this.getCached("myConnections")
+    const newConnections = Object.assign({}, connections, { peerConnections: [ ...connections.peerConnections, connectionProfile ]})
+    this.setCached("myConnections", newConnections, 300000)
+
+  }
+
+  static addNewPendingPeerConnection(connectionProfile){
+
+    console.log("CONNECTION PENDING PROFILE: ", connectionProfile)
+
+    const connections = this.getCached("myConnections")
+    const newConnections = Object.assign({}, connections, { pendingPeerConnections: [ ...connections.pendingPeerConnections, connectionProfile ]})
+    this.setCached("myConnections", newConnections, 300000)
+
+  }
+
+  static removeEnabledPeerConnection(removeUserConnectionId){
+
+    const connections = this.getCached("myConnections")
+    const newConnections = Object.assign({}, connections, 
+                                         { peerConnections: connections.peerConnections
+                                                                       .filter(c => c.user_connection_id !== removeUserConnectionId) })
+    this.setCached("myConnections", newConnections, 300000)
+
+  }
+
+  static removePendingPeerConnection(connectionProfile){
+
+    const connections = this.getCached("myConnections")
+    const newConnections = Object.assign({}, connections, 
+                                         { pendingPeerConnections: connections.pendingPeerConnections
+                                                                       .filter(c => c.did !== connectionProfile.did) })
+    this.setCached("myConnections", newConnections, 300000)
+
+  }
+
+  static addNewEnabledBotConnection(connectionProfile){
+
+    console.log("CONNECTION BOT PROFILE: ", connectionProfile)
+
+    const connections = this.getCached("myConnections")
+    const newConnections = Object.assign({}, connections, { botConnections: [ ...connections.botConnections, connectionProfile ]})
+    this.setCached("myConnections", newConnections, 300000)
+
+  }
+
+  static removePendingBotConnection(connectionProfile){
+
+    const connections = this.getCached("myConnections")
+    const newConnections = Object.assign({}, connections, 
+                                         { pendingBotConnections: connections.pendingBotConnections
+                                                                             .filter(c => c.did !== connectionProfile.did) })
+    this.setCached("myConnections", newConnections, 300000)
+
+  }
+
+  
+
+  
+
+  // * END USER DATA AND PROFILE * //
+
+  // * USER CONNECTIONS * //
+
+
+    
+
+
+  // * END USER CONNECTIONS * //
 }

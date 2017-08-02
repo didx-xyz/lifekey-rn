@@ -35,6 +35,8 @@ class LifekeyCard extends Component {
       })
     })
 
+    const touchableArea = {top: 140, left: 140, bottom: 140, right: 140}
+
     if (this.state.expanded) {
       return (
         <Card style={styles.card}>
@@ -55,17 +57,17 @@ class LifekeyCard extends Component {
             <View style={styles.cardFooter}>
               {this.props.onPressEdit &&
                 <Touchable onPress={this.props.onPressEdit}>
-                  <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterEditText)}>EDIT</Text>
+                  <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterEditText)}>{this.props.rightButtonText}</Text>
                 </Touchable>
               }
               {this.props.onPressDelete &&
                 <Touchable onPress={this.props.onPressDelete}>
-                  <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterDeleteText)}>DELETE</Text>
+                  <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterDeleteText)}>{this.props.leftButtonText}</Text>
                 </Touchable>
               }
               {this.props.onPressShare &&
                 <Touchable onPress={this.props.onPressShare}>
-                  <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterShareText)}>SHARE</Text>
+                  <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterShareText)}>{this.props.leftButtonText}</Text>
                 </Touchable>
               }
             </View>
@@ -91,14 +93,25 @@ class LifekeyCard extends Component {
         </View>
         <View style={styles.cardFooter}>
           { this.props.onPressDelete &&
-            <Touchable onPress={this.props.onPressDelete}>
-              <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterDeleteText)}>DELETE</Text>
-            </Touchable>
+            <View style={styles.textButtonContainer} >
+              <Touchable onPress={this.props.onPressDelete} hitSlop={touchableArea}>
+                <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterDeleteText)}>{this.props.leftButtonText}</Text>
+              </Touchable>
+            </View>
+          }
+          { this.props.onPressShare &&
+            <View style={styles.textButtonContainer} >
+              <Touchable onPress={this.props.onPressShare} hitSlop={touchableArea}>
+                <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterDeleteText)}>{this.props.leftButtonText}</Text>
+              </Touchable>
+            </View>
           }
           <View style={ {"flex": 1 } }></View>
           { this.props.onPressEdit &&
-            <Touchable onPress={this.props.onPressEdit}>
-              <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterEditText)}>EDIT</Text>
+            <Touchable onPress={this.props.onPressEdit} hitSlop={touchableArea}>
+              <View style={styles.textButtonContainer} >
+                <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterEditText)}>{this.props.rightButtonText}</Text>
+              </View>
             </Touchable>
           }
         </View>
@@ -150,6 +163,12 @@ const styles = {
     "borderTopWidth": 1,
     "borderColor": Palette.consentGrayLight
   },
+  "textButtonContainer":{
+    "minHeight": 40,
+    "minWidth": 40,
+    "justifyContent": "center",
+    "alignItems": "center",
+  },
   "cardFooterText": {
     "fontWeight": "bold",
     "fontSize": 12
@@ -163,12 +182,16 @@ const styles = {
 }
 
 LifekeyCard.defaultProps = {
-  "headingText": "heading not set"
+  "headingText": "heading not set",
+  "leftButtonText": "SHARE",
+  "rightButtonText": "EDIT"
 }
 
 LifekeyCard.propTypes = {
   "expandable": PropTypes.bool,
   "headingText": PropTypes.string,
+  "leftButtonText": PropTypes.string,
+  "rightButtonText": PropTypes.string,
   "onPressEdit": PropTypes.func,
   "onPressDelete": PropTypes.func,
   "onPressShare": PropTypes.func

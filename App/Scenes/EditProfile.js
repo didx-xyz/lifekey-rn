@@ -13,6 +13,7 @@ import ProgressIndicator from "../Components/ProgressIndicator"
 import Countries from "../Countries"
 import Languages from "../Languages"
 import Design from "../DesignParameters"
+import Common from "../Common"
 import Palette from "../Palette"
 import Routes from "../Routes"
 import Logger from '../Logger'
@@ -24,7 +25,7 @@ class EditProfile extends Scene {
 
     this.state = {
       "entities": [],
-      "progressCopy": "Loading form and state.formTarget...",
+      "progressCopy": "Loading form and profile...",
       "asyncActionInProgress": true
     }
 
@@ -61,9 +62,9 @@ class EditProfile extends Scene {
 
     this.setState(state, () => {
 
-      return Api.setProfile(data).then(
-        this.onBoundSave
-      ).catch(console.log)
+      return Api.setProfile(data)
+                .then(this.onBoundSave)
+                .catch(console.log)
     })
     //End set UI state
   }
@@ -73,6 +74,7 @@ class EditProfile extends Scene {
     this.context.onSaveResource()
 
     ConsentUser.updateProfile(this.state.formTarget)
+    ConsentUser.updateState(this.state.formTarget)
 
     ToastAndroid.show('Profile saved!', ToastAndroid.SHORT)
 
@@ -150,6 +152,10 @@ class EditProfile extends Scene {
             state.formTarget[entity.name] = state.formTarget["display_name"] ? state.formTarget["display_name"] : personValue
             entity.initialValue = state.formTarget["display_name"] ? state.formTarget["display_name"] : personValue
             break
+          case "profileImageUri":
+            state.formTarget["image_uri"] = state.formTarget["image_uri"] ? state.formTarget["image_uri"] : ''
+            entity.initialValue = state.formTarget["image_uri"] ? state.formTarget["image_uri"] : profilePicValue
+            break
           case "contactAddress":
             state.formTarget[entity.name] = state.formTarget["address"] ? state.formTarget["address"] : addressValue
             entity.initialValue = state.formTarget["address"] ? state.formTarget["address"] : addressValue
@@ -175,19 +181,19 @@ class EditProfile extends Scene {
         entity.initialValue = "Select a language"
       }
 
-      if (entity.type === "photograph") {
-        state.formTarget[entity.name + "__label"] = "Select a photograph"
+      // if (entity.type === "photograph") {
+      //   state.formTarget[entity.name + "__label"] = "Select a photograph"
 
-        switch(entity.name){
-          case "profileImageUri":
-            state.formTarget[entity.name] = state.formTarget["profileImageUri__label"] ? state.formTarget["profileImageUri__label"] : state.formTargetPicValue
-            entity.initialValue = state.formTarget["profileImageUri__label"] ? state.formTarget["profileImageUri__label"] : state.formTargetPicValue
-            break
-          default:
-            entity.initialValue = "Select a photograph"
-            break
-        } 
-      }
+      //   switch(entity.name){
+      //     case "profileImageUri":
+      //       state.formTarget[entity.name] = state.formTarget["profileImageUri__label"] ? state.formTarget["profileImageUri__label"] : state.formTargetPicValue
+      //       entity.initialValue = state.formTarget["profileImageUri__label"] ? state.formTarget["profileImageUri__label"] : state.formTargetPicValue
+      //       break
+      //     default:
+      //       entity.initialValue = "Select a photograph"
+      //       break
+      //   } 
+      // }
     })
 
     state.entities = [
@@ -199,6 +205,9 @@ class EditProfile extends Scene {
   // This is necessary because the schema/form values of profile differ from the keys for the saved entity 
   matchProfileAndState(newValue, formTarget){
     
+    console.log("NEW VALUE: ", newValue)
+    console.log("FORM TARGET: ", formTarget)
+
     Object.keys(newValue).map((key, i) => {
       switch(key){
         case "label":
@@ -214,7 +223,7 @@ class EditProfile extends Scene {
           formTarget["display_name"] = newValue["displayName"] 
           break
         case "profileImageUri":
-          formTarget["image_uri"] = newValue["profileImageUri"] 
+          formTarget["image_uri"] = Common.ensureDataUrlIsCleanOfContext(newValue["profileImageUri"])
           break
         case "contactAddress":
           formTarget["address"] = newValue["contactAddress"]
@@ -252,8 +261,6 @@ class EditProfile extends Scene {
   }
 
   render() {
-
-    
     return (    
       !this.state.asyncActionInProgress ?
         <View style={ styles.container }>

@@ -11,6 +11,7 @@ import {
   Text,
   View,
   StyleSheet,
+  StatusBar,
   Dimensions,
 } from 'react-native'
 import Camera from 'react-native-camera'
@@ -39,6 +40,7 @@ export default class SelfieCam extends Scene {
   render() {
     return (
       <View style={styles.container}>
+        <StatusBar hidden={false} />
         <BackButton navigator={this.navigator} />
         <Camera
           ref={(cam) => { this.camera = cam }}

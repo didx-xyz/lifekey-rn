@@ -3,6 +3,7 @@ import PropTypes from "prop-types"
 import { View, Text, Image, Modal, TouchableHighlight } from 'react-native'
 
 //Internal dependencies 
+import Common from "../Common"
 import Design from "../DesignParameters"
 import Palette from "../Palette"
 import RcItemDetail from "./ResourceComponents/rc-DetailView"
@@ -27,7 +28,10 @@ class LcImageDocument extends Component {
   render() {
 
     const { expanded, title, documentIdentifier } = this.props
-    const documentUri = `data:image/jpg;base64,${this.props[documentIdentifier]}`
+    // const documentUri = `data:image/jpg;base64,${this.props[documentIdentifier]}`
+    const documentUri = Common.ensureDataUrlHasContext(this.props[documentIdentifier])
+
+    // console.log("DOC IMAGE: ", documentUri)
     
     if(expanded)
       return (
