@@ -21,6 +21,7 @@ import BackButton from "../Components/BackButton"
 import BackIcon from "../Components/BackIcon"
 import HelpIcon from "../Components/HelpIcon"
 import GearIcon from "../Components/GearIcon"
+import TrashIcon from "../Components/TrashIcon"
 import PanTab from "../Components/PanTab"
 import ProgressIndicator from "../Components/ProgressIndicator"
 import Design from "../DesignParameters"
@@ -171,7 +172,7 @@ class ConnectionDetailsPeerToPeer extends Scene {
         borderColor: "white"
       },
       {
-        icon: (<BackIcon width={16} height={16}/>),
+        icon: (<TrashIcon width={28} height={28} stroke="red"/>),
         onPress: () => this.onBoundDelete(),
         borderColor: "white"
       }

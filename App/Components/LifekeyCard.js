@@ -91,7 +91,8 @@ class LifekeyCard extends Component {
         <View style={styles.cardBody}>
           { childrenWithExpandedProp }
         </View>
-        <View style={styles.cardFooter}>
+        { (this.props.onPressDelete || this.props.onPressEdit || this.props.onPressShare) &&
+          <View style={styles.cardFooter}>
           { this.props.onPressDelete &&
             <View style={styles.textButtonContainer} >
               <Touchable onPress={this.props.onPressDelete} hitSlop={touchableArea}>
@@ -116,7 +117,7 @@ class LifekeyCard extends Component {
             </View>
           }
           
-        </View>
+        </View> }
       </Card>
     )
   }

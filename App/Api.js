@@ -302,8 +302,8 @@ export default class Api {
 
       console.log("DATA: ", data)
 
-      data.resources.forEach(resource => {
-        ConsentShareLog.add(resource, data.shared_with_did)
+      data.resources.forEach(resourceId => {
+        ConsentShareLog.add(resourceId, data.shared_with_did)
       })
       
     })
