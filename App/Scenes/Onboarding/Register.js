@@ -292,11 +292,14 @@ class Register extends Scene {
         var [hardware, permission, enrolled] = res
         return ConsentUser.register(this.state.user, hardware && permission && enrolled)
       }).catch(error => {
-        console.log(error)
+        console.log(JSON.stringify(error))
         ToastAndroid.show('Registration unsuccessful...', ToastAndroid.SHORT)
         Crypto.getKeyAliases().then(function(aliases) {
           return Promise.all(
-            aliases.map(Crypto.deleteKeyEntry)
+            aliases.map(function(alias) {
+              console.log("ALIAS: ", alias)
+              return Crypto.deleteKeyEntry(alias)
+            })
           )
         }).catch(
           console.log.bind(console, 'error while deleting keystore private key entries')

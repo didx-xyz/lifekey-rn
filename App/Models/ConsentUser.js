@@ -610,10 +610,21 @@ export default class ConsentUser {
 
       if((resourceTypeIsVerifiableClaim && resource.is_verifiable_claim) || match){
         existing ? (rt.items = rt.items.map(item => item.id === resource.id ? resource : item)) : rt.items.push(resource)
+
+        const newBadge = this.determineBadge(resource)
+        console.log("HIT BADGE TERRITORY!!!: ", newBadge)
+        if(!!newBadge){
+          myData.badges.push(newBadge)
+        }
+
       }
     })
 
     this.setCached("myData", myData, 300000)
+
+  }
+
+  static updateBadges(resource){
 
   }
 
@@ -689,56 +700,69 @@ export default class ConsentUser {
 
   static sortBadges(resources){
 
+    console.log("SORT BADGES:", resources )
+
     var badges = Object.values(resources).map((v, i) => {
-
-      if(!v.claim || !v.claim.isCredential){
-        return null
-      }
-
-      if (v.form === "http://schema.cnsnt.io/pirate_name_form") {
-        return {
-          "name": "Pirate Name",
-          "description": "Hello ",
-          "image": require('../../App/Images/pirate_name.png')
-        }
-      } else if (v.form === "http://schema.cnsnt.io/verified_identity_form") {
-        return {
-          "name": "Verified Identity",
-          "description": "Hello ",
-          "image": require('../../App/Images/verified_identity.png')
-        }
-      } else if (v.form === "http://schema.cnsnt.io/full_name_form") {
-        return {
-          "name": "Full Name",
-          "description": "Hello ",
-          "image": require('../../App/Images/full_name.png')
-        }
-      } else if (v.form === "http://schema.cnsnt.io/contact_email_form") {
-        return {
-          "name": "Verified Email",
-          "description": "Hello ",
-          "image": require('../../App/Images/contact_email.png')
-        }
-      } else if (v.form === "http://schema.cnsnt.io/contact_mobile_form") {
-        return {
-          "name": "Verified Mobile",
-          "description": "Hello ",
-          "image": require('../../App/Images/contact_mobile.png')
-        }
-      } else if(v.form === "http://schema.cnsnt.io/verified_face_match_form"){
-        return {
-          "name": "Verified FaceMatch",
-          "description": "Hello ",
-          "image": require('../../App/Images/verified_face_match.png')
-        }
-      } else {
-        // FIXME
-        return null
-      }
+      return this.determineBadge(v)
     })
     .filter(v => !!v)
 
     return badges
+  }
+
+  static determineBadge(v){
+    
+    console.log("NEW BADGE: ", v)
+
+    const check = v.schema ? v.schema : v.form
+
+    //NEW
+
+    if(!v.claim || !v.claim.isCredential || !v.schema){
+      return null
+    }
+
+    if (check === "http://schema.cnsnt.io/pirate_name") {
+      return {
+        "name": "Pirate Name",
+        "description": "Hello ",
+        "image": require('../../App/Images/pirate_name.png')
+      }
+    } else if (check === "http://schema.cnsnt.io/verified_identity") {
+      return {
+        "name": "Verified Identity",
+        "description": "Hello ",
+        "image": require('../../App/Images/verified_identity.png')
+      }
+    } else if (check === "http://schema.cnsnt.io/full_name") {
+      return {
+        "name": "Full Name",
+        "description": "Hello ",
+        "image": require('../../App/Images/full_name.png')
+      }
+    } else if (check === "http://schema.cnsnt.io/contact_email") {
+      return {
+        "name": "Verified Email",
+        "description": "Hello ",
+        "image": require('../../App/Images/contact_email.png')
+      }
+    } else if (check === "http://schema.cnsnt.io/contact_mobile") {
+      return {
+        "name": "Verified Mobile",
+        "description": "Hello ",
+        "image": require('../../App/Images/contact_mobile.png')
+      }
+    } else if(check === "http://schema.cnsnt.io/verified_face_match"){
+      return {
+        "name": "Verified FaceMatch",
+        "description": "Hello ",
+        "image": require('../../App/Images/verified_face_match.png')
+      }
+    } else {
+      // FIXME
+      console.log("HIT HERE 1: ", v)
+      return null
+    }
   }
 
   static sortMyData(resources, resourceTypes, profile) {
@@ -823,6 +847,8 @@ export default class ConsentUser {
 
       })
 
+      console.log("GOT HERE: 1")
+
       connection.resourcesByType = shallowResourceTypes
 
     })
@@ -838,6 +864,8 @@ export default class ConsentUser {
     if(!allConnections) return
 
     let connection = allConnections.peerConnections.find(c => c.did === resource.from_user_did)
+
+    console.log("GOT HERE: 1", connection)
 
     connection.resourcesByType.forEach(rt => {
       
@@ -897,6 +925,26 @@ export default class ConsentUser {
     const newConnections = Object.assign({}, connections, 
                                          { pendingPeerConnections: connections.pendingPeerConnections
                                                                        .filter(c => c.did !== connectionProfile.did) })
+    this.setCached("myConnections", newConnections, 300000)
+
+  }
+
+  static addNewEnabledBotConnection(connectionProfile){
+
+    console.log("CONNECTION BOT PROFILE: ", connectionProfile)
+
+    const connections = this.getCached("myConnections")
+    const newConnections = Object.assign({}, connections, { botConnections: [ ...connections.botConnections, connectionProfile ]})
+    this.setCached("myConnections", newConnections, 300000)
+
+  }
+
+  static removePendingBotConnection(connectionProfile){
+
+    const connections = this.getCached("myConnections")
+    const newConnections = Object.assign({}, connections, 
+                                         { pendingBotConnections: connections.pendingBotConnections
+                                                                             .filter(c => c.did !== connectionProfile.did) })
     this.setCached("myConnections", newConnections, 300000)
 
   }

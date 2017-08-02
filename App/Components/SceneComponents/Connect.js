@@ -68,9 +68,10 @@ class Connect extends Component  {
     return(  
       <View>
         <View style={styles.qrCodeContainer}>
-          <Image style={styles.qrContainerImage} source={require('../../Images/QRFrame.png')}>
-            <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-2/${this.props.profile.did}?cache=${new Date().getTime()}` }} />
-          </Image>
+          <Image style={styles.qrContainerImage} source={require('../../Images/QRFrame3.png')}> 
+            <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-2/${this.props.profile.did}?cache=${new Date().getTime()}` }} /> 
+            {/*<Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-scale3/${this.props.profile.did}?cache=${new Date().getTime()}` }} /> */}
+          </Image> 
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.text}>Invite other people to connect with { this.props.connectWithMe ? <Text>you</Text> : <Text>{this.props.profile.display_name}</Text> } by sharing { this.props.connectWithMe ? <Text>your</Text> : <Text>their</Text> } unique ID code</Text>
@@ -87,7 +88,7 @@ class Connect extends Component  {
       return (
         <View>
           <View style={styles.qrCodeContainer}>
-            <Image style={styles.qrContainerImage} source={require('../../Images/QRFrame.png')}>
+            <Image style={styles.qrContainerImage} source={require('../../Images/QRFrame3.png')}>
               <Image style={styles.qrImage} onError={this.onImageError.bind(this)} source={{ uri: `http://staging.api.lifekey.cnsnt.io/facial-verification?user_did=${ConsentUser.getDidSync()}&cachebust=${Date.now()}` }} />
             </Image>
           </View>
@@ -194,14 +195,14 @@ const styles = {
     "justifyContent": "center"
   },
   "qrContainerImage":{
-    "width": 226,
-    "height": 256,
+    "width": 225,
+    "height": 225
   },
   "qrImage": {
-    "width": 140,
-    "height": 140,
-    "marginLeft": 43, //-15
-    "marginTop": 58 //+15
+    "width": 120,
+    "height": 120,
+    "marginLeft": 52.5, //-15
+    "marginTop": 52.5 //+15
   },
   "textContainer": {
     "flex": 1,

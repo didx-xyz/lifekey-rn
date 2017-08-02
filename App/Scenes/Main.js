@@ -146,7 +146,7 @@ class Main extends Scene {
           rt => rt.name === 'Person'
         ).items[0].firstName
       }, function() {
-        console.log('loadProfile')
+        console.log('Profile was loaded')
       })
     }).catch(err => {
       console.log('get my data error', err)
@@ -188,7 +188,7 @@ class Main extends Scene {
 
     })
     .catch(error => {
-      console.log("ERROR LOADING CONNECTIONS: ", error)
+      console.log("ERROR LOADING CONNECTIONS: ", JSON.stringify(error))
     })
   }
 
@@ -473,8 +473,8 @@ const style = {
   "defaultFont":{
     fontFamily: Design.fonts.registration,
     fontWeight: Design.fontWeights.light,
-    fontSize: 28,
-    lineHeight: 36
+    fontSize: 20,
+    lineHeight: 24
   },
 }
 

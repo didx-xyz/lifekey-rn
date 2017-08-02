@@ -42,15 +42,9 @@ class LcProfile extends Component {
             <CircularImage uri={identityPhotographUri} radius={30} borderColor={Palette.consentOffWhite} />
             <Text style={styles.listBodyContent}>{display_name}</Text>
           </View>
-          <LcContactDetail listCardHeading="Email" listCardPrimaryDetail="" listCardSecondaryDetail={ email } />
-          <LcContactDetail listCardHeading="Mobile Phone" listCardPrimaryDetail="" listCardSecondaryDetail={ tel } />
-          <LcContactDetail listCardHeading="Address" listCardPrimaryDetail="" listCardTertiaryDetail={ address } />
-          { /* <View style={styles.listBody}>
-            <Text style={styles.listBodyContent}>{firstName} {lastName}</Text>
-            <Text style={styles.listBodySubtitle}>{nationalityName}</Text>
-            <Text style={styles.listBodySubtitle}>{birthDate}, {birthPlace}</Text>
-            <Text style={styles.listBodySubtitle}>{preferredLanguageName}</Text>
-          </View> */}
+          <LcContactDetail listCardType="Email" listCardHeading="Email" listCardPrimaryDetail="" listCardSecondaryDetail={ email } />
+          <LcContactDetail listCardType="Mobile Phone" listCardHeading="Mobile Phone" listCardPrimaryDetail="" listCardSecondaryDetail={ tel } />
+          <LcContactDetail listCardType="Address" listCardHeading="Address" listCardPrimaryDetail="" listCardTertiaryDetail={ address } />
         </View>
       )
       

@@ -143,6 +143,9 @@ class EditForm extends Component{
       case("contactTelephone"):
         keyboardType = "numeric"
         break
+      case("mobile"):
+        keyboardType = "numeric"
+        break
       case("telephone"):
         keyboardType = "numeric"
         break

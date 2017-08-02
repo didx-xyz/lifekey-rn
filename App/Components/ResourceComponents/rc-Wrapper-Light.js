@@ -28,11 +28,11 @@ class RcWrapperLight extends Component {
       case('Identity'):
         return  <LcIdentity {...resource} />
       case('Mobile Phone'):
-        return <LcContactDetail listCardHeading={resource.label} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
+        return <LcContactDetail listCardType={resourceType.name} listCardHeading={resource.label} listCardPrimaryDetail={resource.email ? resource.email : resource.mobile} listCardSecondaryDetails={[]} expanded={index === 0} />
       case('Landline'):
         return <LcContactDetail listCardHeading={resource.label} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
       case('Email'):
-        return <LcContactDetail listCardHeading={resource.label} listCardPrimaryDetail={resource.email ? resource.email : resource.telephone} listCardSecondaryDetails={[]} expanded={index === 0} />
+        return <LcContactDetail listCardHeading={resource.label} listCardPrimaryDetail={resource.email ? resource.email : resource.mobile} listCardSecondaryDetails={[]} expanded={index === 0} />
       case('Address'):
         return <LcHomeAddress {...resource} expanded={ false }/>
       case('Employment'):

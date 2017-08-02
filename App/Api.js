@@ -7,6 +7,7 @@ import Logger from './Logger'
 import Common from './Common'
 import ConsentUser from './Models/ConsentUser'
 import ConsentConnectionRequest from './Models/ConsentConnectionRequest'
+import ConsentShareLog from './Models/ConsentShareLog'
 import ConsentError, {ErrorCode} from './ConsentError'
 import {request, rejectionWithError} from './Requests'
 
@@ -139,7 +140,7 @@ export default class Api {
                                                .filter(x => !enabledConnections.some(y => x.did === y.did))
 
       // console.log("PENDING PEERS: ", pendingPeerConnections)
-      // console.log("PENDING BOTS: ", pendingBotConnections)
+      console.log("PENDING BOTS: ", pendingBotConnections)
 
       const myConnections = {
         "peerConnections": enabledPeerConnections,
@@ -150,7 +151,7 @@ export default class Api {
 
       // ConsentUser.setCached("myConnections", myConnections, 300000)
 
-      // console.log("API CONN END: ", myConnections)
+      console.log("API CONN END: ", myConnections)
 
       ConsentUser.cacheMyConnection(myConnections)
       return ConsentUser.getCached("myConnections")
@@ -441,6 +442,17 @@ export default class Api {
 
       return results
     })
+  }
+
+  static connectionSharedWith(connectionDid) {
+    
+    return ConsentShareLog.all_by_user(connectionDid)
+                          .then(results => {
+
+                            console.log("SHARED WITH RESULTS: ", results)
+
+                            return results
+                          })
   }
 
   // 1 GET /resource/:resource_id

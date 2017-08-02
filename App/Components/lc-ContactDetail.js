@@ -21,28 +21,38 @@ import Palette from "../Palette"
 
 class LcContactDetail extends Component {
 
-  mobileIcon (listCardHeading) {
-    switch (listCardHeading) {
+  mobileIcon (listCardType) {
+    
+    let icon
+    
+    switch (listCardType) {
       case "Mobile Phone":
-        return (<MobileIcon width={22} height={30} stroke={Palette.consentGrayDark} />)
-        break;
+        console.log("4")
+        icon = <MobileIcon width={22} height={30} stroke={Palette.consentGrayDark} />
+        break
       case "Landline":
-        return (<LandlineIcon width={28} height={18} stroke={Palette.consentGrayDark} />)
-        break;
+        console.log("2")
+        icon = <LandlineIcon width={28} height={18} stroke={Palette.consentGrayDark} />
+        break
       case "Email":
-        return (<EnvelopeIcon width={28} height={18} stroke={Palette.consentGrayDark} />)
-        break;
+        console.log("3")
+        icon = <EnvelopeIcon width={28} height={18} stroke={Palette.consentGrayDark} />
+        break
       case "Address":
-        return (<LocationIcon width={28} height={18} stroke={Palette.consentGrayDark} />)
-        break;
+        console.log("4")
+        icon = <LocationIcon width={28} height={18} stroke={Palette.consentGrayDark} />
+        break
       default:
-        return (<EnvelopeIcon width={28} height={18} stroke={Palette.consentGrayDark} />)
+        console.log("5")
+        icon = <EnvelopeIcon width={28} height={18} stroke={Palette.consentGrayDark} />
     } 
+
+    return icon
   }
 
   render () {
   
-    const { expanded, listCardHeading, listCardPrimaryDetail, listCardSecondaryDetail, listCardTertiaryDetail } = this.props
+    const { expanded, listCardType, listCardHeading, listCardPrimaryDetail, listCardSecondaryDetail, listCardTertiaryDetail } = this.props
     console.log("PROPS: ", listCardHeading)
 
     if(expanded)
@@ -55,7 +65,7 @@ class LcContactDetail extends Component {
       return (  
         <View style={styles.listCard}>
           <View style={styles.listImageContainer}>
-           { this.mobileIcon(listCardHeading) }    
+           { this.mobileIcon(listCardType) }    
           </View>
           <View style={styles.listBody}>
             { !!listCardPrimaryDetail &&  <Text style={styles.listBodyPrimaryContent}> { listCardPrimaryDetail.length > 18 ? `${listCardPrimaryDetail.substring(0, 17)}...` : listCardPrimaryDetail } </Text> }

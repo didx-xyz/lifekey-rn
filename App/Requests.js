@@ -32,7 +32,7 @@ const signedRequest = function(url, opts, fingerprint) {
       userID = results.id
       return init_key_store()
     }
-    return rejectionWithError(
+    return Promise.reject(
       'User not registered. Cannot send a signed request'
     )
   }).then(_ => {
@@ -60,9 +60,10 @@ const signedRequest = function(url, opts, fingerprint) {
   })
 }
 
-const rejectionWithError = function(message) {
-  return Promise.reject(new Error(message))
-}
+// const Promise.reject = function(message) {
+
+//   return Promise.reject(new Error(message))
+// }
 
 const wrappedFetch = function(url, options) {
   if (url.indexOf("?") > -1) {
@@ -78,27 +79,28 @@ const wrappedFetch = function(url, options) {
 
 const onResponse = function(response) {
 
-  Logger.networkResponse(response.status, new Date(), response._bodyText)
+  // Logger.networkResponse(response.status, new Date(), response._bodyText)
 
+  var res = JSON.parse(response._bodyText)
   switch (parseInt(response.status, 10)) {
     case 502:
-      Logger.warn("502 Bad gateway", "Api.js", response)
-      return rejectionWithError("502 Bad Gateway from server")
+      // Logger.warn("502 Bad gateway", "Api.js", response)
+      return Promise.reject(res)
     case 500:
-      Logger.warn("500 Internal server error", "Api.js", response)
-      return rejectionWithError("Internal server error")
+      // Logger.warn("500 Internal server error", "Api.js", response)
+      return Promise.reject(res)
     case 400:
-      Logger.warn("400 Bad request", "Api.js", response)
-      return rejectionWithError(JSON.parse(response._bodyText))
+      // Logger.warn("400 Bad request", "Api.js", response)
+      return Promise.reject(res)
     case 404:
-      Logger.warn("404 Not Found", response)
-      return rejectionWithError(JSON.parse(response._bodyText))
+      // Logger.warn("404 Not Found", response)
+      return Promise.reject(res)
     case 201:
       return response.json()
     case 200:
       return response.json()
     default:
-      return rejectionWithError("Server returned unexpected status " + response.status)
+      return Promise.reject(res)
   }
 }
 
@@ -116,6 +118,7 @@ const unsignedRequest = function(url, opts) {
 export {
   request,
   signedRequest,
-  unsignedRequest,
-  rejectionWithError
+  unsignedRequest
+  // ,
+  // rejectionWithError
 }

@@ -129,6 +129,7 @@ class Me extends Scene {
 
   componentDidMount() {
     super.componentDidMount()
+    this.props.firebaseInternalEventEmitter.addListener('resource_pushed', this.fetchMyData.bind(this))
     this.interaction = InteractionManager.runAfterInteractions(() => {   
       this.fetchMyData()
     })
@@ -145,6 +146,7 @@ class Me extends Scene {
   }
 
   componentWillUnmount() {
+    this.props.firebaseInternalEventEmitter.removeListener('resource_pushed', this.fetchMyData.bind(this))
     if(this.interaction) this.interaction.cancel()
   }
 

@@ -72,15 +72,12 @@ class FirebaseHandler {
     Logger.firebase('user_connection_created', message)
 
     // Check human 
-
     ConsentConnection.add(message.user_connection_id, message.to_did)
                      .then( _ => {
                         Logger.info('Connection added successfully')
                         return Api.profile({did: message.other_user_did})
                      })
                      .then(profile => {
-                        
-                        if(profile.body.user.is_human){
 
                           profile = profile.body.user
 
@@ -88,20 +85,22 @@ class FirebaseHandler {
                                               { 
                                                 isa_id: message.sharing_isa_id, 
                                                 user_connection_id: message.user_connection_id, 
-                                                image_uri: `data:image/jpg;base64,${profile.image_uri}` 
+                                                image_uri: profile.is_human ? 
+                                                           `data:image/jpg;base64,${profile.image_uri}` : profile.image_uri
                                               })
 
-                          // Sort resource types - TODO: fix confusing signature
-                          newConnection = ConsentUser.sortConnectionData([newConnection])[0]
+                          if(profile.is_human){
+                            // Sort resource types - TODO: fix confusing signature
+                            newConnection = ConsentUser.sortConnectionData([newConnection])[0]
+                            ConsentUser.addNewEnabledPeerConnection(newConnection)
+                            ConsentUser.removePendingPeerConnection(newConnection)
+                          }
+                          else{
+                            ConsentUser.addNewEnabledBotConnection(newConnection)
+                            ConsentUser.removePendingBotConnection(newConnection)
+                          }
 
-                          ConsentUser.addNewEnabledPeerConnection(newConnection)
-                          ConsentUser.removePendingPeerConnection(newConnection)
                           eventEmitter.emit('user_connection_created', profile.display_name)
-
-                        }
-                        else{
-                          return Promise.resolve(profile)
-                        }
 
                       }).catch(console.log.bind(console, 'user_connection_created error'))
 
@@ -137,11 +136,27 @@ class FirebaseHandler {
       message.resource_ids.map(id => Api.getResource({id: id}))
     ).then(results => {
       
+      /* Load connections to ascertain resource destinations */
+      const allConnections = ConsentUser.getCached("myConnections")
+
       // FIXME add to storage and cache
       results.forEach(result => {
           ConsentUserShare.add(result.body)
+
+          /* Prepare resource */          
           const resource = Api.shapeResource(result.body)
-          ConsentUser.updateConnectionState(resource)
+
+          /* If from human conneciton, add to connection data */
+          if(!!allConnections && !!allConnections.peerConnections.some(c => c.did === resource.from_user_did)){
+            console.log("FROM PEER")
+            ConsentUser.updateConnectionState(resource)
+          }
+          
+          /* If vc, add to user data and badges */
+          if(!!resource.is_verifiable_claim){
+            console.log("PASSED MUSTARD")
+            ConsentUser.updateState(resource)
+          }
         }
       )
 
@@ -153,7 +168,6 @@ class FirebaseHandler {
     }).then(verified_identity => {
       Session.update({has_verified_identity: !!verified_identity})
       eventEmitter.emit('resource_pushed', message.attribute)
-      console.log("RESOURCE PUSHED AND EMITTED.")
     }).catch(console.log)
   }
   
