@@ -17,7 +17,6 @@ import LifekeyFooter from '../../Components/LifekeyFooter'
 import {
   Text,
   View,
-  StyleSheet,
   StatusBar,
   Image
 } from 'react-native'
@@ -44,7 +43,7 @@ export default class SplashScreen extends Scene {
       tokenAvailable: true,
       ready: false
     }
-    StatusBar.setHidden(true)
+    // StatusBar.setHidden(true)
   }
 
   initialize() {
@@ -110,8 +109,6 @@ export default class SplashScreen extends Scene {
     return (
       <Container>
         <BackButton navigator={this.navigator} onPress={() => false} />
-        <StatusBar hidden={true} />
-          
           <View style={ style.contentContainer }>
               <View style={[style.firstRow, { backgroundColor: this.state.tokenAvailable ? null : 'red' }]}>
                 <Touchable style={{ flex: 1 }} delayLongPress={500} onLongPress={() => this.navigator.push(Routes.debug.main)} >
@@ -126,7 +123,6 @@ export default class SplashScreen extends Scene {
                 onPressMiddleButton={() => this.navigator.push(Routes.onboarding.register)}
               />
           </View>
-
       </Container>
     )
   }

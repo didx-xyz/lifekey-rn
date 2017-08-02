@@ -47,6 +47,14 @@ class Messages extends Scene {
   refreshMessages() {
     ConsentMessage.all()
     .then(messages => {
+
+      console.log("MESSAGES: ", messages)
+      // messages.push({ 
+      //   from_name: 'FROM',
+      //   message_text: 'Account Activation Email Sent ffklfjsd jlskdfj lskd lksdjf lksdfk lsd lksdjf lsldskf jslkdg lksdjg sdlkgj weig woig sklvj sdlkgjsld kg lkjf w;of ;wdjv wpijf;wjf ;we powuf; wjv;wdv j;wduv powvj ;lwdvj;wjv powdv ',
+      //   timestamp: '2017-07-12T10:25:11.596Z' 
+      // })
+
       this.setState({asyncActionInProgress: false, messages: messages})
     }).catch(err => {
       console.log(err)
@@ -154,11 +162,11 @@ class Messages extends Scene {
       !this.state.asyncActionInProgress ? 
         <Container>
           <BackButton navigator={this.navigator} />
-          <View style={{height: 80}}>
-            {this.renderTop()}
-          </View>
-          <Content style={{flex: 8}}>
-            <View style={{flex: 8}}>
+          <Content style={{flex: 1}}>
+            <View style={{height: 80}}>
+              {this.renderTop()}
+            </View>
+            <View style={{flex: 1}}>
               {this.state.activeTab === MESSAGES ? (
                 this.renderMessages()
               ) : (

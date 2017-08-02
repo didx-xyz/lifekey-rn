@@ -18,6 +18,7 @@ class AddCategoryButton extends Component {
   }
 
   onPressEdit() {
+    console.log("PRESSED EDIT...")
     this.props.onEditResource(this.props.form, null, this.props.name)
   }
 
@@ -25,10 +26,10 @@ class AddCategoryButton extends Component {
     return (
   	  <Card style={style.card}>
     	    <CardItem onPress={this.onBoundPressEdit}>
-      	      <View style={style.cardHeader}>
-      	        <Text style={Object.assign({}, style.cardHeadingText, { "color": this.props.color }) }>{this.props.name.toUpperCase()}</Text>
-    	          <Text style={ {"marginRight": 6, "color": this.props.color } }>+</Text>
-      	      </View>
+    	      <View style={style.cardHeader}>
+    	        <Text style={Object.assign({}, style.cardHeadingText, { "color": this.props.color }) }>{this.props.name.toUpperCase()}</Text>
+  	          <Text style={ {"marginRight": 6, "color": this.props.color } }>+</Text>
+    	      </View>
     	    </CardItem>
   	  </Card>
   	)

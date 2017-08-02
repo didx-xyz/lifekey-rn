@@ -11,6 +11,7 @@ import LifekeyCard from "../LifekeyCard"
 import { Card, CardItem } from "native-base"
 
 import RcWrapper from "../ResourceComponents/rc-Wrapper"
+import RcWrapperLight from "../ResourceComponents/rc-Wrapper-Light"
 import ModalPicker from "react-native-modal-picker"
 import LcAddCategoryButton from "../lc-AddCategoryButton"
 import Touchable from "../Touchable"
@@ -23,12 +24,17 @@ class MyData extends Component {
   }
 
   RC_render(resourceType){
-    console.log("RC RENDER: ", resourceType)
+    
     if(!this.validResourceType(resourceType)) return
-    return <RcWrapper onPressDelete={this.props.onPressDelete} 
-                      onPressEdit={this.props.onPressEdit} 
-                      onPressProfile={this.props.onPressProfile}
-                      resourceType={resourceType}></RcWrapper>
+
+    if(this.props.light)
+      return <RcWrapperLight resourceType={resourceType} includeResourceType={true}></RcWrapperLight>
+    else
+      return <RcWrapper onPressShare={this.props.onPressShare} 
+                        onPressEdit={this.props.onPressEdit} 
+                        onPressProfile={this.props.onPressProfile}
+                        peerConnections={this.props.peerConnections}
+                        resourceType={resourceType}></RcWrapper>
   }
 
   VC_render(resourceType) {
@@ -110,7 +116,8 @@ class MyData extends Component {
     selectData.data = this.props.sortedResourceTypes.map((resourceType, i) => {
       
       if(resourceType.name !== "Malformed" && 
-         resourceType.name !== "Person" && 
+         resourceType.name !== "Person" &&
+         resourceType.name !== "Profile" && 
          resourceType.name !== "Verifiable Claims" &&
          resourceType.name !== "Decentralized Identifier" &&
          resourceType.name !== "Miscellaneous"){
@@ -128,10 +135,12 @@ class MyData extends Component {
 
     return (
     
-      <View>
-        <View style={styles.addHeadingContainer}>
-          <Touchable onPress={ toggle } style={styles.addHeadingContainer}><Text style={styles.addHeading}>+ Add data</Text></Touchable>
-        </View>
+      <View style={ {"flex": 1, "alignItems": "stretch"} }>
+        { !this.props.light &&
+          <View style={styles.addHeadingContainer}>
+            <Touchable onPress={ toggle } style={styles.addHeadingContainer}><Text style={styles.addHeading}>+ Add data</Text></Touchable>
+          </View>
+        }
 
         {/* You are just a number now 
         <View style={styles.groupContainer}>

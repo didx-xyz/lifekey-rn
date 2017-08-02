@@ -10,6 +10,7 @@ import Scene from '../../Scene'
 import Routes from '../../Routes'
 import Palette from '../../Palette'
 import Api from '../../Api'
+import Common from '../../Common'
 import CameraCrosshair from '../../Components/CameraCrosshair'
 import LifekeyFooter from '../../Components/LifekeyFooter'
 import {
@@ -37,23 +38,21 @@ export default class QRCodeScanner extends Scene {
       showCamera: false,
       readyToScan: true
     }
-    this.scannerActive = true
-  }
-  _onAttention() {
-    StatusBar.setHidden(true)
+    // this.scannerActive = true
+
+    this.onBoundCancel = this.onCancel.bind(this)
   }
 
-  componentWillMount() {
-    super.componentWillMount()
-    this._onAttention()
-  }
+  // componentWillMount() {
+  //   super.componentWillMount()
+  // }
 
-  componentWillFocus() {
-    super.componentWillFocus()
-    this._onAttention()
+  // componentWillFocus() {
+  //   super.componentWillFocus()
+  // }
 
-  }
-  _hardwareBackHandler() {
+  onCancel() {
+    Common.toggleStatusBar(StatusBar, false, "fade") // Try control this better from a centralized point.
     this.navigator.pop()
     return true
   }
@@ -70,14 +69,15 @@ export default class QRCodeScanner extends Scene {
     InteractionManager.runAfterInteractions(() =>
       setTimeout(() =>
         this.setState({ showCamera: true }),
-        500
+        800
       )
+      // this.setState({ showCamera: true })
     )
   }
 
   faceMatch(data) {
 
-    this.navigator.push({
+    this.navigator.replace({
       ...Routes.faceMatch,
       url: data.data
     })
@@ -93,8 +93,9 @@ export default class QRCodeScanner extends Scene {
 
   connectP2P(data) {
     const parsedData = JSON.parse(data.data)
-    this.navigator.push({
-      ...Routes.ConnectionPeerToPeer,
+    console.log("PARSED PROFILE: ", parsedData)
+    this.navigator.replace({
+      ...Routes.connectionPeerToPeerRequest,
       profile: parsedData
     })
   }
@@ -104,14 +105,16 @@ export default class QRCodeScanner extends Scene {
     console.log("TRUSTBANK 1: ", data.data)
     const parsedData = JSON.parse(data.data)
 
+    console.log("PARSED 1: ", parsedData)
+
     return Api.trustBankLogin(parsedData).then(response => {
 
       if(response.requestSuccesfullySent){
         alert("Logging in...")
-        this.navigator.push({...Routes.main})
+        this.navigator.replace({...Routes.main})
       }
       else{
-
+        console.log("HELLO: ", response)
       }
 
     }).catch(error => {
@@ -124,10 +127,10 @@ export default class QRCodeScanner extends Scene {
   _onBarCodeRead(data) {
 
     console.log("DATA: ", data)
-    
 
-    if (this.scannerActive) {
-      this.scannerActive = false
+    // if (this.scannerActive) {
+      
+    //   this.scannerActive = false
 
       // Here we need to build a switch that identifies the nature of the request 
       const isFaceMatch = data.data.indexOf('facial-verification')
@@ -141,14 +144,14 @@ export default class QRCodeScanner extends Scene {
       }
       else
         this.connectP2P(data)
-    }
+    // }
   }
 
 
   render() {
     return (
       <View style={{ flex: 1, backgroundColor: 'black' }}>
-        <AndroidBackButton onPress={() => this._hardwareBackHandler()}/>
+        <AndroidBackButton onPress={this.onBoundCancel}/>
         { this.state.showCamera ?
           <Camera
             ref={(cam) => { this.camera = cam }}
@@ -170,7 +173,7 @@ export default class QRCodeScanner extends Scene {
         <LifekeyFooter
           backgroundColor={ Palette.consentBlue }
           leftButtonText="Cancel"
-          onPressLeftButton={() => this.navigator.pop()}
+          onPressLeftButton={this.onBoundCancel}
         />
         { /* <View style={style.boxBottom}>
           <Grid>
