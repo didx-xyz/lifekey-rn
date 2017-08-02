@@ -99,7 +99,8 @@ class Me extends Scene {
 
     const data = { 
       isa_id: isa_id,
-      resources: [ resourceId ]
+      resources: [ resourceId ],
+      shared_with_did: peerId
     }
 
     console.log("ISA DATA: ", data)

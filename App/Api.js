@@ -298,7 +298,15 @@ export default class Api {
     return request(`/management/push/${data.isa_id}`, {
       method: 'POST',
       body: JSON.stringify({resources: data.resources})
-    }, true, fingerprint)
+    }, true, fingerprint).then(result => {
+
+      console.log("DATA: ", data)
+
+      data.resources.forEach(resource => {
+        ConsentShareLog.add(resource, data.shared_with_did)
+      })
+      
+    })
   }
 
   // ##################

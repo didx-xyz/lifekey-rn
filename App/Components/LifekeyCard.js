@@ -99,14 +99,7 @@ class LifekeyCard extends Component {
               </Touchable>
             </View>
           }
-          { this.props.onPressShare &&
-            <View style={styles.textButtonContainer} >
-              <Touchable onPress={this.props.onPressShare} hitSlop={touchableArea}>
-                <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterDeleteText)}>{this.props.leftButtonText}</Text>
-              </Touchable>
-            </View>
-          }
-          <View style={ {"flex": 1 } }></View>
+          
           { this.props.onPressEdit &&
             <Touchable onPress={this.props.onPressEdit} hitSlop={touchableArea}>
               <View style={styles.textButtonContainer} >
@@ -114,6 +107,15 @@ class LifekeyCard extends Component {
               </View>
             </Touchable>
           }
+          <View style={ {"flex": 1 } }></View>
+          { this.props.onPressShare &&
+            <View style={styles.textButtonContainer} >
+              <Touchable onPress={this.props.onPressShare} hitSlop={touchableArea}>
+                <Text style={Object.assign({}, styles.cardFooterText, styles.cardFooterDeleteText)}>{this.props.leftButtonText}</Text>
+              </Touchable>
+            </View>
+          }
+          
         </View>
       </Card>
     )
@@ -174,10 +176,10 @@ const styles = {
     "fontSize": 12
   },
   "cardFooterEditText": {
-    "color": Palette.consentBlue
+    "color": Palette.consentGrayDark
   },
   "cardFooterDeleteText": {
-    "color": Palette.consentGrayDark
+    "color": Palette.consentBlue
   }
 }
 
