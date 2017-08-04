@@ -1,6 +1,6 @@
 // external dependencies
 import React, { Component }  from "react"
-import { Picker, Text, TextInput, View, ScrollView, ToastAndroid } from "react-native"
+import { Picker, Text, TextInput, View, ToastAndroid } from "react-native"
 import { Container } from "native-base"
 import ModalPicker from "react-native-modal-picker"
 import DatePicker from "react-native-datepicker"
@@ -20,13 +20,14 @@ import Palette from "../../Palette"
 import Design from "../../DesignParameters"
 import Routes from "../../Routes"
 import Logger from '../../Logger'
+import CircularImage from "../CircularImage"
 
 class EditForm extends Component{
 
   render(){
     return (
       <View style={ Object.assign({}, styles.content, { backgroundColor: this.props.backgroundColor} )}>
-        <ScrollView style={styles.card}>
+        <View style={styles.card}>
             <View style={styles.heading}>
               <Text style={styles.headingText}>{this.context.getEditResourceName()}</Text>
               { !!this.context.getEditResourceId() &&
@@ -45,7 +46,7 @@ class EditForm extends Component{
               </View>
             }
             { this.props.entities.map((entity, i) => this.renderEntity(entity, i)) }
-        </ScrollView>
+        </View>
       </View>
     )
   }
@@ -192,19 +193,19 @@ class EditForm extends Component{
           ToastAndroid.show('Image is too large. Please try again...', ToastAndroid.LONG)
           return
         }
-
-        this.props.setImageInputStateValue(entity, response)
+        if(response.data && response.data.length)
+          this.props.setImageInputStateValue(entity, response)
       })
     }
 
-    // A text element is used to display a picture - TODO: change
-
+    // A text element is used to display a picture - TODO: change this.props.formTarget[entity.name + "__label"]
     return (
       <Touchable onPress={pick}>
         <View style={styles.photographLabel}>
-          <Text style={styles.photographLabelText}>
-            {this.props.formTarget[entity.name + "__label"]}
-          </Text>
+          { /*<Text style={styles.photographLabelText}>
+            { this.props.formTarget[entity.name]}
+          </Text>*/}
+          <CircularImage uri={ this.props.formTarget[entity.name] } radius={20} borderColor={Palette.consentOffWhite} />
         </View>
       </Touchable>
     )
@@ -384,9 +385,9 @@ const styles = {
     "dateInput": {
       "borderWidth": 0,
       "alignItems": "center",
-      "padding": 0,
+      // "paddingLeft": 10,
       "flex": 1,
-      "alignItems": "center",
+      "alignItems": "flex-start",
       "justifyContent": "center",
     },
     "dateText": {
@@ -398,7 +399,7 @@ const styles = {
       "color": "#666",
       "fontWeight": "100",
       "fontSize": fontSize,
-      "textAlign": "left",
+      // "textAlign": "left",
     }
   },
   "languagePicker":{
@@ -418,7 +419,7 @@ const styles = {
     "flex": 1,
     "height": 40,
     "justifyContent": "center",
-    "alignItems": "center"
+    "alignItems": "flex-start"
   },
   "photographLabelText": {
     "fontWeight": "100",

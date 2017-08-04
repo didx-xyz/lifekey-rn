@@ -1,3 +1,5 @@
+import Palette from './Palette'
+
 export default {
 	"navigationContainerHeight": 15,
 	"navigationHeight": 12.5,
@@ -14,8 +16,12 @@ export default {
 	},
 	"lifekeyHeaderHeight": 115,
 	"lifekeyFooterHeight": 100,
+	"generalIconColour": Palette.consentGray,
 	"headerIconWidth": 40,
 	"headerIconHeight": 40,
+	"headerIconColour": Palette.consentGrayDark,
+	"headerIconWarningColour": Palette.consentRed,
+	"footerIconColour": Palette.consentWhite,
 	"footerIconWidth": 25,
 	"footerIconHeight": 25,
 	"fonts": {

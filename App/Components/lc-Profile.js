@@ -33,8 +33,6 @@ class LcProfile extends Component {
 
     const identityPhotographUri = image_uri || Anonymous.uri
 
-    // console.log("PROFILE PHOTO: " , identityPhotographUri)
-
     return (
         <View style={styles.cardContainer}>
     	  <Text style={Object.assign({}, styles.listBodySubtitle, {"zIndex": 1})}>This information is publicly available.</Text>

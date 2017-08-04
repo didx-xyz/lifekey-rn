@@ -21,9 +21,9 @@ import ConsentConnection from '../Models/ConsentConnection'
 import ConsentConnectionRequest from '../Models/ConsentConnectionRequest'
 import HexagonIcon from '../Components/HexagonIcon'
 import ConsentUser from '../Models/ConsentUser'
-import SearchBox from '../Components/SearchBox'
 import ThanksIcon from '../Components/ThanksIcon'
-import SlipIcon from '../Components/SlipIcon'
+import ScanIcon from '../Components/ScanIcon'
+import MessagesIcon from '../Components/MessagesIcon'
 import ProgressIndicator from "../Components/ProgressIndicator"
 
 import {
@@ -279,7 +279,7 @@ class Main extends Scene {
 
     var icons= [
       {
-        icon: (<SlipIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Palette.consentGrayDark} />),
+        icon: (<MessagesIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Design.headerIconColour} />),
         onPress: () => this.navigator.push(Routes.messages), //onPress: () => this.navigator.push({...Routes.messages, direction: 'leftToRight'}),
         borderColor: "white"
       },
@@ -294,7 +294,7 @@ class Main extends Scene {
         borderColor: "white"
       },
       {
-        icon: (<ThanksIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Palette.consentGrayDark} />),
+        icon: (<ThanksIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Design.headerIconColour} />),
         onPress: () => this.navigator.push(Routes.thanks),
         borderColor: "white",
         secondaryItem: this.state.thanksBalanceAmount ? <Text>{this.state.thanksBalanceAmount}</Text> : (<ActivityIndicator width={Design.headerIconWidth / 1.5} height={Design.headerIconHeight / 1.5} color={Palette.consentGrayDark} />)
@@ -337,7 +337,7 @@ class Main extends Scene {
           backgroundColor={ Palette.consentBlue }
           leftButtonText="Me"
           rightButtonText="Scan"
-          rightButtonIcon={<ThanksIcon width={Design.footerIconWidth} height={Design.footerIconHeight} stroke={Palette.consentWhite} />}
+          rightButtonIcon={<ScanIcon width={Design.footerIconWidth} height={Design.footerIconHeight} stroke={Design.footerIconColour} />}
           onPressLeftButton={() => this.navigator.push(Routes.me)}
           onPressRightButton={() => this.navigator.push(Routes.camera.qrCodeScanner)}
         />

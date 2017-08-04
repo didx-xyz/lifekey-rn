@@ -126,19 +126,22 @@ class EditProfile extends Scene {
     let rtMobile = resourcesByType.find(rt => rt.name === "Mobile Phone")
     const mobileValue = (rtMobile && rtMobile.items.length) ? rtMobile.items[0].telephone : ''
     let rtPerson = resourcesByType.find(rt => rt.name === "Person")
-    const personValue = (rtPerson && rtPerson.items.length) ? `${rtPerson.items[0].firstName} ${rtPerson.items[0].lastName}` : ''
-    const profilePicValue = (rtPerson && rtPerson.items.length) ? rtPerson.items[0].identityPhotograph : ''
+    const personValue = (rtPerson && rtPerson.items.length) ? `${rtPerson.items[0].firstName}` : ''
+
+    const profilePicValue = state.formTarget["image_uri"] ? state.formTarget["image_uri"] : 'Take a photo'
+
+    console.log("*********************************** PROFILE PIC VALUE: ", profilePicValue)
 
     entities.forEach(entity => {
 
+      console.log(" _____________________________________________________ ENTITY NAME: ", entity)
+
       if(entity.type === "string"){
         
-        console.log("STRING ENTITY: ", entity, " | ", state.formTarget)
-
         switch(entity.name){
           case "label":
-            state.formTarget[entity.name] =  this.state.formTarget.label || "My profile"
-            entity.initialValue = this.state.formTarget.label || "My profile"
+            state.formTarget[entity.name] =  state.formTarget.label || "My profile"
+            entity.initialValue = state.formTarget.label || "My profile"
             break
           case "contactEmail":
             state.formTarget[entity.name] = state.formTarget["email"] ? state.formTarget["email"] : emailValue
@@ -152,10 +155,11 @@ class EditProfile extends Scene {
             state.formTarget[entity.name] = state.formTarget["display_name"] ? state.formTarget["display_name"] : personValue
             entity.initialValue = state.formTarget["display_name"] ? state.formTarget["display_name"] : personValue
             break
-          case "profileImageUri":
-            state.formTarget["image_uri"] = state.formTarget["image_uri"] ? state.formTarget["image_uri"] : ''
-            entity.initialValue = state.formTarget["image_uri"] ? state.formTarget["image_uri"] : profilePicValue
-            break
+          // case "profileImageUri":
+          //   console.log("****************************************************** PIC ENTITY: ", entity)
+          //   // state.formTarget["image_uri"] = state.formTarget["image_uri"] ? state.formTarget["image_uri"] : ''
+          //   entity.initialValue = profilePicValue
+          //   break
           case "contactAddress":
             state.formTarget[entity.name] = state.formTarget["address"] ? state.formTarget["address"] : addressValue
             entity.initialValue = state.formTarget["address"] ? state.formTarget["address"] : addressValue
@@ -181,19 +185,20 @@ class EditProfile extends Scene {
         entity.initialValue = "Select a language"
       }
 
-      // if (entity.type === "photograph") {
-      //   state.formTarget[entity.name + "__label"] = "Select a photograph"
+      if (entity.type === "photograph") {
+        state.formTarget[entity.name + "__label"] = "Select a photograph"
 
-      //   switch(entity.name){
-      //     case "profileImageUri":
-      //       state.formTarget[entity.name] = state.formTarget["profileImageUri__label"] ? state.formTarget["profileImageUri__label"] : state.formTargetPicValue
-      //       entity.initialValue = state.formTarget["profileImageUri__label"] ? state.formTarget["profileImageUri__label"] : state.formTargetPicValue
-      //       break
-      //     default:
-      //       entity.initialValue = "Select a photograph"
-      //       break
-      //   } 
-      // }
+        switch(entity.name){
+          case "profileImageUri":
+            // entity.initialValue = profilePicValue
+            state.formTarget[entity.name] = profilePicValue
+            entity.initialValue = profilePicValue
+            break
+          default:
+            entity.initialValue = "Select a photograph"
+            break
+        } 
+      }
     })
 
     state.entities = [
@@ -245,7 +250,8 @@ class EditProfile extends Scene {
   setImageInputStateValue(entity, data){
     let newResource = this.state.formTarget
     newResource[entity.name + "__label"] = data.fileName
-    newResource[entity.name] = data.data
+    // newResource[entity.name] = data.data
+    newResource[entity.name] = Common.ensureDataUrlHasContext(data.data)
     this.setState({resource: newResource})
   }
   setDateInputStateValue(entity, date){

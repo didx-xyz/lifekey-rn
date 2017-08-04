@@ -14,8 +14,8 @@ class BackIcon extends Component {
 
   render() {
     return (
-      <Svg width={this.props.width} height={this.props.height} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 9.4 17.7">
-        <Polyline {...styles.cls1} {...this.dynamic} points="8.9,0.5 0.5,9 8.7,17.2"/>
+      <Svg width={this.props.width} height={this.props.height} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+        <Polyline {...styles.cls1} {...this.dynamic} points="20.024,8 11.976,16.144 19.832,24"/>
       </Svg>
     )
   }

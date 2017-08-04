@@ -9,6 +9,7 @@ import {
   DeviceEventEmitter,
   ActivityIndicator,
   TouchableOpacity,
+  InteractionManager,
   AsyncStorage,
   StatusBar
 } from 'react-native'
@@ -45,7 +46,9 @@ export default class AuthenticationPrompt extends Scene {
   }
 
   componentDidMount() {
-    this.init_fingerprint_if_available()
+    this.interaction = InteractionManager.runAfterInteractions(() => {
+      this.init_fingerprint_if_available()
+    })
   }
 
   componentWillUnmount() {

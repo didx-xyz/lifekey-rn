@@ -14,13 +14,12 @@ import Config from '../../Config'
 import Touchable from '../../Components/Touchable'
 import ConsentUser from '../../Models/ConsentUser'
 
-import { Text, View, Image, Dimensions, StatusBar } from 'react-native'
+import { Text, View, ScrollView, Image, Dimensions, StatusBar } from 'react-native'
 import { Container, Content } from 'native-base'
 
 // internal dependencies
 import Design from "../../DesignParameters"
 import Palette from '../../Palette'
-import MvTemplate from "../../Components/mv-Template"
 import BackIcon from "../../Components/BackIcon"
 import HelpIcon from "../../Components/HelpIcon"
 import LifekeyHeader from "../../Components/LifekeyHeader"
@@ -32,7 +31,7 @@ class Badges extends Component  {
    
     return (
        this.props.badges ?  
-         <View style={styles.content}>
+         <ScrollView contentContainerStyle={styles.content}>
             {
               Object.values(this.props.badges).map((b, i) => {
                 return (
@@ -50,7 +49,7 @@ class Badges extends Component  {
                }) 
             }
             
-          </View>
+          </ScrollView>
         :
           <Text>NO BADGES YET</Text>
       )

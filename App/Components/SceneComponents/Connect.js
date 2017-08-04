@@ -13,7 +13,6 @@ import ConsentUser from '../../Models/ConsentUser'
 // internal dependencies
 import Design from "../../DesignParameters"
 import Palette from '../../Palette'
-import MvTemplate from "../../Components/mv-Template"
 import BackIcon from "../../Components/BackIcon"
 import HelpIcon from "../../Components/HelpIcon"
 import LifekeyHeader from "../../Components/LifekeyHeader"

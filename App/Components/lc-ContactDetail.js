@@ -15,7 +15,7 @@ import RcItemDetail from "./ResourceComponents/rc-DetailView"
 import MobileIcon from "../Components/MobileIcon"
 import LandlineIcon from "../Components/LandlineIcon"
 import EnvelopeIcon from "../Components/EnvelopeIcon"
-import LocationIcon from "../Components/LocationIcon"
+import LocationTagIcon from "../Components/LocationTagIcon"
 import Design from "../DesignParameters"
 import Palette from "../Palette"
 
@@ -23,28 +23,27 @@ class LcContactDetail extends Component {
 
   mobileIcon (listCardType) {
     
+    const height = 22
+    const width = 32
+    const colour = Design.generalIconColour
+
     let icon
     
     switch (listCardType) {
       case "Mobile Phone":
-        console.log("4")
-        icon = <MobileIcon width={22} height={30} stroke={Palette.consentGrayDark} />
+        icon = <MobileIcon width={width} height={width} stroke={colour} />
         break
       case "Landline":
-        console.log("2")
-        icon = <LandlineIcon width={28} height={18} stroke={Palette.consentGrayDark} />
+        icon = <LandlineIcon width={width} height={height} stroke={colour} />
         break
       case "Email":
-        console.log("3")
-        icon = <EnvelopeIcon width={28} height={18} stroke={Palette.consentGrayDark} />
+        icon = <EnvelopeIcon width={width} height={height} stroke={colour} />
         break
       case "Address":
-        console.log("4")
-        icon = <LocationIcon width={28} height={18} stroke={Palette.consentGrayDark} />
+        icon = <LocationTagIcon width={width} height={height} stroke={colour} />
         break
       default:
-        console.log("5")
-        icon = <EnvelopeIcon width={28} height={18} stroke={Palette.consentGrayDark} />
+        icon = <EnvelopeIcon width={width} height={height} stroke={colour} />
     } 
 
     return icon

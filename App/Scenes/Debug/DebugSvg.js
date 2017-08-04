@@ -4,7 +4,7 @@ import VerifiedIcon from '../../Components/VerifiedIcon'
 import PeriodIcon from '../../Components/PeriodIcon'
 import MobileIcon from '../../Components/MobileIcon'
 import MarketingIcon from '../../Components/MarketingIcon'
-import LocationIcon from '../../Components/LocationIcon'
+import LocationFlagIcon from '../../Components/LocationFlagIcon'
 import LandlineIcon from '../../Components/LandlineIcon'
 import InfoIcon from '../../Components/InfoIcon'
 import HexagonIcon from '../../Components/HexagonIcon'
@@ -27,7 +27,7 @@ class DebugSvg extends Component {
             <PeriodIcon width={50} height={50}/>
             <MobileIcon width={50} height={50}/>
             <MarketingIcon width={50} height={50}/>
-            <LocationIcon width={50} height={50}/>
+            <LocationFlagIcon width={50} height={50}/>
             <LandlineIcon width={50} height={50}/>
             <InfoIcon width={50} height={50}/>
             <HexagonIcon width={50} height={50}/>

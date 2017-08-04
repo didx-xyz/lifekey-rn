@@ -178,7 +178,7 @@ class ConnectionDetailsPeerToPeer extends Scene {
         borderColor: "white"
       },
       {
-        icon: (<TrashIcon width={28} height={28} stroke="red"/>),
+        icon: (<TrashIcon width={Design.headerIconWidth} height={Design.headerIconHeight} color={Design.headerIconWarningColour}/>),
         onPress: () => this.onBoundDelete(),
         borderColor: "white"
       }
