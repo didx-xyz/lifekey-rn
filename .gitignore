@@ -1,4 +1,10 @@
 
+# asset pipeline
+android/app/src/main/assets/
+android/app/src/main/res/values/
+android/app/src/main/res/drawable-*/
+
+
 # testing
 coverage/
 
