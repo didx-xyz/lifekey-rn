@@ -397,7 +397,7 @@ class Main extends Scene {
       return (
         <View style={ style.contentContainer }>
           { this.state.userName && 
-            <Text>
+            <Text style={style.defaultTextContainer}>
               <Text style={ style.defaultFont }>
                 There are currently no more suggested connections.
               </Text>
@@ -421,7 +421,7 @@ class Main extends Scene {
       return (
         <View style={ style.contentContainer }>
           { this.state.userName && 
-            <Text>
+            <Text style={style.defaultTextContainer}>
               <Text style={ style.defaultFont }>
                 There are currently no peer requests.
               </Text>
@@ -468,13 +468,14 @@ const style = {
     marginLeft: 10
   },
   "defaultTextContainer":{
-    "padding": Design.paddingRight
+    "paddingTop": 50,
+    "padding": Design.paddingRight*2
   },
   "defaultFont":{
     fontFamily: Design.fonts.registration,
     fontWeight: Design.fontWeights.light,
-    fontSize: 20,
-    lineHeight: 24
+    fontSize: 24,
+    lineHeight: 28
   },
 }
 

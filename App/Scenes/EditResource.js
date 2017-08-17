@@ -315,7 +315,7 @@ EditResource.contextTypes = {
 
 const styles = {
   container: {
-    "height": Dimensions.get('window').height,
+    "height": Dimensions.get('window').height - StatusBar.currentHeight,
     "width": "100%",
     "backgroundColor": Palette.consentOffBlack
   },

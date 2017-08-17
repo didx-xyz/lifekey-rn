@@ -234,7 +234,7 @@ class Me extends Scene {
         borderColor: "white"
       },
       {
-        icon: <GearIcon width={Design.headerIconWidth/2} height={Design.headerIconHeight/2} stroke={Design.headerIconColour} />,
+        icon: <GearIcon width={Design.headerIconWidth/1.5} height={Design.headerIconHeight/1.5} stroke={Design.headerIconColour} />,
         onPress: () => this.navigator.push({...Routes.menu}),
         borderColor: "white"
       }

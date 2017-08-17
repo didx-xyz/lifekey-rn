@@ -123,6 +123,7 @@ const styles = {
   },
   "listBodyPrimaryContent":{
     "fontSize": 25,
+    "fontFamily": Design.fonts.robotoLight,
     "color": Palette.consentGray
   },
   "listBodySecondaryContent":{

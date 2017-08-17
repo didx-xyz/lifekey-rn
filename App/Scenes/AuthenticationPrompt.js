@@ -72,13 +72,14 @@ export default class AuthenticationPrompt extends Scene {
       if (fingerprint) this.bind_fingerprint_callbacks.call(this)
       this.setState({
         fingerprint: fingerprint,
-        feedback: 'Ready'
+        // feedback: 'Ready'
       })
     }).catch(err => {
       console.log('fp capability check error', err)
       this.setState({
         fingerprint: false,
-        feedback: 'Ready'
+        // feedback: 'Ready'
+
       })
     })
   }
@@ -130,7 +131,8 @@ export default class AuthenticationPrompt extends Scene {
       } else {
         console.log("WARNING: ", err)
         this.setState({
-          feedback: err.message
+          // feedback: err.message
+          feedback: ""
         })
       }
     })

@@ -1,6 +1,6 @@
 // external dependencies
 import React, { Component }  from "react"
-import { Picker, Text, TextInput, View, ToastAndroid } from "react-native"
+import { Picker, Text, TextInput, View, ToastAndroid, Image } from "react-native"
 import { Container } from "native-base"
 import ModalPicker from "react-native-modal-picker"
 import DatePicker from "react-native-datepicker"
@@ -68,12 +68,12 @@ class EditForm extends Component{
 
     return (
       <View style={formField} key={i}>
-        <View style={styles.formFieldLabel}>
-          <Text style={styles.formFieldLabelText}>
+        <View style={styles.formFieldLabel} >
+          <Text style={ entity.type === "photograph" ? Object.assign({}, styles.formFieldLabelText, { "marginTop": -50 }) : styles.formFieldLabelText }>
             { entity.label.toUpperCase() }
           </Text>
         </View>
-        <View style={styles.formFieldInput}>
+        <View style={ entity.type === "photograph" ? Object.assign({}, styles.formFieldInput, { "height": 95, "paddingTop": 10 }) : styles.formFieldInput }>
           { this.renderInput(entity, i) }
         </View>
       </View>
@@ -198,14 +198,15 @@ class EditForm extends Component{
       })
     }
 
+    const imageUri = Common.ensureDataUrlHasContext(this.props.formTarget[entity.name]) 
+
+    console.log("IMAGE URI IN FORM: ", imageUri)
+
     // A text element is used to display a picture - TODO: change this.props.formTarget[entity.name + "__label"]
     return (
       <Touchable onPress={pick}>
         <View style={styles.photographLabel}>
-          { /*<Text style={styles.photographLabelText}>
-            { this.props.formTarget[entity.name]}
-          </Text>*/}
-          <CircularImage uri={ this.props.formTarget[entity.name] } radius={20} borderColor={Palette.consentOffWhite} />
+          <Image style={styles.fullImage} width={50} height={85} source={{ uri: imageUri, scale: 1 }}></Image>
         </View>
       </Touchable>
     )
@@ -417,9 +418,14 @@ const styles = {
   },
   "photographLabel": {
     "flex": 1,
-    "height": 40,
+    "minHeight": 80,
     "justifyContent": "center",
     "alignItems": "flex-start"
+  },
+  "fullImage": {
+    "width": "100%",
+    "height": "100%",
+    "resizeMode": "cover",
   },
   "photographLabelText": {
     "fontWeight": "100",

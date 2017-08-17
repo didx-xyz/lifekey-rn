@@ -25,7 +25,9 @@ export default {
 	"footerIconWidth": 25,
 	"footerIconHeight": 25,
 	"fonts": {
-		"registration": "Roboto",
+		"registration": "Roboto_light",
+		"robotoLight": "Roboto_light",
+		"roboto-medium": "Roboto_medium"
 	},
 	"fontWeights": {
 		"light": "400",

@@ -126,7 +126,7 @@ class Connect extends Component  {
             </View>   
           </View>
         :
-          <Text style={ {"paddingTop": Design.paddingTop} }>
+          <Text style={ styles.defaultTextContainer }>
             <Text style={ styles.defaultFont }>
               Hi there, 
               {"\n\n"}
@@ -215,12 +215,16 @@ const styles = {
     "color": Palette.consentGrayDark,
     "textAlign": "center",
   },
+  "defaultTextContainer":{
+    "paddingTop": 50,
+    "padding": Design.paddingRight*2
+  },
   "defaultFont":{
     fontFamily: Design.fonts.registration,
     fontWeight: Design.fontWeights.light,
-    fontSize: 38,
-    lineHeight: 48
-  } 
+    fontSize: 24,
+    lineHeight: 28
+  }
 }
 
 export default Connect

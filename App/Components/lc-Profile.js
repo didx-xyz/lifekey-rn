@@ -74,7 +74,7 @@ const styles = {
     "flex": 4,
     "justifyContent": "space-around",  
     "paddingTop": 5,
-    "paddingBottom": 5, 
+    "paddingBottom": 5
   },
   "listBodyTitle":{
     "fontSize": 18,
@@ -86,7 +86,8 @@ const styles = {
   },
   "listBodyContent":{
     "fontSize": 25,
-    "color": Palette.consentGray
+    "color": Palette.consentGray,
+    "fontFamily": Design.fonts.robotoLight
   },
   "unexpandedListCard": {
     "width": "100%",
