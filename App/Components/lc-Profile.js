@@ -33,8 +33,6 @@ class LcProfile extends Component {
 
     const identityPhotographUri = image_uri || Anonymous.uri
 
-    // console.log("PROFILE PHOTO: " , identityPhotographUri)
-
     return (
         <View style={styles.cardContainer}>
     	  <Text style={Object.assign({}, styles.listBodySubtitle, {"zIndex": 1})}>This information is publicly available.</Text>
@@ -76,7 +74,7 @@ const styles = {
     "flex": 4,
     "justifyContent": "space-around",  
     "paddingTop": 5,
-    "paddingBottom": 5, 
+    "paddingBottom": 5
   },
   "listBodyTitle":{
     "fontSize": 18,
@@ -88,7 +86,8 @@ const styles = {
   },
   "listBodyContent":{
     "fontSize": 25,
-    "color": Palette.consentGray
+    "color": Palette.consentGray,
+    "fontFamily": Design.fonts.robotoLight
   },
   "unexpandedListCard": {
     "width": "100%",

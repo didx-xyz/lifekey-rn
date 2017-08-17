@@ -63,7 +63,7 @@ export default class SplashScreen extends Scene {
           })
         }
       })
-    }, 1000) // This works with 0, but doesn't work without the settimeout. Smells fishy... 
+    }, 2000) // This works with 0, but doesn't work without the settimeout. Smells fishy... 
   }
 
   componentWillReceiveProps(nextProps) {

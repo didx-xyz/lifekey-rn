@@ -51,15 +51,18 @@ const styles = {
   "listBodyTitle":{
     "fontSize": 18,
     "color": Palette.consentGrayDark,
-    "paddingBottom": 5
+    "paddingBottom": 5,
+    "fontFamily": Design.fonts.robotoLight
   },
   "listBodySubtitle":{
     "fontSize": 12,
-    "color": Palette.consentGrayMedium
+    "color": Palette.consentGrayMedium,
+    "fontFamily": Design.fonts.robotoLight
   },
   "listBodyContent":{
     "fontSize": 25,
-    "color": Palette.consentGray
+    "color": Palette.consentGray,
+    "fontFamily": Design.fonts.robotoLight
   },
   "unexpandedListCard": {
     "width": "100%",

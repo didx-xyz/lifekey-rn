@@ -13,6 +13,7 @@ import PropTypes from "prop-types"
 // internal dependencies
 import Countries from "../Countries"
 import Languages from "../Languages"
+import Common from "../Common"
 import Design from "../DesignParameters"
 import Palette from "../Palette"
 import Anonymous from "../Images/anonymous_person"
@@ -40,7 +41,7 @@ class LcPerson extends Component {
 
     const nationalityName = nationality ? Countries.find(c => c["alpha-2"] === nationality).name : ""
     const preferredLanguageName = preferredLanguage ? Languages.find(l => l["alpha3-b"] === preferredLanguage).English : ""
-    const identityPhotographUri = identityPhotograph ? `data:image/jpg;base64,${identityPhotograph}` : Anonymous.uri
+    const identityPhotographUri = identityPhotograph ? Common.ensureDataUrlHasContext(identityPhotograph) : Anonymous.uri
 
     if(expanded)
       return (
@@ -108,11 +109,13 @@ const styles = {
   },
   "listBodySubtitle":{
     "fontSize": 12,
-    "color": Palette.consentGrayMedium
+    "color": Palette.consentGrayMedium,
+    "fontFamily": Design.fonts.robotoLight
   },
   "listBodyContent":{
     "fontSize": 25,
-    "color": Palette.consentGray
+    "color": Palette.consentGray,
+    "fontFamily": Design.fonts.robotoLight
   },
   "unexpandedListCard": {
     "width": "100%",

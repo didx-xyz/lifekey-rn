@@ -1,18 +1,15 @@
 
-import Svg, {Circle} from 'react-native-svg'
 import React, { Component } from 'react'
 import Design from '../DesignParameters'
 import Palette from '../Palette'
 
 import { View, Image, Text } from 'react-native'
 import { ListItem } from 'native-base'
+import TickIcon from "./TickIcon"
 
 class LifekeyList extends Component {
 
   render(){
-
-    console.log("ACTIVE LIST: ", this.props.activelist)
-
     return(   
       <View>
         { 
@@ -23,14 +20,10 @@ class LifekeyList extends Component {
                 <Image style={style.listItemImage} source={{ uri: connection.image_uri }}/>
                 <Text style={style.listItemText}>{connection.display_name}</Text>
                 {this.props.cxn_unread_msgs && this.props.cxn_unread_msgs[connection.did] && (
-                  <Svg width={20} height={20}>
-                    <Circle cx={10} cy={10} r={5} fill={'#216BFF'} strokeWidth={1} stroke={'#216BFF'} />
-                  </Svg>
+                  <TickIcon width={ 20 } height={ 20 } stroke={Palette.consentWhite} fill={Palette.consentBlue} />
                 )}
                 {this.props.activelist === connection.did && (
-                  <Svg width={20} height={20}>
-                    <Circle cx={10} cy={10} r={5} fill={'#216BFF'} strokeWidth={1} stroke={'#216BFF'} />
-                  </Svg>
+                  <TickIcon width={ 20 } height={ 20 } stroke={Palette.consentWhite} fill={Palette.consentBlue} />
                 )}
               </View>
             </ListItem>

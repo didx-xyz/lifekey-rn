@@ -18,7 +18,6 @@ import CircularImage from "../Components/CircularImage"
 import HexagonIcon from "../Components/HexagonIcon"
 import AddCategoryButton from "../Components/lc-AddCategoryButton"
 import InformationRequestResource from "../Components/InformationRequestResource"
-import LocationIcon from "../Components/LocationIcon"
 import MarketingIcon from "../Components/MarketingIcon"
 import ProgressIndicator from "../Components/ProgressIndicator"
 import Scene from "../Scene"
@@ -53,6 +52,8 @@ class InformationRequest extends Scene {
     this.onBoundPressShare = this.onPressShare.bind(this)
 
     this.onBoundResources = this.onResources.bind(this)
+
+    this.iconDimension = 20
 
   }
 
@@ -198,7 +199,7 @@ class InformationRequest extends Scene {
                                   <CardItem>
                                     <View style={styles.cardHeader}>
                                       <Text style={ Object.assign({}, styles.cardHeadingText, { "color": Palette.consentOffBlack })}>{entity.name.toUpperCase()}</Text>
-                                      <TickIcon width={ Design.headerIconWidth/2 } height={ Design.headerIconHeight/2 } stroke={Palette.consentBlue} />
+                                      <TickIcon width={ this.iconDimension } height={ this.iconDimension } stroke={Palette.consentBlue} />
                                     </View>
                                   </CardItem>
                                 </Card>
@@ -214,7 +215,7 @@ class InformationRequest extends Scene {
                           { this.state.partial.map((entity, i) => {
                             return (
                               <View style={ Object.assign({}, styles.resourceItem, styles.partialResource) }>
-                                <AddCategoryButton name={entity.name} form={entity.form}></AddCategoryButton>
+                                <AddCategoryButton width={ this.iconDimension } height={ this.iconDimension } name={entity.name} form={entity.form}></AddCategoryButton>
                               </View>
                             )
                           }) }
@@ -229,6 +230,7 @@ class InformationRequest extends Scene {
                               <AddCategoryButton name={entity.name} 
                                                  form={entity.form} 
                                                  color={Palette.consentRed}
+                                                 width={ this.iconDimension } height={ this.iconDimension }
                                                  onEditResource={this.context.onEditResource.bind(this)}></AddCategoryButton>
                             </View>
                           )

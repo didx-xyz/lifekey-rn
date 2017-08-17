@@ -13,7 +13,6 @@ import ConsentUser from '../../Models/ConsentUser'
 // internal dependencies
 import Design from "../../DesignParameters"
 import Palette from '../../Palette'
-import MvTemplate from "../../Components/mv-Template"
 import BackIcon from "../../Components/BackIcon"
 import HelpIcon from "../../Components/HelpIcon"
 import LifekeyHeader from "../../Components/LifekeyHeader"
@@ -127,7 +126,7 @@ class Connect extends Component  {
             </View>   
           </View>
         :
-          <Text style={ {"paddingTop": Design.paddingTop} }>
+          <Text style={ styles.defaultTextContainer }>
             <Text style={ styles.defaultFont }>
               Hi there, 
               {"\n\n"}
@@ -216,12 +215,16 @@ const styles = {
     "color": Palette.consentGrayDark,
     "textAlign": "center",
   },
+  "defaultTextContainer":{
+    "paddingTop": 50,
+    "padding": Design.paddingRight*2
+  },
   "defaultFont":{
     fontFamily: Design.fonts.registration,
     fontWeight: Design.fontWeights.light,
-    fontSize: 38,
-    lineHeight: 48
-  } 
+    fontSize: 24,
+    lineHeight: 28
+  }
 }
 
 export default Connect
