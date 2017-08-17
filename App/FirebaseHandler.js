@@ -30,7 +30,7 @@ class FirebaseHandler {
     return 'Unknown Message Type'
   }
   
-  static received_thanks(message, eventEmitter) {
+  static received_thanks(message, eventEmitter, nickname) {
     return ConsentThanksMessage.add(
       new Date,
       nickname,
@@ -45,26 +45,27 @@ class FirebaseHandler {
     Logger.firebase('user_connection_request', message)
     console.log("USER_CONNECTION_REQUEST: ", message)
 
-    ConsentConnectionRequest.add(message.user_connection_request_id, message.from_id, message.from_did, message.from_nickname)
-                            .then( _ => {
-                              Logger.info('Connection request added successfully')
-                              return Api.profile({did: message.from_did})
-                            })
-                            .then(function(profile) {
-
-                              profile = profile.body.user
-
-                              const newConnection = Object.assign({}, profile, 
-                                                { 
-                                                  user_connection_request_id: message.user_connection_request_id, 
-                                                  image_uri: `data:image/jpg;base64,${profile.image_uri}` 
-                                                })
-
-                              ConsentUser.addNewPendingPeerConnection(newConnection)
-
-                              eventEmitter.emit('user_connection_request', message.from_nickname)
-                            })
-                            .catch(console.log)
+    ConsentConnectionRequest.add(
+      message.user_connection_request_id,
+      message.from_id,
+      message.from_did,
+      message.from_nickname
+    ).then(_ => {
+      Logger.info('Connection request added successfully')
+      return Api.profile({did: message.from_did})
+    }).then(profile => {
+      profile = profile.body.user
+      const newConnection = Object.assign(
+        {},
+        profile,
+        {
+          user_connection_request_id: message.user_connection_request_id,
+          image_uri: `data:image/jpg;base64,${profile.image_uri}`
+        }
+      )
+      ConsentUser.addNewPendingPeerConnection(newConnection)
+      eventEmitter.emit('user_connection_request', message.from_nickname)
+    }).catch(console.log)
   }
   
   static user_connection_created(message, eventEmitter) {
@@ -194,8 +195,6 @@ class FirebaseHandler {
     })
   }
   
-  static received_thanks(message, eventEmitter) {}
-  
   static user_message_received(message, eventEmitter) {
     return Promise.all([
       ConsentUserConnectionMessage.add(
@@ -216,19 +215,19 @@ class FirebaseHandler {
       Logger.firebase('message.type', message.type)
       
       new Promise(function(resolve) {
-        if (!message.from_did) return resolve()
+        if (!message.from_did) return resolve({nickname: 'LifeQi'})
         ConsentDiscoveredUser.get(
           message.from_did
         ).then(
           resolve
         ).catch(
-          resolve.bind(resolve, null)
+          resolve.bind(resolve, {nickname: 'LifeQi'})
         )
       }).then(function(from_user) {
         from_user = from_user || {}
         var nickname = (
-          from_user.nickname || from_user.display_name ?
-          from_user.nickname || from_user.display_name :
+          from_user.nickname ||
+          from_user.display_name ||
           'LifeQi'
         )
         return Promise.all([
@@ -243,7 +242,7 @@ class FirebaseHandler {
         var [nickname] = res
         
         // invoke firebase message handler
-        FirebaseHandler[message.type](message, eventEmitter)
+        FirebaseHandler[message.type](message, eventEmitter, nickname)
         
       }).catch(Logger.warn)
     } else if (message.notification) {

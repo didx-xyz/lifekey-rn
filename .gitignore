@@ -1,4 +1,13 @@
 
+# asset pipeline
+android/app/src/main/assets/
+android/app/src/main/res/values/
+android/app/src/main/res/drawable-*/
+
+
+# testing
+coverage/
+
 # oppressive gradle rules
 gradlew
 gradlew.bat
@@ -84,4 +93,3 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 javac-services*
 rn-android-docs
-coverage/*

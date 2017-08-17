@@ -43,7 +43,10 @@ moment.updateLocale('en', {
     future: 'in %s',
     past: '%s ago',
     s: function(number, withoutSuffix, key, isFuture) {
-      return '00:' + (number < 10 ? '0' : '') + number + ' minutes'
+      if (number < 10) {
+        return number + ' minutes'
+      }
+      return '00:' + number + ' minutes'
     },
     m: 'a minute',
     mm: function(number, withoutSuffix, key, isFuture) {
@@ -68,6 +71,7 @@ export default class Thanks extends Scene {
   constructor(props) {
     super(props)
     this.state = {
+      first_load: true,
       activeTab: TAB_RECEIPTS,
       thanksBalanceAmount: '0',
       receipts: []
@@ -75,13 +79,12 @@ export default class Thanks extends Scene {
   }
 
   componentWillFocus() {
+    if (this.state.first_load) {
+      return this.setState({first_load: false})
+    }
     super.componentWillFocus()
     this.refreshThanksMessages()
     this.refreshThanksBalance()
-  }
-
-  componentWillMount() {
-    super.componentWillFocus()
   }
 
   componentDidMount() {
@@ -98,9 +101,13 @@ export default class Thanks extends Scene {
     return true
   }
   
-  async refreshThanksBalance() {
-     const balance = await ConsentUser.refreshThanksBalance()
-     this.setState({thanksBalanceAmount: balance}) 
+  refreshThanksBalance() {
+    ConsentUser.refreshThanksBalance().then(balance => {
+      this.setState({thanksBalanceAmount: balance}) 
+    }).catch(err => {
+      console.log('refreshthanksbalance', err)
+      this.setState({thanksBalanceAmount: '0'})
+    })
   }
 
   refreshThanksMessages() {
@@ -109,27 +116,22 @@ export default class Thanks extends Scene {
     }).catch(console.log)
   }
   
-  renderReceipt(receipt) {
+  renderReceipt(receipt, i) {
     return (
-      // FIXME `Card.key`
-      <Card key={Date.now()} style={style.card}>
+      <Card key={i} style={style.card}>
         <CardItem>
           <View>
             <Text>
-              {
-                (
-                  [
-                    'You were awarded',
-                    receipt.amount,
-                    'Thanks by',
-                    receipt.from
-                  ].concat(
-                    receipt.reason ?
-                    ['for', receipt.reason].join(' ') :
-                    ''
-                  )
-                ).join(' ')
-              }
+              {([
+                'You were awarded',
+                receipt.amount,
+                'Thanks by',
+                receipt.from
+              ].concat(
+                receipt.reason ?
+                ['for', receipt.reason].join(' ') :
+                ''
+              )).join(' ')}
             </Text>
           </View>
         </CardItem>

@@ -1,10 +1,10 @@
 #!/usr/bin/env sh
 
-if [ $GIT_BRANCH = "" ]; then
-  GIT_BRANCH="origin/`git rev-parse --abbrev-ref HEAD`"
-fi
+test -z "$GIT_BRANCH" && GIT_BRANCH="origin/`git rev-parse --abbrev-ref HEAD`"
 
-if [ $GIT_BRANCH = "origin/unstable" ]; then
+echo $GIT_BRANCH
+
+if [ "$GIT_BRANCH" = "origin/dev" ]; then
   cp -R cfg/strings_dev.xml android/app/src/main/res/values/strings.xml
   cp -R cfg/dev.json cfg/runtime.json
 else
