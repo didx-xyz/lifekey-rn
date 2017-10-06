@@ -394,7 +394,7 @@ class Main extends Scene {
   renderSuggestedConnections(){
     
     /* ZERO DATA VIEW */
-    if(!this.state.pendingBotConnections.length){
+    if(!this.state.activeBots.length){
       return (
         <View style={ style.contentContainer }>
           { this.state.userName && 
@@ -410,7 +410,7 @@ class Main extends Scene {
       
     return(
       <View style={style.contentContainer}> 
-        <LifekeyList list={this.state.pendingBotConnections} onItemPress={this.onBoundGoToBotConnect}></LifekeyList>
+        <LifekeyList list={this.state.activeBots} onItemPress={this.onBoundGoToBotConnect}></LifekeyList>
       </View>
     ) 
   }

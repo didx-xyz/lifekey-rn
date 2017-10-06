@@ -145,12 +145,7 @@ export default class Api {
 
       ConsentUser.cacheMyConnection(myConnections)
 
-      return {
-        "peerConnections": enabledPeerConnections,
-        "botConnections": enabledBotConnections,
-        "pendingPeerConnections": pendingPeerConnections,
-        "pendingBotConnections": pendingBotConnections
-      }
+      return myConnections
       // return ConsentUser.getCached("myConnections")
 
     })
