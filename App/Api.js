@@ -97,7 +97,7 @@ export default class Api {
       this.initializeResourcesAndTypes()
     ]).then(values => {
 
-      Promise.all([
+      return Promise.all([
         this.getConnectionProfiles(values[0].body.enabled, "other_user_did"),
         this.getConnectionProfiles(values[0].body.unacked, "from_did"),
         this.getConnectionProfiles(values[1].body, "did")
