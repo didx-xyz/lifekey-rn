@@ -177,11 +177,14 @@ class Main extends Scene {
     }
     return Api.getMyConnections().then(connections => {
 
+      console.log('======================================', connections)
+
       this.setState({
         "peerConnections": connections.peerConnections,
         "botConnections": connections.botConnections,
         "pendingPeerConnections": connections.pendingPeerConnections,
-        "pendingBotConnections": connections.pendingBotConnections
+        "pendingBotConnections": connections.pendingBotConnections,
+        activeBots: connections.activeBots
       })
 
     })

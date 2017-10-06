@@ -96,53 +96,63 @@ export default class Api {
       //new - get them cached upfront 
       this.initializeResourcesAndTypes()
     ]).then(values => {
-
       return Promise.all([
         this.getConnectionProfiles(values[0].body.enabled, "other_user_did"),
         this.getConnectionProfiles(values[0].body.unacked, "from_did"),
-        this.getConnectionProfiles(values[1].body, "did")
-      ]).then(results => {
+        this.getConnectionProfiles(values[1].body, "did"),
+        values[1].body
+      ])
+    }).then(results => {
+      
+      const enabledConnections = results[0].map(connection => connection.body.user)
+      const enabledPeerConnections = enabledConnections.filter(connection => connection.is_human)
+                                                        .map(connection => { 
+                                                          const original = values[0].body.enabled.find(obj => obj.other_user_did === connection.did)
+                                                          return Object.assign({}, 
+                                                                              connection, 
+                                                                              { 
+                                                                                isa_id: original.sharing_isa_id, 
+                                                                                user_connection_id: original.user_connection_id, 
+                                                                                image_uri: `data:image/jpg;base64,${connection.image_uri}` 
+                                                                              })
+                                                        })
 
-        const enabledConnections = results[0].map(connection => connection.body.user)
-        const enabledPeerConnections = enabledConnections.filter(connection => connection.is_human)
-                                                         .map(connection => { 
-                                                           const original = values[0].body.enabled.find(obj => obj.other_user_did === connection.did)
-                                                           return Object.assign({}, 
-                                                                                connection, 
-                                                                                { 
-                                                                                  isa_id: original.sharing_isa_id, 
-                                                                                  user_connection_id: original.user_connection_id, 
-                                                                                  image_uri: `data:image/jpg;base64,${connection.image_uri}` 
-                                                                                })
-                                                         })
+      const enabledBotConnections = enabledConnections.filter(connection => !connection.is_human)
 
-        const enabledBotConnections = enabledConnections.filter(connection => !connection.is_human)
+      const pendingPeerConnections = results[1].map(connection => connection.body.user)
+                                                .filter(connection => connection.is_human)
+                                                .map(connection => { 
+                                                  const original = values[0].body.unacked.find(obj => obj.from_did === connection.did)
+                                                  return Object.assign({}, connection, { user_connection_request_id: original.user_connection_request_id })
+                                                })
+                                                .map(connection => Object.assign({}, connection, { image_uri: `data:image/jpg;base64,${connection.image_uri}` }))
 
-        const pendingPeerConnections = results[1].map(connection => connection.body.user)
-                                                 .filter(connection => connection.is_human)
-                                                 .map(connection => { 
-                                                   const original = values[0].body.unacked.find(obj => obj.from_did === connection.did)
-                                                   return Object.assign({}, connection, { user_connection_request_id: original.user_connection_request_id })
-                                                 })
-                                                 .map(connection => Object.assign({}, connection, { image_uri: `data:image/jpg;base64,${connection.image_uri}` }))
-
-        const pendingBotConnections = results[1].map(x => x.body.user)
-                                                .filter(x => !x.is_human)
-                                                .filter(x => !enabledConnections.some(y => x.did === y.did))
+      const pendingBotConnections = results[1].map(x => x.body.user)
+                                              .filter(x => !x.is_human)
+                                              .filter(x => !enabledConnections.some(y => x.did === y.did))
+      
+      
+      
 
 
+      const myConnections = {
+        "peerConnections": enabledPeerConnections,
+        "botConnections": enabledBotConnections,
+        "pendingPeerConnections": pendingPeerConnections,
+        "pendingBotConnections": pendingBotConnections,
+        "activeBots": results[3]
+      }
 
-        const myConnections = {
-          "peerConnections": enabledPeerConnections,
-          "botConnections": enabledBotConnections,
-          "pendingPeerConnections": pendingPeerConnections,
-          "pendingBotConnections": pendingBotConnections
-        }
+      ConsentUser.cacheMyConnection(myConnections)
 
-        ConsentUser.cacheMyConnection(myConnections)
-        return ConsentUser.getCached("myConnections")
+      return {
+        "peerConnections": enabledPeerConnections,
+        "botConnections": enabledBotConnections,
+        "pendingPeerConnections": pendingPeerConnections,
+        "pendingBotConnections": pendingBotConnections
+      }
+      // return ConsentUser.getCached("myConnections")
 
-      })
     })
   }
 
