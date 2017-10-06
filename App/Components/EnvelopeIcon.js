@@ -10,12 +10,11 @@ const EnvelopeIcon = (props) => {
   }
 
   return (
-    <Svg width={props.width} height={props.height} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 26.2 26.2">
-	    <G>
-        <Path {...styles.cls1} {...dynamic} d="M28.8,22.5
-          c0,1.1-0.9,2-2,2H5.5c-1.3,0-2.3-1.1-2.3-2.4V9.5c0-1.1,0.9-2,2-2h21.6c1.1,0,2,0.9,2,2V22.5z"/>
-        <Polyline {...styles.cls1} {...dynamic} points="28.2,8.1 16.5,17.4 3.8,8.1   "/>
+    <Svg width={props.width} height={props.height} xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32">
+      <G>
+        <Path {...styles.cls1} {...dynamic} d="M28.53,22a2.31,2.31,0,0,1-2.32,2.32H5.71A2.23,2.23,0,0,1,3.47,22V10A2.19,2.19,0,0,1,5.79,7.65H26.21A2.19,2.19,0,0,1,28.53,10V22Z"/>
       </G>
+      <Polyline {...styles.cls1} {...dynamic} points="27.774,8.245 16.459,17.22 4.226,8.245"/>
     </Svg>
   )
 }

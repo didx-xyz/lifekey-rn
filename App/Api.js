@@ -95,92 +95,137 @@ export default class Api {
       ConsentConnectionRequest.all(),
       //new - get them cached upfront 
       this.initializeResourcesAndTypes()
-      // this.allResourceTypes(),
-      // this.allResources()
-    ]).then(async values => {
+    ]).then(values => {
 
-      try {
-        var enabledConnections = (
-          await this.getConnectionProfiles(values[0].body.enabled, "other_user_did")
-        ).map(
-          connection => connection.body.user
-        )
-      } catch (e) {
-        console.log('=============================== FATAL', e)
-        enabledConnections = []
-      }
+      Promise.all([
+        this.getConnectionProfiles(values[0].body.enabled, "other_user_did"),
+        this.getConnectionProfiles(values[0].body.unacked, "from_did"),
+        this.getConnectionProfiles(values[1].body, "did")
+      ]).then(results => {
 
-      const enabledPeerConnections = (
-        enabledConnections.filter(
-          connection => connection.is_human
-        ).map(connection => {
-          const original = values[0].body.enabled.find(
-            obj => obj.other_user_did === connection.did
-          )
-          return Object.assign({}, connection, {
-            isa_id: original.sharing_isa_id,
-            user_connection_id: original.user_connection_id,
-            image_uri: `data:image/jpg;base64,${connection.image_uri}`
-          })
-        })
-      )
+        const enabledConnections = results[0].map(connection => connection.body.user)
+        const enabledPeerConnections = enabledConnections.filter(connection => connection.is_human)
+                                                         .map(connection => { 
+                                                           const original = values[0].body.enabled.find(obj => obj.other_user_did === connection.did)
+                                                           return Object.assign({}, 
+                                                                                connection, 
+                                                                                { 
+                                                                                  isa_id: original.sharing_isa_id, 
+                                                                                  user_connection_id: original.user_connection_id, 
+                                                                                  image_uri: `data:image/jpg;base64,${connection.image_uri}` 
+                                                                                })
+                                                         })
 
-      const enabledBotConnections = enabledConnections.filter(
-        connection => !connection.is_human
-      )
+        const enabledBotConnections = enabledConnections.filter(connection => !connection.is_human)
 
-      try {
-        var pendingPeerConnections = (
-          await this.getConnectionProfiles(values[0].body.unacked, "from_did")
-        ).map(
-          connection => connection.body.user
-        ).filter(
-          connection => connection.is_human
-        ).map(connection => { 
-          const original = values[0].body.unacked.find(obj => obj.from_did === connection.did)
-          return Object.assign({}, connection, { user_connection_request_id: original.user_connection_request_id })
-        }).map(connection => {
-          return Object.assign({}, connection, { image_uri: `data:image/jpg;base64,${connection.image_uri}` })
-        })
-      } catch (e) {
-        console.log('======================== FATAL', e)
-        pendingPeerConnections = []
-      }
+        const pendingPeerConnections = results[1].map(connection => connection.body.user)
+                                                 .filter(connection => connection.is_human)
+                                                 .map(connection => { 
+                                                   const original = values[0].body.unacked.find(obj => obj.from_did === connection.did)
+                                                   return Object.assign({}, connection, { user_connection_request_id: original.user_connection_request_id })
+                                                 })
+                                                 .map(connection => Object.assign({}, connection, { image_uri: `data:image/jpg;base64,${connection.image_uri}` }))
 
-      try {
-        var pendingBotConnections = (
-          await this.getConnectionProfiles(values[1].body, "did")
-        ).map(
-          x => x.body.user
-        ).filter(
-          x => !x.is_human
-        ).filter(
-          x => !enabledConnections.some(y => x.did === y.did)
-        )
-      } catch (e) {
-        console.log('======================== FATAL', e)
-        pendingBotConnections = []
-      }
+        const pendingBotConnections = results[1].map(x => x.body.user)
+                                                .filter(x => !x.is_human)
+                                                .filter(x => !enabledConnections.some(y => x.did === y.did))
 
-      // console.log("PENDING PEERS: ", pendingPeerConnections)
-      console.log("PENDING BOTS: ", pendingBotConnections)
 
-      const myConnections = {
-        "peerConnections": enabledPeerConnections,
-        "botConnections": enabledBotConnections,
-        "pendingPeerConnections": pendingPeerConnections,
-        "pendingBotConnections": pendingBotConnections
-      }
 
-      // ConsentUser.setCached("myConnections", myConnections, 300000)
+        const myConnections = {
+          "peerConnections": enabledPeerConnections,
+          "botConnections": enabledBotConnections,
+          "pendingPeerConnections": pendingPeerConnections,
+          "pendingBotConnections": pendingBotConnections
+        }
 
-      console.log("API CONN END: ", myConnections)
+        ConsentUser.cacheMyConnection(myConnections)
+        return ConsentUser.getCached("myConnections")
 
-      ConsentUser.cacheMyConnection(myConnections)
-      return ConsentUser.getCached("myConnections")
-
+      })
     })
   }
+
+  // static getMyConnections(milliseconds = 300000, skipCache = false){
+
+  //   if(!skipCache){
+  //     let cached = ConsentUser.getCached("myConnections")
+
+  //     if (cached) {
+  //       console.log("SERVED CACHED CONNECTIONS")
+  //       return Promise.resolve(cached)
+  //     }
+  //   }
+    
+  //   return Promise.all([
+  //     this.allConnections(),
+  //     this.getActiveBots(),
+  //     ConsentConnectionRequest.all(),
+  //     //new - get them cached upfront 
+  //     this.initializeResourcesAndTypes()
+  //     // this.allResourceTypes(),
+  //     // this.allResources()
+  //   ]).then( async values => {
+
+  //     // console.log("ENABLED ORIGINAL: ", values[0].body.enabled)
+  //     // console.log("UNENABLED ORIGINAL: ", values[0].body.unacked)
+  //     // console.log("ASYNC CONNECTION REQUESTS: ", values[2])
+
+  //     // console.log("resources in api my connection: ", values[3])
+
+  //     const enabledConnections = (await this.getConnectionProfiles(values[0].body.enabled, "other_user_did")) 
+  //                                           .map(connection => connection.body.user)
+
+  //     const enabledPeerConnections = enabledConnections.filter(connection => connection.is_human)
+  //                                                      .map(connection => { 
+  //                                                        const original = values[0].body.enabled.find(obj => obj.other_user_did === connection.did)
+  //                                                        return Object.assign({}, 
+  //                                                                             connection, 
+  //                                                                             { 
+  //                                                                               isa_id: original.sharing_isa_id, 
+  //                                                                               user_connection_id: original.user_connection_id, 
+  //                                                                               image_uri: `data:image/jpg;base64,${connection.image_uri}` 
+  //                                                                             })
+  //                                                      })
+
+  //     const enabledBotConnections = enabledConnections.filter(connection => !connection.is_human)
+
+  //     // console.log("ENABLED PEERS: ", enabledPeerConnections.map(x => x.user_connection_id))
+  //     // console.log("ENABLED BOTS: ", enabledBotConnections)
+
+  //     const pendingPeerConnections = (await this.getConnectionProfiles(values[0].body.unacked, "from_did"))
+  //                                               .map(connection => connection.body.user)
+  //                                               .filter(connection => connection.is_human)
+  //                                               .map(connection => { 
+  //                                                 const original = values[0].body.unacked.find(obj => obj.from_did === connection.did)
+  //                                                 return Object.assign({}, connection, { user_connection_request_id: original.user_connection_request_id })
+  //                                               })
+  //                                               .map(connection => Object.assign({}, connection, { image_uri: `data:image/jpg;base64,${connection.image_uri}` }))
+
+  //     const pendingBotConnections = (await this.getConnectionProfiles(values[1].body, "did"))
+  //                                              .map(x => x.body.user)
+  //                                              .filter(x => !x.is_human)
+  //                                              .filter(x => !enabledConnections.some(y => x.did === y.did))
+
+  //     // console.log("PENDING PEERS: ", pendingPeerConnections)
+  //     console.log("PENDING BOTS: ", pendingBotConnections)
+
+  //     const myConnections = {
+  //       "peerConnections": enabledPeerConnections,
+  //       "botConnections": enabledBotConnections,
+  //       "pendingPeerConnections": pendingPeerConnections,
+  //       "pendingBotConnections": pendingBotConnections
+  //     }
+
+  //     // ConsentUser.setCached("myConnections", myConnections, 300000)
+
+  //     console.log("API CONN END: ", myConnections)
+
+  //     ConsentUser.cacheMyConnection(myConnections)
+  //     return ConsentUser.getCached("myConnections")
+
+  //   })
+  // }
 
   static getConnectionProfiles(connections, propertyName){
 

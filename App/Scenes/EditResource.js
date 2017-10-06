@@ -1,6 +1,6 @@
 // external dependencies
 import React, { Component } from "react"
-import { View, ToastAndroid, Dimensions, StatusBar } from "react-native"
+import { InteractionManager, View, ScrollView, ToastAndroid, Dimensions, StatusBar } from "react-native"
 import PropTypes from "prop-types"
 
 // internal dependencies
@@ -53,7 +53,18 @@ class EditResource extends Scene {
   onPressSave() {
     const data = {}
     const keys = this.state.entities.map(entity => entity.name)
-    const values = keys.map(key => this.state.formTarget[key] || null)
+    
+    /* Image values need to be checked for and stripped of datauri context */
+    const values = keys.map(key => { 
+
+      let currentEntity = this.state.entities.find(e => e.name === key)
+      if(currentEntity && currentEntity.type === "photograph"){
+        this.state.formTarget[key] === Common.ensureDataUrlIsCleanOfContext(this.state.formTarget[key])
+      }
+
+      return this.state.formTarget[key] || null 
+    })
+
     const id = this.context.getEditResourceId()
     const form = this.context.getEditResourceForm()
 
@@ -87,8 +98,6 @@ class EditResource extends Scene {
       "asyncActionInProgress": true,
       "newResource": newResource
     }
-
-    console.log("NEW IMAGE DOC: ", options)
 
     this.setState(state, () => {
       if (this.state.formTarget.id) {
@@ -126,59 +135,60 @@ class EditResource extends Scene {
 
     const routes = this.navigator.getCurrentRoutes()
 
-    // if(routes[routes.length - 2].scene[0])
-    // if(routes[routes.length - 2].scene.name === "ConnectionDetails"){
-    //   this.navigator.push({
-    //     ...Routes.connectionDetails,
-    //     setModalVisible: true
-    //   })
-    // }
-    // else
-      this.navigator.pop()
+    this.navigator.pop()
   }
 
   componentDidMount() {
+    this.interaction = InteractionManager.runAfterInteractions(() => {
+      const id = this.context.getEditResourceId()
+      const form = this.context.getEditResourceForm()
+      
+      Promise.all([
+        Api.getResourceForm(form),
+        this.loadResource(id)
+      ]).then(values => {
 
-    const id = this.context.getEditResourceId()
-    const form = this.context.getEditResourceForm()
-    
-    Promise.all([
-      Api.getResourceForm(form),
-      this.loadResource(id)
-    ]).then(values => {
+        let formData = values[0]
+        let resource = values[1]
+        let state = { formTarget: resource ? resource : { "label" : `My ${this.context.getEditResourceName()}` } }
 
-      let formData = values[0]
-      let resource = values[1]
-      let state = { formTarget: resource ? resource : { "label" : `My ${this.context.getEditResourceName()}` } }
+        this.initializeState(state, formData.entities)
 
-      this.initializeState(state, formData.entities)
+        // Switch off loading state 
+        state.asyncActionInProgress = false
 
-      // Switch off loading state 
-      state.asyncActionInProgress = false
+        //Set state 
+        this.setState(state)
 
-      //Set state 
-      this.setState(state)
-
-    }).catch(error => {
-      Logger.warn("Error in loading resource form: ", error)
-      if (form == 'http://schema.cnsnt.io/verified_identity_form') {
-        alert('Please get verified_identity from Trust Bot first')
-        this.navigator.pop()
-      } else {
-        Logger.warn('Unexpected resource format')
-      }
+      }).catch(error => {
+        Logger.warn("Error in loading resource form: ", error)
+        if (form == 'http://schema.cnsnt.io/verified_identity_form') {
+          alert('Please get verified_identity from Trust Bot first')
+          this.navigator.pop()
+        } else {
+          Logger.warn('Unexpected resource format')
+        }
+      })
     })
   }
 
-  componentWillFocus() {
+  // componentWillFocus() {
 
-    this.setState({"asyncActionInProgress": true, "progressCopy": "Loading existing resources..."}, async () => {
-      
-      const resource = await this.loadResource(this.context.getEditResourceId())
-      const state = { formTarget: resource ? resource : { "label" : `My ${this.context.getEditResourceName()}` } }
-      this.setState(state)
+  //   if (this.first_load) {
+  //     this.first_load = false
+  //     return
+  //   }
+  //   this.interaction = InteractionManager.runAfterInteractions(() => {
+  //     this.setState({"asyncActionInProgress": true, "progressCopy": "Loading existing resources..."}, async () => {
+  //       const resource = await this.loadResource(this.context.getEditResourceId())
+  //       const state = { formTarget: resource ? resource : { "label" : `My ${this.context.getEditResourceName()}` } }
+  //       this.setState(state)
+  //     })
+  //   })
+  // }
 
-    })
+  componentWillUnmount() {
+    if (this.interaction) this.interaction.cancel()
   }
 
   async loadResource(id) {     
@@ -238,7 +248,8 @@ class EditResource extends Scene {
   setImageInputStateValue(entity, data){
     let newResource = this.state.formTarget
     newResource[entity.name + "__label"] = data.fileName
-    newResource[entity.name] = data.data
+    // newResource[entity.name] = data.data
+    newResource[entity.name] = Common.ensureDataUrlHasContext(data.data)
     this.setState({resource: newResource})
   }
   setDateInputStateValue(entity, date){
@@ -257,7 +268,7 @@ class EditResource extends Scene {
     return (    
       !this.state.asyncActionInProgress ?
         <View style={ styles.container }>
-          <View style={ styles.formContainer }>
+          <ScrollView style={ styles.formContainer }>
             <EditForm 
               formTarget={this.state.formTarget}
               entities={this.state.entities}
@@ -268,7 +279,7 @@ class EditResource extends Scene {
               setDateInputStateValue={this.boundSetDateInputStateValue}
               setSelectInputStateValue={this.boundSetSelectInputStateValue}>
             </EditForm> 
-          </View>
+          </ScrollView>
           <View style={ styles.footerContainer }>
             <LifekeyFooter
               backgroundColor="transparent"
@@ -304,12 +315,12 @@ EditResource.contextTypes = {
 
 const styles = {
   container: {
-    "height": Dimensions.get('window').height,
+    "height": Dimensions.get('window').height - StatusBar.currentHeight,
     "width": "100%",
     "backgroundColor": Palette.consentOffBlack
   },
   "formContainer": {
-    "height": Dimensions.get('window').height - Design.lifekeyFooterHeight - StatusBar.currentHeight
+    // "height": Dimensions.get('window').height - Design.lifekeyFooterHeight - StatusBar.currentHeight
   },
   "footerContainer": {
     "height": Design.lifekeyFooterHeight,

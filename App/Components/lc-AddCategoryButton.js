@@ -5,6 +5,8 @@ import { Card, CardItem } from "native-base"
 import Icon from "react-native-vector-icons/FontAwesome"
 import PropTypes from "prop-types"
 
+import PlusIcon from "./PlusIcon"
+
 // internal dependencies
 import Touchable from "../Components/Touchable"
 import Design from "../DesignParameters"
@@ -13,7 +15,6 @@ import Palette from "../Palette"
 class AddCategoryButton extends Component {
   constructor(...params) {
     super(...params)
-
     this.onBoundPressEdit = this.onPressEdit.bind(this)
   }
 
@@ -28,7 +29,7 @@ class AddCategoryButton extends Component {
     	    <CardItem onPress={this.onBoundPressEdit}>
     	      <View style={style.cardHeader}>
     	        <Text style={Object.assign({}, style.cardHeadingText, { "color": this.props.color }) }>{this.props.name.toUpperCase()}</Text>
-  	          <Text style={ {"marginRight": 6, "color": this.props.color } }>+</Text>
+                <PlusIcon width={this.props.width} height={this.props.width} stroke={this.props.color}></PlusIcon>
     	      </View>
     	    </CardItem>
   	  </Card>

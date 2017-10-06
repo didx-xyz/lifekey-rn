@@ -600,6 +600,8 @@ export default class ConsentUser {
 
   static updateState(resource) {
 
+    console.log("Hit UPDATE STATE")
+
     let myData = {...this.state.myData.data}
 
     myData.resourcesByType.forEach(rt => {
@@ -611,17 +613,20 @@ export default class ConsentUser {
       if((resourceTypeIsVerifiableClaim && resource.is_verifiable_claim) || match){
         existing ? (rt.items = rt.items.map(item => item.id === resource.id ? resource : item)) : rt.items.push(resource)
 
-        // this.updateBadges(resource)        
+        if(resource.is_verifiable_claim){
+          console.log("BEFORE BADGE ADD, RT NAME: ", rt.name)
+          this.updateBadges(resource, myData)        
+        }
 
-        const newBadge = this.determineBadge(resource)
+        // const newBadge = this.determineBadge(resource)
         // console.log("NEW BADGE: ", newBadge)
         // console.log("BADGE COLLECTION LENGTH: ", myData.badges.length)
 
         // const badgeTypeExists = (!!newBadge && myData.badges.some(b => b.name === newBadge.name))
 
-        if(!!newBadge){
-          myData.badges.push(newBadge)
-        }
+        // if(!!newBadge){
+        //   myData.badges.push(newBadge)
+        // }
 
       }
     })
@@ -630,8 +635,18 @@ export default class ConsentUser {
 
   }
 
-  static updateBadges(resource){
-    
+  static updateBadges(resource, myData){
+
+    if(myData.badges.some(b => b.id === resource.id))
+      return
+
+    console.log("Hit UPDATE BADGES")
+
+    const newBadge = this.determineBadge(resource)
+    if(!!newBadge){
+      myData.badges.push(newBadge)
+    }
+
   }
 
   static updateProfile(profile) {
@@ -716,58 +731,93 @@ export default class ConsentUser {
     return badges
   }
 
-  static determineBadge(v){
-
-    const check = v.schema ? v.schema : v.form
+  static determineBadge(resource){
 
     //NEW
 
-    if(!v.claim || !v.claim.isCredential || !v.schema){
+    if(!resource.claim || !resource.claim.isCredential || !resource.schema){
       return null
     }
 
-    if (check === "http://schema.cnsnt.io/pirate_name") {
-      return {
-        "name": "Pirate Name",
-        "description": "Hello ",
-        "image": require('../../App/Images/pirate_name.png')
-      }
-    } else if (check === "http://schema.cnsnt.io/verified_identity") {
-      return {
-        "name": "Verified Identity",
-        "description": "Hello ",
-        "image": require('../../App/Images/verified_identity.png')
-      }
-    } else if (check === "http://schema.cnsnt.io/full_name") {
-      return {
-        "name": "Full Name",
-        "description": "Hello ",
-        "image": require('../../App/Images/full_name.png')
-      }
-    } else if (check === "http://schema.cnsnt.io/contact_email") {
-      return {
-        "name": "Verified Email",
-        "description": "Hello ",
-        "image": require('../../App/Images/contact_email.png')
-      }
-    } else if (check === "http://schema.cnsnt.io/contact_mobile") {
-      return {
-        "name": "Verified Mobile",
-        "description": "Hello ",
-        "image": require('../../App/Images/contact_mobile.png')
-      }
-    } else if(check === "http://schema.cnsnt.io/verified_face_match"){
-      return {
-        "name": "Verified FaceMatch",
-        "description": "Hello ",
-        "image": require('../../App/Images/verified_face_match.png')
-      }
+    let badge = { id: resource.id }
+
+    if (resource.schema === "http://schema.cnsnt.io/pirate_name") {
+        badge.name = "Pirate Name"
+        badge.image = require('../../App/Images/pirate_name.png')
+    } else if (resource.schema === "http://schema.cnsnt.io/verified_identity") {
+        badge.name = "Verified Identity"
+        badge.image = require('../../App/Images/verified_identity.png')
+    } else if (resource.schema === "http://schema.cnsnt.io/full_name") {
+        badge.name = "Full Name"
+        badge.image = require('../../App/Images/full_name.png')
+    } else if (resource.schema === "http://schema.cnsnt.io/contact_email") {
+        badge.name = "Verified Email"
+        badge.image = require('../../App/Images/contact_email.png')
+    } else if (resource.schema === "http://schema.cnsnt.io/contact_mobile") {
+        badge.name = "Verified Mobile"
+        badge.image = require('../../App/Images/contact_mobile.png')
+    } else if(resource.schema === "http://schema.cnsnt.io/verified_face_match"){
+        badge.name = "Verified FaceMatch"
+        badge.image = require('../../App/Images/verified_face_match.png')
     } else {
-      // FIXME
-      console.log("HIT HERE 1: ", v)
-      return null
+      badge = null
     }
+
+    return badge
   }
+
+  // static determineBadge(v){
+
+  //   const check = v.schema ? v.schema : v.form
+
+  //   //NEW
+
+  //   if(!v.claim || !v.claim.isCredential || !v.schema){
+  //     return null
+  //   }
+
+  //   if (check === "http://schema.cnsnt.io/pirate_name") {
+  //     return {
+  //       "name": "Pirate Name",
+  //       "description": "Hello ",
+  //       "image": require('../../App/Images/pirate_name.png')
+  //     }
+  //   } else if (check === "http://schema.cnsnt.io/verified_identity") {
+  //     return {
+  //       "name": "Verified Identity",
+  //       "description": "Hello ",
+  //       "image": require('../../App/Images/verified_identity.png')
+  //     }
+  //   } else if (check === "http://schema.cnsnt.io/full_name") {
+  //     return {
+  //       "name": "Full Name",
+  //       "description": "Hello ",
+  //       "image": require('../../App/Images/full_name.png')
+  //     }
+  //   } else if (check === "http://schema.cnsnt.io/contact_email") {
+  //     return {
+  //       "name": "Verified Email",
+  //       "description": "Hello ",
+  //       "image": require('../../App/Images/contact_email.png')
+  //     }
+  //   } else if (check === "http://schema.cnsnt.io/contact_mobile") {
+  //     return {
+  //       "name": "Verified Mobile",
+  //       "description": "Hello ",
+  //       "image": require('../../App/Images/contact_mobile.png')
+  //     }
+  //   } else if(check === "http://schema.cnsnt.io/verified_face_match"){
+  //     return {
+  //       "name": "Verified FaceMatch",
+  //       "description": "Hello ",
+  //       "image": require('../../App/Images/verified_face_match.png')
+  //     }
+  //   } else {
+  //     // FIXME
+  //     console.log("HIT HERE 1: ", v)
+  //     return null
+  //   }
+  // }
 
   static sortMyData(resources, resourceTypes, profile) {
 

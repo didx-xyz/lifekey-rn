@@ -78,7 +78,8 @@ const style = {
     paddingRight: 10
   },
   buttonText: {
-    fontSize: 20
+    fontSize: 20,
+    fontFamily: Design.fonts.registration
   }
 }
 

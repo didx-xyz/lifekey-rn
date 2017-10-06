@@ -225,7 +225,7 @@ class Me extends Scene {
     const profilepic = this.state.profile ? <CircularImage uri={ identityPhotographUri } radius={25} borderColor="white" /> : <ActivityIndicator color={Palette.consentGrayDark} style={style.progressIndicator}/>
     const icons = [
       {
-        icon: <BackIcon width={16} height={16}/>,
+        icon: <BackIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Design.headerIconColour} />,
         onPress: () => this.navigator.pop(),
         borderColor: "white"
       },
@@ -234,7 +234,7 @@ class Me extends Scene {
         borderColor: "white"
       },
       {
-        icon: <GearIcon width={38} height={38} stroke={Palette.consentGrayDark} />,
+        icon: <GearIcon width={Design.headerIconWidth/1.5} height={Design.headerIconHeight/1.5} stroke={Design.headerIconColour} />,
         onPress: () => this.navigator.push({...Routes.menu}),
         borderColor: "white"
       }

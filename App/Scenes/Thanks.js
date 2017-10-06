@@ -200,18 +200,18 @@ export default class Thanks extends Scene {
     var icons = [
       {
         // back button
-        icon: (<BackIcon width={20} height={20} stroke={Palette.consentGrayDarkest}/>),
+        icon: (<BackIcon width={Design.headerIconWidth} height={Design.headerIconHeight} color={Design.headerIconColour} />),
         onPress: this.hardwareBack.bind(this),
         borderColor: "white"
       },
       {
         // smiling face in conversation bubble
-        icon: (<ThanksIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Palette.consentGrayDarkest}/>),
+        icon: (<ThanksIcon width={Design.headerIconWidth} height={Design.headerIconHeight} color={Design.headerIconColour} />),
         borderColor: "white"
       },
       {
         // thanks balance number
-        icon: (<Text style={{fontSize: 22, color: Palette.consentGrayDarkest}}>{this.state.thanksBalanceAmount}</Text>),
+        icon: (<Text style={{fontSize: Design.headerIconHeight, color: Design.headerIconColour}}>{this.state.thanksBalanceAmount}</Text>),
         onPress: this.refreshThanksBalance.bind(this),
         borderColor: "white"
       }

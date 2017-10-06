@@ -16,6 +16,7 @@ import BackButton from "../Components/BackButton"
 import BackIcon from "../Components/BackIcon"
 import HelpIcon from "../Components/HelpIcon"
 import GearIcon from "../Components/GearIcon"
+import CrossIcon from "../Components/CrossIcon"
 import AppLogo from '../Images/logo_big.png'
 
 const helpScreens = [ 
@@ -36,7 +37,7 @@ class Menu extends Scene {
     
     const icons = [
       {
-        icon: <BackIcon width={16} height={16}/>,
+        icon: <BackIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Design.headerIconColour} />,
         onPress: () => this.navigator.pop(),
         borderColor: "white"
       },
@@ -70,7 +71,7 @@ class Menu extends Scene {
             <Touchable onPress={this.onPressHelp.bind(this)}>
               <View style={styles.menuItem}>
                 <View style={styles.menuItemImage}>
-                  <GearIcon width={38} height={38} stroke={Palette.consentGrayDark}></GearIcon>
+                  <HelpIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Design.headerIconColour}></HelpIcon>
                 </View>
                 <View style={styles.menuItemContent}>
                   <View style={styles.menuItemName}>
@@ -83,7 +84,7 @@ class Menu extends Scene {
             <Touchable onPress={this.onPressHelp.bind(this)}>
               <View style={styles.menuItem}>
                 <View style={styles.menuItemImage}>
-                  <GearIcon width={38} height={38} stroke={Palette.consentGrayDark}></GearIcon>
+                  <GearIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Design.headerIconColour}></GearIcon>
                 </View>
                 <View style={styles.menuItemContent}>
                   <View style={styles.menuItemName}>
@@ -96,7 +97,7 @@ class Menu extends Scene {
             <Touchable onPress={this.onPressHelp.bind(this)}>
               <View style={styles.menuItem}>
                 <View style={styles.menuItemImage}>
-                  <GearIcon width={38} height={38} stroke={Palette.consentGrayDark}></GearIcon>
+                  <CrossIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Design.headerIconColour}></CrossIcon>
                 </View>
                 <View style={styles.menuItemContent}>
                   <View style={styles.menuItemName}>
