@@ -94,6 +94,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-crypto-module')
     compile project(':react-native-fingerprint-android')
     compile project(':react-native-firebase')
     compile project(':react-native-image-picker')

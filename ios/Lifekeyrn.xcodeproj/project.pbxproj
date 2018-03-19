@@ -26,7 +26,6 @@
 		146834051AC3E58100842450 /* libReact.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 146834041AC3E56700842450 /* libReact.a */; };
 		1595F4372FE94A3D9FCED738 /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 994EC9756CDD4F0C8C784B93 /* Entypo.ttf */; };
 		202A45D2205FB83B009A7B92 /* GoogleService-Info.plist in Resources */ = {isa = PBXBuildFile; fileRef = 202A45B0205FB83A009A7B92 /* GoogleService-Info.plist */; };
-		202A4681205FD61C009A7B92 /* libRNCryptoModule.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 202A4680205FD606009A7B92 /* libRNCryptoModule.a */; };
 		202E08DA205E1F2C00297941 /* libReactNativeFingerprintScanner.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 202E08D4205E1F1900297941 /* libReactNativeFingerprintScanner.a */; };
 		20A36675205D3F080069C0B5 /* CoreData.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20A36674205D3F080069C0B5 /* CoreData.framework */; };
 		20A36677205D3F100069C0B5 /* SystemConfiguration.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 20A36676205D3F100069C0B5 /* SystemConfiguration.framework */; };
@@ -81,6 +80,7 @@
 		8CCB4AFE2D674CA88B908152 /* Roboto.ttf in Resources */ = {isa = PBXBuildFile; fileRef = F4A6761DB3F1463F9AA7F4EA /* Roboto.ttf */; };
 		8F44A05986B4488C97DBEE93 /* EvilIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = A5D38A44C0F642FE9857998F /* EvilIcons.ttf */; };
 		8F44C4495C1744AE9E6732FE /* libRNSVG.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 6E1E91258BE34807B46B668F /* libRNSVG.a */; };
+		99CCC07AA59842DB886BE8F6 /* libRNCryptoModule.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 05F221AFB84E4B26BBDA6544 /* libRNCryptoModule.a */; };
 		A391C7C7F58747E3A0C0135E /* libRNGeocoder.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3B56BDD1BA55462183D6E687 /* libRNGeocoder.a */; };
 		A469E4F328564DA89D1C7683 /* Entypo.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BDEBA27A4C73432288688397 /* Entypo.ttf */; };
 		A510A101762A41D285A86B50 /* libRNFirebase.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 9A5AD31B065846528E1A43E5 /* libRNFirebase.a */; };
@@ -162,13 +162,6 @@
 			remoteGlobalIDString = 83CBBA2E1A601D0E00E9B192;
 			remoteInfo = React;
 		};
-		202A467F205FD606009A7B92 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 202A467B205FD605009A7B92 /* RNCryptoModule.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 134814201AA4EA6300B7C361;
-			remoteInfo = RNCryptoModule;
-		};
 		202E08D3205E1F1900297941 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 202E08B4205E1F1800297941 /* ReactNativeFingerprintScanner.xcodeproj */;
@@ -217,6 +210,13 @@
 			proxyType = 2;
 			remoteGlobalIDString = 0CF68AC11AF0540F00FF9E5C;
 			remoteInfo = RNSVG;
+		};
+		3B3AE55B205FE25100CEFE08 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 7CEF69D12CD84BB3A6648B9E /* RNCryptoModule.xcodeproj */;
+			proxyType = 2;
+			remoteGlobalIDString = 134814201AA4EA6300B7C361;
+			remoteInfo = RNCryptoModule;
 		};
 		3BDB3491204ED32900CF0A30 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -356,6 +356,7 @@
 		00E356F11AD99517003FC87E /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = Info.plist; sourceTree = "<group>"; };
 		00E356F21AD99517003FC87E /* LifekeyrnTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = LifekeyrnTests.m; sourceTree = "<group>"; };
 		02B047A03B9F4EF4BB83E53A /* Times New Roman.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Times New Roman.ttf"; path = "../node_modules/native-base/Fonts/Times New Roman.ttf"; sourceTree = "<group>"; };
+		05F221AFB84E4B26BBDA6544 /* libRNCryptoModule.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCryptoModule.a; sourceTree = "<group>"; };
 		09D8E1CFF45B4C4A9E67C892 /* RNImagePicker.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNImagePicker.xcodeproj; path = "../node_modules/react-native-image-picker/ios/RNImagePicker.xcodeproj"; sourceTree = "<group>"; };
 		0B210B879F30473CAB7FF418 /* RNGeocoder.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNGeocoder.xcodeproj; path = "../node_modules/react-native-geocoder/ios/RNGeocoder.xcodeproj"; sourceTree = "<group>"; };
 		139105B61AF99BAD00B5F7CC /* RCTSettings.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTSettings.xcodeproj; path = "../node_modules/react-native/Libraries/Settings/RCTSettings.xcodeproj"; sourceTree = "<group>"; };
@@ -372,7 +373,6 @@
 		1B4199E7451E4FEBB3877169 /* libRNImagePicker.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNImagePicker.a; sourceTree = "<group>"; };
 		1F20973CD0B0C2DF4ADBE709 /* Pods-Lifekeyrn.release.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-Lifekeyrn.release.xcconfig"; path = "Pods/Target Support Files/Pods-Lifekeyrn/Pods-Lifekeyrn.release.xcconfig"; sourceTree = "<group>"; };
 		202A45B0205FB83A009A7B92 /* GoogleService-Info.plist */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.plist.xml; path = "GoogleService-Info.plist"; sourceTree = "<group>"; };
-		202A467B205FD605009A7B92 /* RNCryptoModule.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNCryptoModule.xcodeproj; path = "rn-crypto-master/CryptoModule/ios/RNCryptoModule.xcodeproj"; sourceTree = "<group>"; };
 		202E08B4205E1F1800297941 /* ReactNativeFingerprintScanner.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = ReactNativeFingerprintScanner.xcodeproj; path = "../node_modules/react-native-fingerprint-scanner/ios/ReactNativeFingerprintScanner.xcodeproj"; sourceTree = "<group>"; };
 		206AC1CF205D3538009D4A49 /* RNVectorIcons.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RNVectorIcons.xcodeproj; path = "../node_modules/react-native-vector-icons/RNVectorIcons.xcodeproj"; sourceTree = "<group>"; };
 		20A36674205D3F080069C0B5 /* CoreData.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = CoreData.framework; path = System/Library/Frameworks/CoreData.framework; sourceTree = SDKROOT; };
@@ -415,6 +415,7 @@
 		73CA885377D74990BE06323B /* libAirMaps.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libAirMaps.a; sourceTree = "<group>"; };
 		78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTLinking.xcodeproj; path = "../node_modules/react-native/Libraries/LinkingIOS/RCTLinking.xcodeproj"; sourceTree = "<group>"; };
 		7C7039BD75424EB1B641A986 /* libRCTCamera.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRCTCamera.a; sourceTree = "<group>"; };
+		7CEF69D12CD84BB3A6648B9E /* RNCryptoModule.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNCryptoModule.xcodeproj; path = "../node_modules/react-native-crypto-module/ios/RNCryptoModule.xcodeproj"; sourceTree = "<group>"; };
 		832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */ = {isa = PBXFileReference; lastKnownFileType = "wrapper.pb-project"; name = RCTText.xcodeproj; path = "../node_modules/react-native/Libraries/Text/RCTText.xcodeproj"; sourceTree = "<group>"; };
 		83A8027CE0F84ED0BDF5592D /* rubicon-icon-font.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "rubicon-icon-font.ttf"; path = "../node_modules/native-base/Fonts/rubicon-icon-font.ttf"; sourceTree = "<group>"; };
 		8890CB13D90F4F57A7FA9B47 /* Rubik-Regular.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Regular.ttf"; path = "../node_modules/native-base/Fonts/Rubik-Regular.ttf"; sourceTree = "<group>"; };
@@ -456,7 +457,6 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				202A4681205FD61C009A7B92 /* libRNCryptoModule.a in Frameworks */,
 				202E08DA205E1F2C00297941 /* libReactNativeFingerprintScanner.a in Frameworks */,
 				20A3667B205D3F220069C0B5 /* libsqlite3.0.tbd in Frameworks */,
 				20A36679205D3F180069C0B5 /* libz.tbd in Frameworks */,
@@ -480,6 +480,7 @@
 				A391C7C7F58747E3A0C0135E /* libRNGeocoder.a in Frameworks */,
 				2560F6A1AE6F40E69BBF304E /* libRCTGoogleAnalyticsBridge.a in Frameworks */,
 				A510A101762A41D285A86B50 /* libRNFirebase.a in Frameworks */,
+				99CCC07AA59842DB886BE8F6 /* libRNCryptoModule.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -607,14 +608,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		202A467C205FD605009A7B92 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				202A4680205FD606009A7B92 /* libRNCryptoModule.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		202E08B5205E1F1800297941 /* Products */ = {
 			isa = PBXGroup;
 			children = (
@@ -683,6 +676,14 @@
 			name = Frameworks;
 			sourceTree = "<group>";
 		};
+		3B3AE558205FE25100CEFE08 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				3B3AE55C205FE25100CEFE08 /* libRNCryptoModule.a */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
 		3BDB3472204ED32800CF0A30 /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
@@ -693,6 +694,7 @@
 				3B56BDD1BA55462183D6E687 /* libRNGeocoder.a */,
 				AA8A36C50B384FFBBDF3EFC2 /* libRCTGoogleAnalyticsBridge.a */,
 				9A5AD31B065846528E1A43E5 /* libRNFirebase.a */,
+				05F221AFB84E4B26BBDA6544 /* libRNCryptoModule.a */,
 			);
 			name = "Recovered References";
 			sourceTree = "<group>";
@@ -726,7 +728,6 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				202A467B205FD605009A7B92 /* RNCryptoModule.xcodeproj */,
 				202E08B4205E1F1800297941 /* ReactNativeFingerprintScanner.xcodeproj */,
 				206AC1CF205D3538009D4A49 /* RNVectorIcons.xcodeproj */,
 				5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */,
@@ -746,6 +747,7 @@
 				0B210B879F30473CAB7FF418 /* RNGeocoder.xcodeproj */,
 				32DDAA44068840429C41691C /* RCTGoogleAnalyticsBridge.xcodeproj */,
 				665DC879DCE841AF860C857E /* RNFirebase.xcodeproj */,
+				7CEF69D12CD84BB3A6648B9E /* RNCryptoModule.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -986,8 +988,8 @@
 					ProjectRef = 202E08B4205E1F1800297941 /* ReactNativeFingerprintScanner.xcodeproj */;
 				},
 				{
-					ProductGroup = 202A467C205FD605009A7B92 /* Products */;
-					ProjectRef = 202A467B205FD605009A7B92 /* RNCryptoModule.xcodeproj */;
+					ProductGroup = 3B3AE558205FE25100CEFE08 /* Products */;
+					ProjectRef = 7CEF69D12CD84BB3A6648B9E /* RNCryptoModule.xcodeproj */;
 				},
 				{
 					ProductGroup = 20A366AC205D3F970069C0B5 /* Products */;
@@ -1075,13 +1077,6 @@
 			remoteRef = 146834031AC3E56700842450 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
-		202A4680205FD606009A7B92 /* libRNCryptoModule.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRNCryptoModule.a;
-			remoteRef = 202A467F205FD606009A7B92 /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
 		202E08D4205E1F1900297941 /* libReactNativeFingerprintScanner.a */ = {
 			isa = PBXReferenceProxy;
 			fileType = archive.ar;
@@ -1129,6 +1124,13 @@
 			fileType = archive.ar;
 			path = libRNSVG.a;
 			remoteRef = 2CF7CFC81E7BED1D0082DF7D /* PBXContainerItemProxy */;
+			sourceTree = BUILT_PRODUCTS_DIR;
+		};
+		3B3AE55C205FE25100CEFE08 /* libRNCryptoModule.a */ = {
+			isa = PBXReferenceProxy;
+			fileType = archive.ar;
+			path = libRNCryptoModule.a;
+			remoteRef = 3B3AE55B205FE25100CEFE08 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		3BDB3492204ED32900CF0A30 /* libRNImagePicker.a */ = {
@@ -1471,10 +1473,15 @@
 					"$(SRCROOT)/../node_modules/react-native-geocoder/ios/RNGeocoder",
 					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase",
+					"$(SRCROOT)/../node_modules/react-native-crypto-module/ios/**",
 				);
 				INFOPLIST_FILE = Lifekeyrn/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Lifekeyrn\"",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1502,10 +1509,15 @@
 					"$(SRCROOT)/../node_modules/react-native-geocoder/ios/RNGeocoder",
 					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase",
+					"$(SRCROOT)/../node_modules/react-native-crypto-module/ios/**",
 				);
 				INFOPLIST_FILE = Lifekeyrn/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 9.0;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
+				LIBRARY_SEARCH_PATHS = (
+					"$(inherited)",
+					"\"$(SRCROOT)/Lifekeyrn\"",
+				);
 				OTHER_LDFLAGS = (
 					"$(inherited)",
 					"-ObjC",
@@ -1538,6 +1550,7 @@
 					"$(SRCROOT)/../node_modules/react-native-geocoder/ios/RNGeocoder",
 					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase",
+					"$(SRCROOT)/../node_modules/react-native-crypto-module/ios/**",
 				);
 				INFOPLIST_FILE = "Lifekeyrn-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
@@ -1584,6 +1597,7 @@
 					"$(SRCROOT)/../node_modules/react-native-geocoder/ios/RNGeocoder",
 					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase",
+					"$(SRCROOT)/../node_modules/react-native-crypto-module/ios/**",
 				);
 				INFOPLIST_FILE = "Lifekeyrn-tvOS/Info.plist";
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
