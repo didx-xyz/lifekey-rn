@@ -2388,6 +2388,10 @@ hoist-non-react-statics@^1.0.5, hoist-non-react-statics@^1.2.0:
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-1.2.0.tgz#aa448cf0986d55cc40773b17174b7dd066cb7cfb"
 
+hoist-non-react-statics@^2.3.1:
+  version "2.5.0"
+  resolved "https://registry.yarnpkg.com/hoist-non-react-statics/-/hoist-non-react-statics-2.5.0.tgz#d2ca2dfc19c5a91c5a6615ce8e564ef0347e2a40"
+
 home-or-tmp@^2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/home-or-tmp/-/home-or-tmp-2.0.0.tgz#e36c3f2d2cae7d746a857e38d18d5f32a7882db8"
@@ -4050,12 +4054,28 @@ react-native-easy-grid@0.1.7:
   dependencies:
     lodash "^4.11.1"
 
+"react-native-fingerprint-android@git@github.com:io-digital/react-native-fingerprint-android.git#c01272bd73e780472d127378e4526982763ffe49":
+  version "0.1.6"
+  resolved "https://registry.yarnpkg.com/react-native-fingerprint-android/-/react-native-fingerprint-android-0.1.6.tgz#2a55d62b9aa1456c53067b0e68637d21fcfed9eb"
+
+react-native-fingerprint-scanner@^2.3.2:
+  version "2.3.2"
+  resolved "https://registry.yarnpkg.com/react-native-fingerprint-scanner/-/react-native-fingerprint-scanner-2.3.2.tgz#f89dd5dcecf5858c005fa583c064ef4d20ea7731"
+
 react-native-firebase@^1.0.0-alpha12:
   version "1.0.0-alpha9"
   resolved "https://registry.yarnpkg.com/react-native-firebase/-/react-native-firebase-1.0.0-alpha9.tgz#9ced13e8f5ea56b4de19611f4d1beabb22729009"
   dependencies:
     bows "^1.6.0"
     es6-symbol "^3.1.0"
+
+react-native-geocoder@^0.4.8:
+  version "0.4.8"
+  resolved "https://registry.yarnpkg.com/react-native-geocoder/-/react-native-geocoder-0.4.8.tgz#4763ad0a45bd365061b80f52c06564fcc62658e1"
+
+react-native-gesture-view@^0.1.2:
+  version "0.1.2"
+  resolved "https://registry.yarnpkg.com/react-native-gesture-view/-/react-native-gesture-view-0.1.2.tgz#2cd1d0c23705bb515dd8d00aa6bbc77cb7dbf88e"
 
 react-native-google-analytics-bridge@^5.0.0:
   version "5.0.1"
@@ -4071,6 +4091,10 @@ react-native-keyboard-aware-scroll-view@0.2.7:
   dependencies:
     react-timer-mixin "^0.13.3"
 
+react-native-modal-dropdown@^0.4.2:
+  version "0.4.4"
+  resolved "https://registry.yarnpkg.com/react-native-modal-dropdown/-/react-native-modal-dropdown-0.4.4.tgz#1164f3844b3847391fc3a0d0133189e6629d02c2"
+
 react-native-modal-picker@0.0.16:
   version "0.0.16"
   resolved "https://registry.yarnpkg.com/react-native-modal-picker/-/react-native-modal-picker-0.0.16.tgz#c9324d880a3bb8f36b772f378164977e2f431cbc"
@@ -4080,6 +4104,12 @@ react-native-qrcode@^0.2.3:
   resolved "https://registry.yarnpkg.com/react-native-qrcode/-/react-native-qrcode-0.2.3.tgz#cce06c5a8509c1f55a18d79053ace6fa0cedb376"
   dependencies:
     qr.js "0.0.0"
+
+react-native-safe-area-view@0.3.0:
+  version "0.3.0"
+  resolved "https://registry.yarnpkg.com/react-native-safe-area-view/-/react-native-safe-area-view-0.3.0.tgz#13f1266fc31897f50d1aae8cd16ec5afe8475613"
+  dependencies:
+    hoist-non-react-statics "^2.3.1"
 
 react-native-scrollable-tab-view@^0.7.1:
   version "0.7.4"
