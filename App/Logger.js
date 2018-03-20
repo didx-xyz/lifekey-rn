@@ -90,7 +90,7 @@ export default class Logger {
     if (Config.DEBUG && Config.debugNetwork) {
       console.log(`${prefix} ${methodColor} ${Logger._asColumn(timestampColor, 64)} ${routeColor}`)
       if (opts) {
-        console.log(opts)
+        console.log(JSON.stringify(opts))
       }
     }
   }

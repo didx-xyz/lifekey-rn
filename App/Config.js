@@ -27,7 +27,7 @@ export default {
   // Debug
   DEBUG: BUILD_CONFIG.DEBUG,
 
-  debugNetwork: false,
+  debugNetwork: true,
   debugReact: false,
   debugNavigator: false,
   debugFirebase: true,
