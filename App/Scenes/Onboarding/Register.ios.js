@@ -118,10 +118,11 @@ class Register extends Scene {
   }
 
   _keyboardDidShow(e) {
+    let height = e.startCoordinates.screenY - e.endCoordinates.screenY;
     let newSize =
       this.state.step === STEP_PIN
         ? Dimensions.get('window').height - 175
-        : Dimensions.get('window').height - Design.paddingBottom;
+        : Dimensions.get('window').height - height;
     this.setState({ screenHeight: newSize });
   }
 
@@ -308,7 +309,7 @@ class Register extends Scene {
         });
       })
       .then((res) => {
-        // AlertIOS.alert('Authenticated successfully');
+        //clear existing keys before registering user
         return ConsentUser.register(this.state.user, true);
       })
       .then((user) => {
@@ -319,17 +320,20 @@ class Register extends Scene {
         this.setState({ loading_indicator: false });
         console.log(error);
         AlertIOS.alert('Registration unsuccessful...');
-        Crypto.getKeyAliases().then(function(aliases) {
-          return Promise.all(
-            aliases.map(function(alias) {
-              return Crypto.deleteKeyEntry(alias);
-            })
-          );
-          this.resetRegistration();
-        });
+        this.clearKeys();
       });
   }
 
+  clearKeys() {
+    this.resetRegistration();
+    return Crypto.getKeyAliases().then(function(aliases) {
+      return Promise.all(
+        aliases.map(function(alias) {
+          return Crypto.deleteKeyEntry(alias);
+        })
+      );
+    });
+  }
   // Called from LifekeyRn when DID is received via Firebase notification
   registrationCallback() {
     this.goToStep(STEP_WAITING_FOR_DID);

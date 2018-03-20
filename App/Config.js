@@ -56,8 +56,6 @@ export default {
     name: APP_NAME.toLowerCase(),
     pemCertificatePath: 'rsa-example.pem',
     keyName: APP_NAME.toLowerCase(),
-    privateKeyName: 'private' + APP_NAME.toLowerCase(),
-    publicKeyName: 'public' + APP_NAME.toLowerCase(),
     publicKeyAlgorithm: 'rsa'
   }
 }

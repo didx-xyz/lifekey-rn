@@ -41,7 +41,7 @@ const signedRequest = function(url, opts, fingerprint) {
     secureRandom = _secureRandom
     return Crypto.sign(
       _secureRandom,
-      Config.keystore.privateKeyName + (fingerprint ? 'fingerprint' : '')
+      Config.keystore.keyName + (fingerprint ? 'fingerprint' : '')
     )
   }).then(signature => {
     var headers = {

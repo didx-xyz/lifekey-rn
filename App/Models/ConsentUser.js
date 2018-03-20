@@ -241,7 +241,7 @@ export default class ConsentUser {
       Logger.firebase('Signing...')
       return Crypto.sign(
         toSign,
-        Config.keystore.privateKeyName,
+        Config.keystore.keyName,
         ConsentUser.getPasswordSync()
       )
     })
@@ -466,11 +466,11 @@ export default class ConsentUser {
         randoms[1],
         Crypto.sign(
           randoms[0],
-          Config.keystore.privateKeyName
+          Config.keystore.keyName
         ),
         fingerprint ? Crypto.sign(
           randoms[1],
-          Config.keystore.privateKeyName + 'fingerprint'
+          Config.keystore.keyName + 'fingerprint'
         ) : null
       ])
     }).then(signature_data => {
@@ -498,6 +498,7 @@ export default class ConsentUser {
         console.log('registration with server failed')
         return Promise.reject()
       }
+      console.log('registration with server success')
       var jsonData = response.body
       userID = jsonData.id
 
@@ -511,11 +512,13 @@ export default class ConsentUser {
         registered: true
       }))
     }).then(_ => {
+      console.log('storing password')
       return AsyncStorage.setItem(
         STORAGE_KEY + '-password',
         JSON.stringify(password)
       )
     }).then(_ => {
+      console.log('updating sessions')
       Session.update({
         user: {
           id: userID,

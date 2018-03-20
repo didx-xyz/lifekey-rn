@@ -34,6 +34,7 @@
 		2A9B8AE5EF824830BCDADEDB /* Rubik-Italic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 434CDBB54A22449A84EF562D /* Rubik-Italic.ttf */; };
 		2B83E2DCA6BE4DA4B7502C70 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E0AE83464240404680AF9E88 /* SimpleLineIcons.ttf */; };
 		3348F8037D87FC8672E63376 /* Pods_Lifekeyrn.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 66926ED56CA37132C24C4815 /* Pods_Lifekeyrn.framework */; };
+		3B55166E2061098C00CE448D /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 008F07F21AC5B25A0029DE68 /* main.jsbundle */; };
 		3BDFD953A5444EAD9891DD61 /* Rubik-BlackItalic.ttf in Resources */ = {isa = PBXBuildFile; fileRef = C4F89373C4DC4D9EAC928613 /* Rubik-BlackItalic.ttf */; };
 		4000154E5E614E12A34BA78B /* MaterialCommunityIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8E32C289B0C44D9293F5155C /* MaterialCommunityIcons.ttf */; };
 		4624E1AE1F5048AD9E39190D /* Rubik-Black.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 9872C1B37FC147C1B80E7E70 /* Rubik-Black.ttf */; };
@@ -1166,6 +1167,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				3B55166E2061098C00CE448D /* main.jsbundle in Resources */,
 				13B07FBF1A68108700A75B9A /* Images.xcassets in Resources */,
 				13B07FBD1A68108700A75B9A /* LaunchScreen.xib in Resources */,
 				AF87319A3E1748709DD99832 /* Andale Mono.ttf in Resources */,
