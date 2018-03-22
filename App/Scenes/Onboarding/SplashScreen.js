@@ -28,9 +28,9 @@ export default class SplashScreen extends Scene {
     this.pushedRoute = false;
     this.state = {
       tokenAvailable: true,
-      ready: false
+      ready: false,
+      tokenTries: 0,
     };
-    // StatusBar.setHidden(true)
   }
 
   initialize() {
@@ -65,6 +65,10 @@ export default class SplashScreen extends Scene {
 
   componentDidMount() {
     super.componentDidFocus();
+    this.waitForToken();
+  }
+
+  waitForToken() {
     setTimeout(() => {
       ConsentUser.getToken()
         .then((result) => {
@@ -76,21 +80,28 @@ export default class SplashScreen extends Scene {
             this.setState({
               tokenAvailable: false
             });
-            Logger.info('False start. No App token', this.filename);
-            alert('False start. No App token. Please reinstall Lifekey');
-            // setTimeout(() => {
-            //   throw new Error('Please reinstall Lifekey');
-            // }, 6000);
+            let tokenTries = this.state.tokenTries
+            if (tokenTries < 5) {
+              this.setState({
+                tokenTries:  tokenTries + 1
+              });
+              //try fetch a token again
+              this.waitForToken();
+            } else {
+              Logger.info('no token yet', error);
+              alert('Timeout fetching token');
+            }
           }
         })
         .catch((error) => {
           this.setState({
             tokenAvailable: false
           });
-          Logger.info('False start. No App token', this.filename);
-          alert('False start. No App token. Please reinstall Lifekey');
+          Logger.info('Error fetching token', error);
+          alert('error fetching token');
         });
     }, 1000);
+
   }
 
   render() {
