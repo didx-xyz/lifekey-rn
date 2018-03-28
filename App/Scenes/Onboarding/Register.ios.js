@@ -38,6 +38,8 @@ import AndroidBackButton from 'react-native-android-back-button';
 import AuthScreen from '../../Components/SceneComponents/AuthScreen';
 import * as Nachos from 'nachos-ui';
 
+import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view'
+
 // const DEBUG = false
 const STEP_USERNAME = 0;
 const STEP_EMAIL = 1;
@@ -107,14 +109,14 @@ class Register extends Scene {
   }
 
   componentWillMount() {
-    this.keyboardDidShowListener = Keyboard.addListener(
-      'keyboardDidShow',
-      this._keyboardDidShow.bind(this)
-    );
-    this.keyboardDidHideListener = Keyboard.addListener(
-      'keyboardDidHide',
-      this._keyboardDidHide.bind(this)
-    );
+    // this.keyboardDidShowListener = Keyboard.addListener(
+    //   'keyboardDidShow',
+    //   this._keyboardDidShow.bind(this)
+    // );
+    // this.keyboardDidHideListener = Keyboard.addListener(
+    //   'keyboardDidHide',
+    //   this._keyboardDidHide.bind(this)
+    // );
   }
 
   _keyboardDidShow(e) {
@@ -425,12 +427,14 @@ class Register extends Scene {
       height: this.state.screenHeight,
       backgroundColor: this.state.screenBackgroundColor
     };
-
     return (
-      <View>
-        <AndroidBackButton onPress={() => this._hardwareBackHandler()} />
-        <StatusBar hidden={false} />
-        <TouchableWithoutFeedback onPress={() => Keyboard.dismiss()}>
+      <KeyboardAwareScrollView
+        keyboardShouldPersistTaps='always'
+        extraHeight={10}
+        style={style.scrollView}
+      >
+        <View>
+          <StatusBar hidden={false} />
           <View style={screenStyle}>
             <View style={style.contentContainer}>
               <Animated.View
@@ -517,15 +521,18 @@ class Register extends Scene {
               </View>
             )}
           </View>
-        </TouchableWithoutFeedback>
-      </View>
-    );
+        </View>
+      </KeyboardAwareScrollView>
+    )
   }
 }
 
 const proportion = 48;
 
 const style = {
+  scrollView: {
+    flex: 1
+  },
   contentContainer: {
     flexDirection: 'row',
     marginBottom: Design.paddingBottom,
