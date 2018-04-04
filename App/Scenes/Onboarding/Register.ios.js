@@ -328,9 +328,9 @@ class Register extends Scene {
 
   clearKeys() {
     this.resetRegistration();
-    return Crypto.getKeyAliases().then(function(aliases) {
+    return Crypto.getKeyAliases().then(function (aliases) {
       return Promise.all(
-        aliases.map(function(alias) {
+        aliases.map(function (alias) {
           return Crypto.deleteKeyEntry(alias);
         })
       );
@@ -430,7 +430,6 @@ class Register extends Scene {
     return (
       <KeyboardAwareScrollView
         keyboardShouldPersistTaps='always'
-        extraHeight={10}
         style={style.scrollView}
       >
         <View>

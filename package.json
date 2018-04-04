@@ -13,7 +13,8 @@
     "build_rn_android_docs": "./bin/build_rn_android_docs",
     "log_android_clean": "./bin/log_android_clean",
     "shake_android_all": "./bin/shake_android_all",
-    "reinstall_complete": "./bin/reinstall_complete"
+    "reinstall_complete": "./bin/reinstall_complete",
+    "build:ios": "react-native bundle --entry-file index.ios.js --platform ios --dev false --bundle-output ios/main.jsbundle --assets-dest ios"
   },
   "dependencies": {
     "ansi-styles": "^2.2.1",
