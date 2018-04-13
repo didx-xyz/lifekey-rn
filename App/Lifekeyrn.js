@@ -114,7 +114,21 @@ class Lifekeyrn extends Component {
         )
       );
     } else {
-      Logger.info('TODO: Firebase iOS', this.filename);
+      // Logger.info('TODO: Firebase iOS', this.filename);
+ 
+      // requests permissions from the user
+      this._messaging.requestPermissions();
+      this._messaging.getToken().then(token => {
+        // get users token
+        Logger.info('Firebase token: ', token);
+       });
+      this._messaging.onTokenRefresh(this._nativeEventTokenRefreshed);
+      this._messaging.onMessage(
+        FirebaseHandler.messageReceived.bind(
+          FirebaseHandler,
+          this.firebaseInternalEventEmitter
+        )
+      );
     }
 
     this._initSession();

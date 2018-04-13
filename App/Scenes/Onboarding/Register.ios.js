@@ -51,6 +51,8 @@ const STEP_ERROR = 5;
 class Register extends Scene {
   constructor(props) {
     super(props);
+    
+    let isSensorAvailable = true;
 
     this.screenData = [
       {
@@ -117,6 +119,14 @@ class Register extends Scene {
     //   'keyboardDidHide',
     //   this._keyboardDidHide.bind(this)
     // );
+
+    FingerprintScanner
+    .isSensorAvailable()
+    .catch(error => {
+      isSensorAvailable = false;
+      console.log('isSensorAvailable: ', error);
+    })  
+
   }
 
   _keyboardDidShow(e) {
@@ -306,9 +316,13 @@ class Register extends Scene {
       this.setState({ loading_indicator: true }, resolve);
     })
       .then(() => {
-        return FingerprintScanner.authenticate({
-          description: 'Scan your fingerprint on the device scanner to continue'
-        });
+        if (isSensorAvailable) {
+          return FingerprintScanner.authenticate({
+            description: 'Scan your fingerprint on the device scanner to continue'
+          });
+        } else {
+          return ConsentUser.register(this.state.user, false);
+        }
       })
       .then((res) => {
         //clear existing keys before registering user
