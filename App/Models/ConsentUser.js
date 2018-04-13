@@ -475,7 +475,7 @@ export default class ConsentUser {
       ])
     }).then(signature_data => {
       console.log('submitting registration data')
-      return Api.register({
+      var data = {
         email: email.trim(),
         nickname: username.trim(),
         device_id: firebaseToken,
@@ -483,14 +483,17 @@ export default class ConsentUser {
         public_key_algorithm: Config.keystore.publicKeyAlgorithm,
         public_key: publicKeyPem1,
         plaintext_proof: signature_data[0],
-        signed_proof: signature_data[2],
-        fingerprint: fingerprint ? {
+        signed_proof: signature_data[2]
+      };
+      if(fingerprint) {
+        data["fingerprint"] = {
           plaintext_proof: signature_data[1],
           signed_proof: signature_data[3],
           public_key: publicKeyPem2,
           public_key_algorithm: 'rsa'
-        } : null
-      })
+        }
+      }
+      return Api.register(data)
     }).then(response => {
       if (response.error === true) {
         // Server rejected registration

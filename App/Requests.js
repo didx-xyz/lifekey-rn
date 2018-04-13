@@ -5,7 +5,7 @@ import Logger from "./Logger"
 import ConsentUser from "./Models/ConsentUser"
 import ConsentError, { ErrorCode } from "./ConsentError"
 
-const request = function(url, opts, shouldBeSigned = true, fingerprint = false) {
+const request = function (url, opts, shouldBeSigned = true, fingerprint = false) {
   if (url.indexOf("http") !== 0) {
     url = Config.http.baseUrl + url
   }
@@ -17,13 +17,13 @@ const request = function(url, opts, shouldBeSigned = true, fingerprint = false) 
   return unsignedRequest(url, opts)
 }
 
-var init_key_store = function() {
+var init_key_store = function () {
   return Crypto.getKeyStoreIsLoaded().then(loaded => {
     return (loaded ? Promise.resolve : Crypto.loadKeyStore)()
   })
 }
 
-const signedRequest = function(url, opts, fingerprint) {
+const signedRequest = function (url, opts, fingerprint) {
   let userID = null
   let secureRandom = null
 
@@ -65,7 +65,11 @@ const signedRequest = function(url, opts, fingerprint) {
 //   return Promise.reject(new Error(message))
 // }
 
-const wrappedFetch = function(url, options) {
+
+const wrappedFetch = function (url, options) {
+  let globalResponseJson;
+  let globalResponse;
+
   if (url.indexOf("?") > -1) {
     url += "&_=" + (new Date()).getTime()
   } else {
@@ -74,37 +78,36 @@ const wrappedFetch = function(url, options) {
 
   Logger.networkRequest(options.method, url, options)
 
-  return fetch(url, options).then(onResponse)
+  return fetch(url, options)
+    .then(response => {
+      globalResponse = response;
+      return globalResponseJson = response.json()
+    })
+    .then(res => {
+      switch (parseInt(globalResponse.status, 10)) {
+        case 502:
+          // Logger.warn("502 Bad gateway", "Api.js", response)
+          return Promise.reject(res)
+        case 500:
+          // Logger.warn("500 Internal server error", "Api.js", response)
+          return Promise.reject(res)
+        case 400:
+          // Logger.warn("400 Bad request", "Api.js", response)
+          return Promise.reject(res)
+        case 404:
+          // Logger.warn("404 Not Found", response)
+          return Promise.reject(res)
+        case 201:
+          return globalResponseJson
+        case 200:
+          return globalResponseJson
+        default:
+          return Promise.reject(res)
+      }
+    });
 }
 
-const onResponse = function(response) {
-
-  // Logger.networkResponse(response.status, new Date(), response._bodyText)
-
-  var res = JSON.parse(response._bodyText)
-  switch (parseInt(response.status, 10)) {
-    case 502:
-      // Logger.warn("502 Bad gateway", "Api.js", response)
-      return Promise.reject(res)
-    case 500:
-      // Logger.warn("500 Internal server error", "Api.js", response)
-      return Promise.reject(res)
-    case 400:
-      // Logger.warn("400 Bad request", "Api.js", response)
-      return Promise.reject(res)
-    case 404:
-      // Logger.warn("404 Not Found", response)
-      return Promise.reject(res)
-    case 201:
-      return response.json()
-    case 200:
-      return response.json()
-    default:
-      return Promise.reject(res)
-  }
-}
-
-const unsignedRequest = function(url, opts) {
+const unsignedRequest = function (url, opts) {
   const options = Object.assign({
     "method": "GET",
     "headers": {

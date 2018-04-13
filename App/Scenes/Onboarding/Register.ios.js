@@ -51,7 +51,7 @@ const STEP_ERROR = 5;
 class Register extends Scene {
   constructor(props) {
     super(props);
-    
+
     let isSensorAvailable = true;
 
     this.screenData = [
@@ -121,11 +121,11 @@ class Register extends Scene {
     // );
 
     FingerprintScanner
-    .isSensorAvailable()
-    .catch(error => {
-      isSensorAvailable = false;
-      console.log('isSensorAvailable: ', error);
-    })  
+      .isSensorAvailable()
+      .catch(error => {
+        isSensorAvailable = false;
+        console.log('isSensorAvailable: ', error);
+      })
 
   }
 
@@ -311,33 +311,50 @@ class Register extends Scene {
   }
 
   requestMagicLink() {
-    new Promise((resolve) => {
-      // AlertIOS.alert('Registering...');
-      this.setState({ loading_indicator: true }, resolve);
-    })
-      .then(() => {
-        if (isSensorAvailable) {
+    if (isSensorAvailable) {
+      new Promise((resolve) => {
+        // AlertIOS.alert('Registering...');
+        this.setState({ loading_indicator: true }, resolve);
+      })
+        .then(() => {
           return FingerprintScanner.authenticate({
             description: 'Scan your fingerprint on the device scanner to continue'
           });
-        } else {
+        })
+        .then((res) => {
+          //clear existing keys before registering user
+          return ConsentUser.register(this.state.user, true);
+        })
+        .then((user) => {
+          this.setState({ loading_indicator: false });
+        })
+        .catch((error) => {
+          // AlertIOS.alert(error.message);
+          this.setState({ loading_indicator: false });
+          console.log(error);
+          AlertIOS.alert('Registration unsuccessful...');
+          this.clearKeys();
+        });
+    } else {
+      new Promise((resolve) => {
+        // AlertIOS.alert('Registering...');
+        this.setState({ loading_indicator: true }, resolve);
+      })
+        .then(() => {
+          //clear existing keys before registering user
           return ConsentUser.register(this.state.user, false);
-        }
-      })
-      .then((res) => {
-        //clear existing keys before registering user
-        return ConsentUser.register(this.state.user, true);
-      })
-      .then((user) => {
-        this.setState({ loading_indicator: false });
-      })
-      .catch((error) => {
-        // AlertIOS.alert(error.message);
-        this.setState({ loading_indicator: false });
-        console.log(error);
-        AlertIOS.alert('Registration unsuccessful...');
-        this.clearKeys();
-      });
+        })
+        .then((user) => {
+          this.setState({ loading_indicator: false });
+        })
+        .catch((error) => {
+          // AlertIOS.alert(error.message);
+          this.setState({ loading_indicator: false });
+          console.log(error);
+          AlertIOS.alert('Registration unsuccessful...');
+          this.clearKeys();
+        });
+    }
   }
 
   clearKeys() {
