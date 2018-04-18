@@ -108,6 +108,7 @@ class Register extends Scene {
     };
 
     this.boundSetUserPin = this.setUserPin.bind(this);
+    this.clearKeys();
   }
 
   componentWillMount() {
@@ -284,6 +285,7 @@ class Register extends Scene {
       this.setState({ step: activeStepNumber });
     }
   }
+
   _getPin() {
     let pin = this.state.user.pin;
     if (this.state.user.pin.length > 5) {
@@ -333,8 +335,9 @@ class Register extends Scene {
           this.setState({ loading_indicator: false });
           console.log(error);
           AlertIOS.alert('Registration unsuccessful...');
-          this.clearKeys();
-        });
+               this.resetRegistration();
+               this.clearKeys();
+               });
     } else {
       new Promise((resolve) => {
         // AlertIOS.alert('Registering...');
@@ -352,13 +355,13 @@ class Register extends Scene {
           this.setState({ loading_indicator: false });
           console.log(error);
           AlertIOS.alert('Registration unsuccessful...');
+               this.resetRegistration();
           this.clearKeys();
         });
     }
   }
 
   clearKeys() {
-    this.resetRegistration();
     return Crypto.getKeyAliases().then(function (aliases) {
       return Promise.all(
         aliases.map(function (alias) {
