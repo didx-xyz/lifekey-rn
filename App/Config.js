@@ -27,7 +27,7 @@ export default {
   // Debug
   DEBUG: BUILD_CONFIG.DEBUG,
 
-  debugNetwork: false,
+  debugNetwork: true,
   debugReact: false,
   debugNavigator: false,
   debugFirebase: true,
@@ -56,8 +56,6 @@ export default {
     name: APP_NAME.toLowerCase(),
     pemCertificatePath: 'rsa-example.pem',
     keyName: APP_NAME.toLowerCase(),
-    privateKeyName: 'private' + APP_NAME.toLowerCase(),
-    publicKeyName: 'public' + APP_NAME.toLowerCase(),
     publicKeyAlgorithm: 'rsa'
   }
 }

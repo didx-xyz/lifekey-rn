@@ -93,3 +93,5 @@ gradle-app.setting
 # gradle/wrapper/gradle-wrapper.properties
 javac-services*
 rn-android-docs
+ios/Pods
+yarn-error.log

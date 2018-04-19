@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.aakashns.reactnativedialogs.ReactNativeDialogsPackage;
 import com.facebook.react.ReactApplication;
+import za.co.apextechnology.crypto.CryptoPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.horcrux.svg.SvgPackage;
 import com.facebook.react.ReactNativeHost;
@@ -17,8 +18,6 @@ import io.jari.fingerprint.FingerprintPackage;
 
 import java.util.Arrays;
 import java.util.List;
-
-import za.co.io.reactnativecrypto.CryptoPackage;
 
 public class MainApplication extends Application implements ReactApplication {
 
