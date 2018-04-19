@@ -6,7 +6,6 @@ target 'Lifekeyrn' do
 
     pod 'Firebase/Auth'
     pod 'Firebase/Analytics'
-    pod 'Firebase/AppIndexing'
     pod 'Firebase/Core'
     pod 'Firebase/Crash'
     pod 'Firebase/Database'
@@ -14,8 +13,8 @@ target 'Lifekeyrn' do
     pod 'Firebase/Messaging'
     pod 'Firebase/RemoteConfig'
     pod 'Firebase/Storage'
-    pod 'Fabric', '~> 1.7.5'
-    pod 'Crashlytics', '~> 3.10.1'
+    pod 'Fabric'
+    pod 'Crashlytics'
 end
 
 
