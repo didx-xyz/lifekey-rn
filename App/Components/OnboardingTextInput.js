@@ -10,6 +10,7 @@ import {
 import Touchable from './Touchable'
 import Palette from '../Palette'
 import Svg, { Path } from 'react-native-svg'
+import { Integer } from 'tcomb';
 
 export default class OnboardingTextInput extends Component {
   constructor(props) {
@@ -48,8 +49,18 @@ export default class OnboardingTextInput extends Component {
     this.setState({
       underlineColor: Palette.consentGrayDark,
       buttonVisible: false,
-      cap: false
+      cap: false,
+      fontSize: self.props.fontSize
     })
+  }
+
+  _onChangeText(text) {
+    if(text.length % 10 == 0){
+    let fontsize =  this.props.fontSize;
+    fontsize -= (Integer)(text.length / 10);
+    this.setState({ fontSize: fontsize });
+    }
+    this.props.onChangeText(text);
   }
 
   render() {
@@ -63,12 +74,12 @@ export default class OnboardingTextInput extends Component {
             ref={input => {this._input = input }}
             onFocus={this._focus}
             onBlur={this._blur}
-            onChangeText={text => this.props.onChangeText(text)}
+            onChangeText={ text => this._onChangeText(text)}
             value={this.props.value}
-            style={{
+            style={[{
               flex: 1,
               fontSize: this.props.fontSize
-            }}
+            }, {fontSize : this.state.fontSize}]}
             autoCapitalize={this.props.autoCapitalize}
             underlineColorAndroid="transparent"
             scrollEnabled={false}

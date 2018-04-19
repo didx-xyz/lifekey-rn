@@ -395,7 +395,7 @@ class Register extends Scene {
             <OnboardingTextInput
               onChangeText={(text) => this.setUserState('email', text)}
               autoCapitalize="none"
-              fontSize={24}
+              fontSize={22}
               inputFadeTransitionValue={this.state.inputFadeTransitionValue}
               onSubmit={() => this.goToStep(STEP_PIN, true)}
             />
