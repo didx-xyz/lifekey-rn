@@ -39,7 +39,7 @@ import FingerprintiOS from 'react-native-fingerprint-scanner';
 
 import HexagonDots from '../../Components/HexagonDots';
 // import Dots from '../../Components/Dots'
-import OnboardingTextInputAndroid from '../../Components/OnboardingTextInputAndroid';
+import OnboardingTextInput from '../../Components/OnboardingTextInput';
 import EventTimeline from '../../Components/EventTimeline';
 import Touchable from '../../Components/Touchable';
 import DialogAndroid from 'react-native-dialogs';
@@ -341,7 +341,7 @@ class Register extends Scene {
       case STEP_USERNAME:
         return (
           <View style={[style.textInputRow]}>
-            <OnboardingTextInputAndroid
+            <OnboardingTextInput
               onChangeText={(text) => this.setUserState('username', text)}
               autoCapitalize="sentences"
               fontSize={22}
@@ -353,7 +353,7 @@ class Register extends Scene {
       case STEP_EMAIL:
         return (
           <View style={[style.textInputRow]}>
-            <OnboardingTextInputAndroid
+            <OnboardingTextInput
               onChangeText={(text) => this.setUserState('email', text)}
               autoCapitalize="none"
               fontSize={24}

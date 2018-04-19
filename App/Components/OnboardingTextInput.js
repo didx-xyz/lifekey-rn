@@ -11,7 +11,7 @@ import Touchable from './Touchable'
 import Palette from '../Palette'
 import Svg, { Path } from 'react-native-svg'
 
-export default class OnboardingTextInputAndroid extends Component {
+export default class OnboardingTextInput extends Component {
   constructor(props) {
     super(props)
 
