@@ -49,8 +49,7 @@ export default class OnboardingTextInput extends Component {
     this.setState({
       underlineColor: Palette.consentGrayDark,
       buttonVisible: false,
-      cap: false,
-      fontSize: self.props.fontSize
+      cap: false
     })
   }
 
