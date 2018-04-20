@@ -52,7 +52,6 @@ class Register extends Scene {
   constructor(props) {
     super(props);
 
-    let isSensorAvailable = true;
 
     this.screenData = [
       {
@@ -89,6 +88,7 @@ class Register extends Scene {
           'There was an error while trying to register. Please try again.'
       }
     ];
+    this.isSensorAvailable = true;
 
     this.state = {
       step: 0, // The beginning
@@ -124,7 +124,7 @@ class Register extends Scene {
     FingerprintScanner
       .isSensorAvailable()
       .catch(error => {
-        isSensorAvailable = false;
+        this.isSensorAvailable = false;
         console.log('isSensorAvailable: ', error);
       })
 
@@ -313,7 +313,7 @@ class Register extends Scene {
   }
 
   requestMagicLink() {
-    if (isSensorAvailable) {
+    if (this.isSensorAvailable) {
       new Promise((resolve) => {
         // AlertIOS.alert('Registering...');
         this.setState({ loading_indicator: true }, resolve);
