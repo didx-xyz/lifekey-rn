@@ -84,6 +84,7 @@ export default class OnboardingTextInput extends Component {
             scrollEnabled={false}
             onSubmitEditing={() => this.props.onSubmit()}
             returnKeyValue="done"
+            keyboardType={this.props.keyboardType}
           />
         </View>
         <Touchable style={{ width: 50, height: 50 }}

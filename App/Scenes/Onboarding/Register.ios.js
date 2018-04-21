@@ -386,6 +386,7 @@ class Register extends Scene {
               fontSize={22}
               inputFadeTransitionValue={this.state.inputFadeTransitionValue}
               onSubmit={() => this.goToStep(STEP_EMAIL, true)}
+              keyboardType="default"
             />
           </View>
         );
@@ -398,6 +399,8 @@ class Register extends Scene {
               fontSize={22}
               inputFadeTransitionValue={this.state.inputFadeTransitionValue}
               onSubmit={() => this.goToStep(STEP_PIN, true)}
+              keyboardType="email-address"
+              autoCorrect={false}
             />
           </View>
         );
