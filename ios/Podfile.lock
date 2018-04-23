@@ -34,19 +34,19 @@ PODS:
   - FirebaseAnalytics (4.2.0):
     - FirebaseCore (~> 4.0)
     - FirebaseInstanceID (~> 2.0)
-    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
+    - GoogleToolboxForMac/NSData+zlib (~> 2.1)
     - nanopb (~> 0.3)
   - FirebaseAuth (4.6.1):
     - FirebaseAnalytics (~> 4.2)
-    - "GoogleToolboxForMac/NSDictionary+URLArguments (~> 2.1)"
+    - GoogleToolboxForMac/NSDictionary+URLArguments (~> 2.1)
     - GTMSessionFetcher/Core (~> 1.1)
   - FirebaseCore (4.0.20):
-    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
+    - GoogleToolboxForMac/NSData+zlib (~> 2.1)
   - FirebaseCrash (2.0.2):
     - FirebaseAnalytics (~> 4.0)
     - FirebaseInstanceID (~> 2.0)
     - GoogleToolboxForMac/Logger (~> 2.1)
-    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
+    - GoogleToolboxForMac/NSData+zlib (~> 2.1)
     - Protobuf (~> 3.1)
   - FirebaseDatabase (4.1.5):
     - FirebaseAnalytics (~> 4.1)
@@ -67,7 +67,7 @@ PODS:
     - FirebaseAnalytics (~> 4.1)
     - FirebaseCore (~> 4.0)
     - FirebaseInstanceID (~> 2.0)
-    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
+    - GoogleToolboxForMac/NSData+zlib (~> 2.1)
     - Protobuf (~> 3.5)
   - FirebaseStorage (2.2.0):
     - FirebaseAnalytics (~> 4.1)
@@ -78,13 +78,13 @@ PODS:
   - GoogleToolboxForMac/Defines (2.1.3)
   - GoogleToolboxForMac/Logger (2.1.3):
     - GoogleToolboxForMac/Defines (= 2.1.3)
-  - "GoogleToolboxForMac/NSData+zlib (2.1.3)":
+  - GoogleToolboxForMac/NSData+zlib (2.1.3):
     - GoogleToolboxForMac/Defines (= 2.1.3)
-  - "GoogleToolboxForMac/NSDictionary+URLArguments (2.1.3)":
+  - GoogleToolboxForMac/NSDictionary+URLArguments (2.1.3):
     - GoogleToolboxForMac/DebugUtils (= 2.1.3)
     - GoogleToolboxForMac/Defines (= 2.1.3)
-    - "GoogleToolboxForMac/NSString+URLArguments (= 2.1.3)"
-  - "GoogleToolboxForMac/NSString+URLArguments (2.1.3)"
+    - GoogleToolboxForMac/NSString+URLArguments (= 2.1.3)
+  - GoogleToolboxForMac/NSString+URLArguments (2.1.3)
   - GTMSessionFetcher/Core (1.1.15)
   - leveldb-library (1.20)
   - nanopb (0.3.8):
@@ -106,28 +106,6 @@ DEPENDENCIES:
   - Firebase/Messaging
   - Firebase/RemoteConfig
   - Firebase/Storage
-
-SPEC REPOS:
-  https://github.com/CocoaPods/Specs.git:
-    - Crashlytics
-    - Fabric
-    - Firebase
-    - FirebaseABTesting
-    - FirebaseAnalytics
-    - FirebaseAuth
-    - FirebaseCore
-    - FirebaseCrash
-    - FirebaseDatabase
-    - FirebaseDynamicLinks
-    - FirebaseInstanceID
-    - FirebaseMessaging
-    - FirebaseRemoteConfig
-    - FirebaseStorage
-    - GoogleToolboxForMac
-    - GTMSessionFetcher
-    - leveldb-library
-    - nanopb
-    - Protobuf
 
 SPEC CHECKSUMS:
   Crashlytics: aee1a064cbbf99b32efa3f056a5f458d846bc8ff
@@ -152,4 +130,4 @@ SPEC CHECKSUMS:
 
 PODFILE CHECKSUM: 590aafe857641861e4ee5b36a075a164050fc148
 
-COCOAPODS: 1.5.0
+COCOAPODS: 1.4.0

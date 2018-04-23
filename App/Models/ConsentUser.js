@@ -5,7 +5,7 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-import {Platform, AsyncStorage} from 'react-native'
+import { Platform, AsyncStorage } from 'react-native'
 import Session from '../Session'
 import Crypto from '../Crypto'
 import Logger from '../Logger'
@@ -49,19 +49,19 @@ export default class ConsentUser {
    */
   static get() {
     return AsyncStorage.getItem(STORAGE_KEY)
-    .then(itemJSON => {
-      try {
-        const user = JSON.parse(itemJSON)
-        if (user) {
-          return Promise.resolve(user)
+      .then(itemJSON => {
+        try {
+          const user = JSON.parse(itemJSON)
+          if (user) {
+            return Promise.resolve(user)
+          }
+        } catch (error) {
+          // json parse error
+          return Promise.reject(
+            new ConsentError(error, E_USER_DOES_NOT_EXIST)
+          )
         }
-      } catch (error) {
-        // json parse error
-        return Promise.reject(
-          new ConsentError(error, E_USER_DOES_NOT_EXIST)
-        )
-      }
-    })
+      })
   }
 
   /**
@@ -77,51 +77,51 @@ export default class ConsentUser {
 
     // Get from model
     return ConsentUser.get()
-    .then(_user => {
+      .then(_user => {
 
-      user = _user
-      if (user.registered) {
+        user = _user
+        if (user.registered) {
 
-        // Try to unlock keystore
-        return Crypto.loadKeyStore()
+          // Try to unlock keystore
+          return Crypto.loadKeyStore()
 
-      } else {
+        } else {
 
-        // Trying to loging without being registered
-        return Promise.reject(
-          new ConsentError(
-            'Cannot log in of not registered',
-            E_MUST_BE_REGISTERED
+          // Trying to loging without being registered
+          return Promise.reject(
+            new ConsentError(
+              'Cannot log in of not registered',
+              E_MUST_BE_REGISTERED
+            )
           )
-        )
 
-      }
-    })
-    .then(_ => {
-      // Unlocked keystore with password
-      Logger.info('Keystore loaded, password verified', LOGTAG)
-      // Check if user exists on the other side
-      return Api.profile({did: user.did})
-    })
-    .then(response => {
-      if (parseInt(response.status, 10) === 200) {
-
-        // profile exists too, seems legit, log them in
-        const update = {}
-        update[STORAGE_KEY] = {
-          password: password,
-          loggedIn: true
         }
-        Session.update(update)
+      })
+      .then(_ => {
+        // Unlocked keystore with password
+        Logger.info('Keystore loaded, password verified', LOGTAG)
+        // Check if user exists on the other side
+        return Api.profile({ did: user.did })
+      })
+      .then(response => {
+        if (parseInt(response.status, 10) === 200) {
 
-        return Promise.resolve(user)
-      } else {
-        // No such user on server
-        Promise.reject(
-          new ConsentError('User does not exist on server', E_DOES_NOT_EXIST_ON_SERVER)
-        )
-      }
-    })
+          // profile exists too, seems legit, log them in
+          const update = {}
+          update[STORAGE_KEY] = {
+            password: password,
+            loggedIn: true
+          }
+          Session.update(update)
+
+          return Promise.resolve(user)
+        } else {
+          // No such user on server
+          Promise.reject(
+            new ConsentError('User does not exist on server', E_DOES_NOT_EXIST_ON_SERVER)
+          )
+        }
+      })
   }
 
   /**
@@ -133,15 +133,15 @@ export default class ConsentUser {
    */
   static logout() {
     return Crypto.unloadKeyStore()
-    .then(() => {
-      Session.update({ user: { loggedIn: false, password: '' } })
-      return Promise.resolve()
-    })
-    .catch(error => {
-      return Promise.reject(
-        new ConsentError(error, E_COULD_NOT_LOGOUT)
-      )
-    })
+      .then(() => {
+        Session.update({ user: { loggedIn: false, password: '' } })
+        return Promise.resolve()
+      })
+      .catch(error => {
+        return Promise.reject(
+          new ConsentError(error, E_COULD_NOT_LOGOUT)
+        )
+      })
   }
 
   /**
@@ -191,86 +191,86 @@ export default class ConsentUser {
   static setToken(firebaseToken) {
     let toSign
     return AsyncStorage.getItem(STORAGE_KEY)
-    .then(userJSON => {
-      // It existed before
-      if (userJSON) {
-        const user = JSON.parse(userJSON)
+      .then(userJSON => {
+        // It existed before
+        if (userJSON) {
+          const user = JSON.parse(userJSON)
 
-        const updatedUser = Object.assign(user, { firebaseToken })
-        return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUser))
-      } else {
-        // set it for the first time
-        return AsyncStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify({ firebaseToken: firebaseToken })
-        )
-      }
-    })
-    .then(error => {
-      if (error) {
-        // return Promise.reject(error)
-        return Promise.reject(
-          new ConsentError(
-            'Could not save record',
-            E_COULD_NOT_SET_ITEM
+          const updatedUser = Object.assign(user, { firebaseToken })
+          return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(updatedUser))
+        } else {
+          // set it for the first time
+          return AsyncStorage.setItem(
+            STORAGE_KEY,
+            JSON.stringify({ firebaseToken: firebaseToken })
           )
-        )
-      } else {
-        Logger.firebase(`Token updated ${firebaseToken}`)
-        // We gotta notify the server if we can
-        return ConsentUser.isRegistered()
-
-      }
-    })
-    .then(registered => {
-      if (registered) {
-        Logger.firebase('Notifying server of token update')
-        return Crypto.loadKeyStore(Config.keystore.name, ConsentUser.getPasswordSync())
-      } else {
-        return Promise.reject(new Error('Must be registered to notify server of token update'))
-      }
-    })
-    // Get secure random
-    .then(_keystoreName => {
-      Logger.firebase('Getting secure random...')
-      return Crypto.secureRandom()
-    })
-    // Sign
-    .then(randomBytes => {
-      toSign = randomBytes
-      Logger.firebase('Signing...')
-      return Crypto.sign(
-        toSign,
-        Config.keystore.keyName,
-        ConsentUser.getPasswordSync()
-      )
-    })
-
-    .then(signature => {
-      Logger.firebase('Sending to server...')
-      return Api.device({
-        user_id: ConsentUser.getIdSync(),
-        user_did: ConsentUser.getDidSync(),
-        plain: toSign,
-        signature: signature,
-        device_id: firebaseToken,
-        device_platform: Platform.OS
+        }
       })
-    })
-    .then(response => {
-      if (response.error) {
-        return Promise.reject(
-          new ConsentError('Server responded with error', E_SERVER_ERROR)
+      .then(error => {
+        if (error) {
+          // return Promise.reject(error)
+          return Promise.reject(
+            new ConsentError(
+              'Could not save record',
+              E_COULD_NOT_SET_ITEM
+            )
+          )
+        } else {
+          Logger.firebase(`Token updated ${firebaseToken}`)
+          // We gotta notify the server if we can
+          return ConsentUser.isRegistered()
+
+        }
+      })
+      .then(registered => {
+        if (registered) {
+          Logger.firebase('Notifying server of token update')
+          return Crypto.loadKeyStore(Config.keystore.name, ConsentUser.getPasswordSync())
+        } else {
+          return Promise.reject(new Error('Must be registered to notify server of token update'))
+        }
+      })
+      // Get secure random
+      .then(_keystoreName => {
+        Logger.firebase('Getting secure random...')
+        return Crypto.secureRandom()
+      })
+      // Sign
+      .then(randomBytes => {
+        toSign = randomBytes
+        Logger.firebase('Signing...')
+        return Crypto.sign(
+          toSign,
+          Config.keystore.keyName,
+          ConsentUser.getPasswordSync()
         )
-      } else {
-        return Promise.resolve('Server notified of token update')
-      }
-    })
+      })
+
+      .then(signature => {
+        Logger.firebase('Sending to server...')
+        return Api.device({
+          user_id: ConsentUser.getIdSync(),
+          user_did: ConsentUser.getDidSync(),
+          plain: toSign,
+          signature: signature,
+          device_id: firebaseToken,
+          device_platform: Platform.OS
+        })
+      })
+      .then(response => {
+        if (response.error) {
+          return Promise.reject(
+            new ConsentError('Server responded with error', E_SERVER_ERROR)
+          )
+        } else {
+          return Promise.resolve('Server notified of token update')
+        }
+      })
   }
 
   static getDisplayNameSync() {
     const state = Session.getState()
-    if(!state || !state.user || !state.user.display_name) {
+    if (!state || !state.user || !state.user.display_name) {
       throw new ConsentError(
         'No display name set for current user'
       )
@@ -305,40 +305,40 @@ export default class ConsentUser {
    */
   static setDid(did) {
     return AsyncStorage.getItem(STORAGE_KEY)
-    .then(itemJSON => {
-      if (itemJSON) {
-        try {
-          // Update session
-          Session.update(Object.assign(Session.getState().user, { did }))
-          const user = JSON.parse(itemJSON)
-          const userUpdate = Object.assign(user, { did })
-          return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(userUpdate))
-        } catch (error) {
+      .then(itemJSON => {
+        if (itemJSON) {
+          try {
+            // Update session
+            Session.update(Object.assign(Session.getState().user, { did }))
+            const user = JSON.parse(itemJSON)
+            const userUpdate = Object.assign(user, { did })
+            return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify(userUpdate))
+          } catch (error) {
+            return Promise.reject(
+              new ConsentError(
+                `Could not set did for ${STORAGE_KEY}`,
+                E_COULD_NOT_SET_ITEM
+              )
+            )
+          }
+
+        } else {
+          // create first record
+          return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ did }))
+        }
+      })
+      .then(error => {
+        if (error) {
           return Promise.reject(
             new ConsentError(
-              `Could not set did for ${STORAGE_KEY}`,
+              'Could not set item',
               E_COULD_NOT_SET_ITEM
             )
           )
+        } else {
+          return Promise.resolve(did)
         }
-
-      } else {
-        // create first record
-        return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({ did }))
-      }
-    })
-    .then(error => {
-      if (error) {
-        return Promise.reject(
-          new ConsentError(
-            'Could not set item',
-            E_COULD_NOT_SET_ITEM
-          )
-        )
-      } else {
-        return Promise.resolve(did)
-      }
-    })
+      })
   }
 
   /**
@@ -370,60 +370,60 @@ export default class ConsentUser {
   static unregister() {
     let firebaseToken
     return AsyncStorage.getItem(STORAGE_KEY)
-    .then(itemJSON => {
-      const user = JSON.parse(itemJSON)
-      if (user) {
-        // Preserve firebase token
-        firebaseToken = user.firebaseToken
-        if (user.did) {
-          return Api.unregister({ did: user.did })
-        } else if (user.email) {
-          return Api.unregister({ email: encodeURI(user.email) })
+      .then(itemJSON => {
+        const user = JSON.parse(itemJSON)
+        if (user) {
+          // Preserve firebase token
+          firebaseToken = user.firebaseToken
+          if (user.did) {
+            return Api.unregister({ did: user.did })
+          } else if (user.email) {
+            return Api.unregister({ email: encodeURI(user.email) })
+          } else {
+            return Promise.reject(
+              new ConsentError(
+                `Nothing to unregister ${user.did} by`,
+                E_NOTHING_TO_DELETE_BY
+              )
+            )
+          }
         } else {
           return Promise.reject(
             new ConsentError(
-              `Nothing to unregister ${user.did} by`,
-              E_NOTHING_TO_DELETE_BY
+              `Nothing to delete`,
+              E_NOTHING_TO_DELETE
             )
           )
         }
-      } else {
-        return Promise.reject(
-          new ConsentError(
-            `Nothing to delete`,
-            E_NOTHING_TO_DELETE
-          )
-        )
-      }
-    })
-    .then(responseJson => {
-      return Promise.all([
-        Crypto.deleteKeyStore(Config.keystore.name),
-        AsyncStorage.multiRemove([
-          STORAGE_KEY,
-          ConsentConnection.storageKey,
-          ConsentConnectionRequest.storageKey,
-          ConsentDiscoveredUser.storageKey
+      })
+      .then(responseJson => {
+        return Promise.all([
+          Crypto.deleteKeyStore(Config.keystore.name),
+          AsyncStorage.multiRemove([
+            STORAGE_KEY,
+            ConsentConnection.storageKey,
+            ConsentConnectionRequest.storageKey,
+            ConsentDiscoveredUser.storageKey
+          ])
         ])
-      ])
-    })
-    .then(results => {
-      if (results[1]) {
-        if (results[1].error) {
-          Logger.error('Could not purge databases', LOGTAG, results[1].error)
-          return Promise.reject('Could not purge databases')
+      })
+      .then(results => {
+        if (results[1]) {
+          if (results[1].error) {
+            Logger.error('Could not purge databases', LOGTAG, results[1].error)
+            return Promise.reject('Could not purge databases')
+          }
+        } else {
+          return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
+            user: { firebaseToken: firebaseToken }
+          }))
         }
-      } else {
-        return AsyncStorage.setItem(STORAGE_KEY, JSON.stringify({
-          user: { firebaseToken: firebaseToken }
-        }))
-      }
-    })
+      })
   }
 
   static register(newuser, fingerprint) {
 
-    const {username, email} = newuser
+    const { username, email } = newuser
     const password = newuser.pin
 
     console.log('attempting to register with fingerprint key?', fingerprint)
@@ -485,7 +485,7 @@ export default class ConsentUser {
         plaintext_proof: signature_data[0],
         signed_proof: signature_data[2]
       };
-      if(fingerprint) {
+      if (fingerprint) {
         data["fingerprint"] = {
           plaintext_proof: signature_data[1],
           signed_proof: signature_data[3],
@@ -534,7 +534,7 @@ export default class ConsentUser {
         }
       })
       console.log('registration complete')
-      return Promise.resolve({id: userID})
+      return Promise.resolve({ id: userID })
     })
   }
 
@@ -553,31 +553,31 @@ export default class ConsentUser {
 
   static isRegistered() {
     return AsyncStorage.getItem(STORAGE_KEY)
-    .then(itemJSON => {
-      if (!itemJSON) {
-        return Promise.resolve(false)
-      } else {
-        const consentUser = JSON.parse(itemJSON)
-        if (!consentUser || !consentUser.email || !consentUser.did) {
+      .then(itemJSON => {
+        if (!itemJSON) {
           return Promise.resolve(false)
         } else {
-          return Promise.resolve(true)
+          const consentUser = JSON.parse(itemJSON)
+          if (!consentUser || !consentUser.email || !consentUser.did) {
+            return Promise.resolve(false)
+          } else {
+            return Promise.resolve(true)
+          }
         }
-      }
 
-    })
+      })
   }
 
   // * USER DATA AND PROFILE * //
 
   static async refreshThanksBalance() {
-    return Api.thanksBalance().then(function(res) {
+    return Api.thanksBalance().then(function (res) {
       if (res.error) {
         console.log('thanks balance error', res.status, res.message)
-        return 
+        return
       }
       return res.body.balance
-    }).catch(function(err) {
+    }).catch(function (err) {
       console.log('Thanks balance error', err)
     })
   }
@@ -607,82 +607,85 @@ export default class ConsentUser {
   static updateState(resource) {
 
     console.log("Hit UPDATE STATE")
+    
+    Api.getMyData().then(values => {
+      console.log("getMydata response", values)
+      let myData = values;
 
-    let myData = {...this.state.myData.data}
+      myData.resourcesByType.forEach(rt => {
 
-    myData.resourcesByType.forEach(rt => {
-      
-      const match = !!resource.schema ? Common.schemaCheck(resource.schema, rt.url) : `${rt.url}_form` === resource.form
-      const existing = rt.items.some(item => item.id === resource.id)
-      const resourceTypeIsVerifiableClaim = rt.name === 'Verifiable Claims'
+        const match = !!resource.schema ? Common.schemaCheck(resource.schema, rt.url) : `${rt.url}_form` === resource.form
+        const existing = rt.items.some(item => item.id === resource.id)
+        const resourceTypeIsVerifiableClaim = rt.name === 'Verifiable Claims'
 
-      if((resourceTypeIsVerifiableClaim && resource.is_verifiable_claim) || match){
-        existing ? (rt.items = rt.items.map(item => item.id === resource.id ? resource : item)) : rt.items.push(resource)
+        if ((resourceTypeIsVerifiableClaim && resource.is_verifiable_claim) || match) {
+          existing ? (rt.items = rt.items.map(item => item.id === resource.id ? resource : item)) : rt.items.push(resource)
 
-        if(resource.is_verifiable_claim){
-          console.log("BEFORE BADGE ADD, RT NAME: ", rt.name)
-          this.updateBadges(resource, myData)        
+          if (resource.is_verifiable_claim) {
+            console.log("BEFORE BADGE ADD, RT NAME: ", rt.name)
+            this.updateBadges(resource, myData)
+          }
+
+          // const newBadge = this.determineBadge(resource)
+          // console.log("NEW BADGE: ", newBadge)
+          // console.log("BADGE COLLECTION LENGTH: ", myData.badges.length)
+
+          // const badgeTypeExists = (!!newBadge && myData.badges.some(b => b.name === newBadge.name))
+
+          // if(!!newBadge){
+          //   myData.badges.push(newBadge)
+          // }
+
         }
+      })
 
-        // const newBadge = this.determineBadge(resource)
-        // console.log("NEW BADGE: ", newBadge)
-        // console.log("BADGE COLLECTION LENGTH: ", myData.badges.length)
+      this.setCached("myData", myData, 300000)
 
-        // const badgeTypeExists = (!!newBadge && myData.badges.some(b => b.name === newBadge.name))
-
-        // if(!!newBadge){
-        //   myData.badges.push(newBadge)
-        // }
-
-      }
-    })
-
-    this.setCached("myData", myData, 300000)
-
+    });
   }
 
-  static updateBadges(resource, myData){
+  static updateBadges(resource, myData) {
 
-    if(myData.badges.some(b => b.id === resource.id))
+    if (myData.badges.some(b => b.id === resource.id))
       return
 
     console.log("Hit UPDATE BADGES")
 
     const newBadge = this.determineBadge(resource)
-    if(!!newBadge){
+    if (!!newBadge) {
       myData.badges.push(newBadge)
     }
 
   }
 
   static updateProfile(profile) {
-    
+
     console.log("NEW PROFILE: ", profile)
-    if(profile.image_uri){
+    if (profile.image_uri) {
       profile.image_uri = Common.ensureDataUrlIsCleanOfContext(profile.image_uri)
       profile.image_uri = `data:image/jpg;base64,${profile.image_uri}`
     }
-    else{
+    else {
       profile.image_uri = Anonymous.uri
     }
     console.log("UPDATED PROFILE: ", profile)
-    
+
     ConsentUser.setCached('profile', profile, 300000)
   }
 
   static removeFromState(id) {
 
-    let myData = {...this.state.myData.data}
+    let myData = { ...this.state.myData.data }
     myData.resourcesByType.forEach(rt => rt.items = rt.items.filter(item => item.id !== id))
     this.setCached("myData", myData, 300000)
 
   }
 
-  static setPendingState(id, pendingState){
+  static setPendingState(id, pendingState) {
 
-    let myData = {...this.state.myData.data}
-    myData.resourcesByType.forEach(rt => rt.items = rt.items.map(item => { 
-      if(item.id === id){
+    let myData = { ...this.state.myData.data }
+    myData.resourcesByType.forEach(rt => rt.items = rt.items.map(item => {
+      if (item.id === id) {
         item.pending = pendingState
       }
       return item
@@ -690,7 +693,7 @@ export default class ConsentUser {
     this.setCached("myData", myData, 300000)
   }
 
-  static cacheMyData(resources, profile){
+  static cacheMyData(resources, profile) {
 
     let resourceTypes = [...this.state.allResourceTypes.data]
 
@@ -706,7 +709,7 @@ export default class ConsentUser {
 
   static flattenCachedResources(arr) {
     if (Array.isArray(arr)) {
-      return arr.reduce(function(done, curr) {
+      return arr.reduce(function (done, curr) {
         return done.concat(ConsentUser.flattenCachedResources(curr))
       }, [])
     } else {
@@ -714,10 +717,10 @@ export default class ConsentUser {
     }
   }
 
-  static verifyAndFixSchemaProperty(resources){
-    resources.forEach(resource => {  
+  static verifyAndFixSchemaProperty(resources) {
+    resources.forEach(resource => {
       resource.schema = Common.ensureUrlHasProtocol(resource.schema)
-      if(!resource.form){
+      if (!resource.form) {
         resource.form = `${resource.schema}_form`
       }
     })
@@ -725,46 +728,46 @@ export default class ConsentUser {
     return resources
   }
 
-  static sortBadges(resources){
+  static sortBadges(resources) {
 
-    console.log("SORT BADGES:", resources )
+    console.log("SORT BADGES:", resources)
 
     var badges = Object.values(resources).map((v, i) => {
       return this.determineBadge(v)
     })
-    .filter(v => !!v)
+      .filter(v => !!v)
 
     return badges
   }
 
-  static determineBadge(resource){
+  static determineBadge(resource) {
 
     //NEW
 
-    if(!resource.claim || !resource.claim.isCredential || !resource.schema){
+    if (!resource.claim || !resource.claim.isCredential || !resource.schema) {
       return null
     }
 
     let badge = { id: resource.id }
 
     if (resource.schema === "http://schema.cnsnt.io/pirate_name") {
-        badge.name = "Pirate Name"
-        badge.image = require('../../App/Images/pirate_name.png')
+      badge.name = "Pirate Name"
+      badge.image = require('../../App/Images/pirate_name.png')
     } else if (resource.schema === "http://schema.cnsnt.io/verified_identity") {
-        badge.name = "Verified Identity"
-        badge.image = require('../../App/Images/verified_identity.png')
+      badge.name = "Verified Identity"
+      badge.image = require('../../App/Images/verified_identity.png')
     } else if (resource.schema === "http://schema.cnsnt.io/full_name") {
-        badge.name = "Full Name"
-        badge.image = require('../../App/Images/full_name.png')
+      badge.name = "Full Name"
+      badge.image = require('../../App/Images/full_name.png')
     } else if (resource.schema === "http://schema.cnsnt.io/contact_email") {
-        badge.name = "Verified Email"
-        badge.image = require('../../App/Images/contact_email.png')
+      badge.name = "Verified Email"
+      badge.image = require('../../App/Images/contact_email.png')
     } else if (resource.schema === "http://schema.cnsnt.io/contact_mobile") {
-        badge.name = "Verified Mobile"
-        badge.image = require('../../App/Images/contact_mobile.png')
-    } else if(resource.schema === "http://schema.cnsnt.io/verified_face_match"){
-        badge.name = "Verified FaceMatch"
-        badge.image = require('../../App/Images/verified_face_match.png')
+      badge.name = "Verified Mobile"
+      badge.image = require('../../App/Images/contact_mobile.png')
+    } else if (resource.schema === "http://schema.cnsnt.io/verified_face_match") {
+      badge.name = "Verified FaceMatch"
+      badge.image = require('../../App/Images/verified_face_match.png')
     } else {
       badge = null
     }
@@ -840,25 +843,25 @@ export default class ConsentUser {
     // Sort known items and verifiable claims  
     resourceTypes.map(rt => {
 
-      if(rt.name === 'Verifiable Claims'){
+      if (rt.name === 'Verifiable Claims') {
         rt.items = resources.filter(r => r.is_verifiable_claim)
       }
-      else{
+      else {
         rt.items = resources.filter(r => {
 
-          if(r.is_verifiable_claim || r.from_user_did){
+          if (r.is_verifiable_claim || r.from_user_did) {
             return false
           }
 
-          if(!!r.schema){
+          if (!!r.schema) {
             return Common.schemaCheck(r.schema, rt.url)
           }
-          else{
+          else {
             return `${rt.url}_form` === r.form
           }
         })
       }
-      
+
       return rt
     })
 
@@ -874,7 +877,7 @@ export default class ConsentUser {
 
   }
 
-  static cacheMyConnection(myConnections){
+  static cacheMyConnection(myConnections) {
 
     const sortedPeerConnections = this.sortConnectionData(myConnections.peerConnections)
 
@@ -882,27 +885,27 @@ export default class ConsentUser {
     this.setCached("myConnections", newAllConnections, 300000)
   }
 
-  static sortConnectionData(peerConnections){
+  static sortConnectionData(peerConnections) {
 
     /* This should organise resources under resource types and store them under connections */
     const resources = this.getCached("allResources")
     const resourceTypes = this.getCached("allResourceTypes")
 
-    if(!peerConnections) return
+    if (!peerConnections) return
 
-    peerConnections.forEach(connection => { 
-      
+    peerConnections.forEach(connection => {
+
       /* Really important to ensure that original resourceTypes remain unmutated */
-      let shallowResourceTypes = [ ...resourceTypes.map(rt => Object.assign({}, rt)) ]
+      let shallowResourceTypes = [...resourceTypes.map(rt => Object.assign({}, rt))]
       let connectionResources = resources.filter(r => !!r.from_user_did && r.from_user_did === connection.did)
 
       shallowResourceTypes.forEach(rt => {
-        
-        rt.items = connectionResources.filter(r => Common.schemaCheck(r.schema, rt.url) || `${rt.url}_form` === r.form) 
+
+        rt.items = connectionResources.filter(r => Common.schemaCheck(r.schema, rt.url) || `${rt.url}_form` === r.form)
 
         /* Order important */
-        if(rt.name === "Public Profile"){
-          rt.items = [ Object.assign({}, connection) ]
+        if (rt.name === "Public Profile") {
+          rt.items = [Object.assign({}, connection)]
         }
 
       })
@@ -921,104 +924,111 @@ export default class ConsentUser {
 
     const allConnections = this.getCached("myConnections")
 
-    if(!allConnections) return
+    if (!allConnections) return
 
     let connection = allConnections.peerConnections.find(c => c.did === resource.from_user_did)
 
     console.log("GOT HERE: 1", connection)
 
     connection.resourcesByType.forEach(rt => {
-      
+
       const match = !!resource.schema ? Common.schemaCheck(resource.schema, rt.url) : `${rt.url}_form` === resource.form
       const existing = rt.items.some(item => item.id === resource.id)
       const resourceTypeIsVerifiableClaim = rt.name === 'Verifiable Claims'
 
-      if((resourceTypeIsVerifiableClaim && resource.is_verifiable_claim) || match){
+      if ((resourceTypeIsVerifiableClaim && resource.is_verifiable_claim) || match) {
         existing ? (rt.items = rt.items.map(item => item.id === resource.id ? resource : item)) : rt.items.push(resource)
       }
     })
 
-    const newAllConnections = Object.assign({}, allConnections, 
-                                            { "peerConnections": allConnections.peerConnections
-                                                                               .map(pc => { 
-                                                                                     return pc.did === resource.from_user_did ? connection : pc 
-                                                                                  }) 
-                                                                               })
+    const newAllConnections = Object.assign({}, allConnections,
+      {
+        "peerConnections": allConnections.peerConnections
+          .map(pc => {
+            return pc.did === resource.from_user_did ? connection : pc
+          })
+      })
 
     this.setCached("myConnections", newAllConnections, 300000)
 
   }
 
-  static addNewEnabledPeerConnection(connectionProfile){
+  static addNewEnabledPeerConnection(connectionProfile) {
 
     console.log("CONNECTION ENABLED PROFILE: ", connectionProfile)
 
     const connections = this.getCached("myConnections")
-    const newConnections = Object.assign({}, connections, { peerConnections: [ ...connections.peerConnections, connectionProfile ]})
+    const newConnections = Object.assign({}, connections, { peerConnections: [...connections.peerConnections, connectionProfile] })
     this.setCached("myConnections", newConnections, 300000)
 
   }
 
-  static addNewPendingPeerConnection(connectionProfile){
+  static addNewPendingPeerConnection(connectionProfile) {
 
     console.log("CONNECTION PENDING PROFILE: ", connectionProfile)
 
     const connections = this.getCached("myConnections")
-    const newConnections = Object.assign({}, connections, { pendingPeerConnections: [ ...connections.pendingPeerConnections, connectionProfile ]})
+    const newConnections = Object.assign({}, connections, { pendingPeerConnections: [...connections.pendingPeerConnections, connectionProfile] })
     this.setCached("myConnections", newConnections, 300000)
 
   }
 
-  static removeEnabledPeerConnection(removeUserConnectionId){
+  static removeEnabledPeerConnection(removeUserConnectionId) {
 
     const connections = this.getCached("myConnections")
-    const newConnections = Object.assign({}, connections, 
-                                         { peerConnections: connections.peerConnections
-                                                                       .filter(c => c.user_connection_id !== removeUserConnectionId) })
+    const newConnections = Object.assign({}, connections,
+      {
+        peerConnections: connections.peerConnections
+          .filter(c => c.user_connection_id !== removeUserConnectionId)
+      })
     this.setCached("myConnections", newConnections, 300000)
 
   }
 
-  static removePendingPeerConnection(connectionProfile){
+  static removePendingPeerConnection(connectionProfile) {
 
     const connections = this.getCached("myConnections")
-    const newConnections = Object.assign({}, connections, 
-                                         { pendingPeerConnections: connections.pendingPeerConnections
-                                                                       .filter(c => c.did !== connectionProfile.did) })
+    const newConnections = Object.assign({}, connections,
+      {
+        pendingPeerConnections: connections.pendingPeerConnections
+          .filter(c => c.did !== connectionProfile.did)
+      })
     this.setCached("myConnections", newConnections, 300000)
 
   }
 
-  static addNewEnabledBotConnection(connectionProfile){
+  static addNewEnabledBotConnection(connectionProfile) {
 
     console.log("CONNECTION BOT PROFILE: ", connectionProfile)
 
     const connections = this.getCached("myConnections")
-    const newConnections = Object.assign({}, connections, { botConnections: [ ...connections.botConnections, connectionProfile ]})
+    const newConnections = Object.assign({}, connections, { botConnections: [...connections.botConnections, connectionProfile] })
     this.setCached("myConnections", newConnections, 300000)
 
   }
 
-  static removePendingBotConnection(connectionProfile){
+  static removePendingBotConnection(connectionProfile) {
 
     const connections = this.getCached("myConnections")
-    const newConnections = Object.assign({}, connections, 
-                                         { pendingBotConnections: connections.pendingBotConnections
-                                                                             .filter(c => c.did !== connectionProfile.did) })
+    const newConnections = Object.assign({}, connections,
+      {
+        pendingBotConnections: connections.pendingBotConnections
+          .filter(c => c.did !== connectionProfile.did)
+      })
     this.setCached("myConnections", newConnections, 300000)
 
   }
 
-  
 
-  
+
+
 
   // * END USER DATA AND PROFILE * //
 
   // * USER CONNECTIONS * //
 
 
-    
+
 
 
   // * END USER CONNECTIONS * //
