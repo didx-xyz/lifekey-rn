@@ -203,8 +203,12 @@ class Register extends Scene {
   }
 
   componentWillUnmount() {
-    this.keyboardDidShowListener.remove();
-    this.keyboardDidHideListener.remove();
+    if (this.keyboardDidShowListener) {
+      this.keyboardDidShowListener.remove();
+    }
+    if (this.keyboardDidHideListener) {
+      this.keyboardDidHideListener.remove();
+    }
     if (this.interaction) this.interaction.cancel();
   }
 
