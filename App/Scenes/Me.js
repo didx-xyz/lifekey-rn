@@ -278,8 +278,6 @@ class Me extends Scene {
     return (
       <Container>
         <View style={style.headerWrapper}>
-          
-          <BackButton navigator={this.navigator} />
           <LifekeyHeader icons={icons} tabs={tabs} />
         </View>
         <ScrollView ref={(sv) => { this.state.scrollview = sv }} style={style.contentContainer}>
