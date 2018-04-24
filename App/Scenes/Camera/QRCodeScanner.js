@@ -160,7 +160,7 @@ export default class QRCodeScanner extends Scene {
             orientation={Camera.constants.Orientation.portrait}
             onBarCodeRead={(data) => this._onBarCodeRead(data)}
             type={Camera.constants.Type.back}
-            barCodeTypes={['qr']}
+            barCodeTypes={[Camera.constants.BarCodeType.qr]}
           >
             <CameraCrosshair ref={(crosshair) => { this.crosshair = crosshair }} width={250} height={250} color={'white'}/>
           </Camera>
