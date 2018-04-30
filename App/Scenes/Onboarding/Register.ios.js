@@ -329,9 +329,9 @@ class Register extends Scene {
       this.setState({ loading_indicator: false });
     })
     .catch((error) => {
-      // AlertIOS.alert(error.message);
+      AlertIOS.alert(error.message);
       this.setState({ loading_indicator: false });
-      console.log(error);
+      console.error(error);
       AlertIOS.alert('Registration unsuccessful...');
       this.resetRegistration();
       this.clearKeys();
