@@ -261,7 +261,6 @@ class Register extends Scene {
   }
 
   goToStep(activeStepNumber, animate) {
-    console.log("activeStepNumber", activeStepNumber)
     let textColor =
       activeStepNumber === STEP_PIN || activeStepNumber === STEP_ERROR
         ? Palette.consentOffWhite
@@ -356,7 +355,6 @@ class Register extends Scene {
         this.setState({ loading_indicator: false });
       })
       .catch((error) => {
-        console.log("requestMagicLink", error)
         // AlertIOS.alert(error.message);
         this.setState({ loading_indicator: false });
         console.log(error);
