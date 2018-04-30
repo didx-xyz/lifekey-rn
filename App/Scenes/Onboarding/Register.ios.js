@@ -261,6 +261,7 @@ class Register extends Scene {
   }
 
   goToStep(activeStepNumber, animate) {
+    console.log("activeStepNumber", activeStepNumber)
     let textColor =
       activeStepNumber === STEP_PIN || activeStepNumber === STEP_ERROR
         ? Palette.consentOffWhite
@@ -347,21 +348,22 @@ class Register extends Scene {
         // AlertIOS.alert('Registering...');
         this.setState({ loading_indicator: true }, resolve);
       })
-        .then(() => {
-          //clear existing keys before registering user
-          return ConsentUser.register(this.state.user, false);
-        })
-        .then((user) => {
-          this.setState({ loading_indicator: false });
-        })
-        .catch((error) => {
-          // AlertIOS.alert(error.message);
-          this.setState({ loading_indicator: false });
-          console.log(error);
-          AlertIOS.alert('Registration unsuccessful...');
-               this.resetRegistration();
-          this.clearKeys();
-        });
+      .then(() => {
+        //clear existing keys before registering user
+        return ConsentUser.register(this.state.user, false);
+      })
+      .then((user) => {
+        this.setState({ loading_indicator: false });
+      })
+      .catch((error) => {
+        console.log("requestMagicLink", error)
+        // AlertIOS.alert(error.message);
+        this.setState({ loading_indicator: false });
+        console.log(error);
+        AlertIOS.alert('Registration unsuccessful...');
+              this.resetRegistration();
+        this.clearKeys();
+      });
     }
   }
 
@@ -372,6 +374,9 @@ class Register extends Scene {
           return Crypto.deleteKeyEntry(alias);
         })
       );
+    })
+    .catch(function(err) {
+      console.log("clearKeys error",err)
     });
   }
   // Called from LifekeyRn when DID is received via Firebase notification
