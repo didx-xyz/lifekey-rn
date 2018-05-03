@@ -1,6 +1,7 @@
 // external dependencies
 import React from "react"
-import { View, ToastAndroid, Dimensions, StatusBar } from "react-native"
+import { View, Text, ToastAndroid, Dimensions, StatusBar, ScrollView } from "react-native"
+import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
 
 // internal dependencies
@@ -9,6 +10,9 @@ import Scene from "../Scene"
 import ConsentUser from "../Models/ConsentUser"
 import EditForm from "../Components/SceneComponents/EditForm"
 import LifekeyFooter from "../Components/LifekeyFooter"
+import BackIcon from "../Components/BackIcon"
+import LifekeyHeader from "../Components/LifekeyHeader"
+import LifekeyHeaderWithTitle from "../Components/LifekeyHeaderWithTitle"
 import ProgressIndicator from "../Components/ProgressIndicator"
 import Countries from "../Countries"
 import Languages from "../Languages"
@@ -19,7 +23,7 @@ import Routes from "../Routes"
 import Logger from '../Logger'
 
 class EditProfile extends Scene {
-  
+
   constructor(...params) {
     super(...params)
 
@@ -63,8 +67,8 @@ class EditProfile extends Scene {
     this.setState(state, () => {
 
       return Api.setProfile(data)
-                .then(this.onBoundSave)
-                .catch(console.log)
+        .then(this.onBoundSave)
+        .catch(console.log)
     })
     //End set UI state
   }
@@ -85,7 +89,7 @@ class EditProfile extends Scene {
 
     const id = this.context.getEditResourceId()
     const form = this.context.getEditResourceForm()
-    
+
     Promise.all([
       Api.getResourceForm(form),
       Api.myProfile(),
@@ -96,7 +100,7 @@ class EditProfile extends Scene {
       let profile = values[1]
       let resourcesByType = values[2].resourcesByType
 
-      let state = { formTarget: profile, entities: [] }  
+      let state = { formTarget: profile, entities: [] }
 
       this.initializeState(state, formData.entities, resourcesByType)
 
@@ -117,7 +121,7 @@ class EditProfile extends Scene {
     })
   }
 
-  initializeState(state, entities, resourcesByType){
+  initializeState(state, entities, resourcesByType) {
 
     let rtEmail = resourcesByType.find(rt => rt.name === "Email")
     const emailValue = (rtEmail && rtEmail.items.length) ? rtEmail.items[0].email : ''
@@ -136,11 +140,11 @@ class EditProfile extends Scene {
 
       console.log(" _____________________________________________________ ENTITY NAME: ", entity)
 
-      if(entity.type === "string"){
-        
-        switch(entity.name){
+      if (entity.type === "string") {
+
+        switch (entity.name) {
           case "label":
-            state.formTarget[entity.name] =  state.formTarget.label || "My profile"
+            state.formTarget[entity.name] = state.formTarget.label || "My profile"
             entity.initialValue = state.formTarget.label || "My profile"
             break
           case "contactEmail":
@@ -188,7 +192,7 @@ class EditProfile extends Scene {
       if (entity.type === "photograph") {
         state.formTarget[entity.name + "__label"] = "Select a photograph"
 
-        switch(entity.name){
+        switch (entity.name) {
           case "profileImageUri":
             // entity.initialValue = profilePicValue
             state.formTarget[entity.name] = profilePicValue
@@ -197,26 +201,26 @@ class EditProfile extends Scene {
           default:
             entity.initialValue = "Select a photograph"
             break
-        } 
+        }
       }
     })
 
     state.entities = [
-      {"label": "Label", "name": "label", "type": "string"},
+      { "label": "Label", "name": "label", "type": "string" },
       ...entities
     ]
   }
 
   // This is necessary because the schema/form values of profile differ from the keys for the saved entity 
-  matchProfileAndState(newValue, formTarget){
-    
+  matchProfileAndState(newValue, formTarget) {
+
     console.log("NEW VALUE: ", newValue)
     console.log("FORM TARGET: ", formTarget)
 
     Object.keys(newValue).map((key, i) => {
-      switch(key){
+      switch (key) {
         case "label":
-          formTarget["label"] =  newValue["label"] || "My profile"
+          formTarget["label"] = newValue["label"] || "My profile"
           break
         case "contactEmail":
           formTarget["email"] = newValue["contactEmail"]
@@ -225,7 +229,7 @@ class EditProfile extends Scene {
           formTarget["colour"] = newValue["profileColour"]
           break
         case "displayName":
-          formTarget["display_name"] = newValue["displayName"] 
+          formTarget["display_name"] = newValue["displayName"]
           break
         case "profileImageUri":
           formTarget["image_uri"] = Common.ensureDataUrlIsCleanOfContext(newValue["profileImageUri"])
@@ -234,7 +238,7 @@ class EditProfile extends Scene {
           formTarget["address"] = newValue["contactAddress"]
           break
         case "contactTelephone":
-          formTarget["tel"] = newValue["contactTelephone"] 
+          formTarget["tel"] = newValue["contactTelephone"]
           break
         default:
           break
@@ -242,58 +246,89 @@ class EditProfile extends Scene {
     })
   }
 
-  setStringInputStateValue(entity, text){
+  setStringInputStateValue(entity, text) {
     let newResource = this.state.formTarget
     newResource[entity.name] = text
-    this.setState({resource: newResource})
+    this.setState({ resource: newResource })
   }
-  setImageInputStateValue(entity, data){
+  setImageInputStateValue(entity, data) {
     let newResource = this.state.formTarget
     newResource[entity.name + "__label"] = data.fileName
     // newResource[entity.name] = data.data
     newResource[entity.name] = Common.ensureDataUrlHasContext(data.data)
-    this.setState({resource: newResource})
+    this.setState({ resource: newResource })
   }
-  setDateInputStateValue(entity, date){
+  setDateInputStateValue(entity, date) {
     let newResource = this.state.formTarget
     newResource[entity.name] = date
-    this.setState({resource: newResource})
+    this.setState({ resource: newResource })
   }
-  setSelectInputStateValue(entity, option){
+  setSelectInputStateValue(entity, option) {
     let newResource = this.state.formTarget
     newResource[entity.name + "__label"] = option.label
     newResource[entity.name] = option.key
-    this.setState({resource: newResource})
+    this.setState({ resource: newResource })
   }
 
+
+
   render() {
-    return (    
-      !this.state.asyncActionInProgress ?
-        <View style={ styles.container }>
-          <View style={ styles.formContainer }>
-            <EditForm 
-              formTarget={this.state.formTarget}
-              entities={this.state.entities}
-              backgroundColor="transparent"
-              setStringInputStateValue={this.boundSetStringInputStateValue}
-              setImageInputStateValue={this.boundSetImageInputStateValue}
-              setDateInputStateValue={this.boundSetDateInputStateValue}
-              setSelectInputStateValue={this.boundSetSelectInputStateValue}>
-            </EditForm> 
-          </View>
-          <View style={ styles.footerContainer }>
-            <LifekeyFooter
-              backgroundColor="transparent"
-              leftButtonText="Cancel"
-              onPressLeftButton={this.onBoundPressCancel} 
-              rightButtonText="Save"
-              onPressRightButton={this.onBoundPressSave} 
-            />
-          </View>
-        </View>
-      :
-        <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
-      )
+
+    const leftButton = {
+      icon: <BackIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Design.headerIconColour} />,
+      onPress: () => this.navigator.pop(),
+      borderColor: "white"
+    }
+
+    return (
+
+      <Container>
+        <LifekeyHeaderWithTitle title={this.context.getEditResourceName()} leftButton={leftButton} />
+        <ScrollView style={style.contentContainer}>
+          {
+            !this.state.asyncActionInProgress ?
+              <EditForm
+                formTarget={this.state.formTarget}
+                entities={this.state.entities}
+                backgroundColor="transparent"
+                setStringInputStateValue={this.boundSetStringInputStateValue}
+                setImageInputStateValue={this.boundSetImageInputStateValue}
+                setDateInputStateValue={this.boundSetDateInputStateValue}
+                setSelectInputStateValue={this.boundSetSelectInputStateValue}>
+              </EditForm>
+              :
+              <ProgressIndicator progressCopy={this.state.progressCopy}></ProgressIndicator>
+          }
+
+        </ScrollView>
+      </Container>
+
+      // !this.state.asyncActionInProgress ?
+      // <View style={ styles.container }>
+      //   <View style={ styles.formContainer }>
+      //     <EditForm 
+      //       formTarget={this.state.formTarget}
+      //       entities={this.state.entities}
+      //       backgroundColor="transparent"
+      //       setStringInputStateValue={this.boundSetStringInputStateValue}
+      //       setImageInputStateValue={this.boundSetImageInputStateValue}
+      //       setDateInputStateValue={this.boundSetDateInputStateValue}
+      //       setSelectInputStateValue={this.boundSetSelectInputStateValue}>
+      //     </EditForm> 
+      //   </View>
+      //   <View style={ styles.footerContainer }>
+      //     <LifekeyFooter
+      //       backgroundColor="transparent"
+      //       leftButtonText="Cancel"
+      //       onPressLeftButton={this.onBoundPressCancel} 
+      //       rightButtonText="Save"
+      //       onPressRightButton={this.onBoundPressSave} 
+      //     />
+      //   </View>
+      // </View>
+      // :
+      //   <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
+    )
   }
 
 }
@@ -313,8 +348,8 @@ EditProfile.contextTypes = {
   "getEditResourceName": PropTypes.func
 }
 
-const styles = {
-  container: {
+const style = {
+  "container": {
     "height": Dimensions.get('window').height,
     "width": "100%",
     "backgroundColor": Palette.consentOffBlack
@@ -322,10 +357,24 @@ const styles = {
   "formContainer": {
     "height": Dimensions.get('window').height - Design.lifekeyFooterHeight - StatusBar.currentHeight
   },
+  "headerWrapper": {
+    "borderColor": Palette.consentGrayDark,
+    "height": 70
+  },
+  "contentContainer": {
+    "flex": 1,
+    "backgroundColor": Palette.consentGrayLightest,
+  },
   "footerContainer": {
     "height": Design.lifekeyFooterHeight,
     "width": "100%"
-  }
+  },
+  "headingText": {
+    "flex": 4,
+    "textAlign": "left",
+    "color": Palette.consentBlue,
+    "fontSize": 20
+  },
 }
 
 export default EditProfile

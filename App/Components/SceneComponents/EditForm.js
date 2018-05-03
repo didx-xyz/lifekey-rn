@@ -29,14 +29,14 @@ class EditForm extends Component{
       <View style={ Object.assign({}, styles.content, { backgroundColor: this.props.backgroundColor} )}>
         <View style={styles.card}>
             <View style={styles.heading}>
-              <Text style={styles.headingText}>{this.context.getEditResourceName()}</Text>
-              { !!this.context.getEditResourceId() &&
+              
+              {/* { !!this.context.getEditResourceId() &&
                 <Touchable onPress={this.props.onDelete} hitSlop={Common.touchableArea}>
                   <View style={ styles.deleteContainer}>
                     <GearIcon width={30} height={30} stroke={Palette.consentGrayDark}></GearIcon>
                   </View>
                 </Touchable> 
-              }
+              } */}
             </View>  
             { this.props.error !== "" &&
               <View style={styles.error}>
@@ -290,15 +290,13 @@ const styles = {
   "card": {
     "backgroundColor": Palette.consentOffWhite,
     "margin": 10,
-    "paddingLeft": 10,
-    "paddingRight": 10,
+    "paddingLeft": 5,
+    "paddingRight": 5,
   },
   "heading": {
-    "height": 64,
+    "height": 0,
     "width": "100%",
     "flexDirection": "row",
-    "borderBottomWidth": 1,
-    "borderBottomColor": Palette.consentBlue,
     // "alignItems": "flex-start",
     "alignItems": "center",
     "justifyContent": "space-around"
