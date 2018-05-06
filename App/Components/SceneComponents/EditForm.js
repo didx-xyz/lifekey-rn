@@ -2,7 +2,7 @@
 import React, { Component }  from "react"
 import { Picker, Text, TextInput, View, ToastAndroid, Image } from "react-native"
 import { Container } from "native-base"
-import ModalPicker from "react-native-modal-picker"
+import ModalPicker from "react-native-modal-selector"
 import DatePicker from "react-native-datepicker"
 import PropTypes from "prop-types"
 import ImagePicker from "react-native-image-picker"

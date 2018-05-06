@@ -8,7 +8,7 @@ import {
   Image,
   StatusBar
 } from 'react-native'
-import { Container, Content, Grid, Col, Row } from 'native-base/backward'
+import { Container, Content, Grid, Col, Row } from 'native-base'
 
 import Scene from '../../Scene'
 import Logger from '../../Logger'

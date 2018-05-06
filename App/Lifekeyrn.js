@@ -20,11 +20,11 @@ import Firebase from 'react-native-firebase';
 import {
   View,
   Dimensions,
-  Navigator,
   Platform,
   StatusBar,
   ToastAndroid
 } from 'react-native';
+import {Navigator} from 'react-native-deprecated-custom-components'
 import PropTypes from 'prop-types';
 
 const PORTRAIT = 0;
@@ -83,7 +83,7 @@ class Lifekeyrn extends Component {
     // Members
     this._className = this.constructor.name;
     this.filename = this._className + '.js';
-    this._firebase = new Firebase();
+    this._firebase = new Firebase.app();
     this._messaging = this._firebase.messaging();
     this.firebaseInternalEventEmitter = new EventEmitter();
     this._navigationEventEmitter = new EventEmitter();
@@ -117,7 +117,7 @@ class Lifekeyrn extends Component {
       // Logger.info('TODO: Firebase iOS', this.filename);
  
       // requests permissions from the user
-      this._messaging.requestPermissions();
+      this._messaging.requestPermission();
       this._messaging.getToken().then(token => {
         // get users token
         Logger.info('Firebase token: ', token);

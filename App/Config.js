@@ -5,7 +5,7 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-import {Navigator} from 'react-native'
+import {Navigator} from 'react-native-deprecated-custom-components'
 import Routes from './Routes'
 import Palette from './Palette'
 const NPM_PACKAGE = require('../package.json')

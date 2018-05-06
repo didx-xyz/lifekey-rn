@@ -7,7 +7,6 @@ target 'Lifekeyrn' do
     pod 'Firebase/Auth'
     pod 'Firebase/Analytics'
     pod 'Firebase/Core'
-    pod 'Firebase/Crash'
     pod 'Firebase/Database'
     pod 'Firebase/DynamicLinks'
     pod 'Firebase/Messaging'

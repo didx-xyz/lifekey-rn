@@ -10,9 +10,6 @@ PODS:
   - Firebase/Core (4.13.0):
     - FirebaseAnalytics (= 4.2.0)
     - FirebaseCore (= 4.0.20)
-  - Firebase/Crash (4.13.0):
-    - Firebase/Core
-    - FirebaseCrash (= 2.0.2)
   - Firebase/Database (4.13.0):
     - Firebase/Core
     - FirebaseDatabase (= 4.1.5)
@@ -42,12 +39,6 @@ PODS:
     - GTMSessionFetcher/Core (~> 1.1)
   - FirebaseCore (4.0.20):
     - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
-  - FirebaseCrash (2.0.2):
-    - FirebaseAnalytics (~> 4.0)
-    - FirebaseInstanceID (~> 2.0)
-    - GoogleToolboxForMac/Logger (~> 2.1)
-    - "GoogleToolboxForMac/NSData+zlib (~> 2.1)"
-    - Protobuf (~> 3.1)
   - FirebaseDatabase (4.1.5):
     - FirebaseAnalytics (~> 4.1)
     - FirebaseCore (~> 4.0)
@@ -100,7 +91,6 @@ DEPENDENCIES:
   - Firebase/Analytics
   - Firebase/Auth
   - Firebase/Core
-  - Firebase/Crash
   - Firebase/Database
   - Firebase/DynamicLinks
   - Firebase/Messaging
@@ -116,7 +106,6 @@ SPEC REPOS:
     - FirebaseAnalytics
     - FirebaseAuth
     - FirebaseCore
-    - FirebaseCrash
     - FirebaseDatabase
     - FirebaseDynamicLinks
     - FirebaseInstanceID
@@ -137,7 +126,6 @@ SPEC CHECKSUMS:
   FirebaseAnalytics: 7ef69e76a5142f643aeb47c780e1cdce4e23632e
   FirebaseAuth: bf22cacf22c60ab454bf2636f556d8892b10b53f
   FirebaseCore: 90cb1c53d69b556f112a1bf72b5fcfaad7650790
-  FirebaseCrash: a7d980468dc8aa2db9792493c3e02722d601f6ab
   FirebaseDatabase: 5f0bc6134c5c237cf55f9e1249d406770a75eafd
   FirebaseDynamicLinks: 38b68641d24e78d0277a9205d988ce22875d5a25
   FirebaseInstanceID: 8d20d890d65c917f9f7d9950b6e10a760ad34321
@@ -150,6 +138,6 @@ SPEC CHECKSUMS:
   nanopb: 5601e6bca2dbf1ed831b519092ec110f66982ca3
   Protobuf: 8a9838fba8dae3389230e1b7f8c104aa32389c03
 
-PODFILE CHECKSUM: 590aafe857641861e4ee5b36a075a164050fc148
+PODFILE CHECKSUM: 691c1514d72f1cacf76d9824591c6a482cd60d00
 
 COCOAPODS: 1.5.0

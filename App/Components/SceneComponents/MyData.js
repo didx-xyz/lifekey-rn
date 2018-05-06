@@ -12,7 +12,7 @@ import { Card, CardItem } from "native-base"
 
 import RcWrapper from "../ResourceComponents/rc-Wrapper"
 import RcWrapperLight from "../ResourceComponents/rc-Wrapper-Light"
-import ModalPicker from "react-native-modal-picker"
+import ModalPicker from "react-native-modal-selector"
 import LcAddCategoryButton from "../lc-AddCategoryButton"
 import Touchable from "../Touchable"
 

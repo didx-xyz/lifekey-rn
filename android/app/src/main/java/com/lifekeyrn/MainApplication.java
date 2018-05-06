@@ -47,6 +47,11 @@ public class MainApplication extends Application implements ReactApplication {
               new FingerprintPackage()
       );
     }
+
+    @Override
+    protected String getJSMainModuleName() {
+      return "index";
+    }
   };
 
   @Override
