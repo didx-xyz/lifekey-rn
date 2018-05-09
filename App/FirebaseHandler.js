@@ -10,7 +10,7 @@ import ConsentDiscoveredUser from './Models/ConsentDiscoveredUser'
 import ConsentISA from './Models/ConsentISA'
 import ConsentThanksMessage from './Models/ConsentThanksMessage'
 import ConsentUserConnectionMessage from './Models/ConsentUserConnectionMessage'
-import {ToastAndroid} from 'react-native'
+import { ToastAndroid, Platform } from 'react-native'
 import ConsentMessage from './Models/ConsentMessage'
 
 class FirebaseHandler {
@@ -210,6 +210,12 @@ class FirebaseHandler {
   static isa_ledgered(message, eventEmitter) {}
 
   static messageReceived(eventEmitter, message) {
+    
+    if (Platform.OS === 'ios') {
+      message = message.data
+      console.log('messageReceived_ios', message)
+    }
+
     if (message && message.type) {
       Logger.firebase('message', JSON.stringify(message))
       Logger.firebase('message.type', message.type)
