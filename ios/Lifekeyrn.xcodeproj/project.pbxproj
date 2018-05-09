@@ -731,13 +731,10 @@
 		832341AE1AAA6A7D00B99B32 /* Libraries */ = {
 			isa = PBXGroup;
 			children = (
-				3A2A238B209FC3D700C4B8B7 /* RNCamera.xcodeproj */,
-				202E08B4205E1F1800297941 /* ReactNativeFingerprintScanner.xcodeproj */,
-				206AC1CF205D3538009D4A49 /* RNVectorIcons.xcodeproj */,
-				5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */,
-				146833FF1AC3E56700842450 /* React.xcodeproj */,
 				00C302A71ABCB8CE00DB3ED1 /* RCTActionSheet.xcodeproj */,
+				5E91572D1DD0AC6500FF2AA8 /* RCTAnimation.xcodeproj */,
 				00C302B51ABCB90400DB3ED1 /* RCTGeolocation.xcodeproj */,
+				32DDAA44068840429C41691C /* RCTGoogleAnalyticsBridge.xcodeproj */,
 				00C302BB1ABCB91800DB3ED1 /* RCTImage.xcodeproj */,
 				78C398B01ACF4ADC00677621 /* RCTLinking.xcodeproj */,
 				00C302D31ABCB9D200DB3ED1 /* RCTNetwork.xcodeproj */,
@@ -745,12 +742,15 @@
 				832341B01AAA6A8300B99B32 /* RCTText.xcodeproj */,
 				00C302DF1ABCB9EE00DB3ED1 /* RCTVibration.xcodeproj */,
 				139FDEE61B06529A00C62182 /* RCTWebSocket.xcodeproj */,
-				61F5857F14214BA9B28D41BD /* RNSVG.xcodeproj */,
-				09D8E1CFF45B4C4A9E67C892 /* RNImagePicker.xcodeproj */,
-				0B210B879F30473CAB7FF418 /* RNGeocoder.xcodeproj */,
-				32DDAA44068840429C41691C /* RCTGoogleAnalyticsBridge.xcodeproj */,
+				146833FF1AC3E56700842450 /* React.xcodeproj */,
+				202E08B4205E1F1800297941 /* ReactNativeFingerprintScanner.xcodeproj */,
+				3A2A238B209FC3D700C4B8B7 /* RNCamera.xcodeproj */,
 				325749BBED8041B8B371C904 /* RNCryptoModule.xcodeproj */,
 				5FAED92FBFC94AE3BE695C85 /* RNFirebase.xcodeproj */,
+				0B210B879F30473CAB7FF418 /* RNGeocoder.xcodeproj */,
+				09D8E1CFF45B4C4A9E67C892 /* RNImagePicker.xcodeproj */,
+				61F5857F14214BA9B28D41BD /* RNSVG.xcodeproj */,
+				206AC1CF205D3538009D4A49 /* RNVectorIcons.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";

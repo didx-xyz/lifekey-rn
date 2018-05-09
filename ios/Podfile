@@ -15,8 +15,6 @@ target 'Lifekeyrn' do
     pod 'Fabric'
     pod 'Crashlytics'
 
-  pod 'react-native-camera', :path => '../node_modules/react-native-camera'
-
 end
 
 

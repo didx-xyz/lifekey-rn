@@ -109,6 +109,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-geocoder')
     compile project(':react-native-fingerprint-scanner')
     compile project(':react-native-crypto-module')
     compile project(':react-native-fingerprint-android')
