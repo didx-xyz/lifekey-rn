@@ -112,7 +112,9 @@ dependencies {
     compile project(':react-native-fingerprint-scanner')
     compile project(':react-native-crypto-module')
     compile project(':react-native-fingerprint-android')
-    compile project(':react-native-firebase')
+    compile(project(':react-native-firebase')) {
+        transitive = false
+    }
     compile project(':react-native-image-picker')
     compile project(':react-native-svg')
     compile project(':react-native-dialogs')
