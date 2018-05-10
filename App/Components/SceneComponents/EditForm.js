@@ -286,12 +286,14 @@ const styles = {
     "alignSelf": "center",
     "alignItems": "center",
     "justifyContent": "center",
+    "width": "100%",
   },
   "card": {
     "backgroundColor": Palette.consentOffWhite,
     "margin": 10,
     "paddingLeft": 5,
     "paddingRight": 5,
+    "width": "100%",
   },
   "heading": {
     "height": 0,
