@@ -7,7 +7,7 @@ export default class ConsentUserShare {
 
   static add(resource) {
     if (!resource.from_user_did) {
-      return Promise.reject('resource has no `from_user_did` field')
+      return false //Promise.reject('resource has no `from_user_did` field')
     }
     return AsyncStorage.getItem(
       STORAGE_KEY
