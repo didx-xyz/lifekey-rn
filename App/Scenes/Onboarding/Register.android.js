@@ -85,7 +85,7 @@ class Register extends Scene {
       {
         largeText: 'Thanks for activating!',
         smallText:
-          'Please wait while we create your Decentralised Identifier on the Consent Blockchain...',
+          'Please wait while we create your Decentralised Identifier on the Consent Blockchain. This can take upto 10 minutes',
         bottomText: ''
       },
       {
