@@ -190,7 +190,7 @@ class InformationRequest extends Scene {
                     </View>
 
                     { this.state.complete.length > 0 && 
-                      <View>  
+                      <View style={styles.cardContainer}>  
                         { 
                           this.state.complete.map((entity, i) => {
                             return (
@@ -211,7 +211,7 @@ class InformationRequest extends Scene {
                     }                  
   
                     {this.state.partial.length > 0 &&
-                      <View>
+                      <View style={styles.cardContainer}>
                           { this.state.partial.map((entity, i) => {
                             return (
                               <View style={ Object.assign({}, styles.resourceItem, styles.partialResource) }>
@@ -223,7 +223,7 @@ class InformationRequest extends Scene {
                     }
                     
                     {this.state.missing.length > 0 &&
-                      <View>
+                      <View style={styles.cardContainer}>
                         { this.state.missing.map((entity, i) => {
                           return (
                             <View key={entity.name} style={ styles.resourceItem }>
@@ -272,6 +272,7 @@ class InformationRequest extends Scene {
 
 const styles = {
   "content": {
+    paddingTop: 15,
     flex: 1,
     "backgroundColor": Palette.consentOffBlack
   },
@@ -309,7 +310,7 @@ const styles = {
     "alignItems": "center",
   },
   "resourceItem":{
-    "width": "100%"
+    "width": "100%",
   },
   "partialResource": {
     "borderLeftColor": "orange",
@@ -345,6 +346,10 @@ const styles = {
     "alignItems": "center",
     "justifyContent": "center",
     "padding": Design.paddingTop
+  },
+  "cardContainer": {
+    "flexDirection": "column",
+    "width": "100%",
   },
   "card": {
     "marginTop": 1
