@@ -61,7 +61,7 @@ class ConnectionDetails extends Scene {
       showHelp: false,
       colour: "white",
       foregroundColor: 'white',
-      image_uri: null,
+      image_uri: this.props.route.image_uri,
       actions_url: null,
       address: null,
       tel: null,
@@ -142,7 +142,7 @@ class ConnectionDetails extends Scene {
     ]).then(res => {
       var [profile, messages] = res
 
-      // console.log("CONNECTION PROFILE: ", profile)
+      //  console.log("CONNECTION PROFILE: ", profile)
 
       this.setState({
         connectionProfile: profile.body.user,

@@ -6,7 +6,8 @@ import {
   Dimensions,
   StatusBar,
   ToastAndroid,
-  Image
+  Image,
+  Platform
 } from "react-native"
 import { Container } from "native-base"
 import * as Nachos from 'nachos-ui'
@@ -80,7 +81,9 @@ class Connection extends Scene {
 
   onPressConnect() {
 
-    ToastAndroid.show(`Connecting to ${this.props.route.display_name}`, ToastAndroid.SHORT)
+    if (Platform.OS === 'android') {
+      ToastAndroid.show(`Connecting to ${this.props.route.display_name}`, ToastAndroid.SHORT)
+    }
     this.setState({
       connecting: true
     }, () => {
@@ -94,7 +97,9 @@ class Connection extends Scene {
         })
       })
       .catch(error => {
-        ToastAndroid.show(`Could not connect...`, ToastAndroid.SHORT)
+        if (Platform.OS === 'android') { 
+          ToastAndroid.show(`Could not connect...`, ToastAndroid.SHORT)
+        }
         // console.log("--------------------------------- ERROR: ", error)
         Logger.warn(JSON.stringify(error))
         this.setState({
@@ -139,7 +144,7 @@ class Connection extends Scene {
             <Text style={styles.connectedText}>Connected to 3,421 people.</Text>
           </View> */ }
           <Text style={ styles.greetingText }>Hi there {Util.ucfirst(ConsentUser.getDisplayNameSync())}. Connecting with {Util.ucfirst(this.props.route.display_name)} will allow you to:</Text>
-          
+
           { this.state.actions.map((action, i) =>
             <Text key={i} style={styles.actionsText}>• {action.name}.</Text>
           )}
@@ -160,6 +165,7 @@ class Connection extends Scene {
         </View>
 
         <LifekeyFooter
+          style={ styles.footer}
           color={ Palette.consentOffBlack }
           backgroundColor={ Palette.consentWhite }
           leftButtonText=""
