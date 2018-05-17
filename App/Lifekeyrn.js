@@ -26,6 +26,7 @@ import {
 } from 'react-native';
 import {Navigator} from 'react-native-deprecated-custom-components'
 import PropTypes from 'prop-types';
+import codePush from "react-native-code-push";
 
 const PORTRAIT = 0;
 const LANDSCAPE = 1;
@@ -424,6 +425,17 @@ class Lifekeyrn extends Component {
     }
   }
 
+  static checkForUpdate() {
+    CodePush.sync({
+        updateDialog: true,
+        installMode: CodePush.InstallMode.ON_NEXT_RESTART
+    }, (status) => {
+        if (status === CodePush.SyncStatus.UPDATE_INSTALLED) {
+            Alert.alert('Success', 'Update installed, please restart app')
+        }
+    })
+  }
+
   render() {
     return (
       <Navigator
@@ -485,3 +497,5 @@ Lifekeyrn.childContextTypes = {
 };
 
 export default Lifekeyrn;
+
+Lifekeyrn = codePush(Lifekeyrn);

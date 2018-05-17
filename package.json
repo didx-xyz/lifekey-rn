@@ -32,6 +32,7 @@
     "react-native-android-back-button": "https://github.com/asaturg/react-native-android-back-button.git",
     "react-native-camera": "^1.1.2",
     "react-native-cli": "^2.0.1",
+    "react-native-code-push": "^5.3.3",
     "react-native-crypto-module": "https://github.com/zkrige/rn-crypto.git",
     "react-native-datepicker": "^1.7.2",
     "react-native-deprecated-custom-components": "^0.1.2",
