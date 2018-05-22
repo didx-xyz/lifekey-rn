@@ -17,6 +17,7 @@ import Countries from "../Countries"
 import Languages from "../Languages"
 import Routes from "../Routes"
 import Logger from '../Logger'
+import { Container } from "native-base";
 
 class EditResource extends Scene {
   
@@ -142,6 +143,11 @@ class EditResource extends Scene {
     this.interaction = InteractionManager.runAfterInteractions(() => {
       const id = this.context.getEditResourceId()
       const form = this.context.getEditResourceForm()
+      const name = this.context.getEditResourceName()
+
+      console.log('id', id)
+      console.log('form', form)
+      console.log('name', name)
       
       Promise.all([
         Api.getResourceForm(form),
@@ -150,7 +156,7 @@ class EditResource extends Scene {
 
         let formData = values[0]
         let resource = values[1]
-        let state = { formTarget: resource ? resource : { "label" : `My ${this.context.getEditResourceName()}` } }
+        let state = { formTarget: resource ? resource : { "label" : `My ${name}` } }
 
         this.initializeState(state, formData.entities)
 
@@ -267,18 +273,21 @@ class EditResource extends Scene {
   render() {
     return (    
       !this.state.asyncActionInProgress ?
-        <View style={ styles.container }>
+        <Container>
+          <View style={ styles.container }>
           <ScrollView style={ styles.formContainer }>
-            <EditForm 
-              formTarget={this.state.formTarget}
-              entities={this.state.entities}
-              backgroundColor="transparent"
-              onDelete={this.onBoundDelete}
-              setStringInputStateValue={this.boundSetStringInputStateValue}
-              setImageInputStateValue={this.boundSetImageInputStateValue}
-              setDateInputStateValue={this.boundSetDateInputStateValue}
-              setSelectInputStateValue={this.boundSetSelectInputStateValue}>
-            </EditForm> 
+            <View style={ styles.formContent }>
+              <EditForm 
+                formTarget={this.state.formTarget}
+                entities={this.state.entities}
+                backgroundColor="transparent"
+                onDelete={this.onBoundDelete}
+                setStringInputStateValue={this.boundSetStringInputStateValue}
+                setImageInputStateValue={this.boundSetImageInputStateValue}
+                setDateInputStateValue={this.boundSetDateInputStateValue}
+                setSelectInputStateValue={this.boundSetSelectInputStateValue}>
+              </EditForm> 
+            </View>
           </ScrollView>
           <View style={ styles.footerContainer }>
             <LifekeyFooter
@@ -290,6 +299,8 @@ class EditResource extends Scene {
             />
           </View>
         </View>
+        </Container>
+        
       :
         <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
     )
@@ -315,12 +326,18 @@ EditResource.contextTypes = {
 
 const styles = {
   container: {
+    "flex": 1,
+    "paddingTop":15,
     "height": Dimensions.get('window').height - StatusBar.currentHeight,
     "width": "100%",
     "backgroundColor": Palette.consentOffBlack
   },
   "formContainer": {
-    // "height": Dimensions.get('window').height - Design.lifekeyFooterHeight - StatusBar.currentHeight
+    "margin": 10,
+  },
+  "formContent": {
+    "borderRadius": 10,
+    "backgroundColor": Palette.consentOffWhite
   },
   "footerContainer": {
     "height": Design.lifekeyFooterHeight,
