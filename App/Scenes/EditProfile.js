@@ -80,7 +80,9 @@ class EditProfile extends Scene {
     ConsentUser.updateProfile(this.state.formTarget)
     ConsentUser.updateState(this.state.formTarget)
 
-    ToastAndroid.show('Profile saved!', ToastAndroid.SHORT)
+    if (Platform.OS === 'android') { 
+      ToastAndroid.show('Profile saved!', ToastAndroid.SHORT)
+    }
 
     this.navigator.pop()
   }

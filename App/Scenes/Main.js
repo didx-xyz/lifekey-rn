@@ -113,15 +113,21 @@ class Main extends Scene {
 
   setNewConnectionRequest(from){
     this.loadConnections()
-    ToastAndroid.show(`${from} just requested that you connect...`, ToastAndroid.SHORT)
+    if (Platform.OS === 'android') { 
+      ToastAndroid.show(`${from} just requested that you connect...`, ToastAndroid.SHORT)
+    }
   }
   setNewConnection(from){
     this.loadConnections()
-    ToastAndroid.show(`You and ${from} are now connected...`, ToastAndroid.SHORT)
+    if (Platform.OS === 'android') { 
+      ToastAndroid.show(`You and ${from} are now connected...`, ToastAndroid.SHORT)
+    }
   }
   deleteExistingPeerConnection(){
     this.loadConnections()
-    ToastAndroid.show(`Connection deleted...`, ToastAndroid.SHORT)
+    if (Platform.OS === 'android') { 
+      ToastAndroid.show(`Connection deleted...`, ToastAndroid.SHORT)
+    }
   }
 
   set_unread(from) {

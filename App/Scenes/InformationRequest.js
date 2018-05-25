@@ -149,7 +149,9 @@ class InformationRequest extends Scene {
       )
       .then(response => {
         this.navigator.resetTo({...Routes.main})
-        ToastAndroid.show("Shared", ToastAndroid.SHORT)
+        if (Platform.OS === 'android') { 
+          ToastAndroid.show("Shared", ToastAndroid.SHORT)
+        }
       })
       .catch(error => {
         alert('Could not connect')

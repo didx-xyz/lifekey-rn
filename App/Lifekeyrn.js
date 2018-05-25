@@ -230,10 +230,14 @@ class Lifekeyrn extends Component {
       .then(() => {
         ConsentUser.removeFromState(id);
         this.navigator.popToRoute(Routes.me);
-        ToastAndroid.show('Resource deleted...', ToastAndroid.LONG);
+        if (Platform.OS === 'android') { 
+          ToastAndroid.show('Resource deleted...', ToastAndroid.LONG);
+        }
       })
       .catch((error) => {
-        ToastAndroid.show('Failed to delete resource...', ToastAndroid.LONG);
+        if (Platform.OS === 'android') { 
+          ToastAndroid.show('Failed to delete resource...', ToastAndroid.LONG);
+        }
         Logger.warn('Could not delete resource: ', error);
       });
   }
@@ -325,9 +329,11 @@ class Lifekeyrn extends Component {
     this.firebaseInternalEventEmitter.addListener(
       'webauth_failure',
       (message) => {
-        ToastAndroid.show(
-          'WEB AUTH FAILURE: ' + message + ' | ' + message.webauth_failure_type
-        );
+        if (Platform.OS === 'android') { 
+          ToastAndroid.show(
+            'WEB AUTH FAILURE: ' + message + ' | ' + message.webauth_failure_type
+          );
+        }
       }
     );
   }

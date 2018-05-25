@@ -114,10 +114,14 @@ class Me extends Scene {
 
         ConsentUser.setPendingState(resourceId, null)
         this.fetchMyData()
-        ToastAndroid.show('Resource shared...', ToastAndroid.LONG)
+        if (Platform.OS === 'android') { 
+          ToastAndroid.show('Resource shared...', ToastAndroid.LONG)
+        }
        })
        .catch(error => {
-        ToastAndroid.show('Failed to share resource...', ToastAndroid.SHORT)
+        if (Platform.OS === 'android') { 
+          ToastAndroid.show('Failed to share resource...', ToastAndroid.SHORT)
+        }
         console.log('Could not establish isa request: ', JSON.stringify(error))
        })
     }) 

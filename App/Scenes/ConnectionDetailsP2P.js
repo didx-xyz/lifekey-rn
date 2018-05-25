@@ -159,7 +159,9 @@ class ConnectionDetailsPeerToPeer extends Scene {
       "connectionData": connection.resourcesByType,
       "asyncActionInProgress": false
     })
-    ToastAndroid.show(`A new resource was just added...`, ToastAndroid.SHORT)
+    if (Platform.OS === 'android') { 
+      ToastAndroid.show(`A new resource was just added...`, ToastAndroid.SHORT)
+    }
   }
 
   render() {

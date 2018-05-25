@@ -132,7 +132,9 @@ class EditResource extends Scene {
 
     ConsentUser.updateState(newResource)
 
-    ToastAndroid.show('Resource saved!', ToastAndroid.SHORT)
+    if (Platform.OS === 'android') { 
+      ToastAndroid.show('Resource saved!', ToastAndroid.SHORT)
+    }
 
     const routes = this.navigator.getCurrentRoutes()
 
