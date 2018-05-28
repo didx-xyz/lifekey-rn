@@ -1,26 +1,18 @@
 // external dependencies
 import React, { Component }  from "react"
-import { Picker, Text, TextInput, View, ToastAndroid, Image } from "react-native"
-import { Container } from "native-base"
+import {  Text, TextInput, View, ToastAndroid, Image } from "react-native"
 import ModalPicker from "react-native-modal-selector"
 import DatePicker from "react-native-datepicker"
 import PropTypes from "prop-types"
 import ImagePicker from "react-native-image-picker"
-import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
-import Api from "../../Api"
-import ConsentUser from "../../Models/ConsentUser"
 import Touchable from "../../Components/Touchable"
-import GearIcon from "../../Components/GearIcon"
 import Countries from "../../Countries"
 import Languages from "../../Languages"
 import Common from "../../Common"
 import Palette from "../../Palette"
-import Design from "../../DesignParameters"
-import Routes from "../../Routes"
-import Logger from '../../Logger'
-import CircularImage from "../CircularImage"
+import Toast from '../../Utils/Toast'
 
 class EditForm extends Component{
 
@@ -190,7 +182,7 @@ class EditForm extends Component{
       }, (response) => {
         // console.log("file is this big: " + response.fileSize + " | " + response.data.length)
         if (response.data && response.data.length > 65535) { // (2^16 - 1)) {
-          ToastAndroid.show('Image is too large. Please try again...', ToastAndroid.LONG)
+          Toast.show('Image is too large. Please try again...', ToastAndroid.LONG)
           return
         }
         if(response.data && response.data.length)

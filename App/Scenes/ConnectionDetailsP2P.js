@@ -1,11 +1,11 @@
 
 // external dependencies
 import React from "react"
-import { Text, View, Image, ScrollView, TouchableHighlight, InteractionManager, ToastAndroid} from "react-native"
+import { View, ScrollView, InteractionManager, ToastAndroid} from "react-native"
 import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
 import ActivityIndicator from "ActivityIndicator"
-import ModalDropdown from 'react-native-modal-dropdown';
+import Toast from '../Utils/Toast'
 
 // internal dependencies
 import Common from "../Common"
@@ -159,9 +159,7 @@ class ConnectionDetailsPeerToPeer extends Scene {
       "connectionData": connection.resourcesByType,
       "asyncActionInProgress": false
     })
-    if (Platform.OS === 'android') { 
-      ToastAndroid.show(`A new resource was just added...`, ToastAndroid.SHORT)
-    }
+    Toast.show(`A new resource was just added...`, ToastAndroid.SHORT)
   }
 
   render() {

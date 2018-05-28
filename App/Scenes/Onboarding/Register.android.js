@@ -26,26 +26,15 @@ import {
   ToastAndroid
 } from 'react-native';
 
-// import {
-//   Container,
-//   Content,
-//   Grid,
-//   Row,
-//   Col
-// } from 'native-base'
-
 import fp from 'react-native-fingerprint-android';
-import FingerprintiOS from 'react-native-fingerprint-scanner';
 
 import HexagonDots from '../../Components/HexagonDots';
-// import Dots from '../../Components/Dots'
 import OnboardingTextInput from '../../Components/OnboardingTextInput';
-import EventTimeline from '../../Components/EventTimeline';
 import Touchable from '../../Components/Touchable';
-import DialogAndroid from 'react-native-dialogs';
 import AndroidBackButton from 'react-native-android-back-button';
 import AuthScreen from '../../Components/SceneComponents/AuthScreen';
 import * as Nachos from 'nachos-ui';
+import Toast from '../../Utils/Toast'
 
 // const DEBUG = false
 const STEP_USERNAME = 0;
@@ -296,7 +285,7 @@ class Register extends Scene {
 
   requestMagicLink() {
     new Promise((resolve) => {
-      ToastAndroid.show('Registering...', ToastAndroid.SHORT);
+      Toast.show('Registering...', ToastAndroid.SHORT);
       this.setState({ loading_indicator: true }, resolve);
     })
       .then((_) => {
@@ -319,7 +308,7 @@ class Register extends Scene {
       .catch((error) => {
         this.setState({ loading_indicator: false });
         console.log(error);
-        ToastAndroid.show('Registration unsuccessful...', ToastAndroid.SHORT);
+        Toast.show('Registration unsuccessful...', ToastAndroid.SHORT);
         Crypto.getKeyAliases().then(function(aliases) {
           return Promise.all(
             aliases.map(function(alias) {

@@ -8,23 +8,18 @@ import Scene from '../Scene'
 import Design from '../DesignParameters'
 import Palette from '../Palette'
 import Api from '../Api'
-import Session from '../Session'
 import Config from '../Config'
-import Logger from '../Logger'
 import Routes from '../Routes'
 import LifekeyHeader from '../Components/LifekeyHeader'
 import LifekeyFooter from '../Components/LifekeyFooter'
 import LifekeyList from '../Components/LifekeyList'
-import Touchable from '../Components/Touchable'
 import AndroidBackButton from 'react-native-android-back-button'
-import ConsentConnection from '../Models/ConsentConnection'
-import ConsentConnectionRequest from '../Models/ConsentConnectionRequest'
-import HexagonIcon from '../Components/HexagonIcon'
 import ConsentUser from '../Models/ConsentUser'
 import ThanksIcon from '../Components/ThanksIcon'
 import ScanIcon from '../Components/ScanIcon'
 import MessagesIcon from '../Components/MessagesIcon'
 import ProgressIndicator from "../Components/ProgressIndicator"
+import Toast from '../Utils/Toast'
 
 import {
   TouchableOpacity,
@@ -113,21 +108,15 @@ class Main extends Scene {
 
   setNewConnectionRequest(from){
     this.loadConnections()
-    if (Platform.OS === 'android') { 
-      ToastAndroid.show(`${from} just requested that you connect...`, ToastAndroid.SHORT)
-    }
+    Toast.show(`${from} just requested that you connect...`, ToastAndroid.SHORT)
   }
   setNewConnection(from){
     this.loadConnections()
-    if (Platform.OS === 'android') { 
-      ToastAndroid.show(`You and ${from} are now connected...`, ToastAndroid.SHORT)
-    }
+    Toast.show(`You and ${from} are now connected...`, ToastAndroid.SHORT)
   }
   deleteExistingPeerConnection(){
     this.loadConnections()
-    if (Platform.OS === 'android') { 
-      ToastAndroid.show(`Connection deleted...`, ToastAndroid.SHORT)
-    }
+    Toast.show(`Connection deleted...`, ToastAndroid.SHORT)
   }
 
   set_unread(from) {

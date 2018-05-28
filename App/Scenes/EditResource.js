@@ -15,9 +15,9 @@ import LifekeyFooter from "../Components/LifekeyFooter"
 import ProgressIndicator from "../Components/ProgressIndicator"
 import Countries from "../Countries"
 import Languages from "../Languages"
-import Routes from "../Routes"
 import Logger from '../Logger'
 import { Container } from "native-base";
+import Toast from '../Utils/Toast'
 
 class EditResource extends Scene {
   
@@ -113,7 +113,7 @@ class EditResource extends Scene {
           this.onBoundSave
         ).catch(error => { 
           console.log("ERROR SAVING RESOURCE: ", JSON.stringify(error)) 
-          ToastAndroid.show('There was an error trying to save this resource. Ensure the name is unique...', ToastAndroid.LONG)
+          Toast.show('There was an error trying to save this resource. Ensure the name is unique...', ToastAndroid.LONG)
           this.setState({ "asyncActionInProgress": false })
         })
       }
@@ -131,10 +131,7 @@ class EditResource extends Scene {
     newResource.id = newResource.id ? newResource.id : response.body.id // edited or saved
 
     ConsentUser.updateState(newResource)
-
-    if (Platform.OS === 'android') { 
-      ToastAndroid.show('Resource saved!', ToastAndroid.SHORT)
-    }
+    Toast.show('Resource saved!', ToastAndroid.SHORT)
 
     const routes = this.navigator.getCurrentRoutes()
 

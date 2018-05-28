@@ -5,11 +5,7 @@ import {
   View,
   Dimensions,
   StatusBar,
-  ToastAndroid,
-  Image,
-  Platform
 } from "react-native"
-import { Container } from "native-base"
 import * as Nachos from 'nachos-ui'
 // internal dependencies
 import BackButton from "../Components/BackButton"
@@ -28,6 +24,7 @@ import ConsentUser from '../Models/ConsentUser'
 import Api from '../Api'
 import Logger from '../Logger'
 import Session from '../Session'
+import Toast from '../Utils/Toast'
 
 class Connection extends Scene {
 
@@ -81,9 +78,7 @@ class Connection extends Scene {
 
   onPressConnect() {
 
-    if (Platform.OS === 'android') {
-      ToastAndroid.show(`Connecting to ${this.props.route.display_name}`, ToastAndroid.SHORT)
-    }
+    Toast.show(`Connecting to ${this.props.route.display_name}`)
     this.setState({
       connecting: true
     }, () => {
@@ -97,9 +92,7 @@ class Connection extends Scene {
         })
       })
       .catch(error => {
-        if (Platform.OS === 'android') { 
-          ToastAndroid.show(`Could not connect...`, ToastAndroid.SHORT)
-        }
+        Toast.show(`Could not connect...`)
         // console.log("--------------------------------- ERROR: ", error)
         Logger.warn(JSON.stringify(error))
         this.setState({

@@ -1,12 +1,10 @@
 // external dependencies
 import React from "react"
-import { Text, View, ScrollView, ToastAndroid, Image } from "react-native"
+import { Text, View, ScrollView, ToastAndroid } from "react-native"
 import { Container, Card, CardItem } from "native-base"
-import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
 import Api from "../Api"
-import Session from "../Session"
 import Routes from "../Routes"
 import Palette from "../Palette"
 import Design from "../DesignParameters"
@@ -17,11 +15,8 @@ import TickIcon from "../Components/TickIcon"
 import CircularImage from "../Components/CircularImage"
 import HexagonIcon from "../Components/HexagonIcon"
 import AddCategoryButton from "../Components/lc-AddCategoryButton"
-import InformationRequestResource from "../Components/InformationRequestResource"
-import MarketingIcon from "../Components/MarketingIcon"
 import ProgressIndicator from "../Components/ProgressIndicator"
 import Scene from "../Scene"
-import PeriodIcon from "../Components/PeriodIcon"
 import Touchable from "../Components/Touchable"
 import Logger from '../Logger'
 import Common from '../Common'
@@ -149,16 +144,14 @@ class InformationRequest extends Scene {
       )
       .then(response => {
         this.navigator.resetTo({...Routes.main})
-        if (Platform.OS === 'android') { 
-          ToastAndroid.show("Shared", ToastAndroid.SHORT)
-        }
+        Toast.show("Shared", ToastAndroid.SHORT)
       })
       .catch(error => {
         alert('Could not connect')
         Logger.warn(JSON.stringify(error))
         this.setState({
           "asyncActionInProgress": false
-        }, () => ToastAndroid.show("Failed to connect...", ToastAndroid.SHORT))
+        }, () => Toast.show("Failed to connect...", ToastAndroid.SHORT))
       })
     })
   }

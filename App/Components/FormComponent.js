@@ -26,28 +26,7 @@ class FormComponent extends Component {
 
   }
 
-  // onPressCancel() {
-  //   this.props.onPressCancel()
-  // }
 
-  // onPressSave() {
-    
-  // }
-
-  // onSave(response) {
-    
-  //   this.context.onSaveResource()
-
-  //   let newResource = Object.assign(this.state.newResource, JSON.parse(this.state.newResource.value))
-
-  //   newResource.id = newResource.id ? newResource.id : response.body.id // edited or saved
-
-  //   ConsentUser.updateState(newResource)
-
-  //   ToastAndroid.show('Resource saved!', ToastAndroid.SHORT)
-
-  //   this.navigator.pop()
-  // }
 
   render(){
     return (

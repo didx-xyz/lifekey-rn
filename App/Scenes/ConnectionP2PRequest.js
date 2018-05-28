@@ -1,21 +1,18 @@
 // external dependencies
 import React from "react"
-import { Text, View, ToastAndroid } from "react-native"
+import { ToastAndroid } from "react-native"
 import AndroidBackButton from 'react-native-android-back-button'
 import { Container } from "native-base"
-import Routes from '../Routes'
-import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
 import Api from '../Api'
-import BackButton from "../Components/BackButton"
-import BackIcon from "../Components/BackIcon"
 import Verification from "../Components/SceneComponents/Verification"
 import Common from "../Common"
 import Palette from "../Palette"
 import Scene from "../Scene"
 import Button from "../Components/Button"
 import ProgressIndicator from "../Components/ProgressIndicator"
+import Toast from '../Utils/Toast'
 
 class ConnectionPeerToPeerRequest extends Scene {
 
@@ -111,7 +108,7 @@ class ConnectionPeerToPeerRequest extends Scene {
   }
 
   onError(errorMessage){
-    ToastAndroid.show(`There was an issue requesting a connection... ${errorMessage}`, ToastAndroid.LONG)
+    Toast.show(`There was an issue requesting a connection... ${errorMessage}`, ToastAndroid.LONG)
     this.onChangeOfMind()
   }
 

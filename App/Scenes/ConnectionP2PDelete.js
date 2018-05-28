@@ -1,10 +1,9 @@
 // external dependencies
 import React from "react"
-import { Text, View, ToastAndroid } from "react-native"
+import { ToastAndroid } from "react-native"
 import AndroidBackButton from 'react-native-android-back-button'
 import { Container } from "native-base"
 import Routes from '../Routes'
-import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
 import Api from '../Api'
@@ -17,6 +16,7 @@ import Palette from "../Palette"
 import Scene from "../Scene"
 import Button from "../Components/Button"
 import ProgressIndicator from "../Components/ProgressIndicator"
+import Toast from '../Utils/Toast'
 
 class ConnectionPeerToPeerDelete extends Scene {
 
@@ -98,7 +98,7 @@ class ConnectionPeerToPeerDelete extends Scene {
 
            if(response.status >= 200 && response.status < 400 ){
               ConsentUser.removeEnabledPeerConnection(this.props.route.user_connection_id)
-              ToastAndroid.show("Connection deleted...", ToastAndroid.LONG)
+              Toast.show("Connection deleted...", ToastAndroid.LONG)
               this.navigator.replace({ ...Routes.main })
             }
             else{
@@ -108,7 +108,7 @@ class ConnectionPeerToPeerDelete extends Scene {
          })
          .catch(error => {
           console.log("DELETE ERROR: ", JSON.stringify(error))
-           ToastAndroid.show(`Something went wrong. Please try again...`, ToastAndroid.SHORT)
+           Toast.show(`Something went wrong. Please try again...`, ToastAndroid.SHORT)
          })
 
     })
@@ -116,7 +116,7 @@ class ConnectionPeerToPeerDelete extends Scene {
   }
 
   onError(errorMessage){
-    ToastAndroid.show(`There was an issue deleting this connection... ${errorMessage}`, ToastAndroid.LONG)
+    Toast.show(`There was an issue deleting this connection... ${errorMessage}`, ToastAndroid.LONG)
     this.onChangeOfMind()
   }
 

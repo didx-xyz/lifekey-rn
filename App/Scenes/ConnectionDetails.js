@@ -190,30 +190,6 @@ class ConnectionDetails extends Scene {
     })
   }
 
-  /* Was originally in InfoRequest */
-  // onPressShare() {
-
-  //   // SPINNER
-  //   this.setState({"asyncActionInProgress": true, "progressCopy": "Sharing details..."}, () => {
-  //     Api.establishISA(
-  //       this.props.did,
-  //       this.props.action.action_name,
-  //       this.state.complete
-  //     )
-  //     .then(response => {
-  //       this.navigator.resetTo({...Routes.main})
-  //       ToastAndroid.show("Shared", ToastAndroid.SHORT)
-  //     })
-  //     .catch(error => {
-  //       alert('Could not connect')
-  //       Logger.warn(JSON.stringify(error))
-  //       this.setState({
-  //         "asyncActionInProgress": false
-  //       }, () => ToastAndroid.show("Failed to connect...", ToastAndroid.SHORT))
-  //     })
-  //   })
-  // }
-
 
   editIsa(){
     this.navigator

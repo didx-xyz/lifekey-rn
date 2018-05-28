@@ -3,6 +3,7 @@ import React from "react"
 import { View, Text, ToastAndroid, Dimensions, StatusBar, ScrollView } from "react-native"
 import { Container, Content, Col } from "native-base"
 import PropTypes from "prop-types"
+import Toast from '../Utils/Toast'
 
 // internal dependencies
 import Api from "../Api"
@@ -80,9 +81,7 @@ class EditProfile extends Scene {
     ConsentUser.updateProfile(this.state.formTarget)
     ConsentUser.updateState(this.state.formTarget)
 
-    if (Platform.OS === 'android') { 
-      ToastAndroid.show('Profile saved!', ToastAndroid.SHORT)
-    }
+    Toast.show('Profile saved!', ToastAndroid.SHORT)
 
     this.navigator.pop()
   }
