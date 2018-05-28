@@ -39,7 +39,7 @@
     "react-native-dialogs": "0.0.21",
     "react-native-fingerprint-android": "^0.1.7",
     "react-native-fingerprint-scanner": "^2.3.2",
-    "react-native-firebase": "^4.2.0",
+    "react-native-firebase": "4.1.0",
     "react-native-geocoder": "^0.5.0",
     "react-native-gesture-view": "^0.2.1",
     "react-native-google-analytics-bridge": "^5.6.3",

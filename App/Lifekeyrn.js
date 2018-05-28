@@ -156,6 +156,7 @@ class Lifekeyrn extends Component {
       this
     );
     this.boundUserHasActivated = this.userHasActivated.bind(this);
+    Lifekeyrn.checkForUpdate();
   }
 
   getEditResourceForm() {
