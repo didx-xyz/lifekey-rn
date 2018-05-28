@@ -15,7 +15,9 @@
     "shake_android_all": "./bin/shake_android_all",
     "reinstall_complete": "./bin/reinstall_complete",
     "android-dev": "adb reverse tcp:8081 tcp:8081",
-    "build:ios": "react-native bundle --entry-file index.js --platform ios --dev false --bundle-output ios/main.jsbundle --assets-dest ios"
+    "build:ios": "react-native bundle --entry-file index.js --platform ios --dev false --bundle-output ios/main.jsbundle --assets-dest ios",
+    "codepush": "appcenter codepush release-react -d Production --mandatory --app LifeQi/LifeQi"
+
   },
   "dependencies": {
     "ansi-styles": "^3.2.1",

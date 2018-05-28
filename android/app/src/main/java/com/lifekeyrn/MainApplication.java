@@ -4,6 +4,7 @@ import android.app.Application;
 
 import com.aakashns.reactnativedialogs.ReactNativeDialogsPackage;
 import com.facebook.react.ReactApplication;
+import com.microsoft.codepush.react.CodePush;
 import za.co.apextechnology.crypto.CryptoPackage;
 import com.imagepicker.ImagePickerPackage;
 import com.horcrux.svg.SvgPackage;
@@ -37,6 +38,7 @@ public class MainApplication extends Application implements ReactApplication {
     protected List<ReactPackage> getPackages() {
       return Arrays.<ReactPackage>asList(
               new MainReactPackage(),
+              new CodePush(getResources().getString(R.string.reactNativeCodePush_androidDeploymentKey), getApplicationContext(), BuildConfig.DEBUG),
               new ImagePickerPackage(),
               new SvgPackage(),
               new RCTCameraPackage(),
@@ -44,7 +46,7 @@ public class MainApplication extends Application implements ReactApplication {
               new CryptoPackage(),
               new RNFirebasePackage(),
               new ReactNativeDialogsPackage(),
-              new FingerprintPackage()
+              new FingerprintPackage(),
       );
     }
 
