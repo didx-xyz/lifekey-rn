@@ -1,7 +1,7 @@
 
 // external dependencies
 import React from "react"
-import { TextView, ScrollView, InteractionManager, ToastAndroid} from "react-native"
+import { View, ScrollView, InteractionManager, ToastAndroid} from "react-native"
 import { Container } from "native-base"
 import PropTypes from "prop-types"
 import ActivityIndicator from "ActivityIndicator"

@@ -198,7 +198,7 @@ class EditForm extends Component{
     return (
       <Touchable onPress={pick}>
         <View style={styles.photographLabel}>
-          <Image style={styles.fullImage} width={50} height={85} source={{ uri: imageUri, scale: 1 }}></Image>
+          <Image style={styles.fullImage} width={50} height={85} source={{ uri: imageUri, scale: 1 }}/>
         </View>
       </Touchable>
     )
