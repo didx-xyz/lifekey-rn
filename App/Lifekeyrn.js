@@ -26,7 +26,7 @@ import {
 } from 'react-native';
 import {Navigator} from 'react-native-deprecated-custom-components'
 import PropTypes from 'prop-types';
-import codePush from "react-native-code-push";
+import CodePush from "react-native-code-push";
 
 const PORTRAIT = 0;
 const LANDSCAPE = 1;
@@ -497,4 +497,4 @@ Lifekeyrn.childContextTypes = {
 
 export default Lifekeyrn;
 
-Lifekeyrn = codePush(Lifekeyrn);
+Lifekeyrn = CodePush(Lifekeyrn);
