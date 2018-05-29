@@ -27,7 +27,11 @@ import {
 import {Navigator} from 'react-native-deprecated-custom-components'
 import PropTypes from 'prop-types';
 import CodePush from "react-native-code-push";
-
+import {YellowBox} from 'react-native'
+YellowBox.ignoreWarnings([
+  'source.uri should not be an empty string',
+  'Module RCTImageLoader requires main queue setup since it overrides',
+])
 const PORTRAIT = 0;
 const LANDSCAPE = 1;
 

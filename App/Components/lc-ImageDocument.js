@@ -36,7 +36,7 @@ class LcImageDocument extends Component {
     if(expanded)
       return (
         <View style={styles.fullImageContainer}>
-          <Image style={styles.fullImage} source={{ uri: documentUri, scale: 1 }}></Image>
+          <Image style={styles.fullImage} source={{ uri: documentUri, scale: 1 }}/>
         </View>
       )
     else
@@ -49,9 +49,9 @@ class LcImageDocument extends Component {
             onRequestClose={() => {alert("Modal has been closed.")}}
             >
            <View style={{ "flex": 1 }}>
-              <View style={ styles.modalBackdrop }></View>
+              <View style={ styles.modalBackdrop }/>
               <View style={styles.fullImageContainer}>
-                <Image style={styles.fullImage} source={{ uri: documentUri, scale: 1 }}></Image>
+                <Image style={styles.fullImage} source={{ uri: documentUri, scale: 1 }}/>
               </View>
 
               <LifekeyFooter
@@ -64,7 +64,7 @@ class LcImageDocument extends Component {
            </View>
           </Modal>
           <View style={styles.listImage}>
-            <Image style={styles.image} source={{ uri: documentUri, scale: 1 }}></Image>
+            <Image style={styles.image} source={{ uri: documentUri, scale: 1 }}/>
           </View>
           <View style={styles.listBody}>
             <TouchableHighlight onPress={() => { this.setModalVisible(!this.state.modalVisible) }}>

@@ -28,13 +28,13 @@ class MyData extends Component {
     if(!this.validResourceType(resourceType)) return
 
     if(this.props.light)
-      return <RcWrapperLight resourceType={resourceType} includeResourceType={true}></RcWrapperLight>
+      return <RcWrapperLight resourceType={resourceType} includeResourceType={true}/>
     else
       return <RcWrapper onPressShare={this.props.onPressShare} 
                         onPressEdit={this.props.onPressEdit} 
                         onPressProfile={this.props.onPressProfile}
                         peerConnections={this.props.peerConnections}
-                        resourceType={resourceType}></RcWrapper>
+                        resourceType={resourceType}/>
   }
 
   VC_render(resourceType) {
