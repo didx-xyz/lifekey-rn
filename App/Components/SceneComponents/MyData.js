@@ -198,7 +198,7 @@ class MyData extends Component {
             options={options}
             cancelButtonIndex={options.length-1}
             onPress={(index) => { 
-              if (index < options.length) {
+              if (index < options.length-1) {
                 this.addNewResource(selectData.data[index])
               }
             }}
