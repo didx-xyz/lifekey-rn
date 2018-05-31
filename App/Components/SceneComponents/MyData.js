@@ -3,6 +3,7 @@ import React, { Component } from 'react'
 import { Text, View } from "react-native"
 import { Container, Content } from "native-base"
 import PropTypes from "prop-types"
+import ActionSheet from 'react-native-actionsheet'
 
 // internal dependencies
 import Palette from "../../Palette"
@@ -12,7 +13,6 @@ import { Card, CardItem } from "native-base"
 
 import RcWrapper from "../ResourceComponents/rc-Wrapper"
 import RcWrapperLight from "../ResourceComponents/rc-Wrapper-Light"
-import ModalPicker from "react-native-modal-selector"
 import LcAddCategoryButton from "../lc-AddCategoryButton"
 import Touchable from "../Touchable"
 
@@ -106,10 +106,12 @@ class MyData extends Component {
     const malformed = sortedResourceTypes.find(rt => rt.name === "Malformed")
 
     const toggle = () => {
-      if(!this.addButtonSelect.modalVisible)
-        this.addButtonSelect.open()
-      else
-        this.addButtonSelect.open()
+      // if(!this.addButtonSelect.modalVisible)
+      //   this.addButtonSelect.open()
+      // else
+      //   this.addButtonSelect.open()
+
+      this.ActionSheet.show()
     }
     let selectData = {}
     selectData.initialValue = "ADD VALUE"
@@ -132,6 +134,9 @@ class MyData extends Component {
       }
 
     }).filter(rt => !!rt)
+
+    var options =  selectData.data.map(a => a.label)
+    options.push("Cancel")
 
     return (
     
@@ -187,19 +192,20 @@ class MyData extends Component {
         */} 
 
         {/* Add additional items */}  
-        <View style={styles.addItemContainer}>
-          <View style={styles.modalHider}>
-            <ModalPicker
-              ref={(input) => { this.addButtonSelect = input }}
-              data={selectData.data}
-              style={styles.selectElement}
-              selectStyle={styles.selectPickerWithValue}
-              selectTextStyle={styles.addHeading}
-              initValue={selectData.initialValue}
-              onChange={(option) => { this.addNewResource(option) }} />
-          </View>
+        <View>
+          <ActionSheet
+            ref={o => this.ActionSheet = o}
+            options={options}
+            cancelButtonIndex={options.length-1}
+            onPress={(index) => { 
+              if (index < options.length) {
+                this.addNewResource(selectData.data[index])
+              }
+            }}
+          />
         </View>
         
+
         {/* Delete malformed items */}  
         <View style={styles.malformedItemCntainer}>
         { 
