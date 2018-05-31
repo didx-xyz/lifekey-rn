@@ -5,10 +5,10 @@ target 'Lifekeyrn' do
 
     pod 'Firebase/Auth'
     pod 'Firebase/Analytics'
-    pod 'Firebase/Core', '~> 4.13.0'
+    pod 'Firebase/Core'
     pod 'Firebase/Database'
     pod 'Firebase/DynamicLinks'
-    pod 'Firebase/Messaging', '~> 4.13.0'
+    pod 'Firebase/Messaging'
     pod 'Firebase/RemoteConfig'
     pod 'Firebase/Storage'
     pod 'Fabric'
