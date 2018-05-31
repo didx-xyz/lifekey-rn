@@ -25,6 +25,7 @@ import Api from '../Api'
 import Logger from '../Logger'
 import Session from '../Session'
 import Toast from '../Utils/Toast'
+import { Container } from "native-base";
 
 class Connection extends Scene {
 
@@ -115,7 +116,7 @@ class Connection extends Scene {
     const iconSize = screenWidth / 25
 
     return (
-      <View style={styles.content}>
+      <Container>
         <BackButton navigator={this.navigator} />
         <View style={ {flex: 1} }>
           <View style={styles.logo}>
@@ -167,7 +168,7 @@ class Connection extends Scene {
           onPressLeftButton={this.onBoundPressHelp}
           onPressRightButton={this.onBoundPressDecline}
         />
-      </View>
+      </Container>
     )
   }
 }
