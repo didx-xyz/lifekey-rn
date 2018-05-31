@@ -56,7 +56,7 @@ const style = {
   listItemImage: {
     width: 30,
     height: 30,
-    borderRadius: 45,
+    borderRadius: 15,
     marginLeft: 10
   },
   "defaultFont":{
