@@ -87,9 +87,9 @@ class Connect extends Component  {
       return (
         <View>
           <View style={styles.qrCodeContainer}>
-            <Image style={styles.qrContainerImage} source={require('../../Images/QRFrame3.png')}>
+            <ImageBackground style={styles.qrContainerImage} source={require('../../Images/QRFrame3.png')}>
               <Image style={styles.qrImage} onError={this.onImageError.bind(this)} source={{ uri: `http://staging.api.lifekey.cnsnt.io/facial-verification?user_did=${ConsentUser.getDidSync()}&cachebust=${Date.now()}` }} />
-            </Image>
+            </ImageBackground>
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text}>Get someone else to scan this QR Code to verify your facial match</Text>
