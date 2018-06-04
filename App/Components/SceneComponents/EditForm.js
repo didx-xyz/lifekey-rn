@@ -13,6 +13,8 @@ import Languages from "../../Languages"
 import Common from "../../Common"
 import Palette from "../../Palette"
 import Toast from '../../Utils/Toast'
+import TrashIcon from "../../Components/TrashIcon"
+import DesignParameters from "../../DesignParameters";
 
 class EditForm extends Component{
 
@@ -21,14 +23,15 @@ class EditForm extends Component{
       <View style={ Object.assign({}, styles.content, { backgroundColor: this.props.backgroundColor} )}>
         <View style={styles.card}>
             <View style={styles.heading}>
-              
-              {/* { !!this.context.getEditResourceId() &&
+              { console.log("this.props", this.props)}
+              <Text style={styles.headingText}>{this.context.getEditResourceName()}</Text>
+              { !!this.context.getEditResourceId() &&
                 <Touchable onPress={this.props.onDelete} hitSlop={Common.touchableArea}>
                   <View style={ styles.deleteContainer}>
-                    <GearIcon width={30} height={30} stroke={Palette.consentGrayDark}></GearIcon>
+                    <TrashIcon width={30} height={30} stroke={Palette.consentGrayDark}></TrashIcon>
                   </View>
                 </Touchable> 
-              } */}
+              }
             </View>  
             { this.props.error !== "" &&
               <View style={styles.error}>
@@ -286,14 +289,17 @@ const styles = {
     "paddingLeft": 5,
     "paddingRight": 5,
     "width": "100%",
+    paddingLeft:15,
+    paddingRight: 15,
   },
   "heading": {
-    "height": 0,
+    "height": 40,
     "width": "100%",
     "flexDirection": "row",
-    // "alignItems": "flex-start",
-    "alignItems": "center",
-    "justifyContent": "space-around"
+    "alignItems": "flex-start",
+    "justifyContent": "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: Palette.consentBlue,
   },
   "headingText": {
     "flex": 4,
@@ -304,7 +310,7 @@ const styles = {
   "deleteContainer":{
     "flex": 1,
     "alignItems": "center",
-    "justifyContent": "center",
+    "justifyContent": "space-between",
   },
   "formField": {
     "paddingTop": 5,
