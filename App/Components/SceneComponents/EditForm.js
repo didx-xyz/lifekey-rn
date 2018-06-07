@@ -23,9 +23,8 @@ class EditForm extends Component{
       <View style={ Object.assign({}, styles.content, { backgroundColor: this.props.backgroundColor} )}>
         <View style={styles.card}>
             <View style={styles.heading}>
-              { console.log("this.props", this.props)}
               <Text style={styles.headingText}>{this.context.getEditResourceName()}</Text>
-              { !!this.context.getEditResourceId() &&
+              { !!this.context.getEditResourceId() &&  this.context.getEditResourceName() !== "Person" &&
                 <Touchable onPress={this.props.onDelete} hitSlop={Common.touchableArea}>
                   <View style={ styles.deleteContainer}>
                     <TrashIcon width={30} height={30} stroke={Palette.consentGrayDark}></TrashIcon>
