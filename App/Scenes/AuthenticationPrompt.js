@@ -140,6 +140,9 @@ export default class AuthenticationPrompt extends Scene {
   }
 
   update_pin(text) {
+    if(text.length > 5) {
+      text = text.substr(5);
+    }
     if (text.length === 5) {
       return this.setState(
         {
@@ -147,7 +150,7 @@ export default class AuthenticationPrompt extends Scene {
         },
         this.submit_with_pin.bind(this)
       );
-    }
+    } 
     this.setState({ pin: text });
   }
 
@@ -183,7 +186,7 @@ export default class AuthenticationPrompt extends Scene {
           this.success_action_and_navigate();
         } else {
           // try again
-          this.input.value = '';
+          this.input.value = "";
           this.input.focus();
           this.setState({
             pin: '',
