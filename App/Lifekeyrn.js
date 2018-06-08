@@ -24,6 +24,7 @@ import {
   StatusBar,
   ToastAndroid
 } from 'react-native';
+import Toast from './Utils/Toast'
 import {Navigator} from 'react-native-deprecated-custom-components'
 import PropTypes from 'prop-types';
 import CodePush from "react-native-code-push";

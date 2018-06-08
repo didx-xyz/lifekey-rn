@@ -129,7 +129,7 @@ class ConnectionDetails extends Scene {
 
     var start6 = new Date().getTime()                                             // PERFORMANCE
     console.log("6 - Call to response " + (start6 - start5) + " milliseconds.")   // PERFORMANCE
-
+    
     this.setState({
       enabled_isas: enabled_isas
     }, () => Logger.info(JSON.stringify(this.state)))
@@ -484,7 +484,11 @@ const styles = {
     "color": Palette.consentGrayDark
   },
   centredRow: {flexDirection: 'row', alignItems: 'center'},
-  fullWidthHeight: {width: "100%", height: "100%"},
+  fullWidthHeight: {
+    width: 40,
+   height: 40,
+  //  backgroundColor: Palette.consentWhite,
+  },
   headerWrapper: {
     borderColor: Palette.consentGrayDark,
     height: Design.lifekeyHeaderHeight

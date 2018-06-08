@@ -275,60 +275,38 @@ class EditProfile extends Scene {
 
   render() {
 
-    const leftButton = {
-      icon: <BackIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Design.headerIconColour} />,
-      onPress: () => this.navigator.pop(),
-      borderColor: "white"
-    }
-
     return (
-
-      <Container>
-        <LifekeyHeaderWithTitle title={this.context.getEditResourceName()} leftButton={leftButton} />
-        <ScrollView style={style.contentContainer}>
-          {
-            !this.state.asyncActionInProgress ?
-              <EditForm
+      !this.state.asyncActionInProgress ?
+        <Container>
+          <View style={ styles.container }>
+          <ScrollView style={ styles.formContainer }>
+            <View style={ styles.formContent }>
+              <EditForm 
                 formTarget={this.state.formTarget}
                 entities={this.state.entities}
                 backgroundColor="transparent"
+                onDelete={this.onBoundDelete}
                 setStringInputStateValue={this.boundSetStringInputStateValue}
                 setImageInputStateValue={this.boundSetImageInputStateValue}
                 setDateInputStateValue={this.boundSetDateInputStateValue}
                 setSelectInputStateValue={this.boundSetSelectInputStateValue}>
-              </EditForm>
-              :
-              <ProgressIndicator progressCopy={this.state.progressCopy}></ProgressIndicator>
-          }
-
-        </ScrollView>
-      </Container>
-
-      // !this.state.asyncActionInProgress ?
-      // <View style={ styles.container }>
-      //   <View style={ styles.formContainer }>
-      //     <EditForm 
-      //       formTarget={this.state.formTarget}
-      //       entities={this.state.entities}
-      //       backgroundColor="transparent"
-      //       setStringInputStateValue={this.boundSetStringInputStateValue}
-      //       setImageInputStateValue={this.boundSetImageInputStateValue}
-      //       setDateInputStateValue={this.boundSetDateInputStateValue}
-      //       setSelectInputStateValue={this.boundSetSelectInputStateValue}>
-      //     </EditForm> 
-      //   </View>
-      //   <View style={ styles.footerContainer }>
-      //     <LifekeyFooter
-      //       backgroundColor="transparent"
-      //       leftButtonText="Cancel"
-      //       onPressLeftButton={this.onBoundPressCancel} 
-      //       rightButtonText="Save"
-      //       onPressRightButton={this.onBoundPressSave} 
-      //     />
-      //   </View>
-      // </View>
-      // :
-      //   <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
+              </EditForm> 
+            </View>
+          </ScrollView>
+          <View style={ styles.footerContainer }>
+            <LifekeyFooter
+              backgroundColor="transparent"
+              leftButtonText="Cancel"
+              onPressLeftButton={this.onBoundPressCancel} 
+              rightButtonText="Save"
+              onPressRightButton={this.onBoundPressSave} 
+            />
+          </View>
+        </View>
+        </Container>
+        
+      :
+        <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
     )
   }
 
@@ -349,33 +327,25 @@ EditProfile.contextTypes = {
   "getEditResourceName": PropTypes.func
 }
 
-const style = {
-  "container": {
-    "height": Dimensions.get('window').height,
+const styles = {
+  container: {
+    "flex": 1,
+    "paddingTop":15,
+    "height": Dimensions.get('window').height - StatusBar.currentHeight,
     "width": "100%",
     "backgroundColor": Palette.consentOffBlack
   },
   "formContainer": {
-    "height": Dimensions.get('window').height - Design.lifekeyFooterHeight - StatusBar.currentHeight
+    "margin": 10,
   },
-  "headerWrapper": {
-    "borderColor": Palette.consentGrayDark,
-    "height": 70
-  },
-  "contentContainer": {
-    "flex": 1,
-    "backgroundColor": Palette.consentGrayLightest,
+  "formContent": {
+    "borderRadius": 10,
+    "backgroundColor": Palette.consentOffWhite
   },
   "footerContainer": {
     "height": Design.lifekeyFooterHeight,
     "width": "100%"
-  },
-  "headingText": {
-    "flex": 4,
-    "textAlign": "left",
-    "color": Palette.consentBlue,
-    "fontSize": 20
-  },
+  }
 }
 
 export default EditProfile

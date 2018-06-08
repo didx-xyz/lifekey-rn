@@ -21,6 +21,7 @@ import Touchable from "../Components/Touchable"
 import Logger from '../Logger'
 import Common from '../Common'
 import PropTypes from 'prop-types'
+import Toast from '../Utils/Toast'
 
 class InformationRequest extends Scene {
 
