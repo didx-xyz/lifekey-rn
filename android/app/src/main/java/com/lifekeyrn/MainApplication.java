@@ -1,6 +1,6 @@
 package com.lifekeyrn;
 
-import android.app.Application;
+import android.support.multidex.MultiDexApplication;
 
 import com.aakashns.reactnativedialogs.ReactNativeDialogsPackage;
 import com.facebook.react.ReactApplication;
@@ -12,15 +12,17 @@ import com.facebook.react.ReactNativeHost;
 import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
-import com.lwansbrough.RCTCamera.RCTCameraPackage;
 import com.oblador.vectoricons.VectorIconsPackage;
+
+import org.reactnative.camera.RNCameraPackage;
+
 import io.invertase.firebase.RNFirebasePackage;
 import io.jari.fingerprint.FingerprintPackage;
 
 import java.util.Arrays;
 import java.util.List;
 
-public class MainApplication extends Application implements ReactApplication {
+public class MainApplication extends MultiDexApplication implements ReactApplication {
 
   private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
 
@@ -47,19 +49,15 @@ public class MainApplication extends Application implements ReactApplication {
               new CodePush(getResources().getString(R.string.reactNativeCodePush_androidDeploymentKey), getApplicationContext(), BuildConfig.DEBUG),
               new ImagePickerPackage(),
               new SvgPackage(),
-              new RCTCameraPackage(),
+              new RNCameraPackage(),
               new VectorIconsPackage(),
               new CryptoPackage(),
               new RNFirebasePackage(),
               new ReactNativeDialogsPackage(),
-              new FingerprintPackage(),
+              new FingerprintPackage()
       );
     }
 
-    @Override
-    protected String getJSMainModuleName() {
-      return "index";
-    }
   };
 
   @Override
