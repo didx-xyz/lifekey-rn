@@ -268,7 +268,7 @@ class ConnectionDetails extends Scene {
   }
 
   renderTab() {
-    switch (this.state.activeTab) {
+     switch (this.state.activeTab) {
       case CONNECT: 
         return <Connect profile={this.state.connectionProfile} connectWithMe={false}></Connect>
         // return (
@@ -306,7 +306,9 @@ class ConnectionDetails extends Scene {
                 {this.state.actions.map((action, i) =>
                   <Touchable key={i} onPress={() => this.callAction(action.name, action)}>
                     <View style={styles.actionItem}>
-                      <HexagonIcon width={70} height={70} fill={Palette.consentGrayDarkest}/>
+                      {/* <HexagonIcon width={70} height={70} fill={Palette.consentBlue}> */}
+                        <Image source={{uri: this.state.image_uri}} style = {{width: 60, height: 60}} />
+                      {/* </HexagonIcon> */}
                       <Text style={styles.actionItemText}>{action.name}</Text>
                     </View>
                   </Touchable>
