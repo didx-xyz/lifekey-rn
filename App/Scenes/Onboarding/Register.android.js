@@ -554,19 +554,6 @@ const style = {
     paddingLeft: 35,
     paddingRight: 35
   },
-  // pinInput: {
-  //   height: 0,
-  //   marginLeft: -1000
-  // },
-  // pinContainer: {
-  //   'width': "100%",
-  //   'minHeight': 200
-  // },
-  // pinElement: {
-  //   "flex": 1,
-  //   'justifyContent': 'center',
-  //   'alignItems': 'center'
-  // },
   graphic: {
     flex: 1,
     justifyContent: 'center',

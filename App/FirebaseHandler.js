@@ -211,11 +211,7 @@ class FirebaseHandler {
 
   static messageReceived(eventEmitter, message) {
     
-    if (Platform.OS === 'ios') {
-      message = message.data
-      console.log('messageReceived_ios', message)
-    }
-
+    message = message.data
     if (message && message.type) {
       Logger.firebase('message', JSON.stringify(message))
       Logger.firebase('message.type', message.type)

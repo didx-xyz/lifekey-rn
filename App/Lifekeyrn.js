@@ -123,8 +123,6 @@ class Lifekeyrn extends Component {
         )
       );
     } else {
-      // Logger.info('TODO: Firebase iOS', this.filename);
- 
       // requests permissions from the user
       this._messaging.requestPermission();
       this._messaging.getToken().then(token => {

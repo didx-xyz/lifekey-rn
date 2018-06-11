@@ -20,7 +20,8 @@ export default class OnboardingTextInput extends Component {
       underlineColor: Palette.consentGrayDark,
       buttonVisible: false,
       cap: false,
-      fadeAnim: new Animated.Value(0)
+      fadeAnim: new Animated.Value(0),
+      value : props.value
     }
 
     this._focus = this._focus.bind(this)
@@ -54,12 +55,20 @@ export default class OnboardingTextInput extends Component {
   }
 
   _onChangeText(text) {
-    if(text.length % 10 == 0){
-    let fontsize =  this.props.fontSize;
-    fontsize -= (Integer)(text.length / 10);
-    this.setState({ fontSize: fontsize });
+    if(text.length % 10 === 0){
+      let fontsize =  this.props.fontSize;
+      fontsize -= (Integer)(text.length / 10);
+      this.setState({
+          fontSize: fontsize,
+          value: text
+        });
+      this.props.onChangeText(text);
+    } else {
+      this.setState({
+          value: text
+        });
+      this.props.onChangeText(text);
     }
-    this.props.onChangeText(text);
   }
 
   render() {
@@ -74,11 +83,18 @@ export default class OnboardingTextInput extends Component {
             onFocus={this._focus}
             onBlur={this._blur}
             onChangeText={ text => this._onChangeText(text)}
-            value={this.props.value}
-            style={[{
+            value={this.state.value}
+            style={[
+              {
               flex: 1,
-              fontSize: this.props.fontSize
-            }, {fontSize : this.state.fontSize}]}
+              fontSize: this.props.fontSize,
+              color: "#000000"
+              },
+              {
+                fontSize : this.state.fontSize,
+                color: "#000000"
+              }
+              ]}
             autoCapitalize={this.props.autoCapitalize}
             underlineColorAndroid="transparent"
             scrollEnabled={false}

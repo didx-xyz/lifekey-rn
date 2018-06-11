@@ -1,6 +1,6 @@
 
 # asset pipeline
-android/app/src/main/assets/
+
 android/app/src/main/res/values/
 android/app/src/main/res/drawable-*/
 
@@ -102,3 +102,5 @@ yarn-error.log
 # Bundle artifact
 *.jsbundle
 android/app/release
+android/app/src/main/assets/index.android.bundle
+android/app/src/main/assets/index.android.bundle.meta
