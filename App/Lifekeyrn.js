@@ -114,29 +114,20 @@ class Lifekeyrn extends Component {
     );
 
     // Events
-    if (Platform.OS === 'android') {
-      this._messaging.onTokenRefresh(this._nativeEventTokenRefreshed);
-      this._messaging.onMessage(
-        FirebaseHandler.messageReceived.bind(
-          FirebaseHandler,
-          this.firebaseInternalEventEmitter
-        )
-      );
-    } else {
-      // requests permissions from the user
+    if (Platform.OS === 'ios') {
       this._messaging.requestPermission();
-      this._messaging.getToken().then(token => {
-        // get users token
-        Logger.info('Firebase token: ', token);
-       });
-      this._messaging.onTokenRefresh(this._nativeEventTokenRefreshed);
-      this._messaging.onMessage(
-        FirebaseHandler.messageReceived.bind(
-          FirebaseHandler,
-          this.firebaseInternalEventEmitter
-        )
-      );
     }
+    this._messaging.onTokenRefresh(this._nativeEventTokenRefreshed);
+    this._messaging.getToken().then(token => {
+      // get users token
+      Logger.info('Firebase token: ', token);
+    });
+    this._messaging.onMessage(
+      FirebaseHandler.messageReceived.bind(
+        FirebaseHandler,
+        this.firebaseInternalEventEmitter
+      )
+    );
 
     this._initSession();
     this.initFirebaseHandlerEvents();
