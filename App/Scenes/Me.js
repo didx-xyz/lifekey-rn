@@ -169,31 +169,6 @@ class Me extends Scene {
     }
   }
 
-  // Context Menu functionality 
-
-  // onShowContextMenu(){
-  //   this.contextMenu && this.contextMenu.show()
-  // }
-
-  // renderContextMenuRow(rowData, rowID, highlighted){
-  //   let evenRow = rowID % 2; 
-  //   return (
-  //     <TouchableHighlight>
-  //       <View style={[style.contextMenuOptions, { "backgroundColor": evenRow ? Palette.consentGrayLightest : "white" }]}>
-  //         <Text style={[ highlighted && { "color": Palette.consentBlue } ]}>
-  //           {`${rowData.value}`}
-  //         </Text>
-  //       </View>
-  //     </TouchableHighlight>
-  //   );
-  // }
-
-  // onContextMenuItemSelect(index, option){
-  //   option.onClick()
-  // }
-
-  // End Context Menu functionality 
-
   render() {
     
     // console.log("PROFILE: ", this.state.profile, " | ", (this.state.profile && this.state.profile.image_uri))
@@ -276,11 +251,18 @@ class Me extends Scene {
     switch (this.state.activeTab) {
 
     case CONNECT:
-      return <Connect profile={this.state.profile} connectWithMe={true} onPressProfile={this.onBoundPressProfile} onPressHelp={ this.onBoundPressHelp }></Connect>
+      return <Connect profile={this.state.profile}
+                      connectWithMe={true}
+                      onPressProfile={this.onBoundPressProfile}
+                      onPressHelp={ this.onBoundPressHelp }/>
     case MY_DATA:
-      return <MyData sortedResourceTypes={this.state.sortedResourceTypes} peerConnections={this.state.peerConnections} onPressShare={ this.onBoundPressShare } onPressEdit={ this.onBoundPressEdit } onPressProfile={this.onBoundPressProfile}></MyData>
+      return <MyData sortedResourceTypes={this.state.sortedResourceTypes}
+                     peerConnections={this.state.peerConnections}
+                     onPressShare={ this.onBoundPressShare }
+                     onPressEdit={ this.onBoundPressEdit }
+                     onPressProfile={this.onBoundPressProfile}/>
     case BADGES:
-      return <Badges badges={this.state.sortedBadges}></Badges>
+      return <Badges badges={this.state.sortedBadges}/>
     }
   }
 

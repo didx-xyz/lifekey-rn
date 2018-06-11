@@ -13,11 +13,10 @@ import com.facebook.react.ReactPackage;
 import com.facebook.react.shell.MainReactPackage;
 import com.facebook.soloader.SoLoader;
 import com.oblador.vectoricons.VectorIconsPackage;
-
 import org.reactnative.camera.RNCameraPackage;
-
 import io.invertase.firebase.RNFirebasePackage;
 import io.jari.fingerprint.FingerprintPackage;
+import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +53,8 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
               new CryptoPackage(),
               new RNFirebasePackage(),
               new ReactNativeDialogsPackage(),
-              new FingerprintPackage()
+              new FingerprintPackage(),
+              new RNFirebaseMessagingPackage()
       );
     }
 
