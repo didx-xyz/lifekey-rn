@@ -60,7 +60,8 @@ class Connection extends Scene {
       Logger.networkRequest('GET', actions_url, requestOptions)
       const actionsResponse = await fetch(actions_url, requestOptions)
       Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
-      const actions = JSON.parse(actionsResponse._bodyText)
+      let text = await actionsResponse.text()
+      const actions = JSON.parse(text)
       if (actions) {
         if (actions.body) {
           this.setState({
