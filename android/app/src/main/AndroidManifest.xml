@@ -22,19 +22,20 @@
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
-    <service android:name="io.invertase.firebase.messaging.MessagingService"
+    <service android:name="io.invertase.firebase.messaging.RNFirebaseMessagingService"
              android:enabled="true"
              android:exported="true">
       <intent-filter>
         <action android:name="com.google.firebase.MESSAGING_EVENT" />
       </intent-filter>
     </service>
-    <service android:name="io.invertase.firebase.messaging.InstanceIdService"
+    <service android:name="io.invertase.firebase.messaging.RNFirebaseInstanceIdService"
              android:exported="false">
       <intent-filter>
         <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
       </intent-filter>
     </service>
+    <service android:name="io.invertase.firebase.messaging.RNFirebaseBackgroundMessagingService" />
     <!-- You will only need to add this meta-data tag, but make sure it's a child of application -->
     <meta-data
       android:name="com.google.android.geo.API_KEY"

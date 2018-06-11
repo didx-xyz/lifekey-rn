@@ -97,7 +97,7 @@ export default class SplashScreen extends Scene {
           this.setState({
             tokenAvailable: false
           });
-          Logger.info('Error fetching token', error);
+          Logger.info('Error fetching token - ', error);
           alert('error fetching token');
         });
     }, 1000);

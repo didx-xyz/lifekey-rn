@@ -16,7 +16,7 @@ import ConsentConnection from './ConsentConnection'
 import ConsentConnectionRequest from './ConsentConnectionRequest'
 import ConsentDiscoveredUser from './ConsentDiscoveredUser'
 import ConsentError from '../ConsentError'
-import Firebase from 'react-native-firebase'
+import firebase from 'react-native-firebase'
 
 import Anonymous from "../Images/anonymous_person"
 
@@ -161,7 +161,6 @@ export default class ConsentUser {
         }
 
         let token = null
-        const firebase = new Firebase()
 
         return firebase.messaging().getToken()
           .then(_token => {
