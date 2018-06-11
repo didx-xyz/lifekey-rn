@@ -32,7 +32,7 @@ import {YellowBox} from 'react-native'
 YellowBox.ignoreWarnings([
   'source.uri should not be an empty string',
   'Module RCTImageLoader requires main queue setup since it overrides',
-  'isMounted(...)',
+  'Warning: isMounted(...)',
 ])
 
 
