@@ -104,7 +104,6 @@ class Connection extends Scene {
   }
 
   onPressHelp() {
-    alert("help")
   }
 
   onPressDecline() {
@@ -258,10 +257,6 @@ const styles = {
     "alignItems": "center",
     "paddingLeft": "12%",
     "paddingRight": "12%"
-  },
-  "help": {
-    "flex": 1,
-    "justifyContent": "flex-start"
   },
   "decline": {
     "flex": 1,

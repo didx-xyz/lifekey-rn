@@ -21,7 +21,6 @@ class Locked extends Scene {
   }
 
   onPressHelp(event) {
-    alert("help")
   }
 
   onPressNewKeyPin(event) {

@@ -131,7 +131,6 @@ class InformationRequest extends Scene {
   }
 
   onPressHelp() {
-    alert("help")
   }
 
   onPressShare() {

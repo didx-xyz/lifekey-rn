@@ -125,7 +125,6 @@ class InformationRequest extends Component {
   }
 
   onPressHelp() {
-    alert("help")
   }
 
   onPressShare() {
