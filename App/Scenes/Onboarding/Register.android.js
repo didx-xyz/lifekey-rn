@@ -509,7 +509,7 @@ class Register extends Scene {
   }
 }
 
-const proportion = 48;
+const proportion = 30;
 
 const style = {
   contentContainer: {
@@ -538,8 +538,8 @@ const style = {
     fontWeight: Design.fontWeights.light
   },
   largeFont: {
-    fontSize: 38,
-    lineHeight: proportion
+    fontSize: 24,
+    //lineHeight: proportion
   },
   smallFont: {
     fontSize: 15,
