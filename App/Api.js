@@ -100,14 +100,16 @@ export default class Api {
         this.getConnectionProfiles(values[0].body.enabled, "other_user_did"),
         this.getConnectionProfiles(values[0].body.unacked, "from_did"),
         this.getConnectionProfiles(values[1].body, "did"),
-        values[1].body
+        values[1].body,
+        values[0].body.enabled,
+        values[0].body.unacked,
       ])
     }).then(results => {
       
       const enabledConnections = results[0].map(connection => connection.body.user)
       const enabledPeerConnections = enabledConnections.filter(connection => connection.is_human)
                                                         .map(connection => { 
-                                                          const original = values[0].body.enabled.find(obj => obj.other_user_did === connection.did)
+                                                          const original = results[4].find(obj => obj.other_user_did === connection.did)
                                                           return Object.assign({}, 
                                                                               connection, 
                                                                               { 
@@ -122,7 +124,7 @@ export default class Api {
       const pendingPeerConnections = results[1].map(connection => connection.body.user)
                                                 .filter(connection => connection.is_human)
                                                 .map(connection => { 
-                                                  const original = values[0].body.unacked.find(obj => obj.from_did === connection.did)
+                                                  const original = results[5].find(obj => obj.from_did === connection.did)
                                                   return Object.assign({}, connection, { user_connection_request_id: original.user_connection_request_id })
                                                 })
                                                 .map(connection => Object.assign({}, connection, { image_uri: `data:image/jpg;base64,${connection.image_uri}` }))

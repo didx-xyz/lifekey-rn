@@ -58,7 +58,8 @@ class Main extends Scene {
       pendingBotConnections: [],
       profiles: [],
       progressCopy: 'Loading...',
-      asyncActionInProgress: true
+      asyncActionInProgress: true,
+      activeBots: [],
     }
 
     this.onBoundPressProfile = this.onPressProfile.bind(this)
@@ -405,7 +406,7 @@ class Main extends Scene {
       
     return(
       <View style={style.contentContainer}> 
-        <LifekeyList list={this.state.activeBots} onItemPress={this.onBoundGoToBotConnect}></LifekeyList>
+        <LifekeyList list={this.state.activeBots} onItemPress={this.onBoundGoToBotConnect}/>
       </View>
     ) 
   }

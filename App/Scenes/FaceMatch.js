@@ -15,6 +15,7 @@ import Palette from "../Palette"
 import Scene from "../Scene"
 import Button from "../Components/Button"
 import ProgressIndicator from "../Components/ProgressIndicator"
+import Common from "../Common"
 
 class FaceMatch extends Scene {
   
@@ -43,21 +44,17 @@ class FaceMatch extends Scene {
       const userdid = urlPieces[urlPieces.length - 2]
       const token = urlPieces[urlPieces.length - 1]
 
-      const response = await Api.facialVerificationQrScanResponse(userdid, token)
-      
-      const time = new Date()
-      const parsedValue = JSON.parse(response.body.value); 
-      console.log("Time spent waiting : ", (Date.now() - time.getTime())*1000)
-
-      const url = `data:image/jpeg;base64,${parsedValue.identityPhotograph}}`
-
+      let result = await Api.profile({ did: userdid })
+      let profile = result.body.user
+      let url = Common.ensureDataUrlHasContext(profile.image_uri)
       this.setState({
         "asyncInProgress": false,
         "imageDataUrl": url,
         "userDid": userdid,
         "userToken": token
+
       })
-      
+
     }
     catch(e){
       console.log("ERROR: ", e)
