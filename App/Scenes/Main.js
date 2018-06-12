@@ -380,8 +380,8 @@ class Main extends Scene {
 
     return(
       <View style={style.contentContainer}> 
-        <LifekeyList list={this.state.peerConnections} onItemPress={this.onBoundGoToPeerConnectionDetails}></LifekeyList>
-        <LifekeyList cxn_unread_msgs={this.cxn_unread_msgs} list={this.state.botConnections} onItemPress={this.onBoundGoToBotConnectionDetails}></LifekeyList>
+        <LifekeyList list={this.state.peerConnections} onItemPress={this.onBoundGoToPeerConnectionDetails}/>
+        <LifekeyList cxn_unread_msgs={this.cxn_unread_msgs} list={this.state.botConnections} onItemPress={this.onBoundGoToBotConnectionDetails}/>
       </View>
     )
   }
@@ -389,7 +389,7 @@ class Main extends Scene {
   renderSuggestedConnections(){
     
     /* ZERO DATA VIEW */
-    if(!this.state.activeBots.length){
+    if((!this.state.activeBots.length) || (!this.state.activeBots)){
       return (
         <View style={ style.contentContainer }>
           { this.state.userName && 
