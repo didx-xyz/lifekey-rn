@@ -23,51 +23,51 @@ import java.util.List;
 
 public class MainApplication extends MultiDexApplication implements ReactApplication {
 
-  private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
+    private final ReactNativeHost mReactNativeHost = new ReactNativeHost(this) {
 
         @Override
         protected String getJSBundleFile() {
-        return CodePush.getJSBundleFile();
+            return CodePush.getJSBundleFile();
         }
-    
+
+
+        @Override
+        protected String getJSMainModuleName() {
+            return "index";
+        }
+
+        @Override
+        public boolean getUseDeveloperSupport() {
+            return BuildConfig.DEBUG;
+        }
+
+        @Override
+        protected List<ReactPackage> getPackages() {
+            return Arrays.<ReactPackage>asList(
+                    new MainReactPackage(),
+                    new CodePush(getResources().getString(R.string.reactNativeCodePush_androidDeploymentKey), getApplicationContext(), BuildConfig.DEBUG),
+                    new ImagePickerPackage(),
+                    new SvgPackage(),
+                    new RNCameraPackage(),
+                    new VectorIconsPackage(),
+                    new CryptoPackage(),
+                    new ReactNativeDialogsPackage(),
+                    new FingerprintPackage(),
+                    new RNFirebasePackage(),
+                    new RNFirebaseMessagingPackage()
+            );
+        }
+
+    };
 
     @Override
-    protected String getJSMainModuleName() {
-      return "index";
+    public ReactNativeHost getReactNativeHost() {
+        return mReactNativeHost;
     }
 
     @Override
-    public boolean getUseDeveloperSupport() {
-      return BuildConfig.DEBUG;
+    public void onCreate() {
+        super.onCreate();
+        SoLoader.init(this, /* native exopackage */ false);
     }
-
-    @Override
-    protected List<ReactPackage> getPackages() {
-      return Arrays.<ReactPackage>asList(
-              new MainReactPackage(),
-              new CodePush(getResources().getString(R.string.reactNativeCodePush_androidDeploymentKey), getApplicationContext(), BuildConfig.DEBUG),
-              new ImagePickerPackage(),
-              new SvgPackage(),
-              new RNCameraPackage(),
-              new VectorIconsPackage(),
-              new CryptoPackage(),
-              new ReactNativeDialogsPackage(),
-              new FingerprintPackage(),
-              new RNFirebasePackage(),
-              new RNFirebaseMessagingPackage()
-      );
-    }
-
-  };
-
-  @Override
-  public ReactNativeHost getReactNativeHost() {
-    return mReactNativeHost;
-  }
-
-  @Override
-  public void onCreate() {
-    super.onCreate();
-    SoLoader.init(this, /* native exopackage */ false);
-  }
 }
