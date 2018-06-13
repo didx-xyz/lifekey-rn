@@ -326,7 +326,7 @@ class Main extends Scene {
               !this.state.asyncActionInProgress ? 
                 this.renderTab()
               :
-                <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
+                <ProgressIndicator progressCopy={ this.state.progressCopy }/>
             }
           </View>
         }
@@ -430,7 +430,7 @@ class Main extends Scene {
       
     return(
       <View style={style.contentContainer}> 
-        <LifekeyList list={this.state.pendingPeerConnections} onItemPress={this.onBoundGoToPeerConnect}></LifekeyList>
+        <LifekeyList list={this.state.pendingPeerConnections} onItemPress={this.onBoundGoToPeerConnect}/>
       </View>
     ) 
   }
@@ -466,7 +466,7 @@ const style = {
   },
   "defaultTextContainer":{
     "paddingTop": 50,
-    "padding": Design.paddingRight*2
+    "padding": Design.paddingRight*2,
   },
   "defaultFont":{
     fontFamily: Design.fonts.registration,
