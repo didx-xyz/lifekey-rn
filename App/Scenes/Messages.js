@@ -46,13 +46,19 @@ class Messages extends Scene {
 
   refreshMessages() {
     ConsentMessage.all()
-      .then(messages=> messages.sort((a, b) => a.timestampN > b.timestampN ? -1 : 1))
-      .then(messages => {
-        this.setState({ asyncActionInProgress: false, messages: messages });
-      }).catch(err => {
-        console.log(err)
-        this.setState({ asyncActionInProgress: false, messages: [] })
-      })
+    .then(messages =>{
+      return messages.map((element, index)=> {
+        element['timestampN'] = new Date(element.timestamp).getTime();
+        return element;
+      });
+    })
+    .then(messages=> messages.sort((a, b) => a.timestampN > b.timestampN ? -1 : 1))
+    .then(messages => {
+      this.setState({ asyncActionInProgress: false, messages: messages });
+    }).catch(err => {
+      console.log(err)
+      this.setState({ asyncActionInProgress: false, messages: [] })
+    })
   }
 
   onPressActivity() {
