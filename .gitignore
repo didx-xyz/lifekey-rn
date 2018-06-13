@@ -95,6 +95,7 @@ javac-services*
 rn-android-docs
 ios/Pods
 yarn-error.log
+package-lock.json
 */fastlane/report.xml
 */fastlane/Preview.html
 */fastlane/screenshots
