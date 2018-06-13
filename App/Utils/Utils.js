@@ -3,6 +3,8 @@ import { Alert } from 'react-native'
 
 export default class Utils {
 
+  static appVersion = "v1.0.0"
+
   static checkForUpdate() {
     CodePush.sync({
       updateDialog: true,
