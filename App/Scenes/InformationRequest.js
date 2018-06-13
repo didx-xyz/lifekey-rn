@@ -210,7 +210,7 @@ class InformationRequest extends Scene {
                           { this.state.partial.map((entity, i) => {
                             return (
                               <View style={ Object.assign({}, styles.resourceItem, styles.partialResource) }>
-                                <AddCategoryButton width={ this.iconDimension } height={ this.iconDimension } name={entity.name} form={entity.form}></AddCategoryButton>
+                                <AddCategoryButton width={ this.iconDimension } height={ this.iconDimension } name={entity.name} form={entity.form}/>
                               </View>
                             )
                           }) }
@@ -226,7 +226,7 @@ class InformationRequest extends Scene {
                                                  form={entity.form} 
                                                  color={Palette.consentRed}
                                                  width={ this.iconDimension } height={ this.iconDimension }
-                                                 onEditResource={this.context.onEditResource.bind(this)}></AddCategoryButton>
+                                                 onEditResource={this.context.onEditResource.bind(this)}/>
                             </View>
                           )
                         }) }
