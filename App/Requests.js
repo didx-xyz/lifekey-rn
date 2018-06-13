@@ -84,6 +84,10 @@ const wrappedFetch = function (url, options) {
       return globalResponseJson = response.json()
     })
     .then(res => {
+      let body = res.body
+      let output = JSON.stringify(body)
+      Logger.networkResponse(res.status, new Date(), output)
+
       switch (parseInt(globalResponse.status, 10)) {
         case 502:
           // Logger.warn("502 Bad gateway", "Api.js", response)
