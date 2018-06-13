@@ -46,20 +46,43 @@ class Messages extends Scene {
 
   refreshMessages() {
     ConsentMessage.all()
-    .then(messages => {
+      .then(messages => {
+        messages.push({
+          from_name: 'FROM',
+          message_text: 'Dummy notification to check',
+          timestamp: '2007-06-12T09:04:02.686Z'
+        });
 
-      console.log("MESSAGES: ", messages)
-      // messages.push({ 
-      //   from_name: 'FROM',
-      //   message_text: 'Account Activation Email Sent ffklfjsd jlskdfj lskd lksdjf lksdfk lsd lksdjf lsldskf jslkdg lksdjg sdlkgj weig woig sklvj sdlkgjsld kg lkjf w;of ;wdjv wpijf;wjf ;we powuf; wjv;wdv j;wduv powvj ;lwdvj;wjv powdv ',
-      //   timestamp: '2017-07-12T10:25:11.596Z' 
-      // })
+        messages.push({
+          from_name: 'FROM',
+          message_text: 'Dummy notification to check',
+          timestamp: '2009-06-12T09:04:02.686Z'
+        });
 
-      this.setState({asyncActionInProgress: false, messages: messages})
-    }).catch(err => {
-      console.log(err)
-      this.setState({asyncActionInProgress: false, messages: []})
-    })
+        messages.push({
+          from_name: 'FROM',
+          message_text: 'Dummy notification to check',
+          timestamp: '2007-06-12T09:04:02.686Z'
+        });
+
+        messages.push({
+          from_name: 'FROM',
+          message_text: 'Dummy notification to check',
+          timestamp: '2012-06-12T09:04:02.686Z'
+        });
+        
+        return messages.map((element, index)=> {
+          element['timestampN'] = new Date(element.timestamp).getTime();
+          return element;
+        });
+      })
+      .then(messages=> messages.sort((a, b) => a.timestampN > b.timestampN ? -1 : 1))
+      .then(messages => {
+        this.setState({ asyncActionInProgress: false, messages: messages });
+      }).catch(err => {
+        console.log(err)
+        this.setState({ asyncActionInProgress: false, messages: [] })
+      })
   }
 
   onPressActivity() {
