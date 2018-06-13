@@ -26,8 +26,11 @@ import {
 } from 'react-native';
 import Toast from './Utils/Toast'
 import {Navigator} from 'react-native-deprecated-custom-components'
-import PropTypes from 'prop-types';
-import CodePush from "react-native-code-push";
+import PropTypes from 'prop-types'
+import CodePush from 'react-native-code-push'
+
+import Utils from './Utils/Utils.js'
+
 import {YellowBox, Alert} from 'react-native'
 YellowBox.ignoreWarnings([
   'source.uri should not be an empty string',
@@ -153,7 +156,7 @@ class Lifekeyrn extends Component {
       this
     );
     this.boundUserHasActivated = this.userHasActivated.bind(this);
-    Lifekeyrn.checkForUpdate();
+    Utils.checkForUpdate()
   }
 
   getEditResourceForm() {
@@ -421,17 +424,6 @@ class Lifekeyrn extends Component {
     }
   }
 
-  static checkForUpdate() {
-    CodePush.sync({
-        updateDialog: true,
-        installMode: CodePush.InstallMode.ON_NEXT_RESTART
-    }, (status) => {
-        if (status === CodePush.SyncStatus.UPDATE_INSTALLED) {
-            Alert.alert('Success', 'Update installed, please restart app')
-        }
-    })
-  }
-
   render() {
     return (
       <Navigator
@@ -492,6 +484,4 @@ Lifekeyrn.childContextTypes = {
   userHasActivated: PropTypes.func
 };
 
-export default Lifekeyrn;
-
-Lifekeyrn = CodePush(Lifekeyrn);
+export default Lifekeyrn = CodePush(Lifekeyrn)

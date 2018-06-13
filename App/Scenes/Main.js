@@ -467,6 +467,7 @@ const style = {
   "defaultTextContainer":{
     "paddingTop": 50,
     "padding": Design.paddingRight*2,
+    color: Palette.consentOffBlack,
   },
   "defaultFont":{
     fontFamily: Design.fonts.registration,

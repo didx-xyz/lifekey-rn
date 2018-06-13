@@ -285,8 +285,6 @@ const styles = {
   "card": {
     "backgroundColor": Palette.consentOffWhite,
     "margin": 10,
-    "paddingLeft": 5,
-    "paddingRight": 5,
     "width": "100%",
     paddingLeft:15,
     paddingRight: 15,
@@ -329,20 +327,25 @@ const styles = {
   "formFieldLabelText": {
     "fontWeight": "bold",
     "fontSize": 11,
-    "color": "#888"
+    color: "#888888"
   },
   "formFieldInput": {
     "flex": 1,
     "height": 40,
     "borderBottomWidth": 0
   },
+  "selectPickerWithValue":{
+    flex:1,
+    height: 40,
+    "borderWidth": 0,
+  },
   "textInput": {
-    "flex": 1,
-    "height": 40,
-    "color": "#666",
-    "fontWeight": "100",
-    "fontSize": fontSize,
-    "textAlign": "left"
+    flex:1,
+    height: 40,
+    color: "#666666",
+    fontWeight: "100",
+    fontSize: fontSize,
+    textAlign: "left",
   },
   "selectElement":{
     "flex": 1,
@@ -353,9 +356,6 @@ const styles = {
   "selectPickerWithoutValue":{
     "backgroundColor": Palette.consentGrayLightest
   },
-  "selectPickerWithValue":{
-    "borderWidth": 0
-  },
   "countryPicker":{
     "paddingTop": 10,
     "height": 40
@@ -363,15 +363,15 @@ const styles = {
   "countryLabel": {
     "flex": 1,
     "height": 40,
-    "color": "#666",
+    color: "#666666",
     "fontWeight": "100",
     "paddingTop": 10,
     "paddingBottom": 10,
     "fontSize": fontSize,
-    "backgroundColor": "green"
+    backgroundColor: "#009900"
   },
   "datePicker":{
-    "backgroundColor": "magenta"
+    backgroundColor: "#990099"
   },
   "dateInput": {
     "dateTouchBody": {
@@ -382,19 +382,17 @@ const styles = {
     },
     "dateInput": {
       "borderWidth": 0,
-      "alignItems": "center",
-      // "paddingLeft": 10,
       "flex": 1,
       "alignItems": "flex-start",
       "justifyContent": "center",
     },
     "dateText": {
-      "color": "#666",
+      color: "#666666",
       "fontWeight": "100",
       "fontSize": fontSize,
     },
     "placeholderText": {
-      "color": "#666",
+      color: "#666666",
       "fontWeight": "100",
       "fontSize": fontSize,
       // "textAlign": "left",
@@ -407,7 +405,7 @@ const styles = {
   "languageLabel": {
     "flex": 1,
     "height": 40,
-    "color": "#666",
+    color: "#666666",
     "fontWeight": "100",
     "paddingTop": 10,
     "paddingBottom": 10,
@@ -426,7 +424,7 @@ const styles = {
   },
   "photographLabelText": {
     "fontWeight": "100",
-    "color": "#666",
+    color: "#666666",
     "fontSize": fontSize
   },
   "error": {

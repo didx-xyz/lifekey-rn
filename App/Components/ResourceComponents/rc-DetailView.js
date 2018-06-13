@@ -25,13 +25,13 @@ class RcItemDetail extends Component {
 
     if (type === "string") {
       return (
-        <Text>{value}</Text>
+        <Text  style={styles.value}>{value}</Text>
       )
     }
     if (type === "image") {
       return (
         <View style={styles.imageContainer}>
-          <Image style={styles.image} source={{ uri: value, scale: 1 }}></Image>
+          <Image style={styles.image} source={{ uri: value, scale: 1 }}/>
         </View>
       )
     }
@@ -57,7 +57,7 @@ class RcItemDetail extends Component {
 const styles = {
   "container": {
     "flexDirection": "row",
-    "backgroundColor": Palette.consentGrayLIght
+    "backgroundColor": Palette.consentGrayLight
   },
   "key": {
     "flex": 2,
