@@ -51,7 +51,8 @@ const style = {
   listItemText: {
     fontSize: 18,
     flex: 1,
-    marginLeft: 10
+    marginLeft: 10,
+    color: Palette.consentOffBlack
   },
   listItemImage: {
     width: 30,
