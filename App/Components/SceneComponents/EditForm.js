@@ -1,6 +1,6 @@
 // external dependencies
-import React, { Component }  from "react"
-import {  Text, TextInput, View, ToastAndroid, Image } from "react-native"
+import React, { Component } from "react"
+import { Text, TextInput, View, ToastAndroid, Image } from "react-native"
 import ModalPicker from "react-native-modal-selector"
 import DatePicker from "react-native-datepicker"
 import PropTypes from "prop-types"
@@ -15,31 +15,37 @@ import Palette from "../../Palette"
 import Toast from '../../Utils/Toast'
 import TrashIcon from "../../Components/TrashIcon"
 import DesignParameters from "../../DesignParameters";
+import style from "react-native-modal-selector/style";
 
-class EditForm extends Component{
+class EditForm extends Component {
+  state = {
+    identificationType: '',
+    issuingCountry: '',
+    country: ''
+  }
 
-  render(){
+  render() {
     return (
-      <View style={ Object.assign({}, styles.content, { backgroundColor: this.props.backgroundColor} )}>
+      <View style={Object.assign({}, styles.content, { backgroundColor: this.props.backgroundColor })}>
         <View style={styles.card}>
-            <View style={styles.heading}>
-              <Text style={styles.headingText}>{this.context.getEditResourceName()}</Text>
-              { !!this.context.getEditResourceId() &&  this.context.getEditResourceName() !== "Person" &&
-                <Touchable onPress={this.props.onDelete} hitSlop={Common.touchableArea}>
-                  <View style={ styles.deleteContainer}>
-                    <TrashIcon width={30} height={30} stroke={Palette.consentGrayDark}></TrashIcon>
-                  </View>
-                </Touchable> 
-              }
-            </View>  
-            { this.props.error !== "" &&
-              <View style={styles.error}>
-                <Text style={styles.errorText}>
-                  {this.props.error}
-                </Text>
-              </View>
+          <View style={styles.heading}>
+            <Text style={styles.headingText}>{this.context.getEditResourceName()}</Text>
+            {!!this.context.getEditResourceId() && this.context.getEditResourceName() !== "Person" &&
+              <Touchable onPress={this.props.onDelete} hitSlop={Common.touchableArea}>
+                <View style={styles.deleteContainer}>
+                  <TrashIcon width={30} height={30} stroke={Palette.consentGrayDark}></TrashIcon>
+                </View>
+              </Touchable>
             }
-            { this.props.entities.map((entity, i) => this.renderEntity(entity, i)) }
+          </View>
+          {this.props.error !== "" &&
+            <View style={styles.error}>
+              <Text style={styles.errorText}>
+                {this.props.error}
+              </Text>
+            </View>
+          }
+          {this.props.entities.map((entity, i) => this.renderEntity(entity, i))}
         </View>
       </View>
     )
@@ -63,12 +69,12 @@ class EditForm extends Component{
     return (
       <View style={formField} key={i}>
         <View style={styles.formFieldLabel} >
-          <Text style={ entity.type === "photograph" ? Object.assign({}, styles.formFieldLabelText, { "marginTop": -50 }) : styles.formFieldLabelText }>
-            { entity.label.toUpperCase() }
+          <Text style={entity.type === "photograph" ? Object.assign({}, styles.formFieldLabelText, { "marginTop": -50 }) : styles.formFieldLabelText}>
+            {entity.label.toUpperCase()}
           </Text>
         </View>
-        <View style={ entity.type === "photograph" ? Object.assign({}, styles.formFieldInput, { "height": 95, "paddingTop": 10 }) : styles.formFieldInput }>
-          { this.renderInput(entity, i) }
+        <View style={entity.type === "photograph" ? Object.assign({}, styles.formFieldInput, { "height": 95, "paddingTop": 10 }) : styles.formFieldInput}>
+          {this.renderInput(entity, i)}
         </View>
       </View>
     )
@@ -113,7 +119,7 @@ class EditForm extends Component{
       <TextInput
         style={styles.textInput}
         value={this.props.formTarget[entity.name]}
-        onChangeText={text => this.props.setStringInputStateValue(entity, text) }
+        onChangeText={text => this.props.setStringInputStateValue(entity, text)}
         placeholder={entity.initialValue}
         autoCapitalize="sentences"
         autoCorrect={false}
@@ -124,30 +130,30 @@ class EditForm extends Component{
     )
   }
 
-  determineKeyboardType(entity){
-    
+  determineKeyboardType(entity) {
+
     let keyboardType
-    
-    switch(entity.name){
-      case("email"):
+
+    switch (entity.name) {
+      case ("email"):
         keyboardType = "email-address"
         break
-      case("contactEmail"):
+      case ("contactEmail"):
         keyboardType = "email-address"
         break
-      case("contactTelephone"):
+      case ("contactTelephone"):
         keyboardType = "numeric"
         break
-      case("mobile"):
+      case ("mobile"):
         keyboardType = "numeric"
         break
-      case("telephone"):
+      case ("telephone"):
         keyboardType = "numeric"
         break
-      case("postOfficeBoxNumber"):
+      case ("postOfficeBoxNumber"):
         keyboardType = "numeric"
         break
-      case("postalCode"):
+      case ("postalCode"):
         keyboardType = "numeric"
         break
       default:
@@ -170,7 +176,7 @@ class EditForm extends Component{
         cancelBtnText="Cancel"
         showIcon={false}
         customStyles={styles.dateInput}
-        onDateChange={ date => this.props.setDateInputStateValue(entity, date) }
+        onDateChange={date => this.props.setDateInputStateValue(entity, date)}
       />
     )
   }
@@ -182,17 +188,16 @@ class EditForm extends Component{
         maxHeight: 800,
         quality: 0.6
       }, (response) => {
-        // console.log("file is this big: " + response.fileSize + " | " + response.data.length)
         if (response.data && response.data.length > 65535) { // (2^16 - 1)) {
           Toast.show('Image is too large. Please try again...', ToastAndroid.LONG)
           return
         }
-        if(response.data && response.data.length)
+        if (response.data && response.data.length)
           this.props.setImageInputStateValue(entity, response)
       })
     }
 
-    const imageUri = Common.ensureDataUrlHasContext(this.props.formTarget[entity.name]) 
+    const imageUri = Common.ensureDataUrlHasContext(this.props.formTarget[entity.name])
 
     console.log("IMAGE URI IN FORM: ", imageUri)
 
@@ -200,7 +205,7 @@ class EditForm extends Component{
     return (
       <Touchable onPress={pick}>
         <View style={styles.photographLabel}>
-          <Image style={styles.fullImage} width={50} height={85} source={{ uri: imageUri, scale: 1 }}/>
+          <Image style={styles.fullImage} width={50} height={85} source={{ uri: imageUri, scale: 1 }} />
         </View>
       </Touchable>
     )
@@ -231,7 +236,7 @@ class EditForm extends Component{
     return this.renderSelectInput(entity, data, entity.initialValue)
   }
 
-  renderNativeSelectDataInput(entity, i){
+  renderNativeSelectDataInput(entity, i) {
     const data = entity.options.map((value) => {
       return {
         "key": value,
@@ -244,6 +249,39 @@ class EditForm extends Component{
     return this.renderSelectInput(entity, data, initialValue)
   }
 
+  selectedVal(fieldName, val) {
+    switch (fieldName) {
+      case "identificationType":
+        this.setState({ identificationType: val });
+        break;
+      case "issuingCountry":
+        this.setState({ issuingCountry: val });
+        break;
+      case "country":
+        this.setState({ country: val });
+        break;
+    }
+  }
+
+  renderSelectVal(fieldName) {
+    switch (fieldName) {
+      case "identificationType":
+        return this.renderSelectVal1('identificationType', "Identification");
+      case "issuingCountry":
+        return this.renderSelectVal1('issuingCountry', "Country");
+      case "country":
+        return this.renderSelectVal1('country', "Country");
+    }
+  }
+
+  renderSelectVal1(value, placeholder) {
+    return (<TextInput
+      style={style.textInput}
+      editable={false}
+      placeholder={placeholder}
+      value={this.state[value]} />);
+  }
+
   renderSelectInput(entity, data, initialValue) {
 
     return (
@@ -253,7 +291,12 @@ class EditForm extends Component{
         selectStyle={styles.selectPickerWithValue}
         selectTextStyle={styles.textInput}
         initValue={initialValue}
-        onChange={(option) => { this.props.setSelectInputStateValue(entity, option) }} />
+        onChange={(option) => {
+          this.selectedVal(entity.name, option.label);
+          this.props.setSelectInputStateValue(entity, option)
+        }} >
+        {this.renderSelectVal(entity.name)}
+      </ModalPicker>
     )
   }
 
@@ -288,7 +331,7 @@ const styles = {
     "paddingLeft": 5,
     "paddingRight": 5,
     "width": "100%",
-    paddingLeft:15,
+    paddingLeft: 15,
     paddingRight: 15,
   },
   "heading": {
@@ -306,7 +349,7 @@ const styles = {
     "color": Palette.consentBlue,
     "fontSize": 20
   },
-  "deleteContainer":{
+  "deleteContainer": {
     "flex": 1,
     "alignItems": "center",
     "justifyContent": "space-between",
@@ -344,19 +387,19 @@ const styles = {
     "fontSize": fontSize,
     "textAlign": "left"
   },
-  "selectElement":{
+  "selectElement": {
     "flex": 1,
     "flexDirection": "row",
     "justifyContent": "flex-start",
     "alignItems": "stretch"
   },
-  "selectPickerWithoutValue":{
+  "selectPickerWithoutValue": {
     "backgroundColor": Palette.consentGrayLightest
   },
-  "selectPickerWithValue":{
+  "selectPickerWithValue": {
     "borderWidth": 0
   },
-  "countryPicker":{
+  "countryPicker": {
     "paddingTop": 10,
     "height": 40
   },
@@ -370,7 +413,7 @@ const styles = {
     "fontSize": fontSize,
     "backgroundColor": "green"
   },
-  "datePicker":{
+  "datePicker": {
     "backgroundColor": "magenta"
   },
   "dateInput": {
@@ -400,7 +443,7 @@ const styles = {
       // "textAlign": "left",
     }
   },
-  "languagePicker":{
+  "languagePicker": {
     "paddingTop": 10,
     "height": 40
   },
