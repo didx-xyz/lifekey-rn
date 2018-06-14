@@ -268,17 +268,18 @@ class EditForm extends Component {
       case "identificationType":
         return this.renderSelectVal1('identificationType', "Identification");
       case "issuingCountry":
-        return this.renderSelectVal1('issuingCountry', "Country");
+        return this.renderSelectVal1('issuingCountry', "Country Name");
       case "country":
-        return this.renderSelectVal1('country', "Country");
+        return this.renderSelectVal1('country', "Country Name");
     }
   }
 
   renderSelectVal1(value, placeholder) {
     return (<TextInput
-      style={style.textInput}
+      style={styles.modalTextInput}
       editable={false}
       placeholder={placeholder}
+      placeholderTextColor = "#666666"
       value={this.state[value]} />);
   }
 
@@ -377,13 +378,13 @@ const styles = {
     "height": 40,
     "borderBottomWidth": 0
   },
-  "selectPickerWithValue":{
-    flex:1,
+  "selectPickerWithValue": {
+    flex: 1,
     height: 40,
     "borderWidth": 0,
   },
   "textInput": {
-    flex:1,
+    flex: 1,
     height: 40,
     color: "#666666",
     fontWeight: "100",
@@ -479,6 +480,14 @@ const styles = {
   "errorText": {
     "textAlign": "center",
     "color": "red"
+  },
+  "modalTextInput": {
+    "height": 40,
+    "color": "#666666",
+    "paddingRight": 10,
+    "fontWeight": "100",
+    "fontSize": fontSize,
+    "textAlign": "left"
   }
 }
 
