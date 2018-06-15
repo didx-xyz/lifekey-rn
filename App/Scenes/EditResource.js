@@ -139,7 +139,7 @@ class EditResource extends Scene {
   }
 
   componentDidMount() {
-    this.interaction = InteractionManager.runAfterInteractions(() => {
+    //this.interaction = InteractionManager.runAfterInteractions(() => {
       const id = this.context.getEditResourceId()
       const form = this.context.getEditResourceForm()
       const name = this.context.getEditResourceName()
@@ -174,23 +174,8 @@ class EditResource extends Scene {
           Logger.warn('Unexpected resource format')
         }
       })
-    })
+    //})
   }
-
-  // componentWillFocus() {
-
-  //   if (this.first_load) {
-  //     this.first_load = false
-  //     return
-  //   }
-  //   this.interaction = InteractionManager.runAfterInteractions(() => {
-  //     this.setState({"asyncActionInProgress": true, "progressCopy": "Loading existing resources..."}, async () => {
-  //       const resource = await this.loadResource(this.context.getEditResourceId())
-  //       const state = { formTarget: resource ? resource : { "label" : `My ${this.context.getEditResourceName()}` } }
-  //       this.setState(state)
-  //     })
-  //   })
-  // }
 
   componentWillUnmount() {
     if (this.interaction) this.interaction.cancel()
@@ -301,7 +286,7 @@ class EditResource extends Scene {
         </Container>
         
       :
-        <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
+        <ProgressIndicator progressCopy={ this.state.progressCopy }/>
     )
   }
 }
