@@ -370,13 +370,13 @@ class Main extends Scene {
                 Hi there {this.state.userName},
                 {"\n\n"}
                 You have no connections yet, have a look at some
-                </Text>
-              <Text onPress={this.setTab.bind(this, TAB_SUGGESTED)} style={Object.assign({}, style.defaultFont, { "color": Palette.consentBlue })}> suggestions.</Text>
+                <Text onPress={this.setTab.bind(this, TAB_SUGGESTED)} style={Object.assign({}, style.defaultFont, { "color": Palette.consentBlue })}> suggestions.</Text>
+              </Text>
               <Text style={style.defaultFont}>
                 {"\n\n"}
                 Or, start setting up your public
-                </Text>
-              <Text onPress={this.onBoundPressProfile} style={Object.assign({}, style.defaultFont, { "color": Palette.consentBlue })}> profile.</Text>
+                <Text onPress={this.onBoundPressProfile} style={Object.assign({}, style.defaultFont, { "color": Palette.consentBlue })}> profile.</Text>
+              </Text>
             </View>
           }
         </ScrollView>
