@@ -249,55 +249,16 @@ class EditForm extends Component {
     return this.renderSelectInput(entity, data, initialValue)
   }
 
-  selectedVal(fieldName, val) {
-    switch (fieldName) {
-      case "identificationType":
-        this.setState({ identificationType: val });
-        break;
-      case "issuingCountry":
-        this.setState({ issuingCountry: val });
-        break;
-      case "country":
-        this.setState({ country: val });
-        break;
-    }
-  }
-
-  renderSelectVal(fieldName) {
-    switch (fieldName) {
-      case "identificationType":
-        return this.renderSelectVal1('identificationType', "Identification");
-      case "issuingCountry":
-        return this.renderSelectVal1('issuingCountry', "Country Name");
-      case "country":
-        return this.renderSelectVal1('country', "Country Name");
-    }
-  }
-
-  renderSelectVal1(value, placeholder) {
-    return (<TextInput
-      style={styles.modalTextInput}
-      editable={false}
-      placeholder={placeholder}
-      placeholderTextColor = "#666666"
-      value={this.state[value]} />);
-  }
-
   renderSelectInput(entity, data, initialValue) {
-
     return (
       <ModalPicker
         data={data}
         style={styles.selectElement}
+        initValue={initialValue}
         selectStyle={styles.selectPickerWithValue}
         selectTextStyle={styles.textInput}
-        initValue={initialValue}
-        onChange={(option) => {
-          this.selectedVal(entity.name, option.label);
-          this.props.setSelectInputStateValue(entity, option)
-        }} >
-        {this.renderSelectVal(entity.name)}
-      </ModalPicker>
+        keyExtractor={item => item.key}
+      />
     )
   }
 
@@ -384,7 +345,6 @@ const styles = {
     "borderWidth": 0,
   },
   "textInput": {
-    flex: 1,
     height: 40,
     color: "#666666",
     fontWeight: "100",

@@ -27,7 +27,8 @@ import {
   View,
   Dimensions,
   Image,
-  StatusBar
+  StatusBar,
+  ScrollView
 } from 'react-native'
 import {
   Container,
@@ -48,7 +49,7 @@ class Main extends Scene {
     this.first_load = true
     this.is_mounted = false
     this.cxn_unread_msgs = {}
-    
+
     this.state = {
       activeTab: TAB_CONNECTED,
       searchText: '',
@@ -82,8 +83,8 @@ class Main extends Scene {
         this.loadProfile(),
         this.refreshThanksBalance()
       ])
-      .then(response => this.setState({"asyncActionInProgress": false}))
-      .catch(console.log.bind(console, 'error in component_did_mount'))
+        .then(response => this.setState({ "asyncActionInProgress": false }))
+        .catch(console.log.bind(console, 'error in component_did_mount'))
     })
   }
 
@@ -95,7 +96,7 @@ class Main extends Scene {
     this.is_mounted = false
     if (this.interaction) this.interaction.cancel()
   }
-  
+
   componentDidFocus() {
     if (this.first_load) {
       this.first_load = false
@@ -107,15 +108,15 @@ class Main extends Scene {
     this.refreshThanksBalance()
   }
 
-  setNewConnectionRequest(from){
+  setNewConnectionRequest(from) {
     this.loadConnections()
     Toast.show(`${from} just requested that you connect...`, ToastAndroid.SHORT)
   }
-  setNewConnection(from){
+  setNewConnection(from) {
     this.loadConnections()
     Toast.show(`You and ${from} are now connected...`, ToastAndroid.SHORT)
   }
-  deleteExistingPeerConnection(){
+  deleteExistingPeerConnection() {
     this.loadConnections()
     Toast.show(`Connection deleted...`, ToastAndroid.SHORT)
   }
@@ -139,12 +140,12 @@ class Main extends Scene {
         userName: userData.resourcesByType.find(
           rt => rt.name === 'Person'
         ).items[0].firstName
-      }, function() {
+      }, function () {
         console.log('Profile was loaded')
       })
     }).catch(err => {
       console.log('get my data error', err)
-      this.setState({userName: 'error'})
+      this.setState({ userName: 'error' })
     })
   }
 
@@ -153,14 +154,14 @@ class Main extends Scene {
     return ConsentUser.refreshThanksBalance().then(balance => {
       this.setState({
         thanksBalanceAmount: balance
-      }, function() {
+      }, function () {
         console.log('refreshThanksBalance')
       })
     }).catch(err => {
       console.log('thanks balance', err)
       this.setState({
         thanksBalanceAmount: '0'
-      }, function() {
+      }, function () {
         console.log('refreshThanksBalance error')
       })
     })
@@ -168,7 +169,7 @@ class Main extends Scene {
 
   loadConnections(callback, cacheFor, skipCache) {
     if (!this.is_mounted) {
-      (callback || function() {})()
+      (callback || function () { })()
       return
     }
     return Api.getMyConnections().then(connections => {
@@ -184,26 +185,26 @@ class Main extends Scene {
       })
 
     })
-    .catch(error => {
-      console.log("ERROR LOADING CONNECTIONS: ", JSON.stringify(error))
-    })
+      .catch(error => {
+        console.log("ERROR LOADING CONNECTIONS: ", JSON.stringify(error))
+      })
   }
 
   setTab(tab) {
     if (!this.is_mounted) return
-    this.setState({activeTab: tab})
+    this.setState({ activeTab: tab })
   }
 
   updateSearch(text) {
     if (!this.is_mounted) return
-    this.setState({searchText: text}, function() {
+    this.setState({ searchText: text }, function () {
       console.log('updateSearch')
     })
   }
 
   clearSearch() {
     if (!this.is_mounted) return
-    this.setState({searchText: ''}, function() {
+    this.setState({ searchText: '' }, function () {
       console.log('clearSearch')
     })
   }
@@ -274,14 +275,14 @@ class Main extends Scene {
 
   render() {
 
-    var icons= [
+    var icons = [
       {
         icon: (<MessagesIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Design.headerIconColour} />),
         onPress: () => this.navigator.push(Routes.messages), //onPress: () => this.navigator.push({...Routes.messages, direction: 'leftToRight'}),
         borderColor: "white"
       },
       {
-        icon: <Image style={{height: "100%", width: "100%"}} source={AppLogo}/>,
+        icon: <Image style={{ height: "100%", width: "100%" }} source={AppLogo} />,
         onPress: () => alert('test'),
         onLongPress: () => {
           if (Config.DEBUG) {
@@ -296,7 +297,7 @@ class Main extends Scene {
         borderColor: "white",
         secondaryItem: this.state.thanksBalanceAmount ? <Text>{this.state.thanksBalanceAmount}</Text> : (<ActivityIndicator width={Design.headerIconWidth / 1.5} height={Design.headerIconHeight / 1.5} color={Palette.consentGrayDark} />)
       }
-    ], tabs=[
+    ], tabs = [
       {
         text: 'Connected',
         onPress: () => this.setTab(TAB_CONNECTED),
@@ -317,22 +318,22 @@ class Main extends Scene {
     return (
       <Container>
         <AndroidBackButton onPress={() => this._hardwareBack()} />
-        
+
         <LifekeyHeader icons={icons} tabs={tabs} />
-        { 
+        {
           <View style={{ flex: 1, backgroundColor: Palette.consentGrayLightest }}>
             {
-              
-              !this.state.asyncActionInProgress ? 
+
+              !this.state.asyncActionInProgress ?
                 this.renderTab()
-              :
-                <ProgressIndicator progressCopy={ this.state.progressCopy }/>
+                :
+                <ProgressIndicator progressCopy={this.state.progressCopy} />
             }
           </View>
         }
         <Text style={style.versionText}>{Utils.appVersion}</Text>
         <LifekeyFooter
-          backgroundColor={ Palette.consentBlue }
+          backgroundColor={Palette.consentBlue}
           leftButtonText="Me"
           rightButtonText="Scan"
           rightButtonIcon={<ScanIcon width={Design.footerIconWidth} height={Design.footerIconHeight} stroke={Design.footerIconColour} />}
@@ -344,7 +345,7 @@ class Main extends Scene {
   }
 
   renderTab() {
-    
+
     switch (this.state.activeTab) {
       case TAB_CONNECTED:
         return this.renderConnections()
@@ -355,48 +356,48 @@ class Main extends Scene {
     }
   }
 
-  renderConnections(){
+  renderConnections() {
 
     /* ZERO DATA VIEW */
-    if(!this.state.botConnections.length && !this.state.peerConnections.length){
+    if (!this.state.botConnections.length && !this.state.peerConnections.length) {
       return (
-        <View style={ style.contentContainer }>
-          { this.state.userName && 
-            <Text style={style.defaultTextContainer}>
-              <Text style={ style.defaultFont }>
-                Hi there { this.state.userName }, 
+        <ScrollView style={style.contentContainer}>
+          {this.state.userName &&
+            <View style={style.defaultTextContainer}>
+              <Text style={style.defaultFont}>
+                Hi there {this.state.userName},
                 {"\n\n"}
                 You have no connections yet, have a look at some
-              </Text>
-              <Text onPress={() => this.setTab(TAB_SUGGESTED)} style={ Object.assign({}, style.defaultFont, { "color": Palette.consentBlue }) }> suggestions.</Text>
-              <Text style={ style.defaultFont }>  
+                </Text>
+              <Text onPress={this.setTab.bind(this, TAB_SUGGESTED)} style={Object.assign({}, style.defaultFont, { "color": Palette.consentBlue })}> suggestions.</Text>
+              <Text style={style.defaultFont}>
                 {"\n\n"}
                 Or, start setting up your public
-              </Text>
-              <Text onPress={this.onBoundPressProfile} style={ Object.assign({}, style.defaultFont, { "color": Palette.consentBlue }) }> profile.</Text>
-            </Text>
+                </Text>
+              <Text onPress={this.onBoundPressProfile} style={Object.assign({}, style.defaultFont, { "color": Palette.consentBlue })}> profile.</Text>
+            </View>
           }
-        </View>
+        </ScrollView>
       )
     }
 
-    return(
-      <View style={style.contentContainer}> 
-        <LifekeyList list={this.state.peerConnections} onItemPress={this.onBoundGoToPeerConnectionDetails}/>
-        <LifekeyList cxn_unread_msgs={this.cxn_unread_msgs} list={this.state.botConnections} onItemPress={this.onBoundGoToBotConnectionDetails}/>
+    return (
+      <View style={style.contentContainer}>
+        <LifekeyList list={this.state.peerConnections} onItemPress={this.onBoundGoToPeerConnectionDetails} />
+        <LifekeyList cxn_unread_msgs={this.cxn_unread_msgs} list={this.state.botConnections} onItemPress={this.onBoundGoToBotConnectionDetails} />
       </View>
     )
   }
 
-  renderSuggestedConnections(){
-    
+  renderSuggestedConnections() {
+
     /* ZERO DATA VIEW */
-    if((!this.state.activeBots) || (!this.state.activeBots.length) ){
+    if ((!this.state.activeBots) || (!this.state.activeBots.length)) {
       return (
-        <View style={ style.contentContainer }>
-          { this.state.userName && 
+        <View style={style.contentContainer}>
+          {this.state.userName &&
             <Text style={style.defaultTextContainer}>
-              <Text style={ style.defaultFont }>
+              <Text style={style.defaultFont}>
                 There are currently no more suggested connections.
               </Text>
             </Text>
@@ -404,23 +405,23 @@ class Main extends Scene {
         </View>
       )
     }
-      
-    return(
-      <View style={style.contentContainer}> 
-        <LifekeyList list={this.state.activeBots} onItemPress={this.onBoundGoToBotConnect}/>
+
+    return (
+      <View style={style.contentContainer}>
+        <LifekeyList list={this.state.activeBots} onItemPress={this.onBoundGoToBotConnect} />
       </View>
-    ) 
+    )
   }
 
-  renderPeerRequests(){
-    
+  renderPeerRequests() {
+
     /* ZERO DATA VIEW */
-    if(!this.state.pendingPeerConnections.length){
+    if (!this.state.pendingPeerConnections.length) {
       return (
-        <View style={ style.contentContainer }>
-          { this.state.userName && 
+        <View style={style.contentContainer}>
+          {this.state.userName &&
             <Text style={style.defaultTextContainer}>
-              <Text style={ style.defaultFont }>
+              <Text style={style.defaultFont}>
                 There are currently no peer requests.
               </Text>
             </Text>
@@ -428,12 +429,12 @@ class Main extends Scene {
         </View>
       )
     }
-      
-    return(
-      <View style={style.contentContainer}> 
-        <LifekeyList list={this.state.pendingPeerConnections} onItemPress={this.onBoundGoToPeerConnect}/>
+
+    return (
+      <View style={style.contentContainer}>
+        <LifekeyList list={this.state.pendingPeerConnections} onItemPress={this.onBoundGoToPeerConnect} />
       </View>
-    ) 
+    )
   }
 }
 
@@ -465,20 +466,20 @@ const style = {
     borderRadius: 45,
     marginLeft: 10
   },
-  "defaultTextContainer":{
+  "defaultTextContainer": {
     "paddingTop": 50,
-    "padding": Design.paddingRight*2,
-    color: Palette.consentOffBlack,
+    "padding": Design.paddingRight * 2,
   },
-  "defaultFont":{
+  "defaultFont": {
     fontFamily: Design.fonts.registration,
     fontWeight: Design.fontWeights.light,
     fontSize: 24,
-    lineHeight: 28
-  },
-  versionText:{
+    lineHeight: 28,
     color: Palette.consentOffBlack,
-    height:25,
+  },
+  versionText: {
+    color: Palette.consentOffBlack,
+    height: 25,
   }
 }
 
