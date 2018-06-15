@@ -33,7 +33,7 @@ class EditForm extends Component {
             {!!this.context.getEditResourceId() && this.context.getEditResourceName() !== "Person" &&
               <Touchable onPress={this.props.onDelete} hitSlop={Common.touchableArea}>
                 <View style={styles.deleteContainer}>
-                  <TrashIcon width={30} height={30} stroke={Palette.consentGrayDark}></TrashIcon>
+                  <TrashIcon width={30} height={30} stroke={Palette.consentGrayDark}/>
                 </View>
               </Touchable>
             }
