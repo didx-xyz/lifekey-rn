@@ -268,26 +268,58 @@ class ConnectionDetails extends Scene {
     })
   }
 
+  _renderISACard(ISA, index) {
+    //ISA = JSON.parse('{"information_sharing_agreement":{"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"expired":false,"from_did":"did:cnsnt:0xce9474f504b91879a35c589d60f4ecc9f2469170","id":585,"isar_id":895,"to_did":"did:cnsnt:0xb2a5942da7b5798840efaa9660af7b24d28c3519","transaction_hash":null,"updated_at":"2018-06-14T13:49:24.000Z"},"information_sharing_agreement_request":{"accepted":true,"acknowledged":true,"acknowledged_at":"2018-06-14T13:49:24.000Z","action_id":45,"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"expires_at":"2019-06-14T13:49:24.000Z","from_did":"did:cnsnt:0xce9474f504b91879a35c589d60f4ecc9f2469170","id":895,"license":"demonstration","optional_entities":"[]","purpose":"demonstration","required_entities":"[{\\"address\\":\\"schema.cnsnt.io/person\\",\\"name\\":\\"PersonalDetails\\"},{\\"address\\":\\"schema.cnsnt.io/verified_identity\\",\\"name\\":\\"VerifiedIdentity\\"},{\\"address\\":\\"schema.cnsnt.io/proof_of_residence\\",\\"name\\":\\"ProofofResidence\\"},{\\"address\\":\\"schema.cnsnt.io/proof_of_identity\\",\\"name\\":\\"ProofofIdentityScan\\"},{\\"address\\":\\"schema.cnsnt.io/address\\",\\"name\\":\\"AddressDetails\\"},{\\"employment\\":\\"schema.cnsnt.io/employment\\",\\"name\\":\\"EmploymentDetails\\"}]","resolved_at":"2018-06-14T13:49:24.000Z","to_did":"did:cnsnt:0xb2a5942da7b5798840efaa9660af7b24d28c3519","updated_at":"2018-06-14T13:49:24.000Z"},"information_sharing_permissions":[{"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"id":2088,"isa_id":585,"updated_at":"2018-06-14T13:49:24.000Z","user_datum_id":5763210},{"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"id":2089,"isa_id":585,"updated_at":"2018-06-14T13:49:24.000Z","user_datum_id":5763218},{"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"id":2090,"isa_id":585,"updated_at":"2018-06-14T13:49:24.000Z","user_datum_id":5763217},{"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"id":2091,"isa_id":585,"updated_at":"2018-06-14T13:49:24.000Z","user_datum_id":5763216},{"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"id":2092,"isa_id":585,"updated_at":"2018-06-14T13:49:24.000Z","user_datum_id":5763214},{"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"id":2093,"isa_id":585,"updated_at":"2018-06-14T13:49:24.000Z","user_datum_id":5763297}]}')
+    let re = ISA.information_sharing_agreement_request.required_entities
+    re = re.replace("\\\"[", '[')
+    re = re.replace(/]\\"/g, "]")
+    re = re.replace(/\\\\\\"/g,'\\"')
+    re = re.replace(/\\"/g,'"')
+    let entities = JSON.parse(re)
+    let shared = entities.map(y => y.name)
+    let date = new Date(ISA.information_sharing_agreement_request.created_at).toDateString()
+    let expires = new Date(ISA.information_sharing_agreement_request.expires_at).toDateString()
+    let hash = ISA.information_sharing_agreement.transaction_hash
+    hash = hash?hash:""
+    return (
+      <ISACard
+        key={index}
+        title={ISA.information_sharing_agreement_request.purpose}
+        shared={shared}
+        terms={[
+          { icon: <PeriodIcon width={15} height={15}/>, text: "12 Months" },
+          { icon: <LocationFlagIcon width={15} height={15}/>, text: "In SA" },
+          { icon: <MarketingIcon width={15} height={15}/>, text: "Marketing" }
+        ]}
+        date={date}
+        expires={expires}
+        transactionHash={hash}
+      />
+    )
+
+  }
+
+  renderISA() {
+    return (
+      <View style={{ flex: 1 , paddingLeft: Design.paddingLeft, paddingRight: Design.paddingRight }}>
+        <Text style={_.assign({}, styles.actionTitleText, { color: "#888", padding: 10 })}>
+          Your share the following personal data with
+          <Text style={{ fontWeight: 'bold' }}>
+            {' ' + this.state.display_name}
+          </Text>
+        </Text>
+        { this.state.enabled_isas.map((x, i) => {return this._renderISACard(x, i)}
+        )}
+
+      </View>
+    )
+  }
+
   renderTab() {
      switch (this.state.activeTab) {
       case CONNECT: 
-        return <Connect profile={this.state.connectionProfile} connectWithMe={false}></Connect>
-        // return (
-        //   <View style={{ height: Dimensions.get('window').height - Design.lifekeyHeaderHeight - StatusBar.currentHeight }}>
+        return <Connect profile={this.state.connectionProfile} connectWithMe={false}/>
 
-        //     <View style={styles.qrCodeWrap}>
-        //       <Image source={{uri: `${Config.http.baseUrl}/qr/${this.state.user_did}` }} style={{ width: 200, height: 200 }}
-        //       />
-        //     </View>
-
-        //     <View style={styles.connectHelpTextWrap}>
-        //       <Text style={{ textAlign: 'center' }}>
-        //         Invite other people to connect with {this.state.display_name} by sharing this unique code.
-        //       </Text>
-        //     </View>
-
-        //   </View>
-        // )
       case ACTIVITY:
         return (
           <ScrollView style={styles.messages}>
@@ -323,33 +355,7 @@ class ConnectionDetails extends Scene {
           </ScrollView>
         )
       case SHARED:
-      return (
-        <View style={{ flex: 1 , paddingLeft: Design.paddingLeft, paddingRight: Design.paddingRight }}>
-          <Text style={_.assign({}, styles.actionTitleText, { color: "#888", padding: 10 })}>
-            Your share the following personal data with
-            <Text style={{ fontWeight: 'bold' }}>
-              {' ' + this.state.display_name}
-            </Text>
-          </Text>
-          { this.state.enabled_isas.map((x, i) =>
-            <ISACard
-              key={i}
-              title={x.information_sharing_agreement_request.purpose}
-              shared={JSON.parse(x.information_sharing_agreement_request.required_entities).map(y => y.name)}
-              terms={[
-                { icon: <PeriodIcon width={15} height={15}/>, text: "12 Months" },
-                { icon: <LocationFlagIcon width={15} height={15}/>, text: "In SA" },
-                { icon: <MarketingIcon width={15} height={15}/>, text: "Marketing" }
-              ]}
-              date="23-02-2017"
-              expires="23-02-2018"
-              transactionHash={x.information_sharing_agreement.transaction_hash}
-            />
-
-          )}
-
-        </View>
-      )
+        return this.renderISA()
       case HELP:
       return (
         <View style={{ flex: 1 }}>
@@ -398,7 +404,7 @@ class ConnectionDetails extends Scene {
                   borderColor: this.state.colour
                 },
                 {
-                  icon: <View width={24} height={24}></View>,
+                  icon: <View width={24} height={24}/>,
                   onPress: () => {},
                   borderColor: this.state.colour
                 }
@@ -428,7 +434,7 @@ class ConnectionDetails extends Scene {
           </View>
         { 
           this.state.loading_cxn_details ? 
-            <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
+            <ProgressIndicator progressCopy={ this.state.progressCopy }/>
           :
             <Content style={styles.content}>
               <Modal
@@ -438,7 +444,7 @@ class ConnectionDetails extends Scene {
                 onRequestClose={() => {alert("Modal has been closed.")}}
                 >
                <View style={{ "flex": 1 }}>
-                  <View style={ styles.modalBackdrop }></View>
+                  <View style={ styles.modalBackdrop }/>
                   
                   <InformationRequest
                     display_name={this.state.display_name}
@@ -452,7 +458,7 @@ class ConnectionDetails extends Scene {
                     action={ this.state.action }
                     required_entities={ this.state.required_entities }
                     onCancel={this.setModalVisible.bind(this)} 
-                  ></InformationRequest>
+                  />
 
                </View>
               </Modal>
