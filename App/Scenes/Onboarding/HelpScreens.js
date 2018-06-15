@@ -49,7 +49,7 @@ class HelpScreens extends Scene {
             const colour = i === this.state.activeScreenNumber ? Palette.consentBlue : Palette.consentGrayDark
             return (  
               <View key={i} style={styles.dotContainer}>
-                <View style={Object.assign({}, styles.innerdot, {"backgroundColor": colour})}></View>
+                <View style={Object.assign({}, styles.innerdot, {"backgroundColor": colour})}/>
               </View>
             )
           })}
