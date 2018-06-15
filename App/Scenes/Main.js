@@ -330,7 +330,9 @@ class Main extends Scene {
             }
           </View>
         }
-        <Text style={style.versionText}>{Utils.appVersion}</Text>
+        <TouchableOpacity onPress={()=>Utils.checkForUpdate(false)}>
+          <Text style={style.versionText}>{Utils.appVersion}</Text>
+        </TouchableOpacity>
         <LifekeyFooter
           backgroundColor={ Palette.consentBlue }
           leftButtonText="Me"
