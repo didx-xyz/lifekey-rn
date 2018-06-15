@@ -126,7 +126,7 @@ class Connect extends Component  {
             </View>   
           </View>
         :
-          <Text style={ styles.defaultTextContainer }>
+          <View style={ styles.defaultTextContainer }>
             <Text style={ styles.defaultFont }>
               Hi there, 
               {"\n\n"}
@@ -135,7 +135,7 @@ class Connect extends Component  {
               Quickly set it up
             </Text>
             <Text onPress={this.onBoundPressProfile} style={ Object.assign({}, styles.defaultFont, { "color": Palette.consentBlue }) }> here.</Text>
-          </Text>
+          </View>
         } 
       </View>
     )
@@ -218,13 +218,13 @@ const styles = {
   "defaultTextContainer":{
     "paddingTop": 50,
     "padding": Design.paddingRight*2,
-    color: Palette.consentOffBlack
   },
   "defaultFont":{
     fontFamily: Design.fonts.registration,
     fontWeight: Design.fontWeights.light,
     fontSize: 24,
-    lineHeight: 28
+    lineHeight: 28,
+    color: Palette.consentOffBlack    
   }
 }
 
