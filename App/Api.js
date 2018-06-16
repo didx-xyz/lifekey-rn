@@ -110,12 +110,16 @@ export default class Api {
       const enabledPeerConnections = enabledConnections.filter(connection => connection.is_human)
                                                         .map(connection => { 
                                                           const original = results[4].find(obj => obj.other_user_did === connection.did)
-                                                          return Object.assign({}, 
+                                                          let uri = connection.image_uri
+                                                          if (!uri.startsWith(`data:image/jpg;base64,`)) {
+                                                            uri = `data:image/jpg;base64,${connection.image_uri}`
+                                                          }
+                                                          return Object.assign({},
                                                                               connection, 
                                                                               { 
                                                                                 isa_id: original.sharing_isa_id, 
                                                                                 user_connection_id: original.user_connection_id, 
-                                                                                image_uri: `data:image/jpg;base64,${connection.image_uri}` 
+                                                                                image_uri: uri
                                                                               })
                                                         })
 
@@ -127,7 +131,13 @@ export default class Api {
                                                   const original = results[5].find(obj => obj.from_did === connection.did)
                                                   return Object.assign({}, connection, { user_connection_request_id: original.user_connection_request_id })
                                                 })
-                                                .map(connection => Object.assign({}, connection, { image_uri: `data:image/jpg;base64,${connection.image_uri}` }))
+                                                .map(connection => {
+                                                  let uri = connection.image_uri
+                                                  if (!uri.startsWith(`data:image/jpg;base64,`)) {
+                                                    uri = `data:image/jpg;base64,${connection.image_uri}`
+                                                  }
+                                                  return Object.assign({}, connection, {image_uri: uri})
+                                                })
 
       const pendingBotConnections = results[1].map(x => x.body.user)
                                               .filter(x => !x.is_human)

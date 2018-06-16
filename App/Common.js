@@ -36,11 +36,15 @@ export default class Common {
             return url
     }
 
-    static ensureDataUrlHasContext(url){
-        if(!url) return ''
-        url = this.ensureDataUrlIsCleanOfContext(url)    
-        return `data:image/jpg;base64,${url}`
+  static ensureDataUrlHasContext(url){
+    if(!url) return ''
+    url = this.ensureDataUrlIsCleanOfContext(url)
+    if (!url.startsWith('http')) {
+      return `data:image/jpg;base64,${url}`
+    } else {
+      return url
     }
+  }
 
     // Hit areas on buttons
     static touchableArea = {top: 140, left: 140, bottom: 140, right: 140}
