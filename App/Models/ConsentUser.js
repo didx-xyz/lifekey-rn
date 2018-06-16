@@ -661,8 +661,8 @@ export default class ConsentUser {
 
     console.log("NEW PROFILE: ", profile)
     if (profile.image_uri) {
-      profile.image_uri = Common.ensureDataUrlIsCleanOfContext(profile.image_uri)
-      profile.image_uri = `data:image/jpg;base64,${profile.image_uri}`
+      let uri = profile.image_uri
+      profile.image_uri = Common.ensureDataUrlHasContext(uri)
     }
     else {
       profile.image_uri = Anonymous.uri
@@ -870,7 +870,9 @@ export default class ConsentUser {
 
     // Set profile pic
     const person = resourceTypes.find(rt => rt.url === "http://schema.cnsnt.io/person").items[0]
-    const identityPhotographUri = person && person.identityPhotograph ? `data:image/jpg;base64,${person.identityPhotograph}` : Anonymous.uri
+    let uri = person.identityPhotograph
+    uri = Common.ensureDataUrlHasContext(uri)
+    const identityPhotographUri = person && person.identityPhotograph ? uri : Anonymous.uri
 
     return { resourcesByType: resourceTypes, profilePicUrl: identityPhotographUri }
 

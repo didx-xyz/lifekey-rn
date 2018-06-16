@@ -1,14 +1,11 @@
 
 // internal dependencies
 import Config from './Config'
-import Crypto from './Crypto'
-import Session from './Session'
 import Logger from './Logger'
 import Common from './Common'
 import ConsentUser from './Models/ConsentUser'
 import ConsentConnectionRequest from './Models/ConsentConnectionRequest'
 import ConsentShareLog from './Models/ConsentShareLog'
-import ConsentError, {ErrorCode} from './ConsentError'
 import {request, rejectionWithError} from './Requests'
 
 function checkParameters(requiredKeys, receivedObject) {
@@ -111,9 +108,7 @@ export default class Api {
                                                         .map(connection => { 
                                                           const original = results[4].find(obj => obj.other_user_did === connection.did)
                                                           let uri = connection.image_uri
-                                                          if (!uri.startsWith(`data:image/jpg;base64,`)) {
-                                                            uri = `data:image/jpg;base64,${connection.image_uri}`
-                                                          }
+                                                          uri = Common.ensureDataUrlHasContext(uri)
                                                           return Object.assign({},
                                                                               connection, 
                                                                               { 
@@ -133,9 +128,7 @@ export default class Api {
                                                 })
                                                 .map(connection => {
                                                   let uri = connection.image_uri
-                                                  if (!uri.startsWith(`data:image/jpg;base64,`)) {
-                                                    uri = `data:image/jpg;base64,${connection.image_uri}`
-                                                  }
+                                                  uri = Common.ensureDataUrlHasContext(uri)
                                                   return Object.assign({}, connection, {image_uri: uri})
                                                 })
 
