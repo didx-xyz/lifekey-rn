@@ -244,8 +244,12 @@ class EditForm extends Component {
         "selected": this.props.formTarget[entity.name] === value
       }
     })
-
-    const initialValue = "Select an option"
+    const selected = data.filter((element) => {
+      if (element.selected) {
+        return element
+      }
+    })
+    const initialValue = selected.length > 0 ? selected[0].key : "Select an option"
     return this.renderSelectInput(entity, data, initialValue)
   }
 
@@ -258,6 +262,7 @@ class EditForm extends Component {
         selectStyle={styles.selectPickerWithValue}
         selectTextStyle={styles.textInput}
         keyExtractor={item => item.key}
+        onChange={(option) => { this.props.setSelectInputStateValue(entity, option) }}
       />
     )
   }

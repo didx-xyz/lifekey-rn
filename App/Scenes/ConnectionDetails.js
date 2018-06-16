@@ -269,13 +269,17 @@ class ConnectionDetails extends Scene {
   }
 
   _renderISACard(ISA, index) {
-    //ISA = JSON.parse('{"information_sharing_agreement":{"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"expired":false,"from_did":"did:cnsnt:0xce9474f504b91879a35c589d60f4ecc9f2469170","id":585,"isar_id":895,"to_did":"did:cnsnt:0xb2a5942da7b5798840efaa9660af7b24d28c3519","transaction_hash":null,"updated_at":"2018-06-14T13:49:24.000Z"},"information_sharing_agreement_request":{"accepted":true,"acknowledged":true,"acknowledged_at":"2018-06-14T13:49:24.000Z","action_id":45,"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"expires_at":"2019-06-14T13:49:24.000Z","from_did":"did:cnsnt:0xce9474f504b91879a35c589d60f4ecc9f2469170","id":895,"license":"demonstration","optional_entities":"[]","purpose":"demonstration","required_entities":"[{\\"address\\":\\"schema.cnsnt.io/person\\",\\"name\\":\\"PersonalDetails\\"},{\\"address\\":\\"schema.cnsnt.io/verified_identity\\",\\"name\\":\\"VerifiedIdentity\\"},{\\"address\\":\\"schema.cnsnt.io/proof_of_residence\\",\\"name\\":\\"ProofofResidence\\"},{\\"address\\":\\"schema.cnsnt.io/proof_of_identity\\",\\"name\\":\\"ProofofIdentityScan\\"},{\\"address\\":\\"schema.cnsnt.io/address\\",\\"name\\":\\"AddressDetails\\"},{\\"employment\\":\\"schema.cnsnt.io/employment\\",\\"name\\":\\"EmploymentDetails\\"}]","resolved_at":"2018-06-14T13:49:24.000Z","to_did":"did:cnsnt:0xb2a5942da7b5798840efaa9660af7b24d28c3519","updated_at":"2018-06-14T13:49:24.000Z"},"information_sharing_permissions":[{"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"id":2088,"isa_id":585,"updated_at":"2018-06-14T13:49:24.000Z","user_datum_id":5763210},{"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"id":2089,"isa_id":585,"updated_at":"2018-06-14T13:49:24.000Z","user_datum_id":5763218},{"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"id":2090,"isa_id":585,"updated_at":"2018-06-14T13:49:24.000Z","user_datum_id":5763217},{"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"id":2091,"isa_id":585,"updated_at":"2018-06-14T13:49:24.000Z","user_datum_id":5763216},{"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"id":2092,"isa_id":585,"updated_at":"2018-06-14T13:49:24.000Z","user_datum_id":5763214},{"created_at":"2018-06-14T13:49:24.000Z","deleted_at":null,"id":2093,"isa_id":585,"updated_at":"2018-06-14T13:49:24.000Z","user_datum_id":5763297}]}')
+    let entities
     let re = ISA.information_sharing_agreement_request.required_entities
-    re = re.replace("\\\"[", '[')
-    re = re.replace(/]\\"/g, "]")
-    re = re.replace(/\\\\\\"/g,'\\"')
-    re = re.replace(/\\"/g,'"')
-    let entities = JSON.parse(re)
+    if (typeof re === 'string') {
+      re = re.replace("\\\"[", '[')
+      re = re.replace(/]\\"/g, "]")
+      re = re.replace(/\\\\\\"/g,'\\"')
+      re = re.replace(/\\"/g,'"')
+      entities = JSON.parse(re)
+    } else {
+      entities = re
+    }
     let shared = entities.map(y => y.name)
     let date = new Date(ISA.information_sharing_agreement_request.created_at).toDateString()
     let expires = new Date(ISA.information_sharing_agreement_request.expires_at).toDateString()
