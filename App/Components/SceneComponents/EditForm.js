@@ -197,7 +197,8 @@ class EditForm extends Component {
       })
     }
 
-    const imageUri = Common.ensureDataUrlHasContext(this.props.formTarget[entity.name])
+    console.log("entity.name", entity, this.props.formTarget[entity.name]);
+    const imageUri = Common.ensureDataUrlHasContext(this.props.formTarget[entity.name]? this.props.formTarget[entity.name] : Common.defaultDataUrl())
 
     console.log("IMAGE URI IN FORM: ", imageUri)
 
