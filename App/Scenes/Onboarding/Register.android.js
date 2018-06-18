@@ -268,6 +268,8 @@ class Register extends Scene {
     } else {
       this.setState({ step: activeStepNumber });
     }
+
+    this._RefOnboardingTextInput && this._RefOnboardingTextInput.clearValue();    
   }
 
   attemptToRegisterUser() {
@@ -331,6 +333,7 @@ class Register extends Scene {
         return (
           <View style={[style.textInputRow]}>
             <OnboardingTextInput
+              ref={ref => this._RefOnboardingTextInput = ref}            
               onChangeText={(text) => this.setUserState('username', text)}
               autoCapitalize="sentences"
               fontSize={22}
@@ -343,6 +346,7 @@ class Register extends Scene {
         return (
           <View style={[style.textInputRow]}>
             <OnboardingTextInput
+              ref={ref => this._RefOnboardingTextInput = ref}
               onChangeText={(text) => this.setUserState('email', text)}
               autoCapitalize="none"
               fontSize={24}

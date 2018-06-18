@@ -288,6 +288,8 @@ class Register extends Scene {
     } else {
       this.setState({ step: activeStepNumber });
     }
+
+    this._RefOnboardingTextInput && this._RefOnboardingTextInput.clearValue();
   }
 
   _getPin() {
@@ -321,21 +323,21 @@ class Register extends Scene {
       // AlertIOS.alert('Registering...');
       this.setState({ loading_indicator: true }, resolve);
     })
-    .then((res) => {
-      //clear existing keys before registering user
-      return ConsentUser.register(this.state.user, this.isSensorAvailable);
-    })
-    .then((user) => {
-      this.setState({ loading_indicator: false });
-    })
-    .catch((error) => {
-      AlertIOS.alert(error.message);
-      this.setState({ loading_indicator: false });
-      console.error(error);
-      AlertIOS.alert('Registration unsuccessful...');
-      this.resetRegistration();
-      this.clearKeys();
-    });
+      .then((res) => {
+        //clear existing keys before registering user
+        return ConsentUser.register(this.state.user, this.isSensorAvailable);
+      })
+      .then((user) => {
+        this.setState({ loading_indicator: false });
+      })
+      .catch((error) => {
+        AlertIOS.alert(error.message);
+        this.setState({ loading_indicator: false });
+        console.error(error);
+        AlertIOS.alert('Registration unsuccessful...');
+        this.resetRegistration();
+        this.clearKeys();
+      });
   }
 
   clearKeys() {
@@ -346,9 +348,9 @@ class Register extends Scene {
         })
       );
     })
-    .catch(function(err) {
-      console.log("clearKeys error",err)
-    });
+      .catch(function (err) {
+        console.log("clearKeys error", err)
+      });
   }
   // Called from LifekeyRn when DID is received via Firebase notification
   registrationCallback() {
@@ -361,6 +363,7 @@ class Register extends Scene {
         return (
           <View style={[style.textInputRow]}>
             <OnboardingTextInput
+              ref={ref => this._RefOnboardingTextInput = ref}
               onChangeText={(text) => this.setUserState('username', text)}
               autoCapitalize="sentences"
               fontSize={22}
@@ -374,6 +377,7 @@ class Register extends Scene {
         return (
           <View style={[style.textInputRow]}>
             <OnboardingTextInput
+              ref={ref => this._RefOnboardingTextInput = ref}
               onChangeText={(text) => this.setUserState('email', text)}
               autoCapitalize="none"
               fontSize={22}

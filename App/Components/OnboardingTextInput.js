@@ -54,6 +54,10 @@ export default class OnboardingTextInput extends Component {
     })
   }
 
+  clearValue(){
+    this.setState({value : ''});
+  }
+
   _onChangeText(text) {
     if(text.length % 10 === 0){
       let fontsize =  this.props.fontSize;
