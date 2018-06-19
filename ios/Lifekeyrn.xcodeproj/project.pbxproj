@@ -5,7 +5,6 @@
 	};
 	objectVersion = 46;
 	objects = {
-
 /* Begin PBXBuildFile section */
 		00C302E51ABCBA2D00DB3ED1 /* libRCTActionSheet.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302AC1ABCB8CE00DB3ED1 /* libRCTActionSheet.a */; };
 		00C302E71ABCBA2D00DB3ED1 /* libRCTGeolocation.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 00C302BA1ABCB90400DB3ED1 /* libRCTGeolocation.a */; };
@@ -32,7 +31,6 @@
 		20A3667B205D3F220069C0B5 /* libsqlite3.0.tbd in Frameworks */ = {isa = PBXBuildFile; fileRef = 20A3667A205D3F220069C0B5 /* libsqlite3.0.tbd */; };
 		2B83E2DCA6BE4DA4B7502C70 /* SimpleLineIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = E0AE83464240404680AF9E88 /* SimpleLineIcons.ttf */; };
 		3A2A23BC209FC3E200C4B8B7 /* libRNCamera.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3A2A23B4209FC3D700C4B8B7 /* libRNCamera.a */; };
-		3A2A23BD209FC44B00C4B8B7 /* libRNCryptoModule.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 3BCB8B67206142010039B0F7 /* libRNCryptoModule.a */; };
 		3A2A23BF209FC5BA00C4B8B7 /* libRNSVG.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 2CF7CFC91E7BED1D0082DF7D /* libRNSVG.a */; };
 		3A2A23C0209FC5E500C4B8B7 /* libRNGeocoder.a in Frameworks */ = {isa = PBXBuildFile; fileRef = 20A3662F205D3D1D0069C0B5 /* libRNGeocoder.a */; };
 		3B55166E2061098C00CE448D /* main.jsbundle in Resources */ = {isa = PBXBuildFile; fileRef = 008F07F21AC5B25A0029DE68 /* main.jsbundle */; };
@@ -49,6 +47,7 @@
 		D8107E10490DA6DF50B69846 /* libPods-Lifekeyrn.a in Frameworks */ = {isa = PBXBuildFile; fileRef = BF16A5530C8C4118E562B1F8 /* libPods-Lifekeyrn.a */; };
 		DA6B58204F1140A79E9908E8 /* MaterialIcons.ttf in Resources */ = {isa = PBXBuildFile; fileRef = 8E2BC920971B42E981EF417A /* MaterialIcons.ttf */; };
 		EE827FADEF6846D2B69DF49F /* Foundation.ttf in Resources */ = {isa = PBXBuildFile; fileRef = BDAA6C4AFE224559A7A50ECB /* Foundation.ttf */; };
+		1B7E253E3C554F86A49CC0BD /* libRNCryptoModule.a in Frameworks */ = {isa = PBXBuildFile; fileRef = A953FBBB52EA4D63AA850950 /* libRNCryptoModule.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -262,13 +261,6 @@
 			remoteGlobalIDString = 014A3B5C1C6CF33500B6D375;
 			remoteInfo = RNImagePicker;
 		};
-		3BCB8B66206142010039B0F7 /* PBXContainerItemProxy */ = {
-			isa = PBXContainerItemProxy;
-			containerPortal = 325749BBED8041B8B371C904 /* RNCryptoModule.xcodeproj */;
-			proxyType = 2;
-			remoteGlobalIDString = 134814201AA4EA6300B7C361;
-			remoteInfo = RNCryptoModule;
-		};
 		3BDB3491204ED32900CF0A30 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
 			containerPortal = 09D8E1CFF45B4C4A9E67C892 /* RNImagePicker.xcodeproj */;
@@ -434,8 +426,6 @@
 		20A3667A205D3F220069C0B5 /* libsqlite3.0.tbd */ = {isa = PBXFileReference; lastKnownFileType = "sourcecode.text-based-dylib-definition"; name = libsqlite3.0.tbd; path = usr/lib/libsqlite3.0.tbd; sourceTree = SDKROOT; };
 		2367A1D3A22D4950919CB00B /* SanFranciscoThin.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SanFranciscoThin.ttf; path = "../node_modules/native-base/Fonts/SanFranciscoThin.ttf"; sourceTree = "<group>"; };
 		29665CEDC1BF4919A2AC09AF /* Rubik-Light.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-Light.ttf"; path = "../node_modules/native-base/Fonts/Rubik-Light.ttf"; sourceTree = "<group>"; };
-		31E1EEFBEACA46B9A161087E /* libRNCryptoModule.a */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = archive.ar; path = libRNCryptoModule.a; sourceTree = "<group>"; };
-		325749BBED8041B8B371C904 /* RNCryptoModule.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RNCryptoModule.xcodeproj; path = "../node_modules/react-native-crypto-module/ios/RNCryptoModule.xcodeproj"; sourceTree = "<group>"; };
 		32DDAA44068840429C41691C /* RCTGoogleAnalyticsBridge.xcodeproj */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = "wrapper.pb-project"; name = RCTGoogleAnalyticsBridge.xcodeproj; path = "../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/RCTGoogleAnalyticsBridge.xcodeproj"; sourceTree = "<group>"; };
 		35F99DD7D8284696AF49F220 /* Rubik-BoldItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-BoldItalic.ttf"; path = "../node_modules/native-base/Fonts/Rubik-BoldItalic.ttf"; sourceTree = "<group>"; };
 		37CCA625352F437DA29D999F /* SanFranciscoBold.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = SanFranciscoBold.ttf; path = "../node_modules/native-base/Fonts/SanFranciscoBold.ttf"; sourceTree = "<group>"; };
@@ -484,6 +474,8 @@
 		E71E54218112443CAF263436 /* Rubik-LightItalic.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = "Rubik-LightItalic.ttf"; path = "../node_modules/native-base/Fonts/Rubik-LightItalic.ttf"; sourceTree = "<group>"; };
 		E8DAFF43CC06404AA8076396 /* EvilIcons.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = EvilIcons.ttf; path = "../node_modules/react-native-vector-icons/Fonts/EvilIcons.ttf"; sourceTree = "<group>"; };
 		F4A6761DB3F1463F9AA7F4EA /* Roboto.ttf */ = {isa = PBXFileReference; explicitFileType = undefined; fileEncoding = 9; includeInIndex = 0; lastKnownFileType = unknown; name = Roboto.ttf; path = "../node_modules/native-base/Fonts/Roboto.ttf"; sourceTree = "<group>"; };
+		C1A9248FFEB24ED18882A0ED /* RNCryptoModule.xcodeproj */ = {isa = PBXFileReference; name = "RNCryptoModule.xcodeproj"; path = "../node_modules/react-native-crypto-module/ios/RNCryptoModule.xcodeproj"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = wrapper.pb-project; explicitFileType = undefined; includeInIndex = 0; };
+		A953FBBB52EA4D63AA850950 /* libRNCryptoModule.a */ = {isa = PBXFileReference; name = "libRNCryptoModule.a"; path = "libRNCryptoModule.a"; sourceTree = "<group>"; fileEncoding = undefined; lastKnownFileType = archive.ar; explicitFileType = undefined; includeInIndex = 0; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -496,7 +488,6 @@
 				3BA62A0F20BC34C10015AD3A /* libRNImagePicker.a in Frameworks */,
 				3A2A23C0209FC5E500C4B8B7 /* libRNGeocoder.a in Frameworks */,
 				3A2A23BF209FC5BA00C4B8B7 /* libRNSVG.a in Frameworks */,
-				3A2A23BD209FC44B00C4B8B7 /* libRNCryptoModule.a in Frameworks */,
 				3A2A23BC209FC3E200C4B8B7 /* libRNCamera.a in Frameworks */,
 				202E08DA205E1F2C00297941 /* libReactNativeFingerprintScanner.a in Frameworks */,
 				20A3667B205D3F220069C0B5 /* libsqlite3.0.tbd in Frameworks */,
@@ -515,6 +506,7 @@
 				00C302EA1ABCBA2D00DB3ED1 /* libRCTVibration.a in Frameworks */,
 				139FDEF61B0652A700C62182 /* libRCTWebSocket.a in Frameworks */,
 				D8107E10490DA6DF50B69846 /* libPods-Lifekeyrn.a in Frameworks */,
+				1B7E253E3C554F86A49CC0BD /* libRNCryptoModule.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -725,14 +717,6 @@
 			name = Products;
 			sourceTree = "<group>";
 		};
-		3BCB8B63206142010039B0F7 /* Products */ = {
-			isa = PBXGroup;
-			children = (
-				3BCB8B67206142010039B0F7 /* libRNCryptoModule.a */,
-			);
-			name = Products;
-			sourceTree = "<group>";
-		};
 		3BDB3472204ED32800CF0A30 /* Recovered References */ = {
 			isa = PBXGroup;
 			children = (
@@ -793,12 +777,12 @@
 				146833FF1AC3E56700842450 /* React.xcodeproj */,
 				202E08B4205E1F1800297941 /* ReactNativeFingerprintScanner.xcodeproj */,
 				3A2A238B209FC3D700C4B8B7 /* RNCamera.xcodeproj */,
-				325749BBED8041B8B371C904 /* RNCryptoModule.xcodeproj */,
 				0B210B879F30473CAB7FF418 /* RNGeocoder.xcodeproj */,
 				3BA62A0920BC34A40015AD3A /* RNImagePicker.xcodeproj */,
 				09D8E1CFF45B4C4A9E67C892 /* RNImagePicker.xcodeproj */,
 				61F5857F14214BA9B28D41BD /* RNSVG.xcodeproj */,
 				206AC1CF205D3538009D4A49 /* RNVectorIcons.xcodeproj */,
+				C1A9248FFEB24ED18882A0ED /* RNCryptoModule.xcodeproj */,
 			);
 			name = Libraries;
 			sourceTree = "<group>";
@@ -1008,10 +992,6 @@
 				{
 					ProductGroup = 3A2A238C209FC3D700C4B8B7 /* Products */;
 					ProjectRef = 3A2A238B209FC3D700C4B8B7 /* RNCamera.xcodeproj */;
-				},
-				{
-					ProductGroup = 3BCB8B63206142010039B0F7 /* Products */;
-					ProjectRef = 325749BBED8041B8B371C904 /* RNCryptoModule.xcodeproj */;
 				},
 				{
 					ProductGroup = 1820554E20CF9D0600C9D043 /* Products */;
@@ -1247,13 +1227,6 @@
 			fileType = archive.ar;
 			path = libRNImagePicker.a;
 			remoteRef = 3BA62A0D20BC34A40015AD3A /* PBXContainerItemProxy */;
-			sourceTree = BUILT_PRODUCTS_DIR;
-		};
-		3BCB8B67206142010039B0F7 /* libRNCryptoModule.a */ = {
-			isa = PBXReferenceProxy;
-			fileType = archive.ar;
-			path = libRNCryptoModule.a;
-			remoteRef = 3BCB8B66206142010039B0F7 /* PBXContainerItemProxy */;
 			sourceTree = BUILT_PRODUCTS_DIR;
 		};
 		3BDB3492204ED32900CF0A30 /* libRNImagePicker.a */ = {
@@ -1510,10 +1483,10 @@
 					"$(SRCROOT)/../node_modules/react-native-maps/lib/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-geocoder/ios/RNGeocoder/**",
 					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
-					"$(SRCROOT)/../node_modules/react-native-crypto-module/ios/**",
 					"$(SRCROOT)/../node_modules/react-native/React/**",
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase/**",
 					"$(SRCROOT)/../node_modules/react-native-code-push/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-crypto-module/ios/**",
 				);
 				INFOPLIST_FILE = Lifekeyrn/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
@@ -1552,10 +1525,10 @@
 					"$(SRCROOT)/../node_modules/react-native-maps/lib/ios/**",
 					"$(SRCROOT)/../node_modules/react-native-geocoder/ios/RNGeocoder/**",
 					"$(SRCROOT)/../node_modules/react-native-google-analytics-bridge/ios/RCTGoogleAnalyticsBridge/**",
-					"$(SRCROOT)/../node_modules/react-native-crypto-module/ios/**",
 					"$(SRCROOT)/../node_modules/react-native/React/**",
 					"$(SRCROOT)/../node_modules/react-native-firebase/ios/RNFirebase/**",
 					"$(SRCROOT)/../node_modules/react-native-code-push/ios/**",
+					"$(SRCROOT)/../node_modules/react-native-crypto-module/ios/**",
 				);
 				INFOPLIST_FILE = Lifekeyrn/Info.plist;
 				IPHONEOS_DEPLOYMENT_TARGET = 11.3;
