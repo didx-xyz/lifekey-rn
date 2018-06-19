@@ -19,10 +19,8 @@
 	<key>CFBundleSignature</key>
 	<string>????</string>
 	<key>CFBundleVersion</key>
-	<string>20</string>
+	<string>21</string>
 	<key>CodePushDeploymentKey</key>
-	<string>ZJVxt0fiP-OWjJ6mLwIZgQ4T4ZKLr16mf-vAM</string>
-	<key>CodePushPublicKey</key>
 	<string>ZJVxt0fiP-OWjJ6mLwIZgQ4T4ZKLr16mf-vAM</string>
 	<key>ITSAppUsesNonExemptEncryption</key>
 	<false/>
