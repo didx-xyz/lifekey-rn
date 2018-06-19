@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Touchable renders correctly, by default 1`] = `
+<TouchableOpacity
+  activeOpacity={0.2}
+  delayPressIn={0}
+  focusedOpacity={0.7}
+/>
+`;

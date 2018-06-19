@@ -1,0 +1,4 @@
+#! /usr/bin/env bash
+
+rm -rf $TMPDIR/react-native-packager-cache-*
+rm -rf $TMPDIR/haste-map-react-native-packager-*

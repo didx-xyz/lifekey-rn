@@ -4,32 +4,27 @@
  * Civvals, 50 Seymour Street, London, England, W1H 7JG
  * @author Werner Roets <werner@io.co.za>
  */
+/* eslint-disable no-var */
 
-import Config from './Config'
+import Logger from './Logger'
+import deepmerge from 'deepmerge'
+
+// Hold's the current session state
+var state = {}
 
 /**
  * A static class to store and retrieve a global state
  */
 export default class Session {
 
-  static changes = []
-  static lastState = {}
-
   /**
    * Return an Object representing the current state
    * @returns {Object} data The current state held in the store
    */
   static getState() {
-    // Merge changes since last retrieval into state
-    const lastState = this.changes.reduce(
-      (a, x) => Object.assign(a,x),
-      this.lastState
-    )
-    // Reset array of changes
-    this.changes = []
-    this.lastState = lastState
-    return lastState
+    return state
   }
+
   /**
    * Update the current state
    * @param {Object} data Data to modify or put into the store
@@ -37,15 +32,12 @@ export default class Session {
    * @throws {string} Update only accepts objects
    */
   static update(data) {
-    if(typeof data === 'object')
-      this.changes.push(data)
-    else
+    if (typeof data === 'object') {
+      state = deepmerge(state, data)
+      Logger.session(JSON.stringify(state))
+    } else {
+      console.log("ERROR IN SESSION")
       throw 'Update only accepts objects'
+    }
   }
-
 }
-
-Object.defineProperty(Session, 'changes',{
-  writable: false,
-  enumerable: true
-})

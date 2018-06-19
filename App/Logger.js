@@ -4,166 +4,304 @@
  * Civvals, 50 Seymour Street, London, England, W1H 7JG
  * @author Werner Roets <werner@io.co.za>
  */
-
+/* eslint-disable no-console */
 import ANSI from 'ansi-styles'
 import * as Lifecycle from './Lifecycle'
+import Config from './Config'
 
-/** Provides a wide variety of logging features */
 export default class Logger {
 
   /**
    * Log something with a prefix, forground and background colour
-   * @private
-   * @param {string} Prefix
-   * @param {string} Text
-   * @param {Ansi.color} Foreground colour
-   * @param {Ansi.bgColor} Background colour
+   * @param {string} prefix Prefix text
+   * @param {string} text Text to log
+   * @param {Ansi.color} fgColor Foreground colour
+   * @param {Ansi.bgColor} bgColor Background colour
    * @returns {undefined}
    */
-  static _log(prefix, text, fgColor, bgColor = ANSI.bgBlack) {
-    console.log(`${prefix}${bgColor.open}${fgColor.open}${text}${fgColor.close}${bgColor.close}`)
+  static _log(prefix, text, fgColor = ANSI.white, bgColor = ANSI.bgBlack) {
+    if (Config.DEBUG) {
+      console.log(`${prefix}${bgColor.open}${fgColor.open}${text}${fgColor.close}${bgColor.close}`)
+    }
   }
 
   static _asColumn(text, width = 100) {
-    const n_spaces = width - text.length
-
-    if(n_spaces < 0 )
+    const nSpaces = width - text.length
+    if (nSpaces < 0) {
       return text
-
-    const spaces = Array(n_spaces).join(" ")
+    }
+    const spaces = Array(nSpaces).join(' ')
     return text + spaces
-  }
-
-  // TODO: We can use this in session now instead of for redux
-  static store = (data) => {
-    const prefix = `${ANSI.magenta.open}[ST]${ANSI.magenta.close}`
-    // adding color destroys prettyprint
-    console.log(prefix)
-    console.log(data)
   }
 
   /**
    * Log an AsyncStorage action
-   * @param {string} filename
+   * @param {string} message The message to log
    * @returns {undefined}
    */
-  static async = message => {
+  static asyncStorage(storage_key, data) {
     const prefix = `${ANSI.cyan.open}[AS]${ANSI.cyan.close} `
-    IMPLog._log(prefix, message, ANSI.yellow)
+    if (Config.DEBUG && Config.debugAsyncStorage) {
+      Logger._log(prefix, storage_key, ANSI.yellow)
+      console.log(data)
+    }
+  }
+
+  /**
+   * Log an Session action
+   * @param {string} message The message to log
+   * @returns {undefined}
+   */
+  static session = (message, action) => {
+    let prefix = `${ANSI.blue.open}[Session Updated]${ANSI.blue.close} `
+    if (Config.DEBUG && Config.debugAsyncStorage) {
+      Logger._log(prefix, message, ANSI.white)
+    }
+  }
+
+   /**
+   * Log an AsyncStorage action
+   * @param {string} routeStack The route stack to log
+   * @returns {undefined}
+   */
+  static routeStack = routeStack => {
+    const prefix = `${ANSI.cyan.open}[NV]${ANSI.cyan.close} `
+    if (Config.DEBUG && Config.debugNavigator) {
+      Logger._log(prefix, '--- BEGIN ---', ANSI.yellow)
+      console.log(routeStack)
+      Logger._log(prefix, '--- END ---', ANSI.yellow)
+
+    }
   }
 
   /**
    * Log a network request
-   * @param {string} method
-   * @param {string} timestamp
-   * @param {string} route
+   * @param {string} method The HTTP method
+   * @param {string} route The route to log
+   * @param {?object} options The options
    * @returns {undefined}
    */
-  static networkRequest = (method, timestamp, route) => {
-    const prefix = `${ANSI.blue.open}[NW]${ANSI.blue.close}`
-    const method_color = `${ANSI.bold.open}${ANSI.green.open}${method}${ANSI.green.close}${ANSI.bold.close}`
-    const timestamp_color = `${ANSI.gray.open}${ANSI.underline.open}${timestamp}${ANSI.underline.close}${ANSI.gray.close}`
-    const route_color = `${ANSI.white.open}${route}${ANSI.white.close}`
-    console.log(`${prefix} ${method_color} ${IMPLog._asColumn(timestamp_color,64)} ${route_color}`)
+  static networkRequest = (method, route, opts = null) => {
+    const timestamp = new Date()
+    const prefix = `${ANSI.cyan.open}[HTTP->]${ANSI.cyan.close}`
+    const methodColor = `${ANSI.bold.open}${ANSI.green.open}${method}${ANSI.green.close}${ANSI.bold.close}`
+    const timestampColor = `${ANSI.gray.open}${ANSI.underline.open}${timestamp}${ANSI.underline.close}${ANSI.gray.close}`
+    const routeColor = `${ANSI.white.open}${route}${ANSI.white.close}`
+    if (Config.DEBUG && Config.debugNetwork) {
+      console.log(`${prefix} ${methodColor} ${Logger._asColumn(timestampColor, 64)} ${routeColor}`)
+      if (opts) {
+        console.log(JSON.stringify(opts))
+      }
+    }
   }
 
   /**
    * Log a network response
-   * @param {string} response status
-   * @param {string} timestamp
-   * @param {any} data
+   * @param {string} status The response status code
+   * @param {string} timestamp The timestamp
+   * @param {any} data The data to log
    * @returns {undefined}
    */
   static networkResponse = (status, timestamp, data) => {
-    const prefix = `${ANSI.blue.open}[NW]${ANSI.blue.close}`
+    const prefix = `${ANSI.green.open}[HTTP<-]${ANSI.green.close}`
 
-    const codes = [
-      {code: 200, color: ANSI.green},
-      {code: 401, color: ANSI.yellow},
-      {code: 500, color: ANSI.red },
-      {code: 404, color: ANSI.yellow }
-    ].find( item => status === item.code ? item.color : false) ||
-    {code: status || "unknown", color: ANSI.white }
+    const code = [
+      { code: 200, color: ANSI.green },
+      { code: 201, color: ANSI.green },
+      { code: 401, color: ANSI.yellow },
+      { code: 400, color: ANSI.yellow },
+      { code: 404, color: ANSI.yellow },
+      { code: 500, color: ANSI.red },
+      { code: 502, color: ANSI.red }
+    ].find(item => status === item.code ? item.color : false) ||
+    { code: status || 'unknown', color: ANSI.white }
 
-    const timestamp_color = `${ANSI.gray.open}${ANSI.underline.open}${timestamp}${ANSI.underline.close}${ANSI.gray.close}`
+    const timestampColor = `${ANSI.gray.open}${ANSI.underline.open}${timestamp}${ANSI.underline.close}${ANSI.gray.close}`
 
-    const status_color = `${codes.color.open}${status}${codes.color.close}`
-    console.log(`${prefix} ${status_color} ${timestamp_color}`)
-    console.log(data)
+    const statusColor = `${code.color.open}${status}${code.color.close}`
+    if (Config.DEBUG && Config.debugNetwork) {
+      console.log(`${prefix} ${statusColor} ${timestampColor}`)
+      console.log(data)
+    }
 
   }
 
   /**
    * Log an error
-   * @param {string} message
-   * @param {string} filename
+   * @param {string} message The message to log
+   * @param {?string} data The data to log
    * @returns {undefined}
    */
-  static error = (message, fileName) => {
-    const prefix = `${ANSI.bgRed.open}${ANSI.white.open}[ER]${ANSI.white.close}${ANSI.bgRed.close}`
-    const fileName_color = `${ANSI.green.open}${fileName}${ANSI.green.close}`
-    console.log(`${prefix} ${fileName} ${ANSI.red.open} ${message}${ANSI.red.close}`)
+  static error = (error, data = null) => {
+    const prefix = `${ANSI.bgRed.open}${ANSI.white.open}[ERROR]${ANSI.white.close}${ANSI.bgRed.close}`
+    if (Config.DEBUG) {
+      Logger._log(`${prefix} ${error}`, ANSI.red, ANSI.white, true)
+      if (error.stack) {
+        console.log(error.stack)
+      }
+    }
+  }
+
+  /**
+   * Log an info
+   * @param {string} message The message to log
+   * @param {?string} data The data to log
+   * @returns {undefined}
+   */
+  static info = (message, data = null) => {
+    const prefix = `${ANSI.bgBlack.open}${ANSI.green.open}[info]${ANSI.green.close}${ANSI.bgBlack.close}`
+    if (Config.DEBUG) {
+      console.log(`${prefix} ${ANSI.white.open} ${message}${ANSI.white.close}`)
+      if (data) {
+        console.log(data)
+      }
+    }
+  }
+
+  /**
+   * Log a warn
+   * @param {string} message The message to log
+   * @param {string} filename The filename to log
+   * @returns {undefined}
+   */
+  static warn = (message, data = null) => {
+    const prefix = `${ANSI.bgBlack.open}${ANSI.yellow.open}[warn]${ANSI.yellow.close}${ANSI.bgBlack.close}`
+    if (Config.DEBUG) {
+      console.log(`${prefix} ${ANSI.white.open} ${message}${ANSI.white.close}`)
+      if (data) {
+        console.log(data)
+      }
+    }
+  }
+
+  /**
+   * Log a firebase info
+   * @param {string} message The message to log
+   * @param {string} filename The filename to log
+   * @returns {undefined}
+   */
+  static firebase = (message, firebaseData = null) => {
+    const prefix = `${ANSI.bgBlack.open}${ANSI.red.open}[Firebase]${ANSI.red.close}${ANSI.bgBlack.close}`
+    if (Config.DEBUG && Config.debugFirebase) {
+      console.log(`${prefix}${ANSI.white.open} ${message}${ANSI.white.close}`)
+      if (firebaseData) {
+        console.log(firebaseData)
+      }
+    }
+  }
+
+  /**
+   * Log an AppState info
+   * @param {string} message to log
+   * @param {string} data to log
+   * @returns {undefind}
+   */
+  static appState = (message, data) => {
+    const prefix = `${ANSI.bgBlack.open}${ANSI.cyan.open}[AppState]${ANSI.cyan.close}${ANSI.bgBlack.close}`
+    if (Config.DEBUG && Config.debugAppState) {
+      console.log(`${prefix}${ANSI.white.open} ${message}${ANSI.white.close}`)
+      if (data) {
+        console.log(data)
+      }
+    }
   }
 
   /**
    * Log a React lifecycle method
-   * @param {string} filename
-   * @param {string} event
+   * @param {string} filename The filename to log
+   * @param {string} event The react event to log
    * @returns {undefined}
    */
   static react = (filename, event) => {
 
-    const prefix = `${ANSI.red.open}[LC]${ANSI.red.close} `
-
-    switch(event) {
+    const prefix = `${ANSI.red.open}[React]${ANSI.red.close} `
+    if (Config.DEBUG && Config.debugReact) {
+      switch (event) {
       case Lifecycle.CONSTRUCTOR:
-        IMPLog._log(prefix, IMPLog._asColumn(filename, 30) + IMPLog._asColumn(event, 30), ANSI.white, ANSI.bgBlack)
+        Logger._log(
+          prefix,
+          Logger._asColumn(filename, 30) + Logger._asColumn(event, 30),
+          ANSI.white, ANSI.bgBlack)
         break
 
       case Lifecycle.COMPONENT_WILL_MOUNT:
-        IMPLog._log(prefix, IMPLog._asColumn(filename, 30) + IMPLog._asColumn(event, 30), ANSI.black, ANSI.bgGreen)
+        Logger._log(
+          prefix,
+          Logger._asColumn(filename, 30) + Logger._asColumn(event, 30),
+          ANSI.black, ANSI.bgGreen)
         break
 
       case Lifecycle.COMPONENT_WILL_FOCUS:
-        IMPLog._log(prefix, IMPLog._asColumn(filename, 30) + IMPLog._asColumn(event, 30), ANSI.green, ANSI.bgBlack)
+        Logger._log(
+          prefix,
+          Logger._asColumn(filename, 30) + Logger._asColumn(event, 30),
+          ANSI.green, ANSI.bgBlack)
         break
 
       case Lifecycle.COMPONENT_DID_MOUNT:
-        IMPLog._log(prefix, IMPLog._asColumn(filename, 30) + IMPLog._asColumn(event, 30), ANSI.black, ANSI.bgYellow)
+        Logger._log(
+          prefix,
+          Logger._asColumn(filename, 30) + Logger._asColumn(event, 30),
+          ANSI.black, ANSI.bgYellow)
         break
 
       case Lifecycle.COMPONENT_DID_FOCUS:
-        IMPLog._log(prefix, IMPLog._asColumn(filename, 30) + IMPLog._asColumn(event, 30), ANSI.magenta)
+        Logger._log(
+          prefix,
+          Logger._asColumn(filename, 30) + Logger._asColumn(event, 30),
+          ANSI.magenta)
         break
 
       case Lifecycle.COMPONENT_WILL_RECEIEVE_PROPS:
-        IMPLog._log(prefix, IMPLog._asColumn(filename, 30) + IMPLog._asColumn(event, 30), ANSI.cyan)
+        Logger._log(
+          prefix,
+          Logger._asColumn(filename, 30) + Logger._asColumn(event, 30),
+          ANSI.cyan)
         break
 
       case Lifecycle.SHOULD_COMPONENT_UPDATE:
-        IMPLog._log(prefix, IMPLog._asColumn(filename, 30) + IMPLog._asColumn(event, 30), ANSI.gray, ANSI.bgWhite)
+        Logger._log(
+          prefix,
+          Logger._asColumn(filename, 30) + Logger._asColumn(event, 30),
+          ANSI.gray, ANSI.bgWhite)
         break
 
       case Lifecycle.COMPONENT_WILL_UPDATE:
-        IMPLog._log(prefix, IMPLog._asColumn(filename, 30) + IMPLog._asColumn(event, 30), ANSI.magenta, ANSI.bgWhite)
+        Logger._log(
+          prefix,
+          Logger._asColumn(filename, 30) + Logger._asColumn(event, 30),
+          ANSI.magenta, ANSI.bgWhite)
         break
 
       case Lifecycle.COMPONENT_DID_UPDATE:
-        IMPLog._log(prefix, IMPLog._asColumn(filename, 30) + IMPLog._asColumn(event, 30), ANSI.blue, ANSI.bgWhite)
+        Logger._log(
+          prefix,
+          Logger._asColumn(filename, 30) + Logger._asColumn(event, 30),
+          ANSI.blue, ANSI.bgWhite)
         break
 
       case Lifecycle.RENDER:
-        IMPLog._log(prefix, IMPLog._asColumn(filename, 30) + IMPLog._asColumn(event, 30), ANSI.gray, ANSI.bgBlack)
+        Logger._log(
+          prefix,
+          Logger._asColumn(filename, 30) + Logger._asColumn(event, 30),
+          ANSI.gray, ANSI.bgBlack)
         break
 
       case Lifecycle.COMPONENT_WILL_UNMOUNT:
-        IMPLog._log(prefix, IMPLog._asColumn(filename, 30) + IMPLog._asColumn(event, 30), ANSI.black, ANSI.bgRed)
+        Logger._log(
+          prefix,
+          Logger._asColumn(filename, 30) + Logger._asColumn(event, 30),
+          ANSI.black, ANSI.bgRed)
         break
 
       default:
-        IMPLog._log(prefix, IMPLog._asColumn(filename, 30) + IMPLog._asColumn(event, 30), ANSI.black, ANSI.bgWhite)
+        Logger._log(
+          prefix,
+          Logger._asColumn(filename, 30) + Logger._asColumn(event, 30),
+          ANSI.black, ANSI.bgWhite)
         break
 
+      }
     }
   }
 }

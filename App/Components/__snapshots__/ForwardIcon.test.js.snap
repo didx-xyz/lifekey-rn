@@ -1,0 +1,35 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`ForwardIcon renders correctly, by default 1`] = `
+<Svg
+  height={16}
+  preserveAspectRatio="xMidYMid meet"
+  viewBox="0 0 9.4 17.7"
+  width={16}
+>
+  <polyline
+    fill="none"
+    points="0.5,17.2 8.9,8.7 0.7,0.5"
+    stroke="#000"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+</Svg>
+`;
+
+exports[`ForwardIcon renders correctly, when modified 1`] = `
+<Svg
+  height={32}
+  preserveAspectRatio="xMidYMid meet"
+  viewBox="0 0 9.4 17.7"
+  width={32}
+>
+  <polyline
+    fill="none"
+    points="0.5,17.2 8.9,8.7 0.7,0.5"
+    stroke="#fff"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+  />
+</Svg>
+`;

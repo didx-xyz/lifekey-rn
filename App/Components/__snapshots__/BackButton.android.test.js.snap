@@ -1,0 +1,13 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`BackButton renders correctly, by default 1`] = `
+<SideEffect(AndroidBackButton)
+  onPress={[Function]}
+/>
+`;
+
+exports[`BackButton renders correctly, when modified 1`] = `
+<SideEffect(AndroidBackButton)
+  onPress={[Function]}
+/>
+`;

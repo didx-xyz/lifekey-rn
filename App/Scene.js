@@ -1,14 +1,8 @@
-/**
- * Lifekey App
- * @copyright 2016 Global Consent Ltd
- * Civvals, 50 Seymour Street, London, England, W1H 7JG
- * @author Werner Roets <werner@io.co.za>
- */
 
 import React, { Component } from 'react'
 import Logger from './Logger'
 import * as Lifecycle from './Lifecycle'
-import Config from './Config'
+import PropTypes from "prop-types"
 
 /**
  * Scene Component - A component that extends the functionality of React.Component
@@ -17,94 +11,67 @@ export default class Scene extends Component {
 
   constructor(props) {
     super(props)
-    this._fileName = this.constructor.name + '.js'
-    this._className = this.constructor.name
+    this.filename = this.constructor.name + '.js' // unreliable
+    this.className = this.constructor.name
 
     this.navigator = this.props.navigator
+    this.props._navigationEventEmitter.addListener('onWillFocus' + this.className, this.componentWillFocus, this)
+    this.props._navigationEventEmitter.addListener('onDidFocus' + this.className, this.componentDidFocus, this)
 
-    this.props._navigationEventEmitter.addListener('onWillFocus' + this._className, this.componentWillFocus, this)
-    this.props._navigationEventEmitter.addListener('onDidFocus' + this._className, this.componentDidFocus, this)
-
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.CONSTRUCTOR)
-    }
+    Logger.react(this.className, Lifecycle.CONSTRUCTOR)
   }
 
   componentWillFocus() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.COMPONENT_WILL_FOCUS)
-    }
+    Logger.react(this.className, Lifecycle.COMPONENT_WILL_FOCUS)
   }
 
   componentDidFocus() {
-    if (Config.debug) {
-      if (Config.debugReact) {
-        Logger.react(this._className, Lifecycle.COMPONENT_DID_FOCUS)
-      }
-    }
+    Logger.react(this.className, Lifecycle.COMPONENT_DID_FOCUS)
   }
 
   componentWillMount() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.COMPONENT_WILL_MOUNT)
-    }
+    Logger.react(this.className, Lifecycle.COMPONENT_WILL_MOUNT)
   }
 
   componentDidMount() {
-    if (Config.debug) {
-      if (Config.debugReact) {
-        Logger.react(this._className, Lifecycle.COMPONENT_DID_MOUNT)
-      }
-    }
+    Logger.react(this.className, Lifecycle.COMPONENT_DID_MOUNT)
   }
 
   componentWillReceiveProps() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.COMPONENT_WILL_RECEIEVE_PROPS)
-    }
+    Logger.react(this.className, Lifecycle.COMPONENT_WILL_RECEIEVE_PROPS)
   }
 
   shouldComponentUpdate() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.SHOULD_COMPONENT_UPDATE)
-    }
+    Logger.react(this.className, Lifecycle.SHOULD_COMPONENT_UPDATE)
 
     // Must return true
     return true
   }
 
   componentWillUpdate() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.COMPONENT_WILL_UPDATE)
-    }
+    Logger.react(this.className, Lifecycle.COMPONENT_WILL_UPDATE)
   }
 
   componentDidUpdate() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.COMPONENT_DID_UPDATE)
-    }
+    Logger.react(this.className, Lifecycle.COMPONENT_DID_UPDATE)
   }
 
   componentWillUnmount() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.COMPONENT_WILL_UNMOUNT)
-    }
+    Logger.react(this.className, Lifecycle.COMPONENT_WILL_UNMOUNT)
 
     // Remove event listeners
-    this.props._navigationEventEmitter.removeListener('onWillFocus' + this._className, this.componentWillFocus, this)
-    this.props._navigationEventEmitter.removeListener('onDidFocus' + this._className, this.componentDidFocus, this)
+    this.props._navigationEventEmitter.removeListener('onWillFocus' + this.className, this.componentWillFocus, this)
+    this.props._navigationEventEmitter.removeListener('onDidFocus' + this.className, this.componentDidFocus, this)
   }
 
   render() {
-    if (Config.debug && Config.debugReact) {
-      Logger.react(this._className, Lifecycle.RENDER)
-    }
+    Logger.react(this.className, Lifecycle.RENDER)
   }
 }
 
 Scene.propTypes = {
-  navigator: React.PropTypes.object,
-  _navigationEventEmitter: React.PropTypes.object,
-  _gaTrackers: React.PropTypes.object,
-  _modalEventEmitter: React.PropTypes.object
+  navigator: PropTypes.object,
+  _navigationEventEmitter: PropTypes.object,
+  _gaTrackers: PropTypes.object,
+  _modalEventEmitter: PropTypes.object
 }

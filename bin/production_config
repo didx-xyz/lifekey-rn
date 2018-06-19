@@ -1,0 +1,41 @@
+#!/usr/bin/env bash
+
+pkg_version=$(jq -M -c -r '.version' package.json)
+rn_version=$(jq -M -c -r '.dependencies | .["react-native"]' package.json)
+
+config_struct="
+import {Navigator} from 'react-native'
+
+export default {
+  \"APP_NAME\": \"Lifekey\",
+  \"initialRouteFromConfig\": false,
+  \"initialRoute\": {},
+  \"DEBUG\": false,
+  \"debugNetwork\": false,
+  \"debugReact\": false,
+  \"debugNavigator\": false,
+  \"debugFirebase\": false,
+  \"debugAsyncStorage\": false,
+  \"debugAutoLogin\": false,
+  \"debugAutoLoginPassword\": \"99999\",
+  \"hardcodedSuggestedConnections\": false,
+  \"suggestedConnections\": [],
+  \"version\": \"$pkg_version\",
+  \"rnVersion\": \"${rn_version:1}\",
+  \"sceneConfig\": Navigator.SceneConfigs.FloatFromRight,
+  \"progressBarColor\": \"#216BFF\",
+  \"http\": {
+    \"server\": \"staging.api.lifekey.cnsnt.io\",
+    \"baseUrl\": \"http://staging.api.lifekey.cnsnt.io\"
+  },
+  \"keystore\": {
+    \"name\": \"lifekey\",
+    \"pemCertificatePath\": \"rsa-example.pem\",
+    \"keyName\": \"lifekey\",
+    \"privateKeyName\": \"privatelifekey\",
+    \"publicKeyName\": \"publiclifekey\",
+    \"publicKeyAlgorithm\": \"rsa\"
+  }
+}"
+
+echo "${config_struct}"

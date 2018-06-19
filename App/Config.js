@@ -5,19 +5,12 @@
  * @author Werner Roets <werner@io.co.za>
  */
 
-import {
-  Platform,
-  Navigator
-} from 'react-native'
+import {Navigator} from 'react-native-deprecated-custom-components'
 import Routes from './Routes'
 import Palette from './Palette'
-
-const pkg = require('../package.json')
-
+const NPM_PACKAGE = require('../package.json')
+const BUILD_CONFIG = require('../cfg/dev.json')
 const APP_NAME = 'Lifekey'
-const SERVER = 'staging.lifekey.cnsnt.io'
-const DEBUG = false
-const API_VERSION = 1
 
 /**
  * The configuration file for the App
@@ -25,65 +18,44 @@ const API_VERSION = 1
 export default {
 
   // The full name of the application
-  appName: APP_NAME,
+  APP_NAME: APP_NAME,
 
   // First scene to show
-  initialRoute: Routes.debugKeyStore,
+  initialRouteFromConfig: false, // Must be true to use route below
+  initialRoute: Routes.main,
 
-  // Predefined error messages
-  errorMessage: {
-    login: {
-      title: 'Invalid login',
-      message: ''
-    },
-    network: {
-      title: 'Network Error',
-      message: 'Could not connect to server. Please ensure you are connected to the internet'
-    }
-  },
+  // Debug
+  DEBUG: BUILD_CONFIG.DEBUG,
 
-  debug: DEBUG,          // Main switch
-  debugNetwork: false,   // HTTP
-  debugReact: true,      // Show react lifescylce data
+  debugNetwork: true,
+  debugReact: false,
   debugNavigator: false,
-  debugAutoLogin: true,
+  debugFirebase: true,
+  debugAsyncStorage: false,
+  debugAutoLogin: false,
+  debugAutoLoginPassword: '99999',
 
-  // App version
-  version: pkg.version,
+  version: NPM_PACKAGE.version, // App version
 
   // React Native version
-  rnVersion: pkg.dependencies['react-native'].substring(1),
+  rnVersion: NPM_PACKAGE.dependencies['react-native'].substring(1),
 
   // Android navigator transitions
   sceneConfig: Navigator.SceneConfigs.FloatFromRight,
-  sceneTransitionMinumumTime: 200,
 
   // Modal settings
-  progressBarColor: Palette.consentOrange,
+  progressBarColor: Palette.consentBlue,
 
-  // Server details
+  // HTTP settings
   http: {
-    server: SERVER,
-    baseUrl: 'http://' + SERVER + '/api/v' + API_VERSION + '/',
-    headers: {
-      'X-Requested-With': 'XMLHttpRequest',
-      'x-client-platform': APP_NAME + Platform.OS + ' v' + pkg.version,
-      'x-client-version': pkg.version,
-      'x-cnsnt-did': 'did',
-      'x-cnsnt-signature': 'sig',
-      'Content-Type': 'application/json'
-    }
+    server: BUILD_CONFIG.SERVER,
+    baseUrl: 'http://' + BUILD_CONFIG.SERVER,
   },
 
-  // Google Analytics
-  googleAnalytics: {
-    trackers: {
-      tracker1: ''
-    },
-    dispatchInterval: 120,
-    samplingRate: 50,
-    anonymizeIp: false,
-    optOut: false
+  keystore: {
+    name: APP_NAME.toLowerCase(),
+    pemCertificatePath: 'rsa-example.pem',
+    keyName: APP_NAME.toLowerCase(),
+    publicKeyAlgorithm: 'rsa'
   }
 }
-
