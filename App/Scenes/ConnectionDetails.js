@@ -61,7 +61,7 @@ class ConnectionDetails extends Scene {
       showHelp: false,
       colour: "white",
       foregroundColor: 'white',
-      image_uri: null,
+      image_uri: this.props.route.image_uri,
       actions_url: null,
       address: null,
       tel: null,
@@ -89,7 +89,8 @@ class ConnectionDetails extends Scene {
       Logger.networkRequest('GET', actions_url, requestOptions)
       const actionsResponse = await fetch(actions_url, requestOptions)
       Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
-      const actions = JSON.parse(actionsResponse._bodyText)
+      let text = await actionsResponse.text()
+      const actions = JSON.parse(text)
       return Promise.resolve(actions.body || actions || [])
     }
     return Promise.resolve([])
@@ -129,7 +130,7 @@ class ConnectionDetails extends Scene {
 
     var start6 = new Date().getTime()                                             // PERFORMANCE
     console.log("6 - Call to response " + (start6 - start5) + " milliseconds.")   // PERFORMANCE
-
+    
     this.setState({
       enabled_isas: enabled_isas
     }, () => Logger.info(JSON.stringify(this.state)))
@@ -142,7 +143,7 @@ class ConnectionDetails extends Scene {
     ]).then(res => {
       var [profile, messages] = res
 
-      // console.log("CONNECTION PROFILE: ", profile)
+      //  console.log("CONNECTION PROFILE: ", profile)
 
       this.setState({
         connectionProfile: profile.body.user,
@@ -189,30 +190,6 @@ class ConnectionDetails extends Scene {
       did: this.state.user_did
     })
   }
-
-  /* Was originally in InfoRequest */
-  // onPressShare() {
-
-  //   // SPINNER
-  //   this.setState({"asyncActionInProgress": true, "progressCopy": "Sharing details..."}, () => {
-  //     Api.establishISA(
-  //       this.props.did,
-  //       this.props.action.action_name,
-  //       this.state.complete
-  //     )
-  //     .then(response => {
-  //       this.navigator.resetTo({...Routes.main})
-  //       ToastAndroid.show("Shared", ToastAndroid.SHORT)
-  //     })
-  //     .catch(error => {
-  //       alert('Could not connect')
-  //       Logger.warn(JSON.stringify(error))
-  //       this.setState({
-  //         "asyncActionInProgress": false
-  //       }, () => ToastAndroid.show("Failed to connect...", ToastAndroid.SHORT))
-  //     })
-  //   })
-  // }
 
 
   editIsa(){
@@ -291,26 +268,62 @@ class ConnectionDetails extends Scene {
     })
   }
 
+  _renderISACard(ISA, index) {
+    let entities
+    let re = ISA.information_sharing_agreement_request.required_entities
+    if (typeof re === 'string') {
+      re = re.replace("\\\"[", '[')
+      re = re.replace(/]\\"/g, "]")
+      re = re.replace(/\\\\\\"/g,'\\"')
+      re = re.replace(/\\"/g,'"')
+      entities = JSON.parse(re)
+    } else {
+      entities = re
+    }
+    let shared = entities.map(y => y.name)
+    let date = new Date(ISA.information_sharing_agreement_request.created_at).toDateString()
+    let expires = new Date(ISA.information_sharing_agreement_request.expires_at).toDateString()
+    let hash = ISA.information_sharing_agreement.transaction_hash
+    hash = hash?hash:""
+    return (
+      <ISACard
+        key={index}
+        title={ISA.information_sharing_agreement_request.purpose}
+        shared={shared}
+        terms={[
+          { icon: <PeriodIcon width={15} height={15}/>, text: "12 Months" },
+          { icon: <LocationFlagIcon width={15} height={15}/>, text: "In SA" },
+          { icon: <MarketingIcon width={15} height={15}/>, text: "Marketing" }
+        ]}
+        date={date}
+        expires={expires}
+        transactionHash={hash}
+      />
+    )
+
+  }
+
+  renderISA() {
+    return (
+      <View style={{ flex: 1 , paddingLeft: Design.paddingLeft, paddingRight: Design.paddingRight }}>
+        <Text style={_.assign({}, styles.actionTitleText, { color: "#888", padding: 10 })}>
+          Your share the following personal data with
+          <Text style={{ fontWeight: 'bold' }}>
+            {' ' + this.state.display_name}
+          </Text>
+        </Text>
+        { this.state.enabled_isas.map((x, i) => {return this._renderISACard(x, i)}
+        )}
+
+      </View>
+    )
+  }
+
   renderTab() {
-    switch (this.state.activeTab) {
+     switch (this.state.activeTab) {
       case CONNECT: 
-        return <Connect profile={this.state.connectionProfile} connectWithMe={false}></Connect>
-        // return (
-        //   <View style={{ height: Dimensions.get('window').height - Design.lifekeyHeaderHeight - StatusBar.currentHeight }}>
+        return <Connect profile={this.state.connectionProfile} connectWithMe={false}/>
 
-        //     <View style={styles.qrCodeWrap}>
-        //       <Image source={{uri: `${Config.http.baseUrl}/qr/${this.state.user_did}` }} style={{ width: 200, height: 200 }}
-        //       />
-        //     </View>
-
-        //     <View style={styles.connectHelpTextWrap}>
-        //       <Text style={{ textAlign: 'center' }}>
-        //         Invite other people to connect with {this.state.display_name} by sharing this unique code.
-        //       </Text>
-        //     </View>
-
-        //   </View>
-        // )
       case ACTIVITY:
         return (
           <ScrollView style={styles.messages}>
@@ -330,7 +343,9 @@ class ConnectionDetails extends Scene {
                 {this.state.actions.map((action, i) =>
                   <Touchable key={i} onPress={() => this.callAction(action.name, action)}>
                     <View style={styles.actionItem}>
-                      <HexagonIcon width={70} height={70} fill={Palette.consentGrayDarkest}/>
+                      {/* <HexagonIcon width={70} height={70} fill={Palette.consentBlue}> */}
+                        <Image source={{uri: this.state.image_uri}} style = {{width: 60, height: 60}} />
+                      {/* </HexagonIcon> */}
                       <Text style={styles.actionItemText}>{action.name}</Text>
                     </View>
                   </Touchable>
@@ -344,33 +359,7 @@ class ConnectionDetails extends Scene {
           </ScrollView>
         )
       case SHARED:
-      return (
-        <View style={{ flex: 1 , paddingLeft: Design.paddingLeft, paddingRight: Design.paddingRight }}>
-          <Text style={_.assign({}, styles.actionTitleText, { color: "#888", padding: 10 })}>
-            Your share the following personal data with
-            <Text style={{ fontWeight: 'bold' }}>
-              {' ' + this.state.display_name}
-            </Text>
-          </Text>
-          { this.state.enabled_isas.map((x, i) =>
-            <ISACard
-              key={i}
-              title={x.information_sharing_agreement_request.purpose}
-              shared={JSON.parse(x.information_sharing_agreement_request.required_entities).map(y => y.name)}
-              terms={[
-                { icon: <PeriodIcon width={15} height={15}/>, text: "12 Months" },
-                { icon: <LocationFlagIcon width={15} height={15}/>, text: "In SA" },
-                { icon: <MarketingIcon width={15} height={15}/>, text: "Marketing" }
-              ]}
-              date="23-02-2017"
-              expires="23-02-2018"
-              transactionHash={x.information_sharing_agreement.transaction_hash}
-            />
-
-          )}
-
-        </View>
-      )
+        return this.renderISA()
       case HELP:
       return (
         <View style={{ flex: 1 }}>
@@ -419,7 +408,7 @@ class ConnectionDetails extends Scene {
                   borderColor: this.state.colour
                 },
                 {
-                  icon: <View width={24} height={24}></View>,
+                  icon: <View width={24} height={24}/>,
                   onPress: () => {},
                   borderColor: this.state.colour
                 }
@@ -449,7 +438,7 @@ class ConnectionDetails extends Scene {
           </View>
         { 
           this.state.loading_cxn_details ? 
-            <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
+            <ProgressIndicator progressCopy={ this.state.progressCopy }/>
           :
             <Content style={styles.content}>
               <Modal
@@ -459,7 +448,7 @@ class ConnectionDetails extends Scene {
                 onRequestClose={() => {alert("Modal has been closed.")}}
                 >
                <View style={{ "flex": 1 }}>
-                  <View style={ styles.modalBackdrop }></View>
+                  <View style={ styles.modalBackdrop }/>
                   
                   <InformationRequest
                     display_name={this.state.display_name}
@@ -473,7 +462,7 @@ class ConnectionDetails extends Scene {
                     action={ this.state.action }
                     required_entities={ this.state.required_entities }
                     onCancel={this.setModalVisible.bind(this)} 
-                  ></InformationRequest>
+                  />
 
                </View>
               </Modal>
@@ -508,7 +497,11 @@ const styles = {
     "color": Palette.consentGrayDark
   },
   centredRow: {flexDirection: 'row', alignItems: 'center'},
-  fullWidthHeight: {width: "100%", height: "100%"},
+  fullWidthHeight: {
+    width: 40,
+   height: 40,
+  //  backgroundColor: Palette.consentWhite,
+  },
   headerWrapper: {
     borderColor: Palette.consentGrayDark,
     height: Design.lifekeyHeaderHeight

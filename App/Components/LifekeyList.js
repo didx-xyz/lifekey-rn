@@ -51,12 +51,13 @@ const style = {
   listItemText: {
     fontSize: 18,
     flex: 1,
-    marginLeft: 10
+    marginLeft: 10,
+    color: Palette.consentOffBlack
   },
   listItemImage: {
     width: 30,
     height: 30,
-    borderRadius: 45,
+    borderRadius: 15,
     marginLeft: 10
   },
   "defaultFont":{

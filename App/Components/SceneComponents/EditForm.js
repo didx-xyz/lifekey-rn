@@ -1,51 +1,51 @@
 // external dependencies
-import React, { Component }  from "react"
-import { Picker, Text, TextInput, View, ToastAndroid, Image } from "react-native"
-import { Container } from "native-base"
-import ModalPicker from "react-native-modal-picker"
+import React, { Component } from "react"
+import { Text, TextInput, View, ToastAndroid, Image } from "react-native"
+import ModalPicker from "react-native-modal-selector"
 import DatePicker from "react-native-datepicker"
 import PropTypes from "prop-types"
 import ImagePicker from "react-native-image-picker"
-import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
-import Api from "../../Api"
-import ConsentUser from "../../Models/ConsentUser"
 import Touchable from "../../Components/Touchable"
-import GearIcon from "../../Components/GearIcon"
 import Countries from "../../Countries"
 import Languages from "../../Languages"
 import Common from "../../Common"
 import Palette from "../../Palette"
-import Design from "../../DesignParameters"
-import Routes from "../../Routes"
-import Logger from '../../Logger'
-import CircularImage from "../CircularImage"
+import Toast from '../../Utils/Toast'
+import TrashIcon from "../../Components/TrashIcon"
+import DesignParameters from "../../DesignParameters";
+import style from "react-native-modal-selector/style";
 
-class EditForm extends Component{
+class EditForm extends Component {
+  state = {
+    identificationType: '',
+    issuingCountry: '',
+    country: ''
+  }
 
-  render(){
+  render() {
     return (
-      <View style={ Object.assign({}, styles.content, { backgroundColor: this.props.backgroundColor} )}>
+      <View style={Object.assign({}, styles.content, { backgroundColor: this.props.backgroundColor })}>
         <View style={styles.card}>
-            <View style={styles.heading}>
-              <Text style={styles.headingText}>{this.context.getEditResourceName()}</Text>
-              { !!this.context.getEditResourceId() &&
-                <Touchable onPress={this.props.onDelete} hitSlop={Common.touchableArea}>
-                  <View style={ styles.deleteContainer}>
-                    <GearIcon width={30} height={30} stroke={Palette.consentGrayDark}></GearIcon>
-                  </View>
-                </Touchable> 
-              }
-            </View>  
-            { this.props.error !== "" &&
-              <View style={styles.error}>
-                <Text style={styles.errorText}>
-                  {this.props.error}
-                </Text>
-              </View>
+          <View style={styles.heading}>
+            <Text style={styles.headingText}>{this.context.getEditResourceName()}</Text>
+            {!!this.context.getEditResourceId() && this.context.getEditResourceName() !== "Person" &&
+              <Touchable onPress={this.props.onDelete} hitSlop={Common.touchableArea}>
+                <View style={styles.deleteContainer}>
+                  <TrashIcon width={30} height={30} stroke={Palette.consentGrayDark}/>
+                </View>
+              </Touchable>
             }
-            { this.props.entities.map((entity, i) => this.renderEntity(entity, i)) }
+          </View>
+          {this.props.error !== "" &&
+            <View style={styles.error}>
+              <Text style={styles.errorText}>
+                {this.props.error}
+              </Text>
+            </View>
+          }
+          {this.props.entities.map((entity, i) => this.renderEntity(entity, i))}
         </View>
       </View>
     )
@@ -69,12 +69,12 @@ class EditForm extends Component{
     return (
       <View style={formField} key={i}>
         <View style={styles.formFieldLabel} >
-          <Text style={ entity.type === "photograph" ? Object.assign({}, styles.formFieldLabelText, { "marginTop": -50 }) : styles.formFieldLabelText }>
-            { entity.label.toUpperCase() }
+          <Text style={entity.type === "photograph" ? Object.assign({}, styles.formFieldLabelText, { "marginTop": -50 }) : styles.formFieldLabelText}>
+            {entity.label.toUpperCase()}
           </Text>
         </View>
-        <View style={ entity.type === "photograph" ? Object.assign({}, styles.formFieldInput, { "height": 95, "paddingTop": 10 }) : styles.formFieldInput }>
-          { this.renderInput(entity, i) }
+        <View style={entity.type === "photograph" ? Object.assign({}, styles.formFieldInput, { "height": 95, "paddingTop": 10 }) : styles.formFieldInput}>
+          {this.renderInput(entity, i)}
         </View>
       </View>
     )
@@ -119,7 +119,7 @@ class EditForm extends Component{
       <TextInput
         style={styles.textInput}
         value={this.props.formTarget[entity.name]}
-        onChangeText={text => this.props.setStringInputStateValue(entity, text) }
+        onChangeText={text => this.props.setStringInputStateValue(entity, text)}
         placeholder={entity.initialValue}
         autoCapitalize="sentences"
         autoCorrect={false}
@@ -130,30 +130,30 @@ class EditForm extends Component{
     )
   }
 
-  determineKeyboardType(entity){
-    
+  determineKeyboardType(entity) {
+
     let keyboardType
-    
-    switch(entity.name){
-      case("email"):
+
+    switch (entity.name) {
+      case ("email"):
         keyboardType = "email-address"
         break
-      case("contactEmail"):
+      case ("contactEmail"):
         keyboardType = "email-address"
         break
-      case("contactTelephone"):
+      case ("contactTelephone"):
         keyboardType = "numeric"
         break
-      case("mobile"):
+      case ("mobile"):
         keyboardType = "numeric"
         break
-      case("telephone"):
+      case ("telephone"):
         keyboardType = "numeric"
         break
-      case("postOfficeBoxNumber"):
+      case ("postOfficeBoxNumber"):
         keyboardType = "numeric"
         break
-      case("postalCode"):
+      case ("postalCode"):
         keyboardType = "numeric"
         break
       default:
@@ -176,7 +176,7 @@ class EditForm extends Component{
         cancelBtnText="Cancel"
         showIcon={false}
         customStyles={styles.dateInput}
-        onDateChange={ date => this.props.setDateInputStateValue(entity, date) }
+        onDateChange={date => this.props.setDateInputStateValue(entity, date)}
       />
     )
   }
@@ -188,17 +188,17 @@ class EditForm extends Component{
         maxHeight: 800,
         quality: 0.6
       }, (response) => {
-        // console.log("file is this big: " + response.fileSize + " | " + response.data.length)
         if (response.data && response.data.length > 65535) { // (2^16 - 1)) {
-          ToastAndroid.show('Image is too large. Please try again...', ToastAndroid.LONG)
+          Toast.show('Image is too large. Please try again...', ToastAndroid.LONG)
           return
         }
-        if(response.data && response.data.length)
+        if (response.data && response.data.length)
           this.props.setImageInputStateValue(entity, response)
       })
     }
 
-    const imageUri = Common.ensureDataUrlHasContext(this.props.formTarget[entity.name]) 
+    console.log("entity.name", entity, this.props.formTarget[entity.name]);
+    const imageUri = Common.ensureDataUrlHasContext(this.props.formTarget[entity.name]? this.props.formTarget[entity.name] : Common.defaultDataUrl())
 
     console.log("IMAGE URI IN FORM: ", imageUri)
 
@@ -206,7 +206,7 @@ class EditForm extends Component{
     return (
       <Touchable onPress={pick}>
         <View style={styles.photographLabel}>
-          <Image style={styles.fullImage} width={50} height={85} source={{ uri: imageUri, scale: 1 }}></Image>
+          <Image style={styles.fullImage} width={50} height={85} source={{ uri: imageUri, scale: 1 }} />
         </View>
       </Touchable>
     )
@@ -237,7 +237,7 @@ class EditForm extends Component{
     return this.renderSelectInput(entity, data, entity.initialValue)
   }
 
-  renderNativeSelectDataInput(entity, i){
+  renderNativeSelectDataInput(entity, i) {
     const data = entity.options.map((value) => {
       return {
         "key": value,
@@ -245,21 +245,26 @@ class EditForm extends Component{
         "selected": this.props.formTarget[entity.name] === value
       }
     })
-
-    const initialValue = "Select an option"
+    const selected = data.filter((element) => {
+      if (element.selected) {
+        return element
+      }
+    })
+    const initialValue = selected.length > 0 ? selected[0].key : "Select an option"
     return this.renderSelectInput(entity, data, initialValue)
   }
 
   renderSelectInput(entity, data, initialValue) {
-
     return (
       <ModalPicker
         data={data}
         style={styles.selectElement}
+        initValue={initialValue}
         selectStyle={styles.selectPickerWithValue}
         selectTextStyle={styles.textInput}
-        initValue={initialValue}
-        onChange={(option) => { this.props.setSelectInputStateValue(entity, option) }} />
+        keyExtractor={item => item.key}
+        onChange={(option) => { this.props.setSelectInputStateValue(entity, option) }}
+      />
     )
   }
 
@@ -286,22 +291,23 @@ const styles = {
     "alignSelf": "center",
     "alignItems": "center",
     "justifyContent": "center",
+    "width": "100%",
   },
   "card": {
     "backgroundColor": Palette.consentOffWhite,
     "margin": 10,
-    "paddingLeft": 10,
-    "paddingRight": 10,
+    "width": "100%",
+    paddingLeft: 15,
+    paddingRight: 15,
   },
   "heading": {
-    "height": 64,
+    "height": 40,
     "width": "100%",
     "flexDirection": "row",
-    "borderBottomWidth": 1,
-    "borderBottomColor": Palette.consentBlue,
-    // "alignItems": "flex-start",
-    "alignItems": "center",
-    "justifyContent": "space-around"
+    "alignItems": "flex-start",
+    "justifyContent": "space-between",
+    borderBottomWidth: 1,
+    borderBottomColor: Palette.consentBlue,
   },
   "headingText": {
     "flex": 4,
@@ -309,10 +315,10 @@ const styles = {
     "color": Palette.consentBlue,
     "fontSize": 20
   },
-  "deleteContainer":{
+  "deleteContainer": {
     "flex": 1,
     "alignItems": "center",
-    "justifyContent": "center",
+    "justifyContent": "space-between",
   },
   "formField": {
     "paddingTop": 5,
@@ -332,48 +338,52 @@ const styles = {
   "formFieldLabelText": {
     "fontWeight": "bold",
     "fontSize": 11,
-    "color": "#888"
+    color: "#888888"
   },
   "formFieldInput": {
     "flex": 1,
     "height": 40,
     "borderBottomWidth": 0
   },
-  "textInput": {
-    "flex": 1,
-    "height": 40,
-    "color": "#666",
-    "fontWeight": "100",
-    "fontSize": fontSize,
-    "textAlign": "left"
+  "selectPickerWithValue": {
+    flex: 1,
+    height: 40,
+    "borderWidth": 0,
   },
-  "selectElement":{
+  "textInput": {
+    height: 40,
+    color: "#666666",
+    fontWeight: "100",
+    fontSize: fontSize,
+    textAlign: "left",
+  },
+  "selectElement": {
     "flex": 1,
     "flexDirection": "row",
     "justifyContent": "flex-start",
     "alignItems": "stretch"
   },
-  "selectPickerWithoutValue":{
+  "selectPickerWithoutValue": {
     "backgroundColor": Palette.consentGrayLightest
   },
-  "selectPickerWithValue":{
+  "selectPickerWithValue": {
     "borderWidth": 0
   },
-  "countryPicker":{
+  "countryPicker": {
     "paddingTop": 10,
     "height": 40
   },
   "countryLabel": {
     "flex": 1,
     "height": 40,
-    "color": "#666",
+    color: "#666666",
     "fontWeight": "100",
     "paddingTop": 10,
     "paddingBottom": 10,
     "fontSize": fontSize,
-    "backgroundColor": "green"
+    backgroundColor: "#009900"
   },
-  "datePicker":{
+  "datePicker": {
     "backgroundColor": "magenta"
   },
   "dateInput": {
@@ -385,32 +395,30 @@ const styles = {
     },
     "dateInput": {
       "borderWidth": 0,
-      "alignItems": "center",
-      // "paddingLeft": 10,
       "flex": 1,
       "alignItems": "flex-start",
       "justifyContent": "center",
     },
     "dateText": {
-      "color": "#666",
+      color: "#666666",
       "fontWeight": "100",
       "fontSize": fontSize,
     },
     "placeholderText": {
-      "color": "#666",
+      color: "#666666",
       "fontWeight": "100",
       "fontSize": fontSize,
       // "textAlign": "left",
     }
   },
-  "languagePicker":{
+  "languagePicker": {
     "paddingTop": 10,
     "height": 40
   },
   "languageLabel": {
     "flex": 1,
     "height": 40,
-    "color": "#666",
+    color: "#666666",
     "fontWeight": "100",
     "paddingTop": 10,
     "paddingBottom": 10,
@@ -429,7 +437,7 @@ const styles = {
   },
   "photographLabelText": {
     "fontWeight": "100",
-    "color": "#666",
+    color: "#666666",
     "fontSize": fontSize
   },
   "error": {
@@ -438,6 +446,14 @@ const styles = {
   "errorText": {
     "textAlign": "center",
     "color": "red"
+  },
+  "modalTextInput": {
+    "height": 40,
+    "color": "#666666",
+    "paddingRight": 10,
+    "fontWeight": "100",
+    "fontSize": fontSize,
+    "textAlign": "left"
   }
 }
 

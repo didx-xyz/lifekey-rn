@@ -7,11 +7,10 @@ import ConsentUserShare from './Models/ConsentUserShare'
 import ConsentShareLog from './Models/ConsentShareLog'
 import ConsentConnectionRequest from './Models/ConsentConnectionRequest'
 import ConsentDiscoveredUser from './Models/ConsentDiscoveredUser'
-import ConsentISA from './Models/ConsentISA'
 import ConsentThanksMessage from './Models/ConsentThanksMessage'
 import ConsentUserConnectionMessage from './Models/ConsentUserConnectionMessage'
-import {ToastAndroid} from 'react-native'
 import ConsentMessage from './Models/ConsentMessage'
+import Common from './Common'
 
 class FirebaseHandler {
   
@@ -55,16 +54,17 @@ class FirebaseHandler {
       return Api.profile({did: message.from_did})
     }).then(profile => {
       profile = profile.body.user
+      let uri = Common.ensureDataUrlHasContext(profile.image_uri)
       const newConnection = Object.assign(
         {},
         profile,
         {
           user_connection_request_id: message.user_connection_request_id,
-          image_uri: `data:image/jpg;base64,${profile.image_uri}`
+          image_uri: uri
         }
       )
       ConsentUser.addNewPendingPeerConnection(newConnection)
-      eventEmitter.emit('user_connection_request', message.from_nickname)
+      eventEmitter.emit('user_connection_request', newConnection.display_name)
     }).catch(console.log)
   }
   
@@ -81,13 +81,13 @@ class FirebaseHandler {
                      .then(profile => {
 
                           profile = profile.body.user
-
+                          let uri = profile.image_uri
+                          uri = Common.ensureDataUrlHasContext(uri)
                           let newConnection = Object.assign({}, profile, 
                                               { 
                                                 isa_id: message.sharing_isa_id, 
                                                 user_connection_id: message.user_connection_id, 
-                                                image_uri: profile.is_human ? 
-                                                           `data:image/jpg;base64,${profile.image_uri}` : profile.image_uri
+                                                image_uri: uri
                                               })
 
                           if(profile.is_human){
@@ -210,6 +210,8 @@ class FirebaseHandler {
   static isa_ledgered(message, eventEmitter) {}
 
   static messageReceived(eventEmitter, message) {
+    
+    message = message.data
     if (message && message.type) {
       Logger.firebase('message', JSON.stringify(message))
       Logger.firebase('message.type', message.type)

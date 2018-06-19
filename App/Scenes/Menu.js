@@ -61,9 +61,8 @@ class Menu extends Scene {
     ]
 
     return (
-      <View>
+      <Container>
         <View style={styles.headerWrapper}>
-          <BackButton navigator={this.navigator} />
           <LifekeyHeader icons={icons} tabs={tabs} />
         </View>
         <ScrollView style={styles.contentContainer}>
@@ -110,7 +109,7 @@ class Menu extends Scene {
           </View>
         </ScrollView>
 
-      </View>
+      </Container>
     )
   }
 
@@ -122,11 +121,12 @@ const styles = {
     "flex": 1,
     "backgroundColor": Palette.consentWhite,
     "alignItems": "center",
-    "justifyContent": "flex-start",
+    "justifyContent": "center",
     "paddingRight": Design.paddingRight / 2,
     "paddingLeft": Design.paddingLeft / 2,
   },
   "menuItem": {
+    "width":Dimensions.get('window').width - Design.paddingLeft - Design.paddingRight,
     "flex": 1,
     "flexDirection": "row",
     "justifyContent": "center",

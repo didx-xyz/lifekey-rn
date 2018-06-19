@@ -30,7 +30,7 @@ import FingerprintScanner from 'react-native-fingerprint-scanner';
 
 import HexagonDots from '../../Components/HexagonDots';
 // import Dots from '../../Components/Dots'
-import OnboardingTextInputAndroid from '../../Components/OnboardingTextInputAndroid';
+import OnboardingTextInput from '../../Components/OnboardingTextInput';
 import EventTimeline from '../../Components/EventTimeline';
 import Touchable from '../../Components/Touchable';
 import DialogAndroid from 'react-native-dialogs';
@@ -52,7 +52,6 @@ class Register extends Scene {
   constructor(props) {
     super(props);
 
-    let isSensorAvailable = true;
 
     this.screenData = [
       {
@@ -80,7 +79,7 @@ class Register extends Scene {
       {
         largeText: 'Thanks for activating!',
         smallText:
-          'Please wait while we create your Decentralised Identifier on the Consent Blockchain...',
+          'Please wait while we create your Decentralised Identifier on the Consent Blockchain. This can take upto 10 minutes',
         bottomText: ''
       },
       {
@@ -89,6 +88,7 @@ class Register extends Scene {
           'There was an error while trying to register. Please try again.'
       }
     ];
+    this.isSensorAvailable = true;
 
     this.state = {
       step: 0, // The beginning
@@ -124,7 +124,7 @@ class Register extends Scene {
     FingerprintScanner
       .isSensorAvailable()
       .catch(error => {
-        isSensorAvailable = false;
+        this.isSensorAvailable = false;
         console.log('isSensorAvailable: ', error);
       })
 
@@ -203,8 +203,12 @@ class Register extends Scene {
   }
 
   componentWillUnmount() {
-    this.keyboardDidShowListener.remove();
-    this.keyboardDidHideListener.remove();
+    if (this.keyboardDidShowListener) {
+      this.keyboardDidShowListener.remove();
+    }
+    if (this.keyboardDidHideListener) {
+      this.keyboardDidHideListener.remove();
+    }
     if (this.interaction) this.interaction.cancel();
   }
 
@@ -284,6 +288,8 @@ class Register extends Scene {
     } else {
       this.setState({ step: activeStepNumber });
     }
+
+    this._RefOnboardingTextInput && this._RefOnboardingTextInput.clearValue();
   }
 
   _getPin() {
@@ -313,52 +319,25 @@ class Register extends Scene {
   }
 
   requestMagicLink() {
-    if (isSensorAvailable) {
-      new Promise((resolve) => {
-        // AlertIOS.alert('Registering...');
-        this.setState({ loading_indicator: true }, resolve);
+    new Promise((resolve) => {
+      // AlertIOS.alert('Registering...');
+      this.setState({ loading_indicator: true }, resolve);
+    })
+      .then((res) => {
+        //clear existing keys before registering user
+        return ConsentUser.register(this.state.user, this.isSensorAvailable);
       })
-        .then(() => {
-          return FingerprintScanner.authenticate({
-            description: 'Scan your fingerprint on the device scanner to continue'
-          });
-        })
-        .then((res) => {
-          //clear existing keys before registering user
-          return ConsentUser.register(this.state.user, true);
-        })
-        .then((user) => {
-          this.setState({ loading_indicator: false });
-        })
-        .catch((error) => {
-          // AlertIOS.alert(error.message);
-          this.setState({ loading_indicator: false });
-          console.log(error);
-          AlertIOS.alert('Registration unsuccessful...');
-               this.resetRegistration();
-               this.clearKeys();
-               });
-    } else {
-      new Promise((resolve) => {
-        // AlertIOS.alert('Registering...');
-        this.setState({ loading_indicator: true }, resolve);
+      .then((user) => {
+        this.setState({ loading_indicator: false });
       })
-        .then(() => {
-          //clear existing keys before registering user
-          return ConsentUser.register(this.state.user, false);
-        })
-        .then((user) => {
-          this.setState({ loading_indicator: false });
-        })
-        .catch((error) => {
-          // AlertIOS.alert(error.message);
-          this.setState({ loading_indicator: false });
-          console.log(error);
-          AlertIOS.alert('Registration unsuccessful...');
-               this.resetRegistration();
-          this.clearKeys();
-        });
-    }
+      .catch((error) => {
+        AlertIOS.alert(error.message);
+        this.setState({ loading_indicator: false });
+        console.error(error);
+        AlertIOS.alert('Registration unsuccessful...');
+        this.resetRegistration();
+        this.clearKeys();
+      });
   }
 
   clearKeys() {
@@ -368,7 +347,10 @@ class Register extends Scene {
           return Crypto.deleteKeyEntry(alias);
         })
       );
-    });
+    })
+      .catch(function (err) {
+        console.log("clearKeys error", err)
+      });
   }
   // Called from LifekeyRn when DID is received via Firebase notification
   registrationCallback() {
@@ -380,24 +362,29 @@ class Register extends Scene {
       case STEP_USERNAME:
         return (
           <View style={[style.textInputRow]}>
-            <OnboardingTextInputAndroid
+            <OnboardingTextInput
+              ref={ref => this._RefOnboardingTextInput = ref}
               onChangeText={(text) => this.setUserState('username', text)}
               autoCapitalize="sentences"
               fontSize={22}
               inputFadeTransitionValue={this.state.inputFadeTransitionValue}
               onSubmit={() => this.goToStep(STEP_EMAIL, true)}
+              keyboardType="default"
             />
           </View>
         );
       case STEP_EMAIL:
         return (
           <View style={[style.textInputRow]}>
-            <OnboardingTextInputAndroid
+            <OnboardingTextInput
+              ref={ref => this._RefOnboardingTextInput = ref}
               onChangeText={(text) => this.setUserState('email', text)}
               autoCapitalize="none"
-              fontSize={24}
+              fontSize={22}
               inputFadeTransitionValue={this.state.inputFadeTransitionValue}
               onSubmit={() => this.goToStep(STEP_PIN, true)}
+              keyboardType="email-address"
+              autoCorrect={false}
             />
           </View>
         );

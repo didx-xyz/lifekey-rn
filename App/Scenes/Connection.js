@@ -5,10 +5,7 @@ import {
   View,
   Dimensions,
   StatusBar,
-  ToastAndroid,
-  Image
 } from "react-native"
-import { Container } from "native-base"
 import * as Nachos from 'nachos-ui'
 // internal dependencies
 import BackButton from "../Components/BackButton"
@@ -27,6 +24,8 @@ import ConsentUser from '../Models/ConsentUser'
 import Api from '../Api'
 import Logger from '../Logger'
 import Session from '../Session'
+import Toast from '../Utils/Toast'
+import { Container } from "native-base";
 
 class Connection extends Scene {
 
@@ -61,7 +60,8 @@ class Connection extends Scene {
       Logger.networkRequest('GET', actions_url, requestOptions)
       const actionsResponse = await fetch(actions_url, requestOptions)
       Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
-      const actions = JSON.parse(actionsResponse._bodyText)
+      let text = await actionsResponse.text()
+      const actions = JSON.parse(text)
       if (actions) {
         if (actions.body) {
           this.setState({
@@ -80,7 +80,7 @@ class Connection extends Scene {
 
   onPressConnect() {
 
-    ToastAndroid.show(`Connecting to ${this.props.route.display_name}`, ToastAndroid.SHORT)
+    Toast.show(`Connecting to ${this.props.route.display_name}`)
     this.setState({
       connecting: true
     }, () => {
@@ -94,7 +94,7 @@ class Connection extends Scene {
         })
       })
       .catch(error => {
-        ToastAndroid.show(`Could not connect...`, ToastAndroid.SHORT)
+        Toast.show(`Could not connect...`)
         // console.log("--------------------------------- ERROR: ", error)
         Logger.warn(JSON.stringify(error))
         this.setState({
@@ -105,7 +105,6 @@ class Connection extends Scene {
   }
 
   onPressHelp() {
-    alert("help")
   }
 
   onPressDecline() {
@@ -117,7 +116,7 @@ class Connection extends Scene {
     const iconSize = screenWidth / 25
 
     return (
-      <View style={styles.content}>
+      <Container>
         <BackButton navigator={this.navigator} />
         <View style={ {flex: 1} }>
           <View style={styles.logo}>
@@ -139,7 +138,7 @@ class Connection extends Scene {
             <Text style={styles.connectedText}>Connected to 3,421 people.</Text>
           </View> */ }
           <Text style={ styles.greetingText }>Hi there {Util.ucfirst(ConsentUser.getDisplayNameSync())}. Connecting with {Util.ucfirst(this.props.route.display_name)} will allow you to:</Text>
-          
+
           { this.state.actions.map((action, i) =>
             <Text key={i} style={styles.actionsText}>• {action.name}.</Text>
           )}
@@ -160,6 +159,7 @@ class Connection extends Scene {
         </View>
 
         <LifekeyFooter
+          style={ styles.footer}
           color={ Palette.consentOffBlack }
           backgroundColor={ Palette.consentWhite }
           leftButtonText=""
@@ -168,7 +168,7 @@ class Connection extends Scene {
           onPressLeftButton={this.onBoundPressHelp}
           onPressRightButton={this.onBoundPressDecline}
         />
-      </View>
+      </Container>
     )
   }
 }
@@ -258,10 +258,6 @@ const styles = {
     "alignItems": "center",
     "paddingLeft": "12%",
     "paddingRight": "12%"
-  },
-  "help": {
-    "flex": 1,
-    "justifyContent": "flex-start"
   },
   "decline": {
     "flex": 1,

@@ -46,7 +46,8 @@ class LifekeyFooter extends Component {
 const style = {
   wrappingView: {
     height: 100,
-    flexDirection: 'row'
+    flexDirection: 'row',
+    justifyContent: "space-between",
   },
   leftButton: {
     flex: 1,

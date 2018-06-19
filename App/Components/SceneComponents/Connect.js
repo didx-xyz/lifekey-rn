@@ -1,6 +1,6 @@
 
 import React, { Component } from 'react'
-import { Text, View, Image, Dimensions, StatusBar } from 'react-native'
+import { Text, View, Image, Dimensions, StatusBar, ImageBackground } from 'react-native'
 import { Container, Content } from 'native-base'
 import ActivityIndicator from "ActivityIndicator"
 import Session from '../../Session'
@@ -67,10 +67,10 @@ class Connect extends Component  {
     return(  
       <View>
         <View style={styles.qrCodeContainer}>
-          <Image style={styles.qrContainerImage} source={require('../../Images/QRFrame3.png')}> 
+          <ImageBackground style={styles.qrContainerImage} source={require('../../Images/QRFrame3.png')}> 
             <Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-2/${this.props.profile.did}?cache=${new Date().getTime()}` }} /> 
             {/*<Image style={styles.qrImage} source={{ uri: `http://staging.api.lifekey.cnsnt.io/qr-scale3/${this.props.profile.did}?cache=${new Date().getTime()}` }} /> */}
-          </Image> 
+          </ImageBackground> 
         </View>
         <View style={styles.textContainer}>
           <Text style={styles.text}>Invite other people to connect with { this.props.connectWithMe ? <Text>you</Text> : <Text>{this.props.profile.display_name}</Text> } by sharing { this.props.connectWithMe ? <Text>your</Text> : <Text>their</Text> } unique ID code</Text>
@@ -87,9 +87,9 @@ class Connect extends Component  {
       return (
         <View>
           <View style={styles.qrCodeContainer}>
-            <Image style={styles.qrContainerImage} source={require('../../Images/QRFrame3.png')}>
+            <ImageBackground style={styles.qrContainerImage} source={require('../../Images/QRFrame3.png')}>
               <Image style={styles.qrImage} onError={this.onImageError.bind(this)} source={{ uri: `http://staging.api.lifekey.cnsnt.io/facial-verification?user_did=${ConsentUser.getDidSync()}&cachebust=${Date.now()}` }} />
-            </Image>
+            </ImageBackground>
           </View>
           <View style={styles.textContainer}>
             <Text style={styles.text}>Get someone else to scan this QR Code to verify your facial match</Text>
@@ -126,7 +126,7 @@ class Connect extends Component  {
             </View>   
           </View>
         :
-          <Text style={ styles.defaultTextContainer }>
+          <View style={ styles.defaultTextContainer }>
             <Text style={ styles.defaultFont }>
               Hi there, 
               {"\n\n"}
@@ -135,7 +135,7 @@ class Connect extends Component  {
               Quickly set it up
             </Text>
             <Text onPress={this.onBoundPressProfile} style={ Object.assign({}, styles.defaultFont, { "color": Palette.consentBlue }) }> here.</Text>
-          </Text>
+          </View>
         } 
       </View>
     )
@@ -217,13 +217,14 @@ const styles = {
   },
   "defaultTextContainer":{
     "paddingTop": 50,
-    "padding": Design.paddingRight*2
+    "padding": Design.paddingRight*2,
   },
   "defaultFont":{
     fontFamily: Design.fonts.registration,
     fontWeight: Design.fontWeights.light,
     fontSize: 24,
-    lineHeight: 28
+    lineHeight: 28,
+    color: Palette.consentOffBlack    
   }
 }
 

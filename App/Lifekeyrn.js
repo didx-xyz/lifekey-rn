@@ -20,12 +20,24 @@ import Firebase from 'react-native-firebase';
 import {
   View,
   Dimensions,
-  Navigator,
   Platform,
   StatusBar,
   ToastAndroid
 } from 'react-native';
-import PropTypes from 'prop-types';
+import Toast from './Utils/Toast'
+import {Navigator} from 'react-native-deprecated-custom-components'
+import PropTypes from 'prop-types'
+import CodePush from 'react-native-code-push'
+
+import Utils from './Utils/Utils.js'
+
+import {YellowBox, Alert} from 'react-native'
+YellowBox.ignoreWarnings([
+  'source.uri should not be an empty string',
+  'Module RCTImageLoader requires main queue setup since it overrides',
+  'Warning: isMounted(...)',
+])
+
 
 const PORTRAIT = 0;
 const LANDSCAPE = 1;
@@ -83,7 +95,7 @@ class Lifekeyrn extends Component {
     // Members
     this._className = this.constructor.name;
     this.filename = this._className + '.js';
-    this._firebase = new Firebase();
+    this._firebase = new Firebase.app();
     this._messaging = this._firebase.messaging();
     this.firebaseInternalEventEmitter = new EventEmitter();
     this._navigationEventEmitter = new EventEmitter();
@@ -105,31 +117,20 @@ class Lifekeyrn extends Component {
     );
 
     // Events
-    if (Platform.OS === 'android') {
-      this._messaging.onTokenRefresh(this._nativeEventTokenRefreshed);
-      this._messaging.onMessage(
-        FirebaseHandler.messageReceived.bind(
-          FirebaseHandler,
-          this.firebaseInternalEventEmitter
-        )
-      );
-    } else {
-      // Logger.info('TODO: Firebase iOS', this.filename);
- 
-      // requests permissions from the user
-      this._messaging.requestPermissions();
-      this._messaging.getToken().then(token => {
-        // get users token
-        Logger.info('Firebase token: ', token);
-       });
-      this._messaging.onTokenRefresh(this._nativeEventTokenRefreshed);
-      this._messaging.onMessage(
-        FirebaseHandler.messageReceived.bind(
-          FirebaseHandler,
-          this.firebaseInternalEventEmitter
-        )
-      );
+    if (Platform.OS === 'ios') {
+      this._messaging.requestPermission();
     }
+    this._messaging.onTokenRefresh(this._nativeEventTokenRefreshed);
+    this._messaging.getToken().then(token => {
+      // get users token
+      Logger.info('Firebase token: ', token);
+    });
+    this._messaging.onMessage(
+      FirebaseHandler.messageReceived.bind(
+        FirebaseHandler,
+        this.firebaseInternalEventEmitter
+      )
+    );
 
     this._initSession();
     this.initFirebaseHandlerEvents();
@@ -155,6 +156,7 @@ class Lifekeyrn extends Component {
       this
     );
     this.boundUserHasActivated = this.userHasActivated.bind(this);
+    Utils.checkForUpdate()
   }
 
   getEditResourceForm() {
@@ -229,10 +231,10 @@ class Lifekeyrn extends Component {
       .then(() => {
         ConsentUser.removeFromState(id);
         this.navigator.popToRoute(Routes.me);
-        ToastAndroid.show('Resource deleted...', ToastAndroid.LONG);
+        Toast.show('Resource deleted...', ToastAndroid.LONG);
       })
       .catch((error) => {
-        ToastAndroid.show('Failed to delete resource...', ToastAndroid.LONG);
+        Toast.show('Failed to delete resource...', ToastAndroid.LONG);
         Logger.warn('Could not delete resource: ', error);
       });
   }
@@ -298,13 +300,11 @@ class Lifekeyrn extends Component {
     this.firebaseInternalEventEmitter.addListener(
       'user_connection_created',
       () => {
-        // ToastAndroid.show('Connection created', ToastAndroid.SHORT)
       }
     );
     this.firebaseInternalEventEmitter.addListener(
       'user_connection_request',
       () => {
-        // ToastAndroid.show('Connection requested', ToastAndroid.SHORT)
       }
     );
     this.firebaseInternalEventEmitter.addListener('received_did', () => {
@@ -324,9 +324,9 @@ class Lifekeyrn extends Component {
     this.firebaseInternalEventEmitter.addListener(
       'webauth_failure',
       (message) => {
-        ToastAndroid.show(
-          'WEB AUTH FAILURE: ' + message + ' | ' + message.webauth_failure_type
-        );
+          Toast.show(
+            'WEB AUTH FAILURE: ' + message + ' | ' + message.webauth_failure_type
+          );
       }
     );
   }
@@ -484,4 +484,4 @@ Lifekeyrn.childContextTypes = {
   userHasActivated: PropTypes.func
 };
 
-export default Lifekeyrn;
+export default Lifekeyrn = CodePush(Lifekeyrn)

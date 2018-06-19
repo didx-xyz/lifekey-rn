@@ -92,12 +92,20 @@ export default class QRCodeScanner extends Scene {
   // }
 
   connectP2P(data) {
-    const parsedData = JSON.parse(data.data)
-    console.log("PARSED PROFILE: ", parsedData)
-    this.navigator.replace({
-      ...Routes.connectionPeerToPeerRequest,
-      profile: parsedData
-    })
+    try {
+      const parsedData = JSON.parse(data.data)
+      if (parsedData && !parsedData.error) {
+        console.log("PARSED PROFILE: ", parsedData)
+        this.navigator.replace({
+          ...Routes.connectionPeerToPeerRequest,
+          profile: parsedData
+        })
+      } 
+        
+    } catch (e) {
+      alert("invalid qr code")
+      console.log("PARSED PROFILE ERROR: ", e)
+    }    
   }
 
   trustBankLogin(data) {
@@ -160,7 +168,7 @@ export default class QRCodeScanner extends Scene {
             orientation={Camera.constants.Orientation.portrait}
             onBarCodeRead={(data) => this._onBarCodeRead(data)}
             type={Camera.constants.Type.back}
-            barCodeTypes={['qr']}
+            barCodeTypes={[Camera.constants.BarCodeType.qr]}
           >
             <CameraCrosshair ref={(crosshair) => { this.crosshair = crosshair }} width={250} height={250} color={'white'}/>
           </Camera>

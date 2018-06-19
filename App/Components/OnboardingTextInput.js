@@ -10,8 +10,9 @@ import {
 import Touchable from './Touchable'
 import Palette from '../Palette'
 import Svg, { Path } from 'react-native-svg'
+import { Integer } from 'tcomb';
 
-export default class OnboardingTextInputAndroid extends Component {
+export default class OnboardingTextInput extends Component {
   constructor(props) {
     super(props)
 
@@ -19,7 +20,8 @@ export default class OnboardingTextInputAndroid extends Component {
       underlineColor: Palette.consentGrayDark,
       buttonVisible: false,
       cap: false,
-      fadeAnim: new Animated.Value(0)
+      fadeAnim: new Animated.Value(0),
+      value : props.value
     }
 
     this._focus = this._focus.bind(this)
@@ -52,6 +54,27 @@ export default class OnboardingTextInputAndroid extends Component {
     })
   }
 
+  clearValue(){
+    this.setState({value : ''});
+  }
+
+  _onChangeText(text) {
+    if(text.length % 10 === 0){
+      let fontsize =  this.props.fontSize;
+      fontsize -= (Integer)(text.length / 10);
+      this.setState({
+          fontSize: fontsize,
+          value: text
+        });
+      this.props.onChangeText(text);
+    } else {
+      this.setState({
+          value: text
+        });
+      this.props.onChangeText(text);
+    }
+  }
+
   render() {
     return (
       <Animated.View
@@ -63,17 +86,25 @@ export default class OnboardingTextInputAndroid extends Component {
             ref={input => {this._input = input }}
             onFocus={this._focus}
             onBlur={this._blur}
-            onChangeText={text => this.props.onChangeText(text)}
-            value={this.props.value}
-            style={{
+            onChangeText={ text => this._onChangeText(text)}
+            value={this.state.value}
+            style={[
+              {
               flex: 1,
-              fontSize: this.props.fontSize
-            }}
+              fontSize: this.props.fontSize,
+              color: "#000000"
+              },
+              {
+                fontSize : this.state.fontSize,
+                color: "#000000"
+              }
+              ]}
             autoCapitalize={this.props.autoCapitalize}
             underlineColorAndroid="transparent"
             scrollEnabled={false}
             onSubmitEditing={() => this.props.onSubmit()}
             returnKeyValue="done"
+            keyboardType={this.props.keyboardType}
           />
         </View>
         <Touchable style={{ width: 50, height: 50 }}

@@ -13,6 +13,8 @@ import PropTypes from "prop-types"
 import _ from 'lodash'
 
 import {
+  Platform,
+  StyleSheet,
   Text,
   View
 } from 'react-native'
@@ -99,7 +101,7 @@ class LifekeyHeader extends Component {
 
 const style = {
   header: {
-    height: 115
+    height: 115,
   },
   container: {
     flex: 1,
@@ -128,6 +130,11 @@ const style = {
     flex: 2,
     paddingRight: Design.paddingRight,
     paddingLeft: Design.paddingLeft,
+    ...Platform.select({
+      ios: {
+        paddingTop: 50,
+      },
+    }),
     flexDirection: "row",
     justifyContent: "space-between",
   },  

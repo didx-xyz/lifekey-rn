@@ -9,15 +9,16 @@ buildscript {
         google()
     }
     dependencies {
-        classpath 'com.android.tools.build:gradle:3.0.1'
-        classpath 'com.google.gms:google-services:3.0.0'
-        classpath 'io.fabric.tools:gradle:1.25.2'
+        classpath 'com.android.tools.build:gradle:3.1.2'
+        classpath 'com.google.gms:google-services:3.2.1'
+        classpath 'io.fabric.tools:gradle:1.25.4'
         // NOTE: Do not place your application dependencies here; they belong
         // in the individual module build.gradle files
     }
 }
 
 allprojects {
+
     repositories {
         mavenLocal()
         jcenter()
@@ -30,4 +31,56 @@ allprojects {
         }
         google()
     }
+}
+
+ext {
+    compileSdkVersion = 27
+    targetSdkVersion = 27
+    buildToolsVersion = '27.0.3'
+    supportlib_version = '27.1.1'
+    googlePlayServicesVersion = "15.0.1"
+}
+
+subprojects { subproject ->
+    afterEvaluate{
+        if((subproject.plugins.hasPlugin('android') || subproject.plugins.hasPlugin('android-library'))) {
+            android {
+                compileSdkVersion rootProject.ext.compileSdkVersion
+                buildToolsVersion rootProject.ext.buildToolsVersion
+                defaultConfig {
+                    targetSdkVersion rootProject.ext.targetSdkVersion
+                    multiDexEnabled true
+                }
+            }
+        }
+    }
+    // See https://stackoverflow.com/a/42718231/82609
+
+    project.configurations.all {
+        resolutionStrategy.eachDependency { details ->
+            if (details.requested.group == 'com.android.support' &&
+                    !details.requested.name.contains('multidex')) {
+                details.useVersion "$supportlib_version"
+            }
+
+            if (details.requested.group == 'com.android.support' &&
+                    details.requested.name.contains('multidex')) {
+                details.useVersion "1.0.3"
+            }
+            if (details.requested.group == 'com.google.android.gms' &&
+                    details.requested.name.contains('play-services')) {
+                details.useVersion "15.0.0"
+            }
+
+            if (details.requested.group == 'com.google.firebase' &&
+                    !details.requested.name.contains('firebase-firestore')) {
+                details.useVersion "15.0.0"
+            }
+
+            if (details.requested.name.contains('firebase-firestore')) {
+                details.useVersion "16.0.0"
+            }
+        }
+    }
+
 }

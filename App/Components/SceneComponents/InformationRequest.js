@@ -6,7 +6,6 @@ import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
 import Api from "../../Api"
-import Session from "../../Session"
 import Routes from "../../Routes"
 import Palette from "../../Palette"
 import Design from "../../DesignParameters"
@@ -20,14 +19,10 @@ import TickIcon from "../TickIcon"
 import CircularImage from "../CircularImage"
 import HexagonIcon from "../HexagonIcon"
 import AddCategoryButton from "../lc-AddCategoryButton"
-import InformationRequestResource from "../InformationRequestResource" 
-import MarketingIcon from "../MarketingIcon"
 import ProgressIndicator from "../ProgressIndicator"
-
-import PeriodIcon from "../PeriodIcon"
 import Touchable from "../Touchable"
-
 import PropTypes from 'prop-types'
+import Toast from '../../Utils/Toast'
 
 class InformationRequest extends Component {
 
@@ -130,7 +125,6 @@ class InformationRequest extends Component {
   }
 
   onPressHelp() {
-    alert("help")
   }
 
   onPressShare() {
@@ -144,14 +138,14 @@ class InformationRequest extends Component {
       )
       .then(response => {
         this.navigator.resetTo({...Routes.main})
-        ToastAndroid.show("Shared", ToastAndroid.SHORT)
+        Toast.show("Shared", ToastAndroid.SHORT)
       })
       .catch(error => {
         alert('Could not connect')
         Logger.warn(JSON.stringify(error))
         this.setState({
           "asyncActionInProgress": false
-        }, () => ToastAndroid.show("Failed to connect...", ToastAndroid.SHORT))
+        }, () => Toast.show("Failed to connect...", ToastAndroid.SHORT))
       })
     })
   }

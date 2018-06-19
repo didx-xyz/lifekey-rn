@@ -24,13 +24,13 @@ class LcIdentity extends Component {
     if(expanded)
       return (
         <View style={styles.unexpandedListCard}>
-          <RcItemDetail objKey={"Identification Type"} value={identificationType}></RcItemDetail>
-          <RcItemDetail objKey={"Identification Number"} value={identificationNumber}></RcItemDetail>
-          <RcItemDetail objKey={"Issuing Country"} value={issuingCountry}></RcItemDetail>
-          <RcItemDetail objKey={"Date Issued"} value={dateIssued}></RcItemDetail>
-          <RcItemDetail objKey={"Expiry Date"} value={expiryDate}></RcItemDetail>
-          <RcItemDetail objKey={"Category Type"} value={categoryType}></RcItemDetail>
-          <RcItemDetail objKey={"Endorsements"} value={endorsements}></RcItemDetail>
+          <RcItemDetail objKey={"Identification Type"} value={identificationType}/>
+          <RcItemDetail objKey={"Identification Number"} value={identificationNumber}/>
+          <RcItemDetail objKey={"Issuing Country"} value={issuingCountry}/>
+          <RcItemDetail objKey={"Date Issued"} value={dateIssued}/>
+          <RcItemDetail objKey={"Expiry Date"} value={expiryDate}/>
+          <RcItemDetail objKey={"Category Type"} value={categoryType}/>
+          <RcItemDetail objKey={"Endorsements"} value={endorsements}/>
         </View>
       )
     else

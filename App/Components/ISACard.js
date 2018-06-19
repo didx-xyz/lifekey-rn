@@ -79,6 +79,9 @@ class ISACard extends Component {
   }
 
   formatTx(tx) {
+    if (tx.length <= 0) {
+      return "n/a"
+    }
     const line1 = tx.substring(0, tx.length / 2)
     const line2 = tx.substring(tx.length / 2, tx.length)
     return "0x" + line1 + "\n" + line2

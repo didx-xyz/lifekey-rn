@@ -26,26 +26,15 @@ import {
   ToastAndroid
 } from 'react-native';
 
-// import {
-//   Container,
-//   Content,
-//   Grid,
-//   Row,
-//   Col
-// } from 'native-base'
-
 import fp from 'react-native-fingerprint-android';
-import FingerprintiOS from 'react-native-fingerprint-scanner';
 
 import HexagonDots from '../../Components/HexagonDots';
-// import Dots from '../../Components/Dots'
-import OnboardingTextInputAndroid from '../../Components/OnboardingTextInputAndroid';
-import EventTimeline from '../../Components/EventTimeline';
+import OnboardingTextInput from '../../Components/OnboardingTextInput';
 import Touchable from '../../Components/Touchable';
-import DialogAndroid from 'react-native-dialogs';
 import AndroidBackButton from 'react-native-android-back-button';
 import AuthScreen from '../../Components/SceneComponents/AuthScreen';
 import * as Nachos from 'nachos-ui';
+import Toast from '../../Utils/Toast'
 
 // const DEBUG = false
 const STEP_USERNAME = 0;
@@ -85,7 +74,7 @@ class Register extends Scene {
       {
         largeText: 'Thanks for activating!',
         smallText:
-          'Please wait while we create your Decentralised Identifier on the Consent Blockchain...',
+          'Please wait while we create your Decentralised Identifier on the Consent Blockchain. This can take upto 10 minutes',
         bottomText: ''
       },
       {
@@ -279,6 +268,8 @@ class Register extends Scene {
     } else {
       this.setState({ step: activeStepNumber });
     }
+
+    this._RefOnboardingTextInput && this._RefOnboardingTextInput.clearValue();    
   }
 
   attemptToRegisterUser() {
@@ -296,7 +287,7 @@ class Register extends Scene {
 
   requestMagicLink() {
     new Promise((resolve) => {
-      ToastAndroid.show('Registering...', ToastAndroid.SHORT);
+      Toast.show('Registering...', ToastAndroid.SHORT);
       this.setState({ loading_indicator: true }, resolve);
     })
       .then((_) => {
@@ -319,7 +310,7 @@ class Register extends Scene {
       .catch((error) => {
         this.setState({ loading_indicator: false });
         console.log(error);
-        ToastAndroid.show('Registration unsuccessful...', ToastAndroid.SHORT);
+        Toast.show('Registration unsuccessful...', ToastAndroid.SHORT);
         Crypto.getKeyAliases().then(function(aliases) {
           return Promise.all(
             aliases.map(function(alias) {
@@ -341,7 +332,8 @@ class Register extends Scene {
       case STEP_USERNAME:
         return (
           <View style={[style.textInputRow]}>
-            <OnboardingTextInputAndroid
+            <OnboardingTextInput
+              ref={ref => this._RefOnboardingTextInput = ref}            
               onChangeText={(text) => this.setUserState('username', text)}
               autoCapitalize="sentences"
               fontSize={22}
@@ -353,7 +345,8 @@ class Register extends Scene {
       case STEP_EMAIL:
         return (
           <View style={[style.textInputRow]}>
-            <OnboardingTextInputAndroid
+            <OnboardingTextInput
+              ref={ref => this._RefOnboardingTextInput = ref}
               onChangeText={(text) => this.setUserState('email', text)}
               autoCapitalize="none"
               fontSize={24}
@@ -520,7 +513,7 @@ class Register extends Scene {
   }
 }
 
-const proportion = 48;
+const proportion = 30;
 
 const style = {
   contentContainer: {
@@ -549,8 +542,8 @@ const style = {
     fontWeight: Design.fontWeights.light
   },
   largeFont: {
-    fontSize: 38,
-    lineHeight: proportion
+    fontSize: 24,
+    //lineHeight: proportion
   },
   smallFont: {
     fontSize: 15,
@@ -565,19 +558,6 @@ const style = {
     paddingLeft: 35,
     paddingRight: 35
   },
-  // pinInput: {
-  //   height: 0,
-  //   marginLeft: -1000
-  // },
-  // pinContainer: {
-  //   'width': "100%",
-  //   'minHeight': 200
-  // },
-  // pinElement: {
-  //   "flex": 1,
-  //   'justifyContent': 'center',
-  //   'alignItems': 'center'
-  // },
   graphic: {
     flex: 1,
     justifyContent: 'center',

@@ -36,7 +36,7 @@ class RcWrapperLight extends Component {
       case('Address'):
         return <LcHomeAddress {...resource} expanded={ false }/>
       case('Employment'):
-        return <LcEmployment {...resource}></LcEmployment>
+        return <LcEmployment {...resource}/>
       case('Proof Of Identity'):
         return <LcImageDocument title={"Proof Of Identity"} documentIdentifier={"proofOfIdentity"} {...resource} expanded={ false }/>
       case('Proof Of Residence'):
@@ -56,14 +56,17 @@ class RcWrapperLight extends Component {
             let heading = resourceType.name === "Public Profile" ? "Public Profile" : resource.label
             heading = includeResourceType ? `${heading} (${resourceType.name})` : heading
             let id = resourceType.name === "Public Profile" ? "Public Profile" : resource.id
+            if (id !== undefined || id !== null)  {
+              return (
+                <View key={id}>
 
-            return (
-              <View key={id}>
-                <LifekeyCard  headingText={heading} expandable={false} >
-                  { this.renderComponent(resource, resourceType, i) }
-                </LifekeyCard>
-              </View>
-            )
+                  <LifekeyCard  headingText={heading} expandable={false} >
+                    {this.renderComponent(resource, resourceType, i)}
+                  </LifekeyCard>
+
+                </View>
+              )
+            }
           })
         }
       </View>

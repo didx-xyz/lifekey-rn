@@ -1,19 +1,15 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.lifekeyrn"
-          android:versionCode="1"
-          android:versionName="1.0">
+          package="com.lifekeyrn">
   <uses-permission android:name="android.permission.INTERNET" />
   <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW"/>
   <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
   <uses-permission android:name="android.permission.VIBRATE" />
   <uses-permission android:name="android.permission.USE_FINGERPRINT" />
-  <uses-sdk android:minSdkVersion="16"
-            android:targetSdkVersion="22" />
+
   <application android:name=".MainApplication"
-               android:allowBackup="true"
+               android:allowBackup="false"
                android:label="@string/app_name"
                android:icon="@mipmap/lifekey_launcher"
-               android:theme="@style/AppTheme"
                android:launchMode="singleTask">
     <meta-data android:name="com.google.android.gms.version"
                android:value="@integer/google_play_services_version" />
@@ -26,19 +22,20 @@
       </intent-filter>
     </activity>
     <activity android:name="com.facebook.react.devsupport.DevSettingsActivity" />
-    <service android:name="io.invertase.firebase.messaging.MessagingService"
+    <service android:name="io.invertase.firebase.messaging.RNFirebaseMessagingService"
              android:enabled="true"
              android:exported="true">
       <intent-filter>
         <action android:name="com.google.firebase.MESSAGING_EVENT" />
       </intent-filter>
     </service>
-    <service android:name="io.invertase.firebase.messaging.InstanceIdService"
+    <service android:name="io.invertase.firebase.messaging.RNFirebaseInstanceIdService"
              android:exported="false">
       <intent-filter>
         <action android:name="com.google.firebase.INSTANCE_ID_EVENT" />
       </intent-filter>
     </service>
+    <service android:name="io.invertase.firebase.messaging.RNFirebaseBackgroundMessagingService" />
     <!-- You will only need to add this meta-data tag, but make sure it's a child of application -->
     <meta-data
       android:name="com.google.android.geo.API_KEY"

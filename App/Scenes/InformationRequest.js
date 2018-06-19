@@ -1,12 +1,10 @@
 // external dependencies
 import React from "react"
-import { Text, View, ScrollView, ToastAndroid, Image } from "react-native"
+import { Text, View, ScrollView, ToastAndroid } from "react-native"
 import { Container, Card, CardItem } from "native-base"
-import ActivityIndicator from "ActivityIndicator"
 
 // internal dependencies
 import Api from "../Api"
-import Session from "../Session"
 import Routes from "../Routes"
 import Palette from "../Palette"
 import Design from "../DesignParameters"
@@ -17,15 +15,13 @@ import TickIcon from "../Components/TickIcon"
 import CircularImage from "../Components/CircularImage"
 import HexagonIcon from "../Components/HexagonIcon"
 import AddCategoryButton from "../Components/lc-AddCategoryButton"
-import InformationRequestResource from "../Components/InformationRequestResource"
-import MarketingIcon from "../Components/MarketingIcon"
 import ProgressIndicator from "../Components/ProgressIndicator"
 import Scene from "../Scene"
-import PeriodIcon from "../Components/PeriodIcon"
 import Touchable from "../Components/Touchable"
 import Logger from '../Logger'
 import Common from '../Common'
 import PropTypes from 'prop-types'
+import Toast from '../Utils/Toast'
 
 class InformationRequest extends Scene {
 
@@ -135,7 +131,6 @@ class InformationRequest extends Scene {
   }
 
   onPressHelp() {
-    alert("help")
   }
 
   onPressShare() {
@@ -149,14 +144,14 @@ class InformationRequest extends Scene {
       )
       .then(response => {
         this.navigator.resetTo({...Routes.main})
-        ToastAndroid.show("Shared", ToastAndroid.SHORT)
+        Toast.show("Shared", ToastAndroid.SHORT)
       })
       .catch(error => {
         alert('Could not connect')
         Logger.warn(JSON.stringify(error))
         this.setState({
           "asyncActionInProgress": false
-        }, () => ToastAndroid.show("Failed to connect...", ToastAndroid.SHORT))
+        }, () => Toast.show("Failed to connect...", ToastAndroid.SHORT))
       })
     })
   }
@@ -190,7 +185,7 @@ class InformationRequest extends Scene {
                     </View>
 
                     { this.state.complete.length > 0 && 
-                      <View>  
+                      <View style={styles.cardContainer}>  
                         { 
                           this.state.complete.map((entity, i) => {
                             return (
@@ -211,11 +206,11 @@ class InformationRequest extends Scene {
                     }                  
   
                     {this.state.partial.length > 0 &&
-                      <View>
+                      <View style={styles.cardContainer}>
                           { this.state.partial.map((entity, i) => {
                             return (
                               <View style={ Object.assign({}, styles.resourceItem, styles.partialResource) }>
-                                <AddCategoryButton width={ this.iconDimension } height={ this.iconDimension } name={entity.name} form={entity.form}></AddCategoryButton>
+                                <AddCategoryButton width={ this.iconDimension } height={ this.iconDimension } name={entity.name} form={entity.form}/>
                               </View>
                             )
                           }) }
@@ -223,7 +218,7 @@ class InformationRequest extends Scene {
                     }
                     
                     {this.state.missing.length > 0 &&
-                      <View>
+                      <View style={styles.cardContainer}>
                         { this.state.missing.map((entity, i) => {
                           return (
                             <View key={entity.name} style={ styles.resourceItem }>
@@ -231,7 +226,7 @@ class InformationRequest extends Scene {
                                                  form={entity.form} 
                                                  color={Palette.consentRed}
                                                  width={ this.iconDimension } height={ this.iconDimension }
-                                                 onEditResource={this.context.onEditResource.bind(this)}></AddCategoryButton>
+                                                 onEditResource={this.context.onEditResource.bind(this)}/>
                             </View>
                           )
                         }) }
@@ -272,6 +267,7 @@ class InformationRequest extends Scene {
 
 const styles = {
   "content": {
+    paddingTop: 15,
     flex: 1,
     "backgroundColor": Palette.consentOffBlack
   },
@@ -309,7 +305,7 @@ const styles = {
     "alignItems": "center",
   },
   "resourceItem":{
-    "width": "100%"
+    "width": "100%",
   },
   "partialResource": {
     "borderLeftColor": "orange",
@@ -345,6 +341,10 @@ const styles = {
     "alignItems": "center",
     "justifyContent": "center",
     "padding": Design.paddingTop
+  },
+  "cardContainer": {
+    "flexDirection": "column",
+    "width": "100%",
   },
   "card": {
     "marginTop": 1

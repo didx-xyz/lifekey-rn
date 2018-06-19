@@ -15,8 +15,9 @@ import LifekeyFooter from "../Components/LifekeyFooter"
 import ProgressIndicator from "../Components/ProgressIndicator"
 import Countries from "../Countries"
 import Languages from "../Languages"
-import Routes from "../Routes"
 import Logger from '../Logger'
+import { Container } from "native-base";
+import Toast from '../Utils/Toast'
 
 class EditResource extends Scene {
   
@@ -112,7 +113,7 @@ class EditResource extends Scene {
           this.onBoundSave
         ).catch(error => { 
           console.log("ERROR SAVING RESOURCE: ", JSON.stringify(error)) 
-          ToastAndroid.show('There was an error trying to save this resource. Ensure the name is unique...', ToastAndroid.LONG)
+          Toast.show('There was an error trying to save this resource. Ensure the name is unique...', ToastAndroid.LONG)
           this.setState({ "asyncActionInProgress": false })
         })
       }
@@ -130,8 +131,7 @@ class EditResource extends Scene {
     newResource.id = newResource.id ? newResource.id : response.body.id // edited or saved
 
     ConsentUser.updateState(newResource)
-
-    ToastAndroid.show('Resource saved!', ToastAndroid.SHORT)
+    Toast.show('Resource saved!', ToastAndroid.SHORT)
 
     const routes = this.navigator.getCurrentRoutes()
 
@@ -139,9 +139,14 @@ class EditResource extends Scene {
   }
 
   componentDidMount() {
-    this.interaction = InteractionManager.runAfterInteractions(() => {
+    //this.interaction = InteractionManager.runAfterInteractions(() => {
       const id = this.context.getEditResourceId()
       const form = this.context.getEditResourceForm()
+      const name = this.context.getEditResourceName()
+
+      console.log('id', id)
+      console.log('form', form)
+      console.log('name', name)
       
       Promise.all([
         Api.getResourceForm(form),
@@ -150,7 +155,7 @@ class EditResource extends Scene {
 
         let formData = values[0]
         let resource = values[1]
-        let state = { formTarget: resource ? resource : { "label" : `My ${this.context.getEditResourceName()}` } }
+        let state = { formTarget: resource ? resource : { "label" : `My ${name}` } }
 
         this.initializeState(state, formData.entities)
 
@@ -169,23 +174,8 @@ class EditResource extends Scene {
           Logger.warn('Unexpected resource format')
         }
       })
-    })
+    //})
   }
-
-  // componentWillFocus() {
-
-  //   if (this.first_load) {
-  //     this.first_load = false
-  //     return
-  //   }
-  //   this.interaction = InteractionManager.runAfterInteractions(() => {
-  //     this.setState({"asyncActionInProgress": true, "progressCopy": "Loading existing resources..."}, async () => {
-  //       const resource = await this.loadResource(this.context.getEditResourceId())
-  //       const state = { formTarget: resource ? resource : { "label" : `My ${this.context.getEditResourceName()}` } }
-  //       this.setState(state)
-  //     })
-  //   })
-  // }
 
   componentWillUnmount() {
     if (this.interaction) this.interaction.cancel()
@@ -267,18 +257,21 @@ class EditResource extends Scene {
   render() {
     return (    
       !this.state.asyncActionInProgress ?
-        <View style={ styles.container }>
+        <Container>
+          <View style={ styles.container }>
           <ScrollView style={ styles.formContainer }>
-            <EditForm 
-              formTarget={this.state.formTarget}
-              entities={this.state.entities}
-              backgroundColor="transparent"
-              onDelete={this.onBoundDelete}
-              setStringInputStateValue={this.boundSetStringInputStateValue}
-              setImageInputStateValue={this.boundSetImageInputStateValue}
-              setDateInputStateValue={this.boundSetDateInputStateValue}
-              setSelectInputStateValue={this.boundSetSelectInputStateValue}>
-            </EditForm> 
+            <View style={ styles.formContent }>
+              <EditForm 
+                formTarget={this.state.formTarget}
+                entities={this.state.entities}
+                backgroundColor="transparent"
+                onDelete={this.onBoundDelete}
+                setStringInputStateValue={this.boundSetStringInputStateValue}
+                setImageInputStateValue={this.boundSetImageInputStateValue}
+                setDateInputStateValue={this.boundSetDateInputStateValue}
+                setSelectInputStateValue={this.boundSetSelectInputStateValue}>
+              </EditForm> 
+            </View>
           </ScrollView>
           <View style={ styles.footerContainer }>
             <LifekeyFooter
@@ -290,8 +283,10 @@ class EditResource extends Scene {
             />
           </View>
         </View>
+        </Container>
+        
       :
-        <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
+        <ProgressIndicator progressCopy={ this.state.progressCopy }/>
     )
   }
 }
@@ -315,12 +310,18 @@ EditResource.contextTypes = {
 
 const styles = {
   container: {
+    "flex": 1,
+    "paddingTop":15,
     "height": Dimensions.get('window').height - StatusBar.currentHeight,
     "width": "100%",
     "backgroundColor": Palette.consentOffBlack
   },
   "formContainer": {
-    // "height": Dimensions.get('window').height - Design.lifekeyFooterHeight - StatusBar.currentHeight
+    "margin": 10,
+  },
+  "formContent": {
+    "borderRadius": 10,
+    "backgroundColor": Palette.consentOffWhite
   },
   "footerContainer": {
     "height": Design.lifekeyFooterHeight,

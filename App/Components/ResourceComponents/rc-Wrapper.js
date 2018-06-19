@@ -24,6 +24,7 @@ class RcWrapper extends Component {
     this.state = {
       modalVisible: false,
     }
+    this.renderComponent = this.renderComponent.bind(this);
   }
 
   onWrapperShareIntent(resourceId) {
@@ -41,6 +42,7 @@ class RcWrapper extends Component {
       isa_id: peer.isa_id
     });
   }
+
   onShareConfirm(next) {
     if(!this.state.isa_id || !this.state.peerId || !this.state.resourceId) return 
     this.props.onPressShare(this.state.isa_id, this.state.peerId, this.state.resourceId)
@@ -51,6 +53,7 @@ class RcWrapper extends Component {
       peerId: null
     });
   }
+
   onShareDeny() {
     this.setState({
       modalVisible: false,
@@ -60,23 +63,6 @@ class RcWrapper extends Component {
     });
     console.log("CANCELLED SHARE!")
   }
-
-  // renderConnections(peerConnections){
-  //   if(!peerConnections) return 
-  //   return(
-  //     <View>
-  //     { peerConnections.map((connection, i) => {
-  //         return (
-
-  //           <Text key={connection.did}>{connection.display_name}</Text>
-
-  //         )
-  //       })
-  //     }
-  //     </View>
-  //   )
-
-  // }
 
   renderComponent(resource, resourceType, index){
 
@@ -134,7 +120,7 @@ class RcWrapper extends Component {
                     onRequestClose={() => { this.setModalVisible(false) }}
                     >
                    <View style={{ "flex": 1 }}>
-                      <View style={ styles.modalBackdrop }></View>
+                      <View style={ styles.modalBackdrop }/>
                       <View style={ styles.modalListContainer }>
                         <View style={ styles.modalListContainerHeading }>
                           <View style={styles.description}>
@@ -143,7 +129,7 @@ class RcWrapper extends Component {
                             </Text>
                           </View>
                         </View>  
-                        <LifekeyList list={this.props.peerConnections} activelist={this.state.peerId} onItemPress={this.onPeerSelection.bind(this)}></LifekeyList>
+                        <LifekeyList list={this.props.peerConnections} activelist={this.state.peerId} onItemPress={this.onPeerSelection.bind(this)}/>
                         { /*  this.renderConnections(this.props.peerConnections) */ }
                       </View>
                       <LifekeyFooter
@@ -167,6 +153,7 @@ class RcWrapper extends Component {
     )
 
   }
+
 }
 
 const styles= {
