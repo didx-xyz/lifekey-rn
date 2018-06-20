@@ -112,7 +112,6 @@ android {
 }
 
 dependencies {
-    compile project(':react-native-crypto-module')
     implementation project(':react-native-camera')
     implementation project(':react-native-code-push')
     implementation project(':react-native-geocoder')
