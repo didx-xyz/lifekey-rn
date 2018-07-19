@@ -211,7 +211,7 @@ class Me extends Scene {
       // }
     ], tabs = [
       {
-        text: "Connect",
+        text: "MyQi",
         onPress: () => this.setState({ activeTab: CONNECT }, this.scrollViewToTop.bind(this)),
         active: this.state.activeTab === CONNECT
       },

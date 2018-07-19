@@ -5,7 +5,7 @@ class ConsentUserConnectionMessage {
 
   static storageKey = 'user_connection_message'
 
-  static async add(from_did, message_text, timestamp) {
+  static async add(from_did, message_text, timestamp, message_title = '', message_type = '') {
     try {
       const itemJSON = await AsyncStorage.getItem(this.storageKey)
       if (itemJSON) {
@@ -14,7 +14,9 @@ class ConsentUserConnectionMessage {
         const updatedItem = item.concat([{
           from_did: from_did,
           message_text: message_text,
-          timestamp: timestamp
+          timestamp: timestamp,
+          message_type,
+          message_title
         }])
         const updatedItemJSON = JSON.stringify(updatedItem)
         const result = await AsyncStorage.setItem(
@@ -26,7 +28,9 @@ class ConsentUserConnectionMessage {
         const itemJSON = JSON.stringify([{
           from_did: from_did,
           message_text: message_text,
-          timestamp: timestamp
+          timestamp: timestamp,
+          message_type,
+          message_title
         }])
         const result = await AsyncStorage.setItem(
           this.storageKey,

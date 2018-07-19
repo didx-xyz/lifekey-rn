@@ -200,7 +200,9 @@ class FirebaseHandler {
       ConsentUserConnectionMessage.add(
         message.from_did,
         message.message,
-        new Date
+        new Date,
+        message.msg_title,
+        message.msg_type,
       )
     ]).then(function() {
       eventEmitter.emit('user_message_received', message.from_did)
@@ -210,7 +212,7 @@ class FirebaseHandler {
   static isa_ledgered(message, eventEmitter) {}
 
   static messageReceived(eventEmitter, message) {
-    
+
     message = message.data
     if (message && message.type) {
       Logger.firebase('message', JSON.stringify(message))

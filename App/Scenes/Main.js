@@ -331,9 +331,9 @@ class Main extends Scene {
             }
           </View>
         }
-        <TouchableOpacity onPress={()=>Utils.checkForUpdate(false)}>
+        {/* <TouchableOpacity onPress={()=>Utils.checkForUpdate(false)}>
           <Text style={style.versionText}>{Utils.appVersion}</Text>
-        </TouchableOpacity>
+        </TouchableOpacity> */}
         <LifekeyFooter
           backgroundColor={Palette.consentBlue}
           leftButtonText="Me"
@@ -369,13 +369,13 @@ class Main extends Scene {
               <Text style={style.defaultFont}>
                 Hi there {this.state.userName},
                 {"\n\n"}
-                You have no connections yet, have a look at some
-                <Text onPress={this.setTab.bind(this, TAB_SUGGESTED)} style={Object.assign({}, style.defaultFont, { "color": Palette.consentBlue })}> suggestions.</Text>
+                Start setting up your public profile.
+                <Text onPress={this.onBoundPressProfile} style={Object.assign({}, style.defaultFont, { "color": Palette.consentBlue })}> profile.</Text>
               </Text>
               <Text style={style.defaultFont}>
                 {"\n\n"}
-                Or, start setting up your public
-                <Text onPress={this.onBoundPressProfile} style={Object.assign({}, style.defaultFont, { "color": Palette.consentBlue })}> profile.</Text>
+                You have no connections yet, have a look at some
+                <Text onPress={this.setTab.bind(this, TAB_SUGGESTED)} style={Object.assign({}, style.defaultFont, { "color": Palette.consentBlue })}> suggestions.</Text>
               </Text>
             </View>
           }

@@ -9,11 +9,9 @@ import {
   Text,
   View,
   ScrollView,
-  Dimensions,
-  StatusBar,
   Image,
-  ToastAndroid,
-  Modal
+  Modal,
+  TouchableOpacity
 } from 'react-native'
 
 import {Container, Content} from 'native-base'
@@ -54,7 +52,7 @@ const HELP = 3
 class ConnectionDetails extends Scene {
 
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       first_load: true,
       activeTab: ACTIVITY,
@@ -139,12 +137,10 @@ class ConnectionDetails extends Scene {
   async loadData() {
     Promise.all([
       Api.profile({did: this.state.user_did}),
-      ConsentUserConnectionMessage.from(this.state.user_did)
+      ConsentUserConnectionMessage.from(this.state.user_did),
     ]).then(res => {
       var [profile, messages] = res
-
-      //  console.log("CONNECTION PROFILE: ", profile)
-
+      
       this.setState({
         connectionProfile: profile.body.user,
         colour: profile.body.user.colour,
@@ -196,8 +192,13 @@ class ConnectionDetails extends Scene {
     this.navigator
   }
 
+  test() {
+    console.log('asdflds');
+  }
+
   componentDidMount() {
-    super.componentDidMount()                                                      
+    super.componentDidMount()
+    this.props.firebaseInternalEventEmitter.addListener('user_message_received', this.loadData.bind(this))                                                  
     this.setState({loading_cxn_details: true })
     this.loadData()
   }
@@ -254,18 +255,44 @@ class ConnectionDetails extends Scene {
   }
 
   renderConnectionMessages() {
-    return this.state.messages.map((msg, idx) => {
-      return (
-        <View key={idx} style={styles.message}>
-          <Text style={styles.messageText}>
-            {msg.message_text}
-          </Text>
-          <Text style={styles.messageTime}>
-            {new Date(msg.timestamp).toDateString()}
-          </Text>
-        </View>
-      )
-    })
+    
+    return (
+      // sort message date descending
+      _.sortBy(this.state.messages, (message) => -new Date(message.timestamp) ).map((msg, idx) => {
+        const { message_type = '', message_title = '' } = msg;
+        if (message_type === 'actionable_message') {
+          return (
+            <View key={idx}>
+              <View style={styles.messageActionableContainer}>
+                <View style={styles.messageActionableMessage}>
+                  <Text style={{ fontWeight: "500", paddingBottom: 10 }}>{msg.message_title}</Text>
+                  <Text>{msg.message_text}</Text>
+                </View>
+                <View style={[styles.messageActionableButtons]}>
+                  <TouchableOpacity style={[styles.rejectButton, { borderColor: this.state.colour }]}><Text style={[styles.messageActionableButtonsText, { color: "#000" }]}>Reject</Text></TouchableOpacity>
+                  <TouchableOpacity style={[styles.acceptButton, { backgroundColor: this.state.colour }]}><Text style={[styles.messageActionableButtonsText]}>Accept</Text></TouchableOpacity>
+                </View>
+              </View>
+              <Text style={styles.messageTime}>
+                {new Date(msg.timestamp).toDateString()}
+              </Text>
+            </View>
+          )
+        }
+        return (
+          <View key={idx}>
+            <View style={styles.message}>
+              <Text style={styles.messageText}>
+                {msg.message_text}
+              </Text>
+            </View>
+            <Text style={styles.messageTime}>
+              {new Date(msg.timestamp).toDateString()}
+            </Text>
+          </View>
+        )
+      })
+    );
   }
 
   _renderISACard(ISA, index) {
@@ -336,15 +363,15 @@ class ConnectionDetails extends Scene {
               </Text>
             </View> */}
             <View style={styles.actions}>
-              <View style={ styles.actionTitle}>
-                <Text style={styles.actionTitleText}>Invitations from {this.state.display_name}</Text>
+              <View style={[styles.actionTitle, { borderColor: Palette.consentGrayLight }]}>
+                <Text style={[styles.actionTitleText, { fontSize: 17 }]}>ACTIONS for {this.state.display_name}</Text>
               </View>
               <View style={styles.actionList}>
                 {this.state.actions.map((action, i) =>
                   <Touchable key={i} onPress={() => this.callAction(action.name, action)}>
                     <View style={styles.actionItem}>
                       {/* <HexagonIcon width={70} height={70} fill={Palette.consentBlue}> */}
-                        <Image source={{uri: this.state.image_uri}} style = {{width: 60, height: 60}} />
+                        <Image source={{uri: this.state.image_uri}} style = {{width: 70, height: 80}} />
                       {/* </HexagonIcon> */}
                       <Text style={styles.actionItemText}>{action.name}</Text>
                     </View>
@@ -391,10 +418,10 @@ class ConnectionDetails extends Scene {
             <AndroidBackButton onPress={() => this.onHardwareBack()} />
             <LifekeyHeader
               backgroundColor={this.state.colour}
-              foregroundHighlightColor={this.state.foregroundColor}
+              foregroundHighlightColor={Palette.consentWhite}
               icons={[
                 {
-                  icon: (<BackIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke="#000" />),
+                  icon: (<BackIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke="#fff" />),
                   onPress: this.navigator.pop,
                   borderColor: this.state.colour
                 },
@@ -533,39 +560,67 @@ const styles = {
     flexDirection: "column"
   },
   message: {
+    backgroundColor: Palette.consentWhite,
+    marginHorizontal: 20,
+    padding: 20,
+    // borderRadius: 5,
+    width: "80%"
+  },
+  messageActionableContainer: {
     backgroundColor: Palette.consentOffWhite,
-    margin: 10,
-    padding: 10,
-    borderRadius: 5,
-    width: "65%"
+    marginHorizontal: 20,
+    // borderRadius: 5,
+    width: "90%"
+  },
+  messageActionableMessage: {
+    padding: 20,
+  },
+  messageActionableButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flex: 1,
+    marginHorizontal: 20,
+    // borderBottomLeftRadius: 5,
+    // borderBottomRightRadius: 5 
+  },
+  messageActionableButtonsText: {
+    padding: 20,
+    color: Palette.consentWhite,
+    fontWeight: "500",
+    alignSelf: "center"
   },
   messageText: {
-    color: "#62686d",
+    color: '#000',
     paddingRight: 15,
-    fontSize: 14
+    fontSize: 14,
+    fontWeight: "500"
   },
   messageTime: {
     color: Palette.consentGray,
-    alignSelf: "flex-start",
-    fontSize: 14
+    alignSelf: "flex-end",
+    fontSize: 14,
+    padding: 12,
+    marginRight: 10,
   },
   actions: {
-    margin: 10,
-    marginTop: 0,
-    borderRadius: 5,
-    backgroundColor: Palette.consentOffWhite
+    marginHorizontal: 20,
+    marginTop: 15,
+    marginBottom: 20,
+    padding: 10,
+    // borderRadius: 5,
+    backgroundColor: Palette.consentWhite
   },
   actionTitle: {
-    backgroundColor: Palette.consentGrayLightest,
+    backgroundColor: Palette.consentWhite,
     padding: 15,
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5,
-    borderColor: "red",
     borderBottomWidth: 1
   },
   actionTitleText: {
     textAlign: "center",
-    color: Palette.consentOffBlack
+    color: Palette.consentOffBlack,
+    fontWeight: "500"
   },
   actionList: {
     flex: 1,
@@ -585,7 +640,8 @@ const styles = {
     textAlign: "center",
     backgroundColor: "transparent",
     color: Palette.consentOffBlack,
-    fontSize: 12,
+    fontSize: 15,
+    fontWeight: "500",
     paddingTop: Design.paddingTop / 2
   },
   qrCodeWrap: {
@@ -618,6 +674,19 @@ const styles = {
     "opacity": 0.9,
     "backgroundColor": Palette.consentOffBlack
   },
+  rejectButton: {
+    borderWidth: 1,
+    borderRadius: 5,
+    flex: 1,
+    justifyContent: 'center',
+    margin: 10
+  },
+  acceptButton: {
+    borderRadius: 5,
+    flex: 1,
+    justifyContent: 'center',
+    margin: 10
+  }
 }
 
 export default ConnectionDetails

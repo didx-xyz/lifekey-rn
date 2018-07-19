@@ -76,7 +76,7 @@ class LifekeyHeader extends Component {
                 <View style={style.tab}>
                   <Text style={
                     tab.active ? (
-                      Object.assign({}, style.tabText, {color: this.props.foregroundHighlightColor, borderBottomWidth: 2, borderColor: this.props.foregroundHighlightColor})
+                      Object.assign({}, style.tabText, {fontWeight: "bold", color: this.props.foregroundHighlightColor, borderBottomWidth: 2, borderColor: this.props.foregroundHighlightColor})
                     ) : style.tabText
                   }>{tab.text.toUpperCase()}</Text>
                 </View>
@@ -163,8 +163,8 @@ const style = {
   tabText: {
     flex: 1,
     fontSize: Design.navigationTabFontSize,
-    color: Palette.consentGray,
-    fontWeight: "bold"
+    color: Palette.consentGrayMedium,
+    fontWeight: "normal"
   }
 }
 
