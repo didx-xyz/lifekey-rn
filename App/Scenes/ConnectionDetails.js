@@ -275,11 +275,11 @@ class ConnectionDetails extends Scene {
                   <Text>{msg.message_text}</Text>
                 </View>
                 {(claim_actioned) ? 
-                <View style={[styles.messageUserResponsedContainer, { backgroundColor: (claim_accepted ? this.state.colour : Palette.consentWhite), borderColor: (claim_accepted ? Palette.consentWhite : this.state.colour), borderWidth: 1 }]}>
+                <View style={[{ flex: 1, flexDirection: 'row', justifyContent: (claim_accepted ? 'flex-end' : 'flex-start' ) }]}>
                   {(claim_accepted) ?
-                    <Text style={[styles.actionTitleText, { fontSize: 17, color: Palette.consentWhite }]}>Accepted</Text>
+                    <View style={styles.messageUserResponsedContainerAccepted}><Text style={[styles.actionTitleText, { color: Palette.consentWhite }]}>Accepted</Text></View>
                     :
-                    <Text style={[styles.actionTitleText, { fontSize: 17, color: this.state.colour }]}>Rejected</Text>
+                    <View style={styles.messageUserResponsedContainerRejected}><Text style={[styles.actionTitleText, { color: Palette.consentWhite }]}>Rejected</Text></View>
                   }
                 </View>
                 : 
@@ -611,11 +611,17 @@ const styles = {
     fontSize: 14,
     fontWeight: "500"
   },
-  messageUserResponsedContainer: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    flex: 1,
-    paddingVertical: 20,
+  messageUserResponsedContainerAccepted: {
+    flex: 0.4,
+    justifyContent: 'flex-end',
+    paddingVertical: 10,
+    backgroundColor: 'green'
+  },
+  messageUserResponsedContainerRejected: {
+    flex: 0.4,
+    justifyContent: 'flex-start',
+    paddingVertical: 10,
+    backgroundColor: 'red'
   },
   messageTime: {
     color: Palette.consentGray,
