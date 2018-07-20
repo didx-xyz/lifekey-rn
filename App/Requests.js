@@ -50,6 +50,7 @@ const signedRequest = function (url, opts, fingerprint) {
       "x-cnsnt-plain": secureRandom,
       "x-cnsnt-signed": signature
     }
+    console.log("HEADERS", headers);
     if (fingerprint) headers['x-cnsnt-fingerprint'] = 1
     const options = Object.assign({
       "method": "GET",
@@ -77,7 +78,6 @@ const wrappedFetch = function (url, options) {
   }
 
   Logger.networkRequest(options.method, url, options)
-
   return fetch(url, options)
     .then(response => {
       globalResponse = response;
@@ -107,6 +107,8 @@ const wrappedFetch = function (url, options) {
         default:
           return Promise.reject(res)
       }
+    }).catch((asdf) => {
+      console.log('blab blasdf', asdf);
     });
 }
 

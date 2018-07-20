@@ -203,6 +203,7 @@ class FirebaseHandler {
         new Date,
         message.msg_title,
         message.msg_type,
+        message.msg_id
       )
     ]).then(function() {
       eventEmitter.emit('user_message_received', message.from_did)

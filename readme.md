@@ -12,5 +12,9 @@
 `adb logcat *:S ReactNative:V ReactNativeJS:V `
 
 ### push new fixes (only for js changes)
+
+* Make sure you have appcenter cli installed
+`npm install -g appcenter-cli`
+
 yarn run codepush:andoid
 yarn run codepush:ios

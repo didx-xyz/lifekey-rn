@@ -140,7 +140,7 @@ class ConnectionDetails extends Scene {
       ConsentUserConnectionMessage.from(this.state.user_did),
     ]).then(res => {
       var [profile, messages] = res
-      
+      console.log("Messages", messages);
       this.setState({
         connectionProfile: profile.body.user,
         colour: profile.body.user.colour,
@@ -190,10 +190,6 @@ class ConnectionDetails extends Scene {
 
   editIsa(){
     this.navigator
-  }
-
-  test() {
-    console.log('asdflds');
   }
 
   componentDidMount() {
@@ -254,24 +250,44 @@ class ConnectionDetails extends Scene {
     return entities
   }
 
+  async respondToActionableMessage(message_id, user_response) { // message_id => claim_id // response => boolean
+    // submit claim to lifekey-server
+    try {
+      const response = await Api.claimReponseFromUserConnection({ message_id, accepted: user_response });
+      await ConsentUserConnectionMessage.update(message_id, true, user_response);
+      this.loadData();
+    } catch (error) {
+      Logger.warn(error);
+    }
+  }
+
   renderConnectionMessages() {
-    
     return (
       // sort message date descending
-      _.sortBy(this.state.messages, (message) => -new Date(message.timestamp) ).map((msg, idx) => {
-        const { message_type = '', message_title = '' } = msg;
+      _.sortBy(this.state.messages, (message) => -new Date(message.timestamp)).map((msg, idx) => {
+        const { message_type = '', message_title = '', message_id = idx, claim_actioned = false, claim_accepted = false } = msg;
         if (message_type === 'actionable_message') {
           return (
-            <View key={idx}>
+            <View key={message_id}>
               <View style={styles.messageActionableContainer}>
                 <View style={styles.messageActionableMessage}>
-                  <Text style={{ fontWeight: "500", paddingBottom: 10 }}>{msg.message_title}</Text>
+                  <Text style={{ fontWeight: "500", paddingBottom: 10 }}>{message_title}</Text>
                   <Text>{msg.message_text}</Text>
                 </View>
-                <View style={[styles.messageActionableButtons]}>
-                  <TouchableOpacity style={[styles.rejectButton, { borderColor: this.state.colour }]}><Text style={[styles.messageActionableButtonsText, { color: "#000" }]}>Reject</Text></TouchableOpacity>
-                  <TouchableOpacity style={[styles.acceptButton, { backgroundColor: this.state.colour }]}><Text style={[styles.messageActionableButtonsText]}>Accept</Text></TouchableOpacity>
+                {(claim_actioned) ? 
+                <View style={[styles.messageUserResponsedContainer, { backgroundColor: (claim_accepted ? this.state.colour : Palette.consentWhite), borderColor: (claim_accepted ? Palette.consentWhite : this.state.colour), borderWidth: 1 }]}>
+                  {(claim_accepted) ?
+                    <Text style={[styles.actionTitleText, { fontSize: 17, color: Palette.consentWhite }]}>Accepted</Text>
+                    :
+                    <Text style={[styles.actionTitleText, { fontSize: 17, color: this.state.colour }]}>Rejected</Text>
+                  }
                 </View>
+                : 
+                <View style={[styles.messageActionableButtons]}>
+                  <TouchableOpacity onPress={() => this.respondToActionableMessage(message_id, false)} style={[styles.rejectButton, { borderColor: this.state.colour }]}><Text style={[styles.messageActionableButtonsText, { color: "#000" }]}>Reject</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={() => this.respondToActionableMessage(message_id, true)} style={[styles.acceptButton, { backgroundColor: this.state.colour }]}><Text style={[styles.messageActionableButtonsText]}>Accept</Text></TouchableOpacity>
+                </View>
+                }
               </View>
               <Text style={styles.messageTime}>
                 {new Date(msg.timestamp).toDateString()}
@@ -595,6 +611,12 @@ const styles = {
     fontSize: 14,
     fontWeight: "500"
   },
+  messageUserResponsedContainer: {
+    flexDirection: 'row',
+    justifyContent: 'center',
+    flex: 1,
+    paddingVertical: 20,
+  },
   messageTime: {
     color: Palette.consentGray,
     alignSelf: "flex-end",
@@ -686,7 +708,8 @@ const styles = {
     flex: 1,
     justifyContent: 'center',
     margin: 10
-  }
+  },
+
 }
 
 export default ConnectionDetails
