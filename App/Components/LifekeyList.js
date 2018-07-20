@@ -10,6 +10,7 @@ import TickIcon from "./TickIcon"
 class LifekeyList extends Component {
 
   render(){
+    console.log('connections', this.props.list);
     return(   
       <View>
         { 

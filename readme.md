@@ -5,7 +5,7 @@
 
 * install the android sdk
 * install node lts/boron
-* `npm i ; react-native run-android ; react-native log-android`
+* `yarn i ; react-native run-android ; react-native log-android`
 
 ### Android Studio
 * If the build is done through android studio and you need to view the logger

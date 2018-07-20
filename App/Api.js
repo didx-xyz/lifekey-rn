@@ -660,7 +660,7 @@ export default class Api {
   // ##################
 
   static claimReponseFromUserConnection(data, fingerprint = false) {
-    return request(`http://192.168.1.253:8443/management/claimreply`, {
+    return request(`/management/claimreply`, {
       method: 'POST',
       body: JSON.stringify({ id: data.message_id, accepted: data.accepted })
     }, true, fingerprint)
