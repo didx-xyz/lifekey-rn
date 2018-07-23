@@ -17,6 +17,7 @@ import org.reactnative.camera.RNCameraPackage;
 import io.jari.fingerprint.FingerprintPackage;
 import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
+import com.BV.LinearGradient.LinearGradientPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +55,8 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
                     new ReactNativeDialogsPackage(),
                     new FingerprintPackage(),
                     new RNFirebasePackage(),
-                    new RNFirebaseMessagingPackage()
+                    new RNFirebaseMessagingPackage(),
+                    new LinearGradientPackage()
             );
         }
 

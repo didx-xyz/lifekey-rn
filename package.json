@@ -17,9 +17,9 @@
     "android-dev": "adb reverse tcp:8081 tcp:8081",
     "build:ios": "react-native bundle --entry-file index.js --platform ios --dev false --bundle-output ios/main.jsbundle --assets-dest ios",
     "build:android": "react-native bundle --entry-file index.js --platform android --dev false --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
-    "codepush:ios":     "appcenter codepush release-react -d Production --mandatory --app LifeQi/LifeQi",
+    "codepush:ios": "appcenter codepush release-react -d Production --mandatory --app LifeQi/LifeQi",
     "codepush:android": "appcenter codepush release-react -d Production --mandatory --app LifeQi/LifeQi-Android",
-    "codepush:list":    "appcenter codepush deployment list --app LifeQi/LifeQi"
+    "codepush:list": "appcenter codepush deployment list --app LifeQi/LifeQi"
   },
   "dependencies": {
     "ansi-styles": "^3.2.1",
@@ -50,6 +50,7 @@
     "react-native-google-analytics-bridge": "^5.6.3",
     "react-native-image-picker": "^0.26.10",
     "react-native-keyboard-aware-scroll-view": "0.5.0",
+    "react-native-linear-gradient": "^2.4.0",
     "react-native-modal-dropdown": "^0.6.2",
     "react-native-modal-selector": "^0.0.27",
     "react-native-qrcode": "^0.2.6",

@@ -88,6 +88,7 @@ class ConsentUserConnectionMessage {
 
   static async from(user) {
     try {
+      // AsyncStorage.removeItem(this.storageKey)
       const itemJSON = await ConsentUserConnectionMessage.all()
       return itemJSON.filter(i => {
         return i.from_did === user

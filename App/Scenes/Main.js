@@ -407,7 +407,7 @@ class Main extends Scene {
         </View>
       )
     }
-
+    console.log('suggested bots', this.state.activeBots);
     return (
       <View style={style.contentContainer}>
         <LifekeyList list={this.state.activeBots} onItemPress={this.onBoundGoToBotConnect} />

@@ -10,25 +10,33 @@ import TickIcon from "./TickIcon"
 class LifekeyList extends Component {
 
   render(){
-    console.log('connections', this.props.list);
+    // console.log('connections', this.props.list);
+    // const test = connection.image_uri;
+            // console.log('cmeosd', test)
+            // console.log('replacere', test.replace('\{type\}', 'logo'));
+            // console.log('previous', connection.image_uri);
+            // console.log('connections', this.props.list);
     return(   
       <View>
         { 
-          this.props.list.map((connection, i) => (
-
-            <ListItem key={i} style={style.listItem} onPress={this.props.onItemPress.bind(this, connection)}>
-              <View style={style.listItemWrapper}>
-                <Image style={style.listItemImage} source={{ uri: connection.image_uri }}/>
-                <Text style={style.listItemText}>{connection.display_name}</Text>
-                {this.props.cxn_unread_msgs && this.props.cxn_unread_msgs[connection.did] && (
-                  <TickIcon width={ 20 } height={ 20 } stroke={Palette.consentWhite} fill={Palette.consentBlue} />
-                )}
-                {this.props.activelist === connection.did && (
-                  <TickIcon width={ 20 } height={ 20 } stroke={Palette.consentWhite} fill={Palette.consentBlue} />
-                )}
-              </View>
-            </ListItem>
-          ))
+          this.props.list.map((connection, i) => 
+          {
+            const { image_uri = '' } = connection;
+            return (
+              <ListItem key={i} style={style.listItem} onPress={this.props.onItemPress.bind(this, connection)}>
+                <View style={style.listItemWrapper}>
+                  <Image style={style.listItemImage} source={{ uri: image_uri.replace('\{type\}', 'icon') }}/>
+                  <Text style={style.listItemText}>{connection.display_name}</Text>
+                  {this.props.cxn_unread_msgs && this.props.cxn_unread_msgs[connection.did] && (
+                    <TickIcon width={ 20 } height={ 20 } stroke={Palette.consentWhite} fill={Palette.consentBlue} />
+                  )}
+                  {this.props.activelist === connection.did && (
+                    <TickIcon width={ 20 } height={ 20 } stroke={Palette.consentWhite} fill={Palette.consentBlue} />
+                  )}
+                </View>
+              </ListItem>
+            )
+          })
         }
       </View>
     )

@@ -119,6 +119,7 @@ dependencies {
     implementation project(':react-native-crypto-module')
     implementation project(':react-native-fingerprint-android')
     implementation project(':react-native-firebase')
+    compile project(':react-native-linear-gradient')
     /*
     compile(project(':react-native-firebase')) {
         transitive = false
@@ -144,6 +145,7 @@ dependencies {
     implementation "com.google.firebase:firebase-messaging:17.0.0"
     implementation 'me.leolin:ShortcutBadger:1.1.21@aar' // <-- Add this line if you wish to use badge on Android
 
+    
 
 }
 

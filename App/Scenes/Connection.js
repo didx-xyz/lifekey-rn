@@ -5,6 +5,7 @@ import {
   View,
   Dimensions,
   StatusBar,
+  Image
 } from "react-native"
 import * as Nachos from 'nachos-ui'
 // internal dependencies
@@ -26,6 +27,9 @@ import Logger from '../Logger'
 import Session from '../Session'
 import Toast from '../Utils/Toast'
 import { Container } from "native-base";
+import LinearGradient from 'react-native-linear-gradient';
+
+const { height, width } = Dimensions.get('window');
 
 class Connection extends Scene {
 
@@ -35,7 +39,11 @@ class Connection extends Scene {
     this.state = {
       isVerified: true,
       connecting: false,
-      actions: []
+      actions: [],
+      agentColor: Palette.consentWhite,
+      agentColorSecondary: Palette.consentGrayDarkest,
+      agentImage: '',
+
     }
     this.onBoundPressConnect = this.onPressConnect.bind(this)
     this.onBoundPressHelp = this.onPressHelp.bind(this)
@@ -46,6 +54,18 @@ class Connection extends Scene {
   componentWillMount() {
     super.componentWillMount()
     this.loadActions(this.props.route.actions_url)
+    this.getConnectionProfile();
+  }
+
+  async getConnectionProfile() {
+    try {
+      const { body: { user: { colour = Palette.consentWhite, image_uri = '' } }} = await Api.profile({ did: this.props.route.did })
+      const agentColors = colour.split(',');
+
+      this.setState({ agentColor: agentColors[0], agentColorSecondary: agentColors[1], agentImage: image_uri.replace('\{type\}', 'logo') })
+    } catch (error) {
+      Logger.warn(error);
+    }
   }
 
   async loadActions(actions_url) {
@@ -116,73 +136,86 @@ class Connection extends Scene {
     const iconSize = screenWidth / 25
 
     return (
-      <Container>
+      <Container style={{ backgroundColor: this.state.agentColor }}>
+        <LinearGradient colors={[this.state.agentColor, this.state.agentColorSecondary]} style={{ flex: 1 }}>
         <BackButton navigator={this.navigator} />
-        <View style={ {flex: 1} }>
+        <View style={{ flex: 1 }}>
           <View style={styles.logo}>
-            <CircularImage uri={ this.props.route.image_uri } radius={32} borderColor={ Palette.consentWhite } />
+            {/* <CircularImage uri={ this.state.agentImage } radius={32} borderColor={ this.state.agentColor } /> */}
+            <Image source={{ uri: this.state.agentImage }} style={{ width: '60%', height: '85%' }} />
             {/* <Image style={{ width: 64, height: 64, borderRadius: 45 }} source={{ uri: this.props.route.image_uri }}/>  */}
           </View>
-          <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text>
-          
-
           {
             this.state.isVerified &&
             <View style={styles.verified}>
-                <VerifiedIcon width={iconSize} height={iconSize} />
-                <Text style={ styles.verifiedText }>Verified</Text>
+                <View style={{ flexDirection: 'row', alignItems: 'center', marginLeft: 20, paddingVertical: 2, paddingHorizontal: 5, backgroundColor: this.state.agentColorSecondary, borderTopRightRadius: 5, borderTopLeftRadius: 5 }}>
+                  <VerifiedIcon width={iconSize} height={iconSize} stroke={Palette.consentWhite} />
+                  <Text style={ styles.verifiedText }>Verified</Text>
+                </View>
+                <View>
+                  <Text style={styles.connectedText}>Connected to 3,421 people</Text>
+                </View>
             </View>
           }
+          <View style={{ backgroundColor: Palette.consentWhite, flex: 1, flexDirection: 'column', marginHorizontal: 20, borderRadius: 10, marginBottom: 30, justifyContent: 'flex-start' }}>
+            <Text style={[styles.greetingTextHeading, { color: this.state.agentColor }]}>Hi {Util.ucfirst(ConsentUser.getDisplayNameSync())}.</Text>
+            <Text style={ styles.greetingText }>Connecting with {Util.ucfirst(this.props.route.display_name)} will allow you to:</Text>
+            { this.state.actions.map((action, i) =>
+            <View key={i} style={{ alignItems: 'center' }}>
+              <Text style={styles.actionsText}><Text style={{ color: this.state.agentColorSecondary, fontSize: 30, paddingTop: 10 }}>•</Text> {action.name}</Text>
+            </View>
+            )}
+            
+            
+          </View>
+          {/* <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text> */}
+          
+          <View style={[styles.connectButtonContainer,  { justifyContent: 'center', alignItems: 'center', alignSelf: 'center', position: 'absolute', top: height - 205 }]}>
+              { this.state.connecting ?
+                <Nachos.Spinner color={Palette.consentBlue}/>
+              :
+                <Touchable onPress={this.onBoundPressConnect}>
+                  <View>
+                    <HexagonIcon width={100} height={100} textSize={18} textX={22} textY={43} text="Connect" />
+                  </View>
+                </Touchable>
+              }
+            </View>
+          
 
           { /* <View style={styles.connected}>
             <Text style={styles.connectedText}>Connected to 3,421 people.</Text>
           </View> */ }
-          <Text style={ styles.greetingText }>Hi there {Util.ucfirst(ConsentUser.getDisplayNameSync())}. Connecting with {Util.ucfirst(this.props.route.display_name)} will allow you to:</Text>
-
-          { this.state.actions.map((action, i) =>
-            <Text key={i} style={styles.actionsText}>• {action.name}.</Text>
-          )}
-          
-          <View style={styles.connectButtonContainer}>
-            { this.state.connecting ?
-              <Nachos.Spinner color={Palette.consentBlue}/>
-            :
-              <Touchable onPress={this.onBoundPressConnect}>
-                <View>
-                  <HexagonIcon width={100} height={100} textSize={18} textX={22} textY={43} text="Connect" />
-                </View>
-              </Touchable>
-            }
-          </View>
-        
 
         </View>
 
         <LifekeyFooter
           style={ styles.footer}
-          color={ Palette.consentOffBlack }
-          backgroundColor={ Palette.consentWhite }
+          color={ Palette.consentWhite }
+          backgroundColor={'transparent'}
           leftButtonText=""
           rightButtonText="Not now"
-          leftButtonIcon={<HelpIcon width={Design.footerIconWidth} height={Design.footerIconHeight} stroke={Palette.consentOffBlack} />}
+          leftButtonIcon={<HelpIcon width={Design.footerIconWidth} height={Design.footerIconHeight} stroke={Palette.consentWhite} />}
           onPressLeftButton={this.onBoundPressHelp}
           onPressRightButton={this.onBoundPressDecline}
         />
+        </LinearGradient>
       </Container>
     )
   }
 }
 
 const styles = {
-  "content": {
+  content: {
     "height": Dimensions.get('window').height - StatusBar.currentHeight,
     "backgroundColor": Palette.consentWhite,
     "paddingTop": Design.paddingTop*2
   },
-  "logo": {
-    "height": 64,
-    "justifyContent": "center",
-    "alignItems": "center"
+  logo: {
+    height: 64,
+    justifyContent: "center",
+    alignItems: "center",
+    marginVertical: 25,
   },
   // "name": {
   //   // "height": "5%",
@@ -197,14 +230,15 @@ const styles = {
     "textAlign": "center"
   },
   "verified": {
+    marginHorizontal: 20,
     flexDirection: 'row',
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     alignItems: 'center'
   },
-  "verifiedText": {
+  verifiedText: {
     fontSize: 14,
-    "color": Palette.consentOffBlack,
-    "marginLeft": 3
+    "color": Palette.consentWhite,
+    "padding": 5
   },
   // "connected": {
   //   "height": "3%",
@@ -212,9 +246,9 @@ const styles = {
   //   "alignItems": "center",
   //   "marginTop": "2%"
   // },
-  // "connectedText": {
-  //   "color": Palette.consentGrayDarkest
-  // },
+  "connectedText": {
+    "color": Palette.consentWhite
+  },
   // "greeting": {
   //   "height": "17%",
   //   "justifyContent": "flex-end",
@@ -223,13 +257,21 @@ const styles = {
   //   "paddingRight": "17%",
   //   "paddingBottom": "5%"
   // },
+  greetingTextHeading: {
+    textAlign: "center",
+    width: "75%",
+    fontSize: 24,
+    paddingTop: 64,
+    paddingBottom: 10,
+    marginLeft: "12.5%",
+    marginRight: "12.5%"
+  },
   "greetingText": {
-    "color": Palette.consentGrayDark,
+    "color": Palette.consentGrayMedium,
     "textAlign": "center",
     "width": "75%",
     "fontSize": 18,
-    "paddingTop": 64,
-    "paddingBottom": 32,
+    "paddingBottom": 10,
     "marginLeft": "12.5%",
     "marginRight": "12.5%"
   },
@@ -239,13 +281,14 @@ const styles = {
     
   // },
   "actionsText": {
-    "fontSize": 14,
+    "fontSize": 18,
     "textAlign": "left",
     "width": "50%",
     "marginLeft": "25%",
     "marginRight": "25%",
-    "marginTop": 5,
-    "color": Palette.consentOffBlack,
+    "alignItems": "center",
+    "color": Palette.consentGrayDarkest,
+    
   },
   "connectButtonContainer": {
     "flex": 1,    

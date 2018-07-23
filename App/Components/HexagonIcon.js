@@ -31,7 +31,7 @@ const HexagonIcon = (props) => {
 }
 
 HexagonIcon.defaultProps = {
-  "fill": Palette.consentBlue,
+  "fill": '#E6A04E',
   "textColor": Palette.consentWhite,
   "textSize": 16,
   "width": 50,
