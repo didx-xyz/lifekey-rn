@@ -604,6 +604,7 @@ export default class Api {
       'created_by',
       'challenge'
     ], data)
+    console.log("CMERAAFD", data);
     return request(`/web-auth`, {
       method: 'POST',
       body: JSON.stringify(data)

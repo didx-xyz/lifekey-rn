@@ -62,7 +62,7 @@ class Connection extends Scene {
       const { body: { user: { colour = Palette.consentWhite, image_uri = '' } }} = await Api.profile({ did: this.props.route.did })
       const agentColors = colour.split(',');
 
-      this.setState({ agentColor: agentColors[0], agentColorSecondary: agentColors[1], agentImage: image_uri.replace('\{type\}', 'logo') })
+      this.setState({ agentColor: agentColors[0], agentColorSecondary: (agentColors[1]) ? agentColors[1] : Palette.consentOffBlack, agentImage: image_uri.replace('\{type\}', 'logo') })
     } catch (error) {
       Logger.warn(error);
     }

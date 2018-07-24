@@ -84,10 +84,12 @@ class ConnectionDetails extends Scene {
           "x-cnsnt-did": Session.getState().user.did
         }
       }
+      console.log('teserasdf', actions_url);
       Logger.networkRequest('GET', actions_url, requestOptions)
       const actionsResponse = await fetch(actions_url, requestOptions)
       Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
       let text = await actionsResponse.text()
+      console.log('ACTIONS FOR ME', text);
       const actions = JSON.parse(text)
       return Promise.resolve(actions.body || actions || [])
     }
@@ -140,11 +142,13 @@ class ConnectionDetails extends Scene {
       ConsentUserConnectionMessage.from(this.state.user_did),
     ]).then(res => {
       var [profile, messages] = res
-      console.log("Messages", messages);
+      const { body: { user: { colour = '', image_uri = '' } } } = profile;
+      const agentColors = colour.split(',');
       this.setState({
         connectionProfile: profile.body.user,
-        colour: profile.body.user.colour,
-        image_uri: profile.body.user.image_uri,
+        colour: agentColors[0],
+        colourSecondary: (agentColors[1]) ? agentColors[1] : '#000',
+        image_uri: image_uri,
         actions_url: profile.body.user.actions_url,
         address: profile.body.user.address,
         tel: profile.body.user.tel,
@@ -330,6 +334,7 @@ class ConnectionDetails extends Scene {
     hash = hash?hash:""
     return (
       <ISACard
+        colour={this.state.colour}
         key={index}
         title={ISA.information_sharing_agreement_request.purpose}
         shared={shared}
@@ -349,8 +354,8 @@ class ConnectionDetails extends Scene {
   renderISA() {
     return (
       <View style={{ flex: 1 , paddingLeft: Design.paddingLeft, paddingRight: Design.paddingRight }}>
-        <Text style={_.assign({}, styles.actionTitleText, { color: "#888", padding: 10 })}>
-          Your share the following personal data with
+        <Text style={_.assign({}, styles.actionTitleText, { color: "#888", padding: 20 })}>
+          Your shared the following personal data
           <Text style={{ fontWeight: 'bold' }}>
             {' ' + this.state.display_name}
           </Text>
@@ -387,7 +392,7 @@ class ConnectionDetails extends Scene {
                   <Touchable key={i} onPress={() => this.callAction(action.name, action)}>
                     <View style={styles.actionItem}>
                       {/* <HexagonIcon width={70} height={70} fill={Palette.consentBlue}> */}
-                        <Image source={{uri: this.state.image_uri}} style = {{width: 70, height: 80}} />
+                        <Image source={{uri: (action.image_uri) ? action.image_uri : this.state.image_uri.replace('\{type\}', 'icon')}} style = {{width: 73, height: 80}} />
                       {/* </HexagonIcon> */}
                       <Text style={styles.actionItemText}>{action.name}</Text>
                     </View>
@@ -428,12 +433,16 @@ class ConnectionDetails extends Scene {
   }
 
   render() {
+    const imageURL = (this.state.image_uri) ? this.state.image_uri.replace('\{type\}', 'logo') : '';
+    
     return ( 
         <Container>
           <View style={styles.headerWrapper}>
             <AndroidBackButton onPress={() => this.onHardwareBack()} />
             <LifekeyHeader
+              hasGradient={true}
               backgroundColor={this.state.colour}
+              backgroundColorSecondary={this.state.colourSecondary}
               foregroundHighlightColor={Palette.consentWhite}
               icons={[
                 {
@@ -442,9 +451,11 @@ class ConnectionDetails extends Scene {
                   borderColor: this.state.colour
                 },
                 {
+                  logo: true,
                   icon: (
-                    <View style={styles.centredRow}>
-                      <Image source={{uri: this.state.image_uri}} style={styles.fullWidthHeight} />
+                    <View>
+                      {/* <Image source={{uri: this.state.image_uri}} style={styles.fullWidthHeight} /> */}
+                      <Image source={{ uri: imageURL }} style={{ width: 180, height: 40 }} />
                     </View>
                   ),
                   onPress: () => this.setState({activeTab: ACTIVITY}),

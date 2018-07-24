@@ -1,7 +1,8 @@
 import React, { Component } from 'react'
 import {
   View,
-  Text
+  Text,
+  TouchableOpacity
 } from 'react-native'
 import Touchable from './Touchable'
 import Design from '../DesignParameters'
@@ -19,25 +20,35 @@ class ISACard extends Component {
     return (
       <View style={styles.isaCardWrapper}>
         <View style={{ flex: 1 }}>
+          <View style={styles.datesRowWrapper}>
+            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.date}>DATE</Text>
+              <Text style={{ color: Palette.consentGrayDarkest }}>{this.props.date}</Text>
+            </View>
+            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
+              <Text style={styles.expires}>EXPIRES</Text>
+              <Text style={{ color: Palette.consentGrayDarkest }}>{this.props.expires}</Text>
+            </View>
+          </View>
           <View style={styles.isaDetails}>
-            <View style={styles.isaDetailsTitleWrapper}>
+            {/* <View style={styles.isaDetailsTitleWrapper}>
               <Text style={{ fontWeight: 'bold' }}>
                 {this.props.title}
               </Text>
               <Touchable>
                 <ForwardIcon width={16} height={16}/>
               </Touchable>
-            </View>
-            <View style={{ paddingLeft: 5 }}>
+            </View> */}
+            <View>
               {this.props.shared.map((share, i) => {
                 return (
-                  <Text style={{ color: Palette.consentGrayDarkest }} key={i}>{'• ' + share}</Text>
+                  <Text style={{ color: Palette.consentGrayDarkest, fontSize: 15 }} key={i}>{`${'\u2713'} ` + share}</Text>
                 )
               })}
             </View>
           </View>
 
-          <View style={styles.termsWrapper}>
+          {/* <View style={styles.termsWrapper}>
             <View style={{ justifyContent: 'center' }}>
               <Text style={styles.termsLabelText}>
                 TERMS
@@ -49,28 +60,15 @@ class ISACard extends Component {
                 <Text style={{ color: Palette.consentGrayDarkest }}>{' ' + term.text}</Text>
               </View>
             )}
-          </View>
+          </View> */}
 
-          <View style={styles.datesRowWrapper}>
-            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.date}>DATE</Text>
-              <Text style={{ color: Palette.consentGrayDarkest }}>{this.props.date}</Text>
-            </View>
-            <View style={{ flex: 1, flexDirection: 'row', alignItems: 'center' }}>
-              <Text style={styles.expires}>EXPIRES</Text>
-              <Text style={{ color: Palette.consentGrayDarkest }}>{this.props.expires}</Text>
-            </View>
-          </View>
+          
 
           <View style={styles.revokeWrapper}>
-            <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
+            {/* <View style={{ flex: 1, flexDirection: 'row', justifyContent: 'center' }}>
               <Text style={{ fontSize: 10 }}>{this.formatTx(this.props.transactionHash)}</Text>
-            </View>
-            <Touchable onPress={() => alert('todo')}>
-              <Text style={styles.revokeText}>
-                REVOKE
-              </Text>
-            </Touchable>
+            </View> */}
+            <TouchableOpacity onPress={() => this.respondToActionableMessage(message_id, false)} style={[styles.rejectButton, { borderColor: this.props.colour }]}><Text style={[styles.messageActionableButtonsText, { color: "#000" }]}>Revoke</Text></TouchableOpacity>
           </View>
 
         </View>
@@ -123,12 +121,12 @@ const styles = {
   revokeWrapper: {
     flex: 1,
     flexDirection: 'row',
-    justifyContent: 'flex-end',
-    paddingTop: 10
+    justifyContent: 'center',
+    // paddingTop: 10
   },
   revokeText: {
     color: Palette.consentBlue,
-    fontSize: 14,
+    fontSize: 17,
     paddingRight: 5
   },
   termsWrapper: {
@@ -152,9 +150,9 @@ const styles = {
   },
   isaDetails: {
     flex: 1,
-    borderBottomWidth: 1,
-    borderBottomColor: Palette.consentGrayMedium,
-    paddingBottom: 5
+    // borderBottomWidth: 1,
+    // borderBottomColor: Palette.consentGrayMedium,
+    paddingVertical: 15
   },
   isaDetailsTitleWrapper: {
     flex: 1,
@@ -162,8 +160,21 @@ const styles = {
     justifyContent: 'space-between',
     alignItems: 'center',
     paddingBottom: 5
+  },
+  messageActionableButtonsText: {
+    padding: 20,
+    color: Palette.consentWhite,
+    fontWeight: "500",
+    alignSelf: "center",
+    fontSize: 15
+  },
+  rejectButton: {
+    borderWidth: 1,
+    borderRadius: 5,
+    flex: 0.5,
+    justifyContent: 'center',
+    //margin: 10,
   }
-
 }
 
 ISACard.propTypes = {
@@ -171,7 +182,8 @@ ISACard.propTypes = {
   shared: PropTypes.array,
   terms: PropTypes.array,
   date: PropTypes.string,
-  expires: PropTypes.string
+  expires: PropTypes.string,
+  colour: PropTypes.string,
 }
 
 ISACard.defaultProps = {

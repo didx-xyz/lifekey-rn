@@ -73,7 +73,7 @@ class Connect extends Component  {
           </ImageBackground> 
         </View>
         <View style={styles.textContainer}>
-          <Text style={styles.text}>Invite other people to connect with { this.props.connectWithMe ? <Text>you</Text> : <Text>{this.props.profile.display_name}</Text> } by sharing { this.props.connectWithMe ? <Text>your</Text> : <Text>their</Text> } unique ID code</Text>
+          <Text style={styles.text}>Invite other people to connect with { this.props.connectWithMe ? <Text>you</Text> : <Text>{this.props.profile.display_name}</Text> } by sharing { this.props.connectWithMe ? <Text>your</Text> : <Text>their</Text> } unique MyQi code</Text>
         </View>
       </View>
     )
