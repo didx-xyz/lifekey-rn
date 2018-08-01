@@ -84,12 +84,11 @@ class ConnectionDetails extends Scene {
           "x-cnsnt-did": Session.getState().user.did
         }
       }
-      console.log('teserasdf', actions_url);
       Logger.networkRequest('GET', actions_url, requestOptions)
       const actionsResponse = await fetch(actions_url, requestOptions)
       Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
+      
       let text = await actionsResponse.text()
-      console.log('ACTIONS FOR ME', text);
       const actions = JSON.parse(text)
       return Promise.resolve(actions.body || actions || [])
     }
@@ -101,7 +100,8 @@ class ConnectionDetails extends Scene {
   async loadISAs() {
     var start1 = new Date().getTime()                                             // PERFORMANCE
 
-    const response = await Api.allISAs()
+    // const response = await Api.allISAs()
+    const response = await Api.ISAlist(this.state.user_did)
 
     var start2 = new Date().getTime()                                             // PERFORMANCE. Call to response 11304 milliseconds.
     console.log("2 - Call to response " + (start2 - start1) + " milliseconds.")   // PERFORMANCE
@@ -142,7 +142,7 @@ class ConnectionDetails extends Scene {
       ConsentUserConnectionMessage.from(this.state.user_did),
     ]).then(res => {
       var [profile, messages] = res
-      const { body: { user: { colour = '', image_uri = '' } } } = profile;
+      const { body: { user: { colour = '', image_uri = '', did } } } = profile;
       const agentColors = colour.split(',');
       this.setState({
         connectionProfile: profile.body.user,
@@ -210,8 +210,7 @@ class ConnectionDetails extends Scene {
     super.componentWillFocus()
     if (this.state.first_load) return
     //Is modal inforequest visible? 
-    const modalValue = this.context.getModalVisible()
-    console.log("MODAL VALUE: ", modalValue)
+    const modalValue = this.context.getModalVisible() 
     this.setState({loading_cxn_details: true, modalVisible: modalValue })
     this.loadData()
   }
@@ -385,18 +384,31 @@ class ConnectionDetails extends Scene {
             </View> */}
             <View style={styles.actions}>
               <View style={[styles.actionTitle, { borderColor: Palette.consentGrayLight }]}>
-                <Text style={[styles.actionTitleText, { fontSize: 17 }]}>ACTIONS for {this.state.display_name}</Text>
+                <Text style={[styles.actionTitleText, { fontSize: 17 }]}>ACTIONS</Text>
               </View>
               <View style={styles.actionList}>
-                {this.state.actions.map((action, i) =>
-                  <Touchable key={i} onPress={() => this.callAction(action.name, action)}>
-                    <View style={styles.actionItem}>
-                      {/* <HexagonIcon width={70} height={70} fill={Palette.consentBlue}> */}
-                        <Image source={{uri: (action.image_uri) ? action.image_uri : this.state.image_uri.replace('\{type\}', 'icon')}} style = {{width: 73, height: 80}} />
-                      {/* </HexagonIcon> */}
-                      <Text style={styles.actionItemText}>{action.name}</Text>
+                {this.state.actions.map((action, i) => {
+                  console.log(this.state.actions);
+                  if (action.active || action.active === undefined) {
+                    return (
+                      <Touchable key={i} onPress={() => this.callAction(action.name, action)}>
+                        <View style={styles.actionItem}>
+                          {/* <Image style={{"width" : 30, "height": 30, position: 'absolute', right: 20, top: 60, zIndex: 100 }} source={require('../../App/Images/tick.png')} /> */}
+                          <Image source={{uri: (action.image_uri) ? action.image_uri : this.state.image_uri.replace('\{type\}', 'icon')}} style = {{width: 73, height: 80}} />
+                          <Text style={[styles.actionItemText, { color: Palette.consentOffBlack }]}>{action.name}</Text>
+                        </View>
+                      </Touchable>
+                    );
+                  }
+                  return (
+                    <View key={i} style={[styles.actionItem]}>
+                    <Image source={{uri: (action.image_uri) ? action.image_uri : this.state.image_uri.replace('\{type\}', 'icon')}} style = {{ top: 15, width: 73, height: 80, position: 'absolute' }} />
+                      <HexagonIcon fillOpacity={0.8} width={80} height={80} fill={Palette.consentGrayMedium} />
+                      <Text style={[styles.actionItemText, { color: Palette.consentGrayMedium }]}>{action.name}</Text>
                     </View>
-                  </Touchable>
+                  );
+                }
+                  
                 )}
               </View>
             </View>
@@ -474,7 +486,7 @@ class ConnectionDetails extends Scene {
               ]}
               tabs={[
                 {
-                  text: 'Connect',
+                  text: 'ReferQi',
                   onPress: () => this.setState({activeTab: CONNECT}),
                   active: this.state.activeTab === CONNECT
                 },
@@ -678,7 +690,6 @@ const styles = {
   actionItemText: {
     textAlign: "center",
     backgroundColor: "transparent",
-    color: Palette.consentOffBlack,
     fontSize: 15,
     fontWeight: "500",
     paddingTop: Design.paddingTop / 2

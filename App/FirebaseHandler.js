@@ -136,7 +136,7 @@ class FirebaseHandler {
     return Promise.all(
       message.resource_ids.map(id => Api.getResource({id: id}))
     ).then(results => {
-      
+      // console.log('RESULTS', results)
       /* Load connections to ascertain resource destinations */
       const allConnections = ConsentUser.getCached("myConnections")
 
@@ -149,13 +149,13 @@ class FirebaseHandler {
 
           /* If from human conneciton, add to connection data */
           if(!!allConnections && !!allConnections.peerConnections.some(c => c.did === resource.from_user_did)){
-            console.log("FROM PEER")
+            // console.log("FROM PEER")
             ConsentUser.updateConnectionState(resource)
           }
           
           /* If vc, add to user data and badges */
           if(!!resource.is_verifiable_claim){
-            console.log("PASSED MUSTARD")
+            // console.log("PASSED MUSTARD")
             ConsentUser.updateState(resource)
           }
         }

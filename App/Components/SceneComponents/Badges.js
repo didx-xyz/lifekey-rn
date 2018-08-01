@@ -28,7 +28,6 @@ import LifekeyCard from "../../Components/LifekeyCard"
 class Badges extends Component  {
 
   render() {
-   
     return (
        this.props.badges ?  
          <ScrollView contentContainerStyle={styles.content}>
@@ -37,7 +36,8 @@ class Badges extends Component  {
                 return (
                     <View key={i} style={styles.badge}>
                       <View style={styles.badgeImage}>
-                        <Image style={{"width" : 50, "height": 50}} source={b.image} />
+                        <Image style={{"width" : 50, "height": 50}} source={(typeof b.image === 'string') ? { uri: b.image } : b.image} />
+                        <Image style={{"width" : 20, "height": 20, position: 'absolute', right: 10, top: 20 }} source={require('../../../App/Images/tick.png')} />
                       </View>
                       <View style={styles.badgeContent}>
                         <View style={styles.badgeName}>
@@ -48,7 +48,6 @@ class Badges extends Component  {
                 )
                }) 
             }
-            
           </ScrollView>
         :
           <Text>NO BADGES YET</Text>

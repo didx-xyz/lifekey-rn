@@ -77,6 +77,7 @@ class LifekeyHeader extends Component {
     return (
       <View style={style.tabs}>
         {
+          (this.props.tabs) && 
           this.props.tabs.map((tab, i) => {
             return (
               <Touchable key={i} onPress={tab.onPress} noRipple={true}>
@@ -98,9 +99,9 @@ class LifekeyHeader extends Component {
   render() {
     if (this.props.hasGradient) {
       return (
-        <LinearGradient colors={[this.props.backgroundColor, (this.props.backgroundColorSecondary) ? this.props.backgroundColorSecondary : '#fff']} start={{x: 0, y: 0}} end={{x: 1, y: 0}} style={[style.header]}>
-          {this.renderIcons()}
-          {this.renderTabs()}
+        <LinearGradient colors={[this.props.backgroundColor, (this.props.backgroundColorSecondary) ? this.props.backgroundColorSecondary : '#fff']} start={{x: 0, y: 0}} end={{x: 1, y: 0}} style={(this.props.headerHeight) ? { height: this.props.headerHeight } : style.header }>
+            {this.renderIcons()}
+            {this.renderTabs()}
         </LinearGradient>
       )
     }
@@ -117,6 +118,7 @@ class LifekeyHeader extends Component {
 const style = {
   header: {
     height: 115,
+    
   },
   container: {
     flex: 1,
@@ -203,6 +205,7 @@ LifekeyHeader.propTypes = {
   foregroundHighlightColor: PropTypes.string,
   backgroundColor: PropTypes.string,
   backgroundColorSecondary: PropTypes.string,
+  headerHeight: PropTypes.number,
 }
 
 LifekeyHeader.defaultProps = {

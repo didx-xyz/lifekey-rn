@@ -4,7 +4,7 @@ export default {
   consentOffWhite: '#F9FAFA',
   consentOffBlack: '#323a43',
   consentBlue: '#216BFF',
-  consentRed: 'red',
+  consentRed: '#E95852',
   consentGrayLightest: '#F5F6F6',
   consentGrayLight: '#ECEEEE',
   consentGrayMedium: '#d6d6d6',

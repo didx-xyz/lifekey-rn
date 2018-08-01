@@ -54,7 +54,6 @@ class EditResource extends Scene {
   onPressSave() {
     const data = {}
     const keys = this.state.entities.map(entity => entity.name)
-    
     /* Image values need to be checked for and stripped of datauri context */
     const values = keys.map(key => { 
 
@@ -71,7 +70,6 @@ class EditResource extends Scene {
 
     // combine keys and values into a single object
     keys.forEach((key, i) => data[key] = values[i])
-
     const options = {
       "value": JSON.stringify({
         "form": form,
@@ -107,6 +105,7 @@ class EditResource extends Scene {
         ).catch(console.log)
       }
       else {
+        console.log("Options", options);
         return Api.createResource(
           options
         ).then(
@@ -123,16 +122,16 @@ class EditResource extends Scene {
   }
 
   onSave(response) {
-    
     this.context.onSaveResource()
-
     let newResource = Object.assign(this.state.newResource, JSON.parse(this.state.newResource.value))
-
-    newResource.id = newResource.id ? newResource.id : response.body.id // edited or saved
-
+    const id = newResource.id ? newResource.id : response.body.id;
+    newResource.id = id // edited or saved
+    newResource.entity = id // edited or saved
+    newResource.attribute = id // edited or saved
+    newResource.alias = id // edited or saved
     ConsentUser.updateState(newResource)
     Toast.show('Resource saved!', ToastAndroid.SHORT)
-
+    
     const routes = this.navigator.getCurrentRoutes()
 
     this.navigator.pop()
@@ -144,9 +143,9 @@ class EditResource extends Scene {
       const form = this.context.getEditResourceForm()
       const name = this.context.getEditResourceName()
 
-      console.log('id', id)
-      console.log('form', form)
-      console.log('name', name)
+      // console.log('id', id)
+      // console.log('form', form)
+      // console.log('name', name)
       
       Promise.all([
         Api.getResourceForm(form),

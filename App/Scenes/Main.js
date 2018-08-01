@@ -369,7 +369,7 @@ class Main extends Scene {
               <Text style={style.defaultFont}>
                 Hi there {this.state.userName},
                 {"\n\n"}
-                Start setting up your public profile.
+                Start setting up your public
                 <Text onPress={this.onBoundPressProfile} style={Object.assign({}, style.defaultFont, { "color": Palette.consentBlue })}> profile.</Text>
               </Text>
               <Text style={style.defaultFont}>

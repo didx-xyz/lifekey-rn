@@ -249,6 +249,10 @@ export default class Api {
     return request('/management/isa')
   }
 
+  static ISAlist(agentDID) {
+    return request(`/management/isa_list/${agentDID}`)
+  }
+
   // Get an ISA by id
   static getISA(data) {
     checkParameters(['id'], data)
@@ -359,6 +363,7 @@ export default class Api {
       //     ...JSON.parse(resource.value)
       //   }
       // })
+      debugger;
       const updatedResources = data.body.map(resource => this.shapeResource(resource))
       ConsentUser.setCached("allResources", updatedResources, 300000)
       return Promise.resolve(updatedResources)
@@ -389,7 +394,7 @@ export default class Api {
     // ]).then(values => {
     return this.initializeResourcesAndTypes().then(values => {
     
-      console.log("MY DATA NOT CACHE: ")
+      // console.log("MY DATA NOT CACHE: ")
       // const updatedResources = values[1]
       const updatedResources = values.resources
 
@@ -667,7 +672,6 @@ export default class Api {
     }, true, fingerprint)
   }
 
-
   // ##################
   // ##### DEBUG ######
   // ##################
@@ -675,6 +679,7 @@ export default class Api {
   // Delete a user
   static unregister(data) {
     if (Config.DEBUG) {
+      
       if (!data.id && !data.email) {
         return Promise.reject(`ID or email must be specified. id: ${data.id}, email: ${data.email}`)
       }

@@ -61,12 +61,12 @@ class RcWrapper extends Component {
       resourceId: null,
       peerId: null
     });
-    console.log("CANCELLED SHARE!")
+    // console.log("CANCELLED SHARE!")
   }
 
   renderComponent(resource, resourceType, index){
 
-    console.log("RENDER COMPONENT: ", resource)
+    // console.log("RENDER COMPONENT: ", resource)
 
     switch (resourceType.name) {
       case('Public Profile'):

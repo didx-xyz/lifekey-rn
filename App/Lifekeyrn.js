@@ -4,7 +4,7 @@
  * Civvals, 50 Seymour Street, London, England, W1H 7JG
  * @author Werner Roets <werner@io.co.za>
  */
-
+import '../ReactotronConfig';
 import * as Lifecycle from './Lifecycle';
 import Logger from './Logger';
 import Palette from './Palette';
@@ -195,8 +195,6 @@ class Lifekeyrn extends Component {
   }
 
   onEditResource(form, id, name) {
-    console.log('GOT TO CONTEXT EDIT');
-
     this.editResourceForm = form;
     this.editResourceId = id;
     this.editResourceName = name;

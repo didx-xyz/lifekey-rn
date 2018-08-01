@@ -50,7 +50,6 @@ const signedRequest = function (url, opts, fingerprint) {
       "x-cnsnt-plain": secureRandom,
       "x-cnsnt-signed": signature
     }
-    console.log("HEADERS", headers);
     if (fingerprint) headers['x-cnsnt-fingerprint'] = 1
     const options = Object.assign({
       "method": "GET",
@@ -108,7 +107,7 @@ const wrappedFetch = function (url, options) {
           return Promise.reject(res)
       }
     }).catch((asdf) => {
-      console.log('blab blasdf', asdf);
+      console.log('Error', asdf);
     });
 }
 

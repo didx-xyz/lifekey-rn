@@ -1,8 +1,10 @@
 
 // external dependencies
 import React from "react"
-import { Text, View, Image, ScrollView, InteractionManager, Dimensions, StatusBar, ToastAndroid} from "react-native"
+import { Text, View, Image, ScrollView, InteractionManager, Dimensions, StatusBar, AsyncStorage} from "react-native"
 import { Container } from "native-base"
+import ConsentUser from '../Models/ConsentUser'
+import Logger from '../Logger'
 
 // internal dependencies
 import Scene from "../Scene"
@@ -31,6 +33,14 @@ class Menu extends Scene {
   
   onPressHelp() {
     this.navigator.push({...Routes.helpGeneral, "destination": "menu", "screens": helpScreens, "navigationType": "pop" })
+  }
+
+  onDeregister() {
+    ConsentUser.unregister()
+    AsyncStorage.clear(() => {
+      Logger.info('User data removed')
+      this.navigator.replace({...Routes.main})
+    });
   }
 
   render() {
@@ -102,6 +112,19 @@ class Menu extends Scene {
                   <View style={styles.menuItemName}>
                     <Text style={styles.menuItemNameText}>Log Out</Text>  
                     <Text style={styles.menuItemDescriptionText}>Log out of the Life Qi app</Text>                      
+                  </View>
+                </View>
+              </View>
+            </Touchable>
+            <Touchable onPress={() => this.onDeregister()}>
+              <View style={styles.menuItem}>
+                <View style={styles.menuItemImage}>
+                  <CrossIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Design.headerIconColour}></CrossIcon>
+                </View>
+                <View style={styles.menuItemContent}>
+                  <View style={styles.menuItemName}>
+                    <Text style={styles.menuItemNameText}>Deregister</Text>  
+                    <Text style={styles.menuItemDescriptionText}>Deregisters and removes user data</Text>                      
                   </View>
                 </View>
               </View>

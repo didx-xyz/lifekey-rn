@@ -160,13 +160,13 @@ class Connection extends Scene {
           <View style={{ backgroundColor: Palette.consentWhite, flex: 1, flexDirection: 'column', marginHorizontal: 20, borderRadius: 10, marginBottom: 30, justifyContent: 'flex-start' }}>
             <Text style={[styles.greetingTextHeading, { color: this.state.agentColor }]}>Hi {Util.ucfirst(ConsentUser.getDisplayNameSync())}.</Text>
             <Text style={ styles.greetingText }>Connecting with {Util.ucfirst(this.props.route.display_name)} will allow you to:</Text>
-            { this.state.actions.map((action, i) =>
-            <View key={i} style={{ alignItems: 'center' }}>
-              <Text style={styles.actionsText}><Text style={{ color: this.state.agentColorSecondary, fontSize: 30, paddingTop: 10 }}>•</Text> {action.name}</Text>
+            <View style={{ flexDirection: 'column', justifyContent: 'flex-start' }}>
+              { this.state.actions.map((action, i) =>
+                <View key={i} style={{ marginLeft: '25%', paddingVertical: 13, flexDirection: 'row', justifyContent: 'flex-start', alignItems: 'center', flex: 1 }}>
+                  <Text style={{ color: this.state.agentColorSecondary, fontSize: 30 }}>• </Text><Text style={styles.actionsText}>{action.name}</Text>
+                </View>
+              )}
             </View>
-            )}
-            
-            
           </View>
           {/* <Text style={styles.nameText}>{Util.ucfirst(this.props.route.display_name)}</Text> */}
           
@@ -282,11 +282,11 @@ const styles = {
   // },
   "actionsText": {
     "fontSize": 18,
-    "textAlign": "left",
-    "width": "50%",
-    "marginLeft": "25%",
-    "marginRight": "25%",
-    "alignItems": "center",
+    // "textAlign": "left",
+    // "width": "50%",
+    // "marginLeft": "25%",
+    // "marginRight": "25%",
+    // "alignItems": "center",
     "color": Palette.consentGrayDarkest,
     
   },

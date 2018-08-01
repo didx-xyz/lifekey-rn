@@ -4,6 +4,7 @@ import android.support.multidex.MultiDexApplication;
 
 import com.aakashns.reactnativedialogs.ReactNativeDialogsPackage;
 import com.facebook.react.ReactApplication;
+import org.reactnative.camera.RNCameraPackage;
 import com.microsoft.codepush.react.CodePush;
 import za.co.apextechnology.crypto.CryptoPackage;
 import com.imagepicker.ImagePickerPackage;
