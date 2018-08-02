@@ -61,7 +61,10 @@ class EditResource extends Scene {
       if(currentEntity && currentEntity.type === "photograph"){
         this.state.formTarget[key] === Common.ensureDataUrlIsCleanOfContext(this.state.formTarget[key])
       }
-
+      const { optional = false } = currentEntity;
+      if (optional) {
+        return this.state.formTarget[key] || ''
+      }
       return this.state.formTarget[key] || null 
     })
 
@@ -97,7 +100,6 @@ class EditResource extends Scene {
       "asyncActionInProgress": true,
       "newResource": newResource
     }
-
     this.setState(state, () => {
       if (this.state.formTarget.id) {
         return Api.updateResource(newResource).then(
@@ -131,10 +133,9 @@ class EditResource extends Scene {
     newResource.alias = id // edited or saved
     ConsentUser.updateState(newResource)
     Toast.show('Resource saved!', ToastAndroid.SHORT)
-    
     const routes = this.navigator.getCurrentRoutes()
-
     this.navigator.pop()
+    
   }
 
   componentDidMount() {

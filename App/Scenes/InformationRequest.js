@@ -112,18 +112,15 @@ class InformationRequest extends Scene {
     let complete = []
     let partial = []
     let missing = []
-    console.log('resource', resources);
-    console.log('required_entities', required_entities);
-    debugger;
     required_entities.forEach(re => {
       // Set up UI-only entity
       let entity = { name: re.name, id: null, form: `${re.address}_form`}
       // Check if this resource is present
-
+      debugger;
       const isRequiredAndPresent = resources.find(r => Common.schemaCheck(r.schema, re.address))
       if(!!isRequiredAndPresent){
         entity.id = isRequiredAndPresent.id
-
+        
         // Add present fields, if any
         entity.presentFields = `${Object.values(isRequiredAndPresent).slice(1, 3).join().substring(0, 100)}...`
 

@@ -19,6 +19,7 @@ import io.jari.fingerprint.FingerprintPackage;
 import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
 import com.BV.LinearGradient.LinearGradientPackage;
+import com.avishayil.rnrestart.ReactNativeRestartPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -57,7 +58,8 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
                     new FingerprintPackage(),
                     new RNFirebasePackage(),
                     new RNFirebaseMessagingPackage(),
-                    new LinearGradientPackage()
+                    new LinearGradientPackage(),
+                    new ReactNativeRestartPackage()
             );
         }
 

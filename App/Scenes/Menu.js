@@ -1,9 +1,11 @@
 
 // external dependencies
 import React from "react"
+import RNRestart from 'react-native-restart';
 import { Text, View, Image, ScrollView, InteractionManager, Dimensions, StatusBar, AsyncStorage} from "react-native"
 import { Container } from "native-base"
 import ConsentUser from '../Models/ConsentUser'
+import Session from '../Session'
 import Logger from '../Logger'
 
 // internal dependencies
@@ -21,14 +23,6 @@ import GearIcon from "../Components/GearIcon"
 import CrossIcon from "../Components/CrossIcon"
 import AppLogo from '../Images/logo_big.png'
 
-const helpScreens = [ 
-  { "image": require("../Images/onboarding_test.png"), "heading": "Identify", "copy": "Qi Identity is my digital passport" }, 
-  { "image": require("../Images/qr.png"), "heading": "Connect", "copy": "Qi Code connects me in a snap & replaces paperwork" }, 
-  { "image": require("../Images/phone.png"), "heading": "Access", "copy": "Qi Access magically logs me in without usernames & passwords" }, 
-  { "image": require("../Images/share.png"), "heading": "Secure", "copy": "Qi Safe secures my personal information under my control" }, 
-  { "image": require("../Images/rewards.png"), "heading": "Rewards", "copy": "Qi Rewards give me Thanks Points and personalised offers" }
-]
-
 class Menu extends Scene {
   
   onPressHelp() {
@@ -36,11 +30,14 @@ class Menu extends Scene {
   }
 
   onDeregister() {
-    ConsentUser.unregister()
-    AsyncStorage.clear(() => {
-      Logger.info('User data removed')
-      this.navigator.replace({...Routes.main})
-    });
+    // ConsentUser.unregister()
+    // .then(() => {
+    //   alert('User unregistered')
+    //   Logger.info('User unregistered', this.filename)
+    // })
+    // .catch(error => {
+    //   Logger.error('Could not unregister', this.filename, error)
+    // })
   }
 
   render() {

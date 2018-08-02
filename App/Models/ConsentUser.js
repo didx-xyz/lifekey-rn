@@ -81,7 +81,6 @@ export default class ConsentUser {
 
         user = _user
         if (user.registered) {
-
           // Try to unlock keystore
           return Crypto.loadKeyStore()
 
@@ -398,6 +397,7 @@ export default class ConsentUser {
         }
       })
       .then(responseJson => {
+        Logger.info('asdlfk', responseJson);
         return Promise.all([
           Crypto.deleteKeyStore(Config.keystore.name),
           AsyncStorage.multiRemove([
@@ -585,6 +585,10 @@ export default class ConsentUser {
 
   static clearCached(key) {
     delete this.state[key]
+  }
+
+  static removeAll() {
+    delete this.state
   }
 
   static getCached(key) {
@@ -818,6 +822,7 @@ export default class ConsentUser {
   // }
 
   static sortMyData(resources, resourceTypes, profile) {
+    
     // Add logically seperate resources types that aren't persisted in server 
     resourceTypes.push({ name: 'Malformed', url: null, items: [] })
     resourceTypes.push({ name: 'Verifiable Claims', url: null, items: [] })

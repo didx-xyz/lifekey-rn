@@ -54,10 +54,12 @@
     "react-native-modal-dropdown": "^0.6.2",
     "react-native-modal-selector": "^0.0.27",
     "react-native-qrcode": "^0.2.6",
+    "react-native-restart": "^0.0.6",
     "react-native-safe-area-view": "0.8.0",
     "react-native-svg": "6.3.1",
     "react-native-vector-icons": "^4.6.0",
-    "tcomb-form-native": "^0.6.13"
+    "tcomb-form-native": "^0.6.13",
+    "title-case": "^2.1.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",

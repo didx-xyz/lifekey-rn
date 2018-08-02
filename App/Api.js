@@ -363,7 +363,6 @@ export default class Api {
       //     ...JSON.parse(resource.value)
       //   }
       // })
-      debugger;
       const updatedResources = data.body.map(resource => this.shapeResource(resource))
       ConsentUser.setCached("allResources", updatedResources, 300000)
       return Promise.resolve(updatedResources)
@@ -384,16 +383,15 @@ export default class Api {
 
   static getMyData(milliseconds = 300000){
     let cached = ConsentUser.getCached("myData")
-    if (cached && cached.valid) {
-      console.log("MY DATA SERVED CACHED")
-      return Promise.resolve(cached)
-    }
+    // if (cached && cached.valid) {
+    //   console.log("MY DATA SERVED CACHED")
+    //   return Promise.resolve(cached)
+    // }
     // return Promise.all([
     //   // this.allResourceTypes(),
     //   // this.allResources()
     // ]).then(values => {
     return this.initializeResourcesAndTypes().then(values => {
-    
       // console.log("MY DATA NOT CACHE: ")
       // const updatedResources = values[1]
       const updatedResources = values.resources
@@ -475,6 +473,7 @@ export default class Api {
       }
     }
     if (cached && resource) return Promise.resolve(resource)
+    Logger.info("data", data);
     return request(`/resource/${data.id}`)
   }
 
