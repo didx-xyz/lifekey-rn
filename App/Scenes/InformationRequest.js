@@ -1,7 +1,8 @@
 // external dependencies
 import React from "react"
-import { Text, View, ScrollView, ToastAndroid } from "react-native"
+import { Text, View, ScrollView, ToastAndroid, Image, Dimensions } from "react-native"
 import { Container, Card, CardItem } from "native-base"
+import LinearGradient from 'react-native-linear-gradient';
 
 // internal dependencies
 import Api from "../Api"
@@ -11,8 +12,12 @@ import Design from "../DesignParameters"
 import LifekeyFooter from '../Components/LifekeyFooter'
 import BackButton from "../Components/BackButton"
 import HelpIcon from "../Components/HelpIcon"
+import VerifiedIcon from "../Components/VerifiedIcon"
 import TickIcon from "../Components/TickIcon"
 import CircularImage from "../Components/CircularImage"
+import LocationFlagIcon from '../Components/LocationFlagIcon'
+import MarketingIcon from '../Components/MarketingIcon'
+import PeriodIcon from '../Components/PeriodIcon'
 import HexagonIcon from "../Components/HexagonIcon"
 import AddCategoryButton from "../Components/lc-AddCategoryButton"
 import ProgressIndicator from "../Components/ProgressIndicator"
@@ -20,9 +25,13 @@ import Scene from "../Scene"
 import Touchable from "../Components/Touchable"
 import Logger from '../Logger'
 import Common from '../Common'
+import LifekeyHeader from '../Components/LifekeyHeader'
+import BackIcon from '../Components/BackIcon'
 import PropTypes from 'prop-types'
 import Toast from '../Utils/Toast'
+import _ from 'lodash'
 
+const { height, width } = Dimensions.get('window');
 class InformationRequest extends Scene {
 
   constructor(...params) {
@@ -39,6 +48,9 @@ class InformationRequest extends Scene {
       complete: [],
       partial: [],
       missing: [],
+      agentColor: Palette.consentWhite,
+      agentColorSecondary: Palette.consentGrayDarkest,
+      agentImage: '',
       asyncActionInProgress: true,
       progressCopy: "Loading..."
     }
@@ -56,7 +68,7 @@ class InformationRequest extends Scene {
   componentDidMount() {
     super.componentDidMount()
     Api.getFlattenedResources().then(this.onBoundResources)
-    
+    this.getConnectionProfile();
   }
 
   componentWillFocus() {
@@ -68,6 +80,17 @@ class InformationRequest extends Scene {
   onResources(data) {
     this.findMissingResourceProperties(data, this.props.route.required_entities)
     this.setState({ resources: data })
+  }
+
+  async getConnectionProfile() {
+    try {
+      const { body: { user: { colour = Palette.consentWhite, image_uri = '' } }} = await Api.profile({ did: this.props.route.did })
+      const agentColors = colour.split(',');
+
+      this.setState({ agentColor: agentColors[0], agentColorSecondary: (agentColors[1]) ? agentColors[1] : Palette.consentOffBlack, agentImage: image_uri.replace('\{type\}', 'logo') })
+    } catch (error) {
+      Logger.warn(error);
+    }
   }
 
 
@@ -86,42 +109,45 @@ class InformationRequest extends Scene {
   }
 
   sortMyData(resources, required_entities) {
-
     let complete = []
     let partial = []
     let missing = []
-
     required_entities.forEach(re => {
-
       // Set up UI-only entity
       let entity = { name: re.name, id: null, form: `${re.address}_form`}
       // Check if this resource is present
+      debugger;
       const isRequiredAndPresent = resources.find(r => Common.schemaCheck(r.schema, re.address))
       if(!!isRequiredAndPresent){
-        
         entity.id = isRequiredAndPresent.id
-
+        
         // Add present fields, if any
         entity.presentFields = `${Object.values(isRequiredAndPresent).slice(1, 3).join().substring(0, 100)}...`
 
         // Add missing fields, if any
         entity.missingFields = Object.keys(isRequiredAndPresent).filter(k => isRequiredAndPresent[k] === null )
+
+        //entity.missingFields = _.omit(entity.missingFields, 'from_user_did');
+        entity.missingFields = entity.missingFields.filter(e => e !== 'from_user_did');
         // Add this entity to complete or partial
         entity.missingFields.length ? partial.push(entity) : complete.push(entity)
+
       }
-      else{
+      else {
         // Add the missing entity to the missing collection
+        // console.log('**** not been schemad ****')
+        // console.log(entity)
         missing.push(entity)
       }
     })
 
     this.setState({
-      // complete: complete,
-      // partial: partial,
-      // TEMPORARILY COMBINE PARTIAL AND COMPLETE 
-      complete: complete.concat(partial),
-      partial: [],
+      complete: complete,
+      partial: partial,
       missing: missing,
+      // complete: complete.concat(partial),
+      // partial: [],
+      // missing: missing,
       asyncActionInProgress: false
     })
   }
@@ -161,43 +187,84 @@ class InformationRequest extends Scene {
   }
 
   render() {
+    const screenWidth = Dimensions.get('window').width
+    const iconSize = screenWidth / 25
+    console.log('**** RERENDER!! ****')
+    console.log('COMPLETE', this.state.complete);
+    console.log('MISSING', this.state.missing);
+    console.log('PARTICAL', this.state.partial);
     return (
       <Container>
         <BackButton navigator={this.navigator} />
-        <View style={styles.content}>
+        <LifekeyHeader
+              headerHeight={90}
+              hasGradient={true}
+              backgroundColor={this.state.agentColor}
+              backgroundColorSecondary={this.state.agentColorSecondary}
+              foregroundHighlightColor={Palette.consentWhite}
+              icons={[
+                {
+                  icon: (<BackIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke="#fff" />),
+                  onPress: this.navigator.pop,
+                  borderColor: this.state.colour
+                },
+                {
+                  logo: true,
+                  icon: (
+                    <View style={{ flex: 1, position: 'absolute', top: 20, alignItems: 'center' }}>
+                      {/* <Image source={{uri: this.state.image_uri}} style={styles.fullWidthHeight} /> */}
+                      <Image source={{ uri: this.state.agentImage }} style={{ width: 180, height: 40 }} />
+                    </View>
+                  ),
+                  onPress: () => this.setState({activeTab: ACTIVITY}),
+                  borderColor: this.state.colour
+                },
+                {
+                  icon: <View width={24} height={24}/>,
+                  onPress: () => {},
+                  borderColor: this.state.colour
+                }
+              ]}
+              />
+        <LinearGradient start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={[this.state.agentColor, this.state.agentColorSecondary]} style={styles.content}>
+          <View style={{ backgroundColor: Palette.consentGrayLight, flex: 1 }}>
+          <LinearGradient style={{ height: 70, justifyContent: 'center', width: '100%' }}  start={{x: 0, y: 0}} end={{x: 1, y: 0}} colors={[this.state.agentColor, this.state.agentColorSecondary]}>
+              <View style={{ position: 'absolute', bottom: 40, zIndex: 1000, marginHorizontal: '16%', flexDirection: 'row', justifyContent: 'center', alignItems: 'center', paddingVertical: 2, paddingHorizontal: 5, backgroundColor: this.state.agentColorSecondary, borderTopRightRadius: 5, borderTopLeftRadius: 5 }}>
+              <PeriodIcon stroke={Palette.consentWhite} width={iconSize} height={iconSize}/>
+                <Text style={ styles.verifiedText }>12 Months</Text>
+                <LocationFlagIcon stroke={Palette.consentWhite} width={iconSize} height={iconSize}/>
+                <Text style={ styles.verifiedText }>In SA</Text>
+                <MarketingIcon stroke={Palette.consentWhite} width={iconSize} height={iconSize}/>
+                <Text style={ styles.verifiedText }>Marketing</Text>
+              </View>
+          </LinearGradient>
           {
             this.state.asyncActionInProgress ? 
               <ProgressIndicator progressCopy={ this.state.progressCopy }></ProgressIndicator>
             :
-              <View style={styles.resourceItemContainer}>
+              <View style={[styles.resourceItemContainer, { position: 'absolute', height: height - 250, top: 30 }]}>
                   <ScrollView contentContainerStyle={styles.resourceScrollView}>
                     <View style={styles.name}>
-                      {/* logo */}
-                      <CircularImage uri={this.state.botImageUri} radius={25} borderColor={Palette.consentGrayLight} />   
-                      <Text style={styles.nameText}>
-                        {this.state.botDisplayName}
-                      </Text> 
                     </View>
                     <View style={styles.description}>
                       <Text style={styles.descriptionText}>
-                        { this.state.missing.length === 0 ? 'Would like to see the following information:' : 'You are missing one or more pieces of information, please update before sharing' }
+                        {this.state.botDisplayName} would like to see the following information:
                       </Text>
                     </View>
-
                     { this.state.complete.length > 0 && 
                       <View style={styles.cardContainer}>  
                         { 
                           this.state.complete.map((entity, i) => {
                             return (
                               <View key={entity.name} style={ styles.resourceItem }>
-                                <Card style={styles.card}>
-                                  <CardItem>
+                                <View style={styles.card}>
+                                  <View>
                                     <View style={styles.cardHeader}>
                                       <Text style={ Object.assign({}, styles.cardHeadingText, { "color": Palette.consentOffBlack })}>{entity.name.toUpperCase()}</Text>
-                                      <TickIcon width={ this.iconDimension } height={ this.iconDimension } stroke={Palette.consentBlue} />
+                                      {/* <TickIcon width={ this.iconDimension } height={ this.iconDimension } stroke={Palette.consentBlue} /> */}
                                     </View>
-                                  </CardItem>
-                                </Card>
+                                  </View>
+                                </View>
                               </View>
                             )
                           }) 
@@ -209,8 +276,16 @@ class InformationRequest extends Scene {
                       <View style={styles.cardContainer}>
                           { this.state.partial.map((entity, i) => {
                             return (
-                              <View style={ Object.assign({}, styles.resourceItem, styles.partialResource) }>
-                                <AddCategoryButton width={ this.iconDimension } height={ this.iconDimension } name={entity.name} form={entity.form}/>
+                              <View key={entity.name} style={[styles.resourceItem, styles.partialResource]}>
+                                <AddCategoryButton 
+                                  width={ this.iconDimension }
+                                  height={ this.iconDimension }
+                                  color={Palette.consentRed}
+                                  name={entity.name}
+                                  form={entity.form}
+                                  id={entity.id}
+                                  onEditResource={this.context.onEditResource.bind(this)}
+                                />
                               </View>
                             )
                           }) }
@@ -222,11 +297,13 @@ class InformationRequest extends Scene {
                         { this.state.missing.map((entity, i) => {
                           return (
                             <View key={entity.name} style={ styles.resourceItem }>
-                              <AddCategoryButton name={entity.name} 
-                                                 form={entity.form} 
-                                                 color={Palette.consentRed}
-                                                 width={ this.iconDimension } height={ this.iconDimension }
-                                                 onEditResource={this.context.onEditResource.bind(this)}/>
+                              <AddCategoryButton
+                                name={entity.name} 
+                                form={entity.form} 
+                                color={Palette.consentRed}
+                                width={ this.iconDimension } height={ this.iconDimension }
+                                onEditResource={this.context.onEditResource.bind(this)}
+                              />
                             </View>
                           )
                         }) }
@@ -234,24 +311,37 @@ class InformationRequest extends Scene {
                     }
                   </ScrollView>
                   {
-                    this.state.partial.length > 0 || this.state.missing.length > 0 &&
-                    <View style={ Object.assign({}, styles.shareView, { "opacity": 0.5 }) }>
-                      <HexagonIcon width={100} height={100} textSize={19} text="Share" fill={Palette.consentGrayMedium} />
+                    this.state.missing.length !== 0 &&
+                    <View style={styles.redWarningBox}>
+                      <Text style={styles.redWarningBoxText}>
+                        You are missing one or more pieces of information, please update before sharing
+                      </Text>
                     </View>
                   }
-                  {
-                    this.state.partial.length < 1 && this.state.missing.length < 1 &&
-                    <Touchable onPress={this.onBoundPressShare}>
-                      <View style={styles.shareView}>
-                        <HexagonIcon width={100} height={100} textSize={18} text="Share" textColor={Palette.consentWhite} />
-                      </View>
-                    </Touchable>
-                  }
+                  
+
               </View>
           }
           
+          </View>
+          <View style={[{ top: height - 290, zIndex: 1000, justifyContent: 'center', alignItems: 'center', alignSelf: 'center', position: 'absolute' }]}>
+          {
+            this.state.partial.length > 0 || this.state.missing.length > 0 &&
+              <View style={ Object.assign({}, styles.shareView) }>
+                <HexagonIcon width={110} height={110} textSize={19} text="Share" fill={Palette.consentGrayMedium} />
+              </View>
+          }
+          {
+            this.state.partial.length < 1 && this.state.missing.length < 1 &&
+            <Touchable onPress={this.onBoundPressShare}>
+              <View style={styles.shareView}>
+                <HexagonIcon width={110} height={110} textSize={18} text="Share" textColor={Palette.consentWhite} />
+              </View>
+            </Touchable>
+          }
+          </View>
           <LifekeyFooter
-            backgroundColor={ Palette.consentOffBlack }
+            backgroundColor={ "transparent" }
             leftButtonText="Cancel"
             rightButtonText=""
             rightButtonIcon={<HelpIcon width={Design.footerIconWidth} height={Design.footerIconHeight} stroke={Palette.consentWhite} />}
@@ -259,7 +349,7 @@ class InformationRequest extends Scene {
             onPressRightButton={this.onBoundPressHelp}
           />
 
-        </View>
+        </LinearGradient>
       </Container>
     )
   }
@@ -267,7 +357,7 @@ class InformationRequest extends Scene {
 
 const styles = {
   "content": {
-    paddingTop: 15,
+    // paddingTop: 15,
     flex: 1,
     "backgroundColor": Palette.consentOffBlack
   },
@@ -288,17 +378,19 @@ const styles = {
   },
   "descriptionText": {
     color: Palette.consentGrayDark,
-    fontSize: 15,
+    fontSize: 17,
     textAlign: "center"
   },
   "resourceItemContainer": {
     "flex": 1,
-    "borderRadius": 10,
-    "backgroundColor": Palette.consentGrayLight,
-    "margin": "3%",
+    "borderRadius": 1,
+    "backgroundColor": Palette.consentWhite,
+    "marginHorizontal": "3%",
+    marginBottom: "3%",
     "paddingLeft": Design.paddingRight/2,
     "paddingRight": Design.paddingRight/2,
-    "paddingTop": Design.paddingRight/2
+    "paddingTop": Design.paddingRight/2,
+    "paddingBottom": Design.paddingRight/2
   },
   "resourceScrollView":{
     "justifyContent": "center",
@@ -307,8 +399,13 @@ const styles = {
   "resourceItem":{
     "width": "100%",
   },
+  verifiedText: {
+    fontSize: 14,
+    "color": Palette.consentWhite,
+    "padding": 5
+  },
   "partialResource": {
-    "borderLeftColor": "orange",
+    "borderLeftColor": Palette.consentRed,
     "borderLeftWidth": 5
   },
   "missingResource": {
@@ -347,7 +444,11 @@ const styles = {
     "width": "100%",
   },
   "card": {
-    "marginTop": 1
+    paddingTop: 40,
+    paddingBottom: 10,
+    marginHorizontal: 20,
+    borderBottomColor: Palette.consentGrayMedium,
+    borderBottomWidth: 1,
   },
   "cardHeader": {
     "flex": 1,
@@ -356,7 +457,7 @@ const styles = {
     "alignItems": "center"
   },
   "cardHeadingText": {
-    "fontSize": 10,
+    "fontSize": 13,
     "fontWeight": "bold"
   },
   "cardHeadingIcon": {
@@ -368,6 +469,19 @@ const styles = {
   },
   "cardHeadingIconLarge": {
     "fontSize": 32
+  },
+  "redWarningBox": {
+    backgroundColor: Palette.consentRed,
+    borderRadius: 4,
+    "marginHorizontal": "4%",
+    paddingHorizontal: 30,
+    paddingVertical: 10,
+    marginBottom: 45,
+    marginTop: 10,
+  },
+  "redWarningBoxText": {
+    color: 'white',
+    textAlign: 'center'
   }
 }
 

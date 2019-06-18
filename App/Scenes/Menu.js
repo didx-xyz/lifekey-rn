@@ -1,8 +1,12 @@
 
 // external dependencies
 import React from "react"
-import { Text, View, Image, ScrollView, InteractionManager, Dimensions, StatusBar, ToastAndroid} from "react-native"
+import RNRestart from 'react-native-restart';
+import { Text, View, Image, ScrollView, InteractionManager, Dimensions, StatusBar, AsyncStorage} from "react-native"
 import { Container } from "native-base"
+import ConsentUser from '../Models/ConsentUser'
+import Session from '../Session'
+import Logger from '../Logger'
 
 // internal dependencies
 import Scene from "../Scene"
@@ -19,18 +23,21 @@ import GearIcon from "../Components/GearIcon"
 import CrossIcon from "../Components/CrossIcon"
 import AppLogo from '../Images/logo_big.png'
 
-const helpScreens = [ 
-  { "image": require("../Images/onboarding_test.png"), "heading": "Identify", "copy": "Qi Identity is my digital passport" }, 
-  { "image": require("../Images/qr.png"), "heading": "Connect", "copy": "Qi Code connects me in a snap & replaces paperwork" }, 
-  { "image": require("../Images/phone.png"), "heading": "Access", "copy": "Qi Access magically logs me in without usernames & passwords" }, 
-  { "image": require("../Images/share.png"), "heading": "Secure", "copy": "Qi Safe secures my personal information under my control" }, 
-  { "image": require("../Images/rewards.png"), "heading": "Rewards", "copy": "Qi Rewards give me Thanks Points and personalised offers" }
-]
-
 class Menu extends Scene {
   
   onPressHelp() {
     this.navigator.push({...Routes.helpGeneral, "destination": "menu", "screens": helpScreens, "navigationType": "pop" })
+  }
+
+  onDeregister() {
+    // ConsentUser.unregister()
+    // .then(() => {
+    //   alert('User unregistered')
+    //   Logger.info('User unregistered', this.filename)
+    // })
+    // .catch(error => {
+    //   Logger.error('Could not unregister', this.filename, error)
+    // })
   }
 
   render() {
@@ -102,6 +109,19 @@ class Menu extends Scene {
                   <View style={styles.menuItemName}>
                     <Text style={styles.menuItemNameText}>Log Out</Text>  
                     <Text style={styles.menuItemDescriptionText}>Log out of the Life Qi app</Text>                      
+                  </View>
+                </View>
+              </View>
+            </Touchable>
+            <Touchable onPress={() => this.onDeregister()}>
+              <View style={styles.menuItem}>
+                <View style={styles.menuItemImage}>
+                  <CrossIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke={Design.headerIconColour}></CrossIcon>
+                </View>
+                <View style={styles.menuItemContent}>
+                  <View style={styles.menuItemName}>
+                    <Text style={styles.menuItemNameText}>Deregister</Text>  
+                    <Text style={styles.menuItemDescriptionText}>Deregisters and removes user data</Text>                      
                   </View>
                 </View>
               </View>

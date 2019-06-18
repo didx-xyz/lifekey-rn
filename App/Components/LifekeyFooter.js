@@ -13,7 +13,7 @@ class LifekeyFooter extends Component {
 
   render() {
     return (
-      <View style={ Object.assign({}, style.wrappingView, { backgroundColor: this.props.backgroundColor }) }>
+      <View style={ Object.assign({}, style.wrappingView, { backgroundColor: this.props.backgroundColor, zIndex: 50 }) }>
         { (!!this.props.leftButtonText || this.props.leftButtonIcon) &&
           <Touchable onPress={() => this.props.onPressLeftButton()}>
             <View style={style.leftButton}>

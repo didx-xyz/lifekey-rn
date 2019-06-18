@@ -77,7 +77,6 @@ const wrappedFetch = function (url, options) {
   }
 
   Logger.networkRequest(options.method, url, options)
-
   return fetch(url, options)
     .then(response => {
       globalResponse = response;
@@ -107,6 +106,8 @@ const wrappedFetch = function (url, options) {
         default:
           return Promise.reject(res)
       }
+    }).catch((asdf) => {
+      console.log('Error', asdf);
     });
 }
 

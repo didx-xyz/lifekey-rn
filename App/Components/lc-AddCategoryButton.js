@@ -1,6 +1,6 @@
 // external dependencies
 import React, { Component } from "react"
-import { View, Text } from "react-native"
+import { View, Text, TouchableOpacity } from "react-native"
 import { Card, CardItem } from "native-base"
 import Icon from "react-native-vector-icons/FontAwesome"
 import PropTypes from "prop-types"
@@ -19,27 +19,31 @@ class AddCategoryButton extends Component {
   }
 
   onPressEdit() {
-    console.log("PRESSED EDIT...")
-    this.props.onEditResource(this.props.form, null, this.props.name)
+    const id = this.props.id || null;
+    this.props.onEditResource(this.props.form, id, this.props.name)
   }
 
   render() {
     return (
-  	  <Card style={style.card}>
-    	    <CardItem button onPress={this.onBoundPressEdit}>
+  	  <TouchableOpacity onPress={this.onBoundPressEdit} style={style.card}>
+    	    <View button>
     	      <View style={style.cardHeader}>
     	        <Text style={Object.assign({}, style.cardHeadingText, { "color": this.props.color }) }>{this.props.name.toUpperCase()}</Text>
-                <PlusIcon width={this.props.width} height={this.props.width} stroke={this.props.color}></PlusIcon>
+                {/* <PlusIcon width={this.props.width} height={this.props.width} stroke={this.props.color}></PlusIcon> */}
     	      </View>
-    	    </CardItem>
-  	  </Card>
+    	    </View>
+  	  </TouchableOpacity>
   	)
   }
 }
 
 const style = {
   "card": {
-    "marginTop": 1,
+    paddingTop: 40,
+    paddingBottom: 10,
+    borderBottomColor: Palette.consentGrayMedium,
+    borderBottomWidth: 1,
+    marginHorizontal: 20,
     // "marginLeft": Design.paddingLeft / 2,
     // "marginRight": Design.paddingRight / 2
   },
@@ -50,7 +54,7 @@ const style = {
     "alignItems": "center"
   },
   "cardHeadingText": {
-    "fontSize": 10,
+    "fontSize": 13,
     "fontWeight": "bold"
   },
   "cardHeadingIcon": {
@@ -71,7 +75,8 @@ AddCategoryButton.defaultProps = {
 
 AddCategoryButton.propTypes = {
   "name": PropTypes.string,
-  "form": PropTypes.string.isRequired
+  "form": PropTypes.string.isRequired,
+  "id": PropTypes.number,
 }
 
 export default AddCategoryButton

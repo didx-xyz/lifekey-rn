@@ -4,6 +4,7 @@ import android.support.multidex.MultiDexApplication;
 
 import com.aakashns.reactnativedialogs.ReactNativeDialogsPackage;
 import com.facebook.react.ReactApplication;
+import org.reactnative.camera.RNCameraPackage;
 import com.microsoft.codepush.react.CodePush;
 import za.co.apextechnology.crypto.CryptoPackage;
 import com.imagepicker.ImagePickerPackage;
@@ -17,6 +18,8 @@ import org.reactnative.camera.RNCameraPackage;
 import io.jari.fingerprint.FingerprintPackage;
 import io.invertase.firebase.RNFirebasePackage;
 import io.invertase.firebase.messaging.RNFirebaseMessagingPackage;
+import com.BV.LinearGradient.LinearGradientPackage;
+import com.avishayil.rnrestart.ReactNativeRestartPackage;
 
 import java.util.Arrays;
 import java.util.List;
@@ -54,7 +57,9 @@ public class MainApplication extends MultiDexApplication implements ReactApplica
                     new ReactNativeDialogsPackage(),
                     new FingerprintPackage(),
                     new RNFirebasePackage(),
-                    new RNFirebaseMessagingPackage()
+                    new RNFirebaseMessagingPackage(),
+                    new LinearGradientPackage(),
+                    new ReactNativeRestartPackage()
             );
         }
 

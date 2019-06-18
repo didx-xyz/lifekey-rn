@@ -249,6 +249,10 @@ export default class Api {
     return request('/management/isa')
   }
 
+  static ISAlist(agentDID) {
+    return request(`/management/isa_list/${agentDID}`)
+  }
+
   // Get an ISA by id
   static getISA(data) {
     checkParameters(['id'], data)
@@ -379,17 +383,16 @@ export default class Api {
 
   static getMyData(milliseconds = 300000){
     let cached = ConsentUser.getCached("myData")
-    if (cached && cached.valid) {
-      console.log("MY DATA SERVED CACHED")
-      return Promise.resolve(cached)
-    }
+    // if (cached && cached.valid) {
+    //   console.log("MY DATA SERVED CACHED")
+    //   return Promise.resolve(cached)
+    // }
     // return Promise.all([
     //   // this.allResourceTypes(),
     //   // this.allResources()
     // ]).then(values => {
     return this.initializeResourcesAndTypes().then(values => {
-    
-      console.log("MY DATA NOT CACHE: ")
+      // console.log("MY DATA NOT CACHE: ")
       // const updatedResources = values[1]
       const updatedResources = values.resources
 
@@ -470,6 +473,7 @@ export default class Api {
       }
     }
     if (cached && resource) return Promise.resolve(resource)
+    Logger.info("data", data);
     return request(`/resource/${data.id}`)
   }
 
@@ -604,6 +608,7 @@ export default class Api {
       'created_by',
       'challenge'
     ], data)
+    console.log("CMERAAFD", data);
     return request(`/web-auth`, {
       method: 'POST',
       body: JSON.stringify(data)
@@ -654,6 +659,18 @@ export default class Api {
     })
   }
 
+
+  // ##################
+  // ##### CLAIMS #####
+  // ##################
+
+  static claimReponseFromUserConnection(data, fingerprint = false) {
+    return request(`/management/claimreply`, {
+      method: 'POST',
+      body: JSON.stringify({ id: data.message_id, accepted: data.accepted })
+    }, true, fingerprint)
+  }
+
   // ##################
   // ##### DEBUG ######
   // ##################
@@ -661,6 +678,7 @@ export default class Api {
   // Delete a user
   static unregister(data) {
     if (Config.DEBUG) {
+      
       if (!data.id && !data.email) {
         return Promise.reject(`ID or email must be specified. id: ${data.id}, email: ${data.email}`)
       }

@@ -81,7 +81,6 @@ export default class ConsentUser {
 
         user = _user
         if (user.registered) {
-
           // Try to unlock keystore
           return Crypto.loadKeyStore()
 
@@ -372,10 +371,12 @@ export default class ConsentUser {
       .then(itemJSON => {
         const user = JSON.parse(itemJSON)
         if (user) {
+          // console.log('USER', user);
           // Preserve firebase token
           firebaseToken = user.firebaseToken
           if (user.did) {
-            return Api.unregister({ did: user.did })
+            // return Api.unregister({ did: user.did })
+            return Api.unregister({ email: encodeURI(user.email) })
           } else if (user.email) {
             return Api.unregister({ email: encodeURI(user.email) })
           } else {
@@ -396,6 +397,7 @@ export default class ConsentUser {
         }
       })
       .then(responseJson => {
+        Logger.info('asdlfk', responseJson);
         return Promise.all([
           Crypto.deleteKeyStore(Config.keystore.name),
           AsyncStorage.multiRemove([
@@ -585,6 +587,10 @@ export default class ConsentUser {
     delete this.state[key]
   }
 
+  static removeAll() {
+    delete this.state
+  }
+
   static getCached(key) {
 
     if (this.state[key] && this.state[key].time >= Date.now()) {
@@ -604,37 +610,22 @@ export default class ConsentUser {
   }
 
   static updateState(resource) {
-
-    console.log("Hit UPDATE STATE")
     
     Api.getMyData().then(values => {
-      console.log("getMydata response", values)
       let myData = values;
 
+      // check for badge updates
       myData.resourcesByType.forEach(rt => {
 
         const match = !!resource.schema ? Common.schemaCheck(resource.schema, rt.url) : `${rt.url}_form` === resource.form
         const existing = rt.items.some(item => item.id === resource.id)
-        const resourceTypeIsVerifiableClaim = rt.name === 'Verifiable Claims'
 
-        if ((resourceTypeIsVerifiableClaim && resource.is_verifiable_claim) || match) {
+        if ((resource.is_verifiable_claim) || match) {
           existing ? (rt.items = rt.items.map(item => item.id === resource.id ? resource : item)) : rt.items.push(resource)
 
           if (resource.is_verifiable_claim) {
-            console.log("BEFORE BADGE ADD, RT NAME: ", rt.name)
             this.updateBadges(resource, myData)
           }
-
-          // const newBadge = this.determineBadge(resource)
-          // console.log("NEW BADGE: ", newBadge)
-          // console.log("BADGE COLLECTION LENGTH: ", myData.badges.length)
-
-          // const badgeTypeExists = (!!newBadge && myData.badges.some(b => b.name === newBadge.name))
-
-          // if(!!newBadge){
-          //   myData.badges.push(newBadge)
-          // }
-
         }
       })
 
@@ -648,10 +639,13 @@ export default class ConsentUser {
     if (myData.badges.some(b => b.id === resource.id))
       return
 
-    console.log("Hit UPDATE BADGES")
+    console.log('BADGES!!!', resource);
+    // console.log("Hit UPDATE BADGES")
 
     const newBadge = this.determineBadge(resource)
+    console.log('PUSHABLE2', newBadge);
     if (!!newBadge) {
+      console.log('PUSHABLE', newBadge);
       myData.badges.push(newBadge)
     }
 
@@ -659,7 +653,7 @@ export default class ConsentUser {
 
   static updateProfile(profile) {
 
-    console.log("NEW PROFILE: ", profile)
+    // console.log("NEW PROFILE: ", profile)
     if (profile.image_uri) {
       let uri = profile.image_uri
       profile.image_uri = Common.ensureDataUrlHasContext(uri)
@@ -667,7 +661,7 @@ export default class ConsentUser {
     else {
       profile.image_uri = Anonymous.uri
     }
-    console.log("UPDATED PROFILE: ", profile)
+    // console.log("UPDATED PROFILE: ", profile)
 
     ConsentUser.setCached('profile', profile, 300000)
   }
@@ -729,7 +723,7 @@ export default class ConsentUser {
 
   static sortBadges(resources) {
 
-    console.log("SORT BADGES:", resources)
+    // console.log("SORT BADGES:", resources)
 
     var badges = Object.values(resources).map((v, i) => {
       return this.determineBadge(v)
@@ -742,11 +736,9 @@ export default class ConsentUser {
   static determineBadge(resource) {
 
     //NEW
-
-    if (!resource.claim || !resource.claim.isCredential || !resource.schema) {
+    if (!resource.claim || !resource.claim.isCredential || !resource.schema) {      
       return null
     }
-
     let badge = { id: resource.id }
 
     if (resource.schema === "http://schema.cnsnt.io/pirate_name") {
@@ -768,9 +760,11 @@ export default class ConsentUser {
       badge.name = "Verified FaceMatch"
       badge.image = require('../../App/Images/verified_face_match.png')
     } else {
-      badge = null
+      // this will be used in the future; not hardcoded
+      const { resource_icon = '', name = '' } = resource
+      badge.name = name
+      badge.image = resource_icon
     }
-
     return badge
   }
 
@@ -828,8 +822,7 @@ export default class ConsentUser {
   // }
 
   static sortMyData(resources, resourceTypes, profile) {
-
-
+    
     // Add logically seperate resources types that aren't persisted in server 
     resourceTypes.push({ name: 'Malformed', url: null, items: [] })
     resourceTypes.push({ name: 'Verifiable Claims', url: null, items: [] })

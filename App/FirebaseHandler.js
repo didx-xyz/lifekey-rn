@@ -136,7 +136,7 @@ class FirebaseHandler {
     return Promise.all(
       message.resource_ids.map(id => Api.getResource({id: id}))
     ).then(results => {
-      
+      // console.log('RESULTS', results)
       /* Load connections to ascertain resource destinations */
       const allConnections = ConsentUser.getCached("myConnections")
 
@@ -149,13 +149,13 @@ class FirebaseHandler {
 
           /* If from human conneciton, add to connection data */
           if(!!allConnections && !!allConnections.peerConnections.some(c => c.did === resource.from_user_did)){
-            console.log("FROM PEER")
+            // console.log("FROM PEER")
             ConsentUser.updateConnectionState(resource)
           }
           
           /* If vc, add to user data and badges */
           if(!!resource.is_verifiable_claim){
-            console.log("PASSED MUSTARD")
+            // console.log("PASSED MUSTARD")
             ConsentUser.updateState(resource)
           }
         }
@@ -200,7 +200,10 @@ class FirebaseHandler {
       ConsentUserConnectionMessage.add(
         message.from_did,
         message.message,
-        new Date
+        new Date,
+        message.msg_title,
+        message.msg_type,
+        message.msg_id
       )
     ]).then(function() {
       eventEmitter.emit('user_message_received', message.from_did)
@@ -210,7 +213,7 @@ class FirebaseHandler {
   static isa_ledgered(message, eventEmitter) {}
 
   static messageReceived(eventEmitter, message) {
-    
+
     message = message.data
     if (message && message.type) {
       Logger.firebase('message', JSON.stringify(message))

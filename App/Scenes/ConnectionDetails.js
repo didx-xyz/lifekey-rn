@@ -9,11 +9,9 @@ import {
   Text,
   View,
   ScrollView,
-  Dimensions,
-  StatusBar,
   Image,
-  ToastAndroid,
-  Modal
+  Modal,
+  TouchableOpacity
 } from 'react-native'
 
 import {Container, Content} from 'native-base'
@@ -54,7 +52,7 @@ const HELP = 3
 class ConnectionDetails extends Scene {
 
   constructor(props) {
-    super(props)
+    super(props);
     this.state = {
       first_load: true,
       activeTab: ACTIVITY,
@@ -89,6 +87,7 @@ class ConnectionDetails extends Scene {
       Logger.networkRequest('GET', actions_url, requestOptions)
       const actionsResponse = await fetch(actions_url, requestOptions)
       Logger.networkResponse(actionsResponse.status, new Date(), JSON.stringify(actionsResponse))
+      
       let text = await actionsResponse.text()
       const actions = JSON.parse(text)
       return Promise.resolve(actions.body || actions || [])
@@ -101,7 +100,8 @@ class ConnectionDetails extends Scene {
   async loadISAs() {
     var start1 = new Date().getTime()                                             // PERFORMANCE
 
-    const response = await Api.allISAs()
+    // const response = await Api.allISAs()
+    const response = await Api.ISAlist(this.state.user_did)
 
     var start2 = new Date().getTime()                                             // PERFORMANCE. Call to response 11304 milliseconds.
     console.log("2 - Call to response " + (start2 - start1) + " milliseconds.")   // PERFORMANCE
@@ -139,16 +139,16 @@ class ConnectionDetails extends Scene {
   async loadData() {
     Promise.all([
       Api.profile({did: this.state.user_did}),
-      ConsentUserConnectionMessage.from(this.state.user_did)
+      ConsentUserConnectionMessage.from(this.state.user_did),
     ]).then(res => {
       var [profile, messages] = res
-
-      //  console.log("CONNECTION PROFILE: ", profile)
-
+      const { body: { user: { colour = '', image_uri = '', did } } } = profile;
+      const agentColors = colour.split(',');
       this.setState({
         connectionProfile: profile.body.user,
-        colour: profile.body.user.colour,
-        image_uri: profile.body.user.image_uri,
+        colour: agentColors[0],
+        colourSecondary: (agentColors[1]) ? agentColors[1] : '#000',
+        image_uri: image_uri,
         actions_url: profile.body.user.actions_url,
         address: profile.body.user.address,
         tel: profile.body.user.tel,
@@ -197,7 +197,8 @@ class ConnectionDetails extends Scene {
   }
 
   componentDidMount() {
-    super.componentDidMount()                                                      
+    super.componentDidMount()
+    this.props.firebaseInternalEventEmitter.addListener('user_message_received', this.loadData.bind(this))                                                  
     this.setState({loading_cxn_details: true })
     this.loadData()
   }
@@ -209,8 +210,7 @@ class ConnectionDetails extends Scene {
     super.componentWillFocus()
     if (this.state.first_load) return
     //Is modal inforequest visible? 
-    const modalValue = this.context.getModalVisible()
-    console.log("MODAL VALUE: ", modalValue)
+    const modalValue = this.context.getModalVisible() 
     this.setState({loading_cxn_details: true, modalVisible: modalValue })
     this.loadData()
   }
@@ -253,19 +253,65 @@ class ConnectionDetails extends Scene {
     return entities
   }
 
+  async respondToActionableMessage(message_id, user_response) { // message_id => claim_id // response => boolean
+    // submit claim to lifekey-server
+    try {
+      const response = await Api.claimReponseFromUserConnection({ message_id, accepted: user_response });
+      await ConsentUserConnectionMessage.update(message_id, true, user_response);
+      this.loadData();
+    } catch (error) {
+      Logger.warn(error);
+    }
+  }
+
   renderConnectionMessages() {
-    return this.state.messages.map((msg, idx) => {
-      return (
-        <View key={idx} style={styles.message}>
-          <Text style={styles.messageText}>
-            {msg.message_text}
-          </Text>
-          <Text style={styles.messageTime}>
-            {new Date(msg.timestamp).toDateString()}
-          </Text>
-        </View>
-      )
-    })
+    return (
+      // sort message date descending
+      _.sortBy(this.state.messages, (message) => -new Date(message.timestamp)).map((msg, idx) => {
+        const { message_type = '', message_title = '', message_id = idx, claim_actioned = false, claim_accepted = false } = msg;
+        if (message_type === 'actionable_message') {
+          return (
+            <View key={message_id}>
+              <View style={styles.messageActionableContainer}>
+                <View style={styles.messageActionableMessage}>
+                  <Text style={{ fontWeight: "500", paddingBottom: 10 }}>{message_title}</Text>
+                  <Text>{msg.message_text}</Text>
+                </View>
+                {(claim_actioned) ? 
+                <View style={[{ flex: 1, flexDirection: 'row', justifyContent: (claim_accepted ? 'flex-end' : 'flex-start' ) }]}>
+                  {(claim_accepted) ?
+                    <View style={styles.messageUserResponsedContainerAccepted}><Text style={[styles.actionTitleText, { color: Palette.consentWhite }]}>Accepted</Text></View>
+                    :
+                    <View style={styles.messageUserResponsedContainerRejected}><Text style={[styles.actionTitleText, { color: Palette.consentWhite }]}>Rejected</Text></View>
+                  }
+                </View>
+                : 
+                <View style={[styles.messageActionableButtons]}>
+                  <TouchableOpacity onPress={() => this.respondToActionableMessage(message_id, false)} style={[styles.rejectButton, { borderColor: this.state.colour }]}><Text style={[styles.messageActionableButtonsText, { color: "#000" }]}>Reject</Text></TouchableOpacity>
+                  <TouchableOpacity onPress={() => this.respondToActionableMessage(message_id, true)} style={[styles.acceptButton, { backgroundColor: this.state.colour }]}><Text style={[styles.messageActionableButtonsText]}>Accept</Text></TouchableOpacity>
+                </View>
+                }
+              </View>
+              <Text style={styles.messageTime}>
+                {new Date(msg.timestamp).toDateString()}
+              </Text>
+            </View>
+          )
+        }
+        return (
+          <View key={idx}>
+            <View style={styles.message}>
+              <Text style={styles.messageText}>
+                {msg.message_text}
+              </Text>
+            </View>
+            <Text style={styles.messageTime}>
+              {new Date(msg.timestamp).toDateString()}
+            </Text>
+          </View>
+        )
+      })
+    );
   }
 
   _renderISACard(ISA, index) {
@@ -287,6 +333,7 @@ class ConnectionDetails extends Scene {
     hash = hash?hash:""
     return (
       <ISACard
+        colour={this.state.colour}
         key={index}
         title={ISA.information_sharing_agreement_request.purpose}
         shared={shared}
@@ -306,8 +353,8 @@ class ConnectionDetails extends Scene {
   renderISA() {
     return (
       <View style={{ flex: 1 , paddingLeft: Design.paddingLeft, paddingRight: Design.paddingRight }}>
-        <Text style={_.assign({}, styles.actionTitleText, { color: "#888", padding: 10 })}>
-          Your share the following personal data with
+        <Text style={_.assign({}, styles.actionTitleText, { color: "#888", padding: 20 })}>
+          Your shared the following personal data
           <Text style={{ fontWeight: 'bold' }}>
             {' ' + this.state.display_name}
           </Text>
@@ -336,19 +383,32 @@ class ConnectionDetails extends Scene {
               </Text>
             </View> */}
             <View style={styles.actions}>
-              <View style={ styles.actionTitle}>
-                <Text style={styles.actionTitleText}>Invitations from {this.state.display_name}</Text>
+              <View style={[styles.actionTitle, { borderColor: Palette.consentGrayLight }]}>
+                <Text style={[styles.actionTitleText, { fontSize: 17 }]}>ACTIONS</Text>
               </View>
               <View style={styles.actionList}>
-                {this.state.actions.map((action, i) =>
-                  <Touchable key={i} onPress={() => this.callAction(action.name, action)}>
-                    <View style={styles.actionItem}>
-                      {/* <HexagonIcon width={70} height={70} fill={Palette.consentBlue}> */}
-                        <Image source={{uri: this.state.image_uri}} style = {{width: 60, height: 60}} />
-                      {/* </HexagonIcon> */}
-                      <Text style={styles.actionItemText}>{action.name}</Text>
+                {this.state.actions.map((action, i) => {
+                  console.log(this.state.actions);
+                  if (action.active || action.active === undefined) {
+                    return (
+                      <Touchable key={i} onPress={() => this.callAction(action.name, action)}>
+                        <View style={styles.actionItem}>
+                          {/* <Image style={{"width" : 30, "height": 30, position: 'absolute', right: 20, top: 60, zIndex: 100 }} source={require('../../App/Images/tick.png')} /> */}
+                          <Image source={{uri: (action.image_uri) ? action.image_uri : this.state.image_uri.replace('\{type\}', 'icon')}} style = {{width: 73, height: 80}} />
+                          <Text style={[styles.actionItemText, { color: Palette.consentOffBlack }]}>{action.name}</Text>
+                        </View>
+                      </Touchable>
+                    );
+                  }
+                  return (
+                    <View key={i} style={[styles.actionItem]}>
+                    <Image source={{uri: (action.image_uri) ? action.image_uri : this.state.image_uri.replace('\{type\}', 'icon')}} style = {{ top: 15, width: 73, height: 80, position: 'absolute' }} />
+                      <HexagonIcon fillOpacity={0.8} width={80} height={80} fill={Palette.consentGrayMedium} />
+                      <Text style={[styles.actionItemText, { color: Palette.consentGrayMedium }]}>{action.name}</Text>
                     </View>
-                  </Touchable>
+                  );
+                }
+                  
                 )}
               </View>
             </View>
@@ -385,23 +445,29 @@ class ConnectionDetails extends Scene {
   }
 
   render() {
+    const imageURL = (this.state.image_uri) ? this.state.image_uri.replace('\{type\}', 'logo') : '';
+    
     return ( 
         <Container>
           <View style={styles.headerWrapper}>
             <AndroidBackButton onPress={() => this.onHardwareBack()} />
             <LifekeyHeader
+              hasGradient={true}
               backgroundColor={this.state.colour}
-              foregroundHighlightColor={this.state.foregroundColor}
+              backgroundColorSecondary={this.state.colourSecondary}
+              foregroundHighlightColor={Palette.consentWhite}
               icons={[
                 {
-                  icon: (<BackIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke="#000" />),
+                  icon: (<BackIcon width={Design.headerIconWidth} height={Design.headerIconHeight} stroke="#fff" />),
                   onPress: this.navigator.pop,
                   borderColor: this.state.colour
                 },
                 {
+                  logo: true,
                   icon: (
-                    <View style={styles.centredRow}>
-                      <Image source={{uri: this.state.image_uri}} style={styles.fullWidthHeight} />
+                    <View>
+                      {/* <Image source={{uri: this.state.image_uri}} style={styles.fullWidthHeight} /> */}
+                      <Image source={{ uri: imageURL }} style={{ width: 180, height: 40 }} />
                     </View>
                   ),
                   onPress: () => this.setState({activeTab: ACTIVITY}),
@@ -420,7 +486,7 @@ class ConnectionDetails extends Scene {
               ]}
               tabs={[
                 {
-                  text: 'Connect',
+                  text: 'ReferQi',
                   onPress: () => this.setState({activeTab: CONNECT}),
                   active: this.state.activeTab === CONNECT
                 },
@@ -533,39 +599,79 @@ const styles = {
     flexDirection: "column"
   },
   message: {
+    backgroundColor: Palette.consentWhite,
+    marginHorizontal: 20,
+    padding: 20,
+    // borderRadius: 5,
+    width: "80%"
+  },
+  messageActionableContainer: {
     backgroundColor: Palette.consentOffWhite,
-    margin: 10,
-    padding: 10,
-    borderRadius: 5,
-    width: "65%"
+    marginHorizontal: 20,
+    // borderRadius: 5,
+    width: "90%"
+  },
+  messageActionableMessage: {
+    padding: 20,
+  },
+  messageActionableButtons: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    flex: 1,
+    marginHorizontal: 20,
+    // borderBottomLeftRadius: 5,
+    // borderBottomRightRadius: 5 
+  },
+  messageActionableButtonsText: {
+    padding: 20,
+    color: Palette.consentWhite,
+    fontWeight: "500",
+    alignSelf: "center"
   },
   messageText: {
-    color: "#62686d",
+    color: '#000',
     paddingRight: 15,
-    fontSize: 14
+    fontSize: 14,
+    fontWeight: "500"
+  },
+  messageUserResponsedContainerAccepted: {
+    flex: 0.4,
+    justifyContent: 'flex-end',
+    paddingVertical: 10,
+    backgroundColor: 'green'
+  },
+  messageUserResponsedContainerRejected: {
+    flex: 0.4,
+    justifyContent: 'flex-start',
+    paddingVertical: 10,
+    backgroundColor: 'red'
   },
   messageTime: {
     color: Palette.consentGray,
-    alignSelf: "flex-start",
-    fontSize: 14
+    alignSelf: "flex-end",
+    fontSize: 14,
+    padding: 12,
+    marginRight: 10,
   },
   actions: {
-    margin: 10,
-    marginTop: 0,
-    borderRadius: 5,
-    backgroundColor: Palette.consentOffWhite
+    marginHorizontal: 20,
+    marginTop: 15,
+    marginBottom: 20,
+    padding: 10,
+    // borderRadius: 5,
+    backgroundColor: Palette.consentWhite
   },
   actionTitle: {
-    backgroundColor: Palette.consentGrayLightest,
+    backgroundColor: Palette.consentWhite,
     padding: 15,
     borderTopLeftRadius: 5,
     borderTopRightRadius: 5,
-    borderColor: "red",
     borderBottomWidth: 1
   },
   actionTitleText: {
     textAlign: "center",
-    color: Palette.consentOffBlack
+    color: Palette.consentOffBlack,
+    fontWeight: "500"
   },
   actionList: {
     flex: 1,
@@ -584,8 +690,8 @@ const styles = {
   actionItemText: {
     textAlign: "center",
     backgroundColor: "transparent",
-    color: Palette.consentOffBlack,
-    fontSize: 12,
+    fontSize: 15,
+    fontWeight: "500",
     paddingTop: Design.paddingTop / 2
   },
   qrCodeWrap: {
@@ -618,6 +724,20 @@ const styles = {
     "opacity": 0.9,
     "backgroundColor": Palette.consentOffBlack
   },
+  rejectButton: {
+    borderWidth: 1,
+    borderRadius: 5,
+    flex: 1,
+    justifyContent: 'center',
+    margin: 10
+  },
+  acceptButton: {
+    borderRadius: 5,
+    flex: 1,
+    justifyContent: 'center',
+    margin: 10
+  },
+
 }
 
 export default ConnectionDetails

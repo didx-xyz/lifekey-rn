@@ -25,6 +25,10 @@ export default class Session {
     return state
   }
 
+  static removeAll() {
+    state = {}
+  }
+
   /**
    * Update the current state
    * @param {Object} data Data to modify or put into the store

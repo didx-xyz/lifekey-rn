@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string moduleConfig="true" name="reactNativeCodePush_androidDeploymentKey">b3fLpv81YmpkfzjuWOwNg3BxHvD_HyhfM80eQ</string>
+    <string name="app_name">LifeQi</string>
+
+</resources>

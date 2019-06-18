@@ -86,6 +86,7 @@ android {
         }
         release {
             minifyEnabled enableProguardInReleaseBuilds
+            shrinkResources enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
             debuggable false
             jniDebuggable false
@@ -112,6 +113,7 @@ android {
 }
 
 dependencies {
+    compile project(':react-native-camera')
     implementation project(':react-native-camera')
     implementation project(':react-native-code-push')
     implementation project(':react-native-geocoder')
@@ -119,6 +121,8 @@ dependencies {
     implementation project(':react-native-crypto-module')
     implementation project(':react-native-fingerprint-android')
     implementation project(':react-native-firebase')
+    compile project(':react-native-linear-gradient')
+    compile project(':react-native-restart')
     /*
     compile(project(':react-native-firebase')) {
         transitive = false
@@ -144,6 +148,7 @@ dependencies {
     implementation "com.google.firebase:firebase-messaging:17.0.0"
     implementation 'me.leolin:ShortcutBadger:1.1.21@aar' // <-- Add this line if you wish to use badge on Android
 
+    
 
 }
 

@@ -19,7 +19,7 @@
     "build:android": "react-native bundle --entry-file index.js --platform android --dev false --bundle-output android/app/src/main/assets/index.android.bundle --assets-dest android/app/src/main/res",
     "codepush:ios": "appcenter codepush release-react -d Production --mandatory --app LifeQi/LifeQi",
     "codepush:android": "appcenter codepush release-react -d Production --mandatory --app LifeQi/LifeQi-Android",
-    "codepush:list": "appcenter codepush deployment list <ownerName>/<appName>"
+    "codepush:list": "appcenter codepush deployment list --app LifeQi/LifeQi"
   },
   "dependencies": {
     "ansi-styles": "^3.2.1",
@@ -50,13 +50,16 @@
     "react-native-google-analytics-bridge": "^5.6.3",
     "react-native-image-picker": "^0.26.10",
     "react-native-keyboard-aware-scroll-view": "0.5.0",
+    "react-native-linear-gradient": "^2.4.0",
     "react-native-modal-dropdown": "^0.6.2",
     "react-native-modal-selector": "^0.0.27",
     "react-native-qrcode": "^0.2.6",
+    "react-native-restart": "^0.0.6",
     "react-native-safe-area-view": "0.8.0",
     "react-native-svg": "6.3.1",
     "react-native-vector-icons": "^4.6.0",
-    "tcomb-form-native": "^0.6.13"
+    "tcomb-form-native": "^0.6.13",
+    "title-case": "^2.1.1"
   },
   "devDependencies": {
     "babel-cli": "^6.26.0",
@@ -74,7 +77,8 @@
     "jest": "^23.0.1",
     "react-addons-test-utils": "^15.6.2",
     "react-dom": "^16.4.0",
-    "react-test-renderer": "^16.4.0"
+    "react-test-renderer": "^16.4.0",
+    "reactotron-react-native": "^2.0.0"
   },
   "jest": {
     "preset": "react-native",
